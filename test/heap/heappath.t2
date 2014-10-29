@@ -1,0 +1,14 @@
+START: 0;
+CUTPOINT: 1;
+
+FROM: 0;
+  heap_assign xs := null;
+  alloc(tmp);
+  zero := 0;
+  store tmp->Data := zero;
+  load y := tmp->Data;
+  assume(y < 0);
+TO: 1;
+
+0 : 0 == 0 | emp ;
+1 : 0 == 1 | tmp --> [Flink : h, Data : d] ;

@@ -1,0 +1,357 @@
+// this is a thread that loops
+// upon receiving some 2D coordinates (n0, n1)
+// as a target for a rover
+// the rover is supposed to move from its current location (x,y)
+// that is initially the origin 0,0
+// towards the target
+// the code here is only for the Loop node
+// the root node of the plan is called Plan 
+// and has children Loop and MonitorAbort
+// Drive is the sole child of Loop
+// I make it into a separate thread so that 
+// we can make/discover assumptions on x,y for Loop (non)termination
+// Drive actually increments both x and y
+// MonitorAbort monitors an abort signal for the entire plan
+// that comes from the environment
+
+// the node states are: 1 - INACTIVE, 2 - WAITING, 3 - EXECUTING, 4 - ITERATION_ENDED, 
+//                      5 - FAILING, 6 - FINISHING, 7 - FINISHED
+
+
+// to show that there is no path
+// going through location 2 (WAITING)
+// infinitely often
+
+START: 0;
+CUTPOINT: 2;
+
+FROM:0 
+TO:1;
+
+// inserted nondet() assignments to shared vars
+// for thread-modular termination analysis
+// this version is with agreement 'true'
+// the code commented out is for
+// agreement that env sets the abort signal while 
+// Loop node is in EXECUTING
+// i.e. is_aborted' = 1
+// and if Loop is FINISHED then Plan cannot be WAITING
+// which is ensured by the plexil semantics
+// variance analysis proves termination for both
+// without ranking function, just unsat relation
+// where 'termination' means
+// no path containing location 2 infinitely often
+// the code indeed terminates in the former case 
+// since 
+// if it is aborted
+// then it finishes due to that
+// and its repeat condition is irrelevant
+// as ancestor end condition (is_aborted in this case)
+// takes precedence over repeat condition (x,y < n0,n1)
+// but in the latter case it shouldn't terminate
+// since then
+// the path 1,cycle(2,3,6,4,2) is possible
+// but in the latter case variance analsysis finished in 17 min
+// and proved termination!!! bug?!?!
+
+// INACTIVE to FINISHED if ancestor end condition true
+// i.e. aborted
+
+FROM: 1;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(is_aborted > 0);
+pc_Loop := 7;
+TO: 7;
+
+// INACTIVE to WAITING if not aborted
+// and parent in EXECUTING
+
+FROM: 1;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(is_aborted <= 0);
+assume(pc_Plan == 3);
+pc_Loop := 2;
+TO: 2;
+
+// WAITING to FINISHED if ancestor end condition true
+// i.e. aborted
+
+FROM: 2;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(is_aborted > 0);
+pc_Loop := 7;
+TO: 7;
+
+// WAITING to EXECUTING if not aborted
+
+FROM: 2;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(is_aborted <= 0);
+pc_Loop := 3;
+TO: 3;
+
+// EXECUTING to FINISHING if self end condition true
+// i.e. aborted
+
+FROM: 3;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+//assume(is_aborted_next == 1);
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(is_aborted > 0);
+pc_Loop := 6;
+TO: 6;
+
+// from FINISHING to ITERATION_ENDED
+// if all children in WAITING or FINISHED
+
+FROM: 6;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+//assume(is_aborted_next == 1);
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(pc_Drive == 2);
+pc_Loop := 4;
+TO: 4;
+
+
+FROM: 6;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+//assume(is_aborted_next == 1);
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(pc_Drive == 7);
+pc_Loop := 4;
+TO: 4;
+
+// ITERATION_ENDED to WAITING
+// if ancestor end condition false
+// and self repeat condition true
+// i.e. target not reached
+
+FROM: 4;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+//assume(is_aborted_next == 1);
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(is_aborted <= 0);
+assume(n0 > 0);
+assume(n1 > 0);
+assume(x < n0);
+assume(y < n1);
+pc_Loop := 2;
+TO: 2;
+
+// ITERATION_ENDED to FINISHED
+// if ancestor end condition false
+// and self repeat condition false
+
+FROM: 4;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+//assume(is_aborted_next == 1);
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(is_aborted <= 0);
+assume(x >= n0);
+assume(y >= n1);
+pc_Loop := 7;
+TO: 7;
+
+// IIERATION_ENDED to FINISHED
+// if ancestor end condition true
+
+FROM: 4;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+//assume(is_aborted_next == 1);
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(is_aborted > 0);
+pc_Loop := 7;
+TO: 7;
+
+// FINISHED to INACTIVE
+// if parent in WAITING
+
+FROM: 7;
+is_aborted_next := nondet();
+x_next := nondet();
+y_next := nondet();
+pc_Plan_next := nondet();
+pc_Drive_next := nondet();
+//assume(is_aborted_next == 1);
+assume(is_aborted_next >= 0);
+assume(is_aborted_next <= 1);
+assume(pc_Plan_next > 0);
+assume(pc_Plan_next < 8);
+assume(pc_Drive_next > 0);
+assume(pc_Drive_next < 8);
+//assume(pc_Plan_next < 2);
+is_aborted := is_aborted_next;
+x := x_next;
+y := y_next;
+pc_Plan := pc_Plan_next;
+pc_Drive := pc_Drive_next;
+assume(pc_Plan == 2);
+pc_Loop := 1;
+TO: 1;
+
+//FROM: 7;
+//is_aborted_next := nondet();
+//x_next := nondet();
+//y_next := nondet();
+//pc_Plan_next := nondet();
+//pc_Drive_next := nondet();
+//assume(is_aborted_next == 1);
+//assume(is_aborted_next >= 0);
+//assume(is_aborted_next <= 1);
+//assume(pc_Plan_next > 0);
+//assume(pc_Plan_next < 8);
+//assume(pc_Drive_next > 0);
+//assume(pc_Drive_next < 8);
+//assume(pc_Plan_next > 2);
+//is_aborted := is_aborted_next;
+//x := x_next;
+//y := y_next;
+//pc_Plan := pc_Plan_next;
+//pc_Drive := pc_Drive_next;
+//assume(pc_Plan == 2);
+//pc_Loop := 1;
+//TO: 1;

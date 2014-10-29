@@ -1,0 +1,258 @@
+START: 2;
+//CUTPOINT: 400;
+
+
+
+FROM: 2;
+e := 1;
+f := 0;
+b := nondet();
+x := nondet();
+assume(x>0);
+TO: 3;
+
+
+// ----------------
+
+FROM: 3;
+olde:=e;
+TO: 21;
+
+FROM: 21;
+assume(b<=0);
+TO: 22;
+
+FROM: 21;
+assume(b>0);
+q := 0;
+TO: 22;
+
+FROM: 22;
+e := nondet();
+f := nondet();
+assume(e>=olde);
+TO: 23;
+
+FROM: 23;
+assume(e<=olde);
+TO: 24;
+
+FROM: 23;
+assume(e>olde);
+q := 1;
+TO: 24;
+
+FROM: 24;
+TO: 4;
+//----------
+
+
+
+FROM: 4;
+assume(x<=0);
+TO: 14;
+
+FROM: 4;
+assume(x>0);
+x := x-1;
+TO: 5;
+
+
+// ----------------
+
+FROM: 5;
+olde:=e;
+TO: 31;
+
+FROM: 31;
+assume(b<=0);
+TO: 32;
+
+FROM: 31;
+assume(b>0);
+q := 0;
+TO: 32;
+
+FROM: 32;
+e := nondet();
+f := nondet();
+assume(e>=olde);
+TO: 33;
+
+FROM: 33;
+assume(e<=olde);
+TO: 34;
+
+FROM: 33;
+assume(e>olde);
+q := 1;
+TO: 34;
+
+FROM: 34;
+TO: 6;
+//----------
+
+FROM: 6;
+assume(e<=0);
+TO: 7;
+
+
+// ----------------
+
+FROM: 7;
+olde:=e;
+TO: 41;
+
+FROM: 41;
+assume(b<=0);
+TO: 42;
+
+FROM: 41;
+assume(b>0);
+q := 0;
+TO: 42;
+
+FROM: 42;
+e := nondet();
+f := nondet();
+assume(e>=olde);
+TO: 43;
+
+FROM: 43;
+assume(e==olde);
+TO: 44;
+
+FROM: 43;
+assume(e>olde);
+q := 1;
+TO: 44;
+
+FROM: 44;
+TO: 8;
+//----------
+
+FROM: 8;
+TO: 6;
+
+FROM: 6;
+assume(e>0);
+e := e - 1;
+TO: 9;
+
+
+// ----------------
+
+FROM: 9;
+olde:=e;
+TO: 51;
+
+FROM: 51;
+assume(b<=0);
+TO: 52;
+
+FROM: 51;
+assume(b>0);
+q := 0;
+TO: 52;
+
+FROM: 52;
+e := nondet();
+f := nondet();
+assume(e>=olde);
+TO: 53;
+
+FROM: 53;
+assume(e<=olde);
+TO: 54;
+
+FROM: 53;
+assume(e>olde);
+q := 1;
+TO: 54;
+//----------
+
+FROM: 54;
+ b := x;
+TO: 10;
+
+// ----------------
+
+FROM: 10;
+olde:=e;
+TO: 61;
+
+FROM: 61;
+assume(b<=0);
+TO: 62;
+
+FROM: 61;
+assume(b>0);
+q := 0;
+TO: 62;
+
+FROM: 62;
+e := nondet();
+f := nondet();
+assume(e>=olde);
+TO: 63;
+
+FROM: 63;
+assume(e<=olde);
+TO: 64;
+
+FROM: 63;
+assume(e>olde);
+q := 1;
+TO: 64;
+
+FROM: 64;
+TO: 11;
+//----------
+
+FROM: 11;
+ f := f+1;
+TO: 12;
+
+
+// ----------------
+
+FROM: 12;
+olde:=e;
+TO: 71;
+
+FROM: 71;
+assume(b<=0);
+TO: 72;
+
+FROM: 71;
+assume(b>0);
+q := 0;
+TO: 72;
+
+FROM: 72;
+e := nondet();
+f := nondet();
+assume(e>=olde);
+TO: 73;
+
+FROM: 73;
+assume(e<=olde);
+TO: 74;
+
+FROM: 73;
+assume(e>olde);
+q := 1;
+TO: 74;
+
+FROM: 74;
+TO: 13;
+//----------
+
+FROM: 13;
+TO: 4;
+
+FROM: 13;
+assume(b>x);
+TO: 400;
+
+

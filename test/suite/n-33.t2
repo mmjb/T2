@@ -1,0 +1,97 @@
+START: 3;
+CUTPOINT: 300;
+
+FROM: 3;
+TO: 2;
+
+FROM: 1;
+AT(1,"n-33.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 2;
+  assume(0<=-1-x_5);
+AT(8,"n-33.c ")  x_5 := nondet();
+AT(9,"n-33.c ")  x_5 := -1+x_5;
+  assume(0<=-1-x_5);
+  assume(0<=-1+k_6);
+AT(18,"n-33.c ")  x_5 := k_6;
+AT(19,"n-33.c ")  x_5 := nondet();
+AT(20,"n-33.c ")  x_5 := -1+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(0<=-1-x_5);
+AT(8,"n-33.c ")  x_5 := nondet();
+AT(9,"n-33.c ")  x_5 := -1+x_5;
+  assume(0<=-1-x_5);
+  assume(-1+k_6<0);
+AT(19,"n-33.c ")  x_5 := nondet();
+AT(20,"n-33.c ")  x_5 := -1+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(0<=-1-x_5);
+AT(8,"n-33.c ")  x_5 := nondet();
+AT(9,"n-33.c ")  x_5 := -1+x_5;
+  assume(-1-x_5<0);
+  assume(0<=-1+x_5);
+AT(22,"n-33.c ")  x_5 := nondet();
+AT(23,"n-33.c ")  x_5 := 1+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(-1-x_5<0);
+  assume(0<=-1+x_5);
+AT(11,"n-33.c ")  x_5 := nondet();
+AT(12,"n-33.c ")  x_5 := 1+x_5;
+  assume(0<=-1-x_5);
+  assume(0<=-1+k_6);
+AT(18,"n-33.c ")  x_5 := k_6;
+AT(19,"n-33.c ")  x_5 := nondet();
+AT(20,"n-33.c ")  x_5 := -1+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(-1-x_5<0);
+  assume(0<=-1+x_5);
+AT(11,"n-33.c ")  x_5 := nondet();
+AT(12,"n-33.c ")  x_5 := 1+x_5;
+  assume(0<=-1-x_5);
+  assume(-1+k_6<0);
+AT(19,"n-33.c ")  x_5 := nondet();
+AT(20,"n-33.c ")  x_5 := -1+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(-1-x_5<0);
+  assume(0<=-1+x_5);
+AT(11,"n-33.c ")  x_5 := nondet();
+AT(12,"n-33.c ")  x_5 := 1+x_5;
+  assume(-1-x_5<0);
+  assume(0<=-1+x_5);
+AT(22,"n-33.c ")  x_5 := nondet();
+AT(23,"n-33.c ")  x_5 := 1+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(0<=-1-x_5);
+AT(8,"n-33.c ")  x_5 := nondet();
+AT(9,"n-33.c ")  x_5 := -1+x_5;
+  assume(-1-x_5<0);
+  assume(-1+x_5<0);
+TO: 1;
+
+FROM: 2;
+  assume(-1-x_5<0);
+  assume(0<=-1+x_5);
+AT(11,"n-33.c ")  x_5 := nondet();
+AT(12,"n-33.c ")  x_5 := 1+x_5;
+  assume(-1-x_5<0);
+  assume(-1+x_5<0);
+TO: 1;
+
+FROM: 2;
+  assume(-1-x_5<0);
+  assume(-1+x_5<0);
+TO: 1;
+

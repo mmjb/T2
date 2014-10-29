@@ -1,0 +1,34 @@
+START: 0;
+CUTPOINT: 2;
+
+FROM: 0;
+  n := nondet();
+  assume(n > 0);
+  alloc(xs);
+  fold/base(null);
+  store xs->Data := n;
+  store xs->Flink := null;
+TO: 1;
+
+FROM: 1;
+  assume(n > 0);
+  alloc(tmp);
+  n := n - 1;
+  store tmp->Data := n;
+  store tmp->Flink := xs;
+  load xn := xs->Flink;
+  fold/rec(xs,xn,null);
+  heap_assign xs := tmp;
+TO: 1;
+
+FROM: 1;
+  assume(n <= 0);
+  load xd := xs->Data;
+  assume(xd < 0);
+TO: 2;
+
+FROM: 1;
+  assume(n <= 0);
+  load xd := xs->Data;
+  assume(xd > 0);
+TO: 2;

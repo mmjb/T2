@@ -1,0 +1,43 @@
+START: 3;
+
+FROM: 0;
+  assume(0 >= y_16);
+  assume(0 >= y_16);
+TO: 2;
+
+FROM: 0;
+  x_32 := nondet();
+  y_33 := nondet();
+  assume(0 < y_16);
+  x_13 := -1+x_13;
+  y_16 := -1+y_16;
+  assume(x_13 == -1+x_32);
+  assume(y_16 == -1+y_33);
+  assume(0 < y_33);
+TO: 0;
+
+FROM: 1;
+  x_27 := nondet();
+  y_28 := nondet();
+  assume(0 < y_16);
+  x_13 := -1+x_13;
+  y_16 := -1+y_16;
+  assume(x_13 == -1+x_27);
+  assume(y_16 == -1+y_28);
+  assume(0 < x_27);
+  assume(0 < y_28);
+TO: 0;
+
+
+FROM: 2;
+  assume(0 < x_13);
+  y_16 := 5000;
+  assume(1 <= y_16);
+  assume(0 < x_13);
+TO: 0;
+
+FROM: 3;
+  x_13 := nondet();
+  y_16 := nondet();
+TO: 2;
+

@@ -1,0 +1,84 @@
+START:0;
+FROM:0;
+x2 := 8;
+TO:3;
+
+FROM:3;
+low6 := 0;
+TO:4;
+
+FROM:4;
+up5 := 14;
+TO:5;
+
+FROM:5;
+fvalue3 := -1;
+TO:2;
+
+FROM:2;
+TO:6;
+
+FROM:6;
+assume(low6<=up5);
+TO:7;
+
+FROM:6;
+assume(low6>=(1 + up5));
+TO:8;
+
+FROM:7;
+mid4 := nondet();
+TO:9;
+
+FROM:9;
+TO:10;
+
+FROM:10;
+up5 := (low6 - 1);
+TO:11;
+
+FROM:11;
+fvalue3 := nondet();
+TO:2;
+
+FROM:9;
+assume((nondet() + 1)<=x2);
+TO:12;
+
+FROM:9;
+TO:12;
+
+FROM:12;
+TO:13;
+
+FROM:13;
+up5 := (mid4 - 1);
+TO:2;
+
+FROM:12;
+TO:14;
+
+FROM:14;
+low6 := (mid4 + 1);
+TO:2;
+
+FROM:16;
+TO:15;
+
+FROM:15;
+ret_binary_search7 := fvalue3;
+TO:17;
+
+FROM:19;
+tmp := ret_binary_search7;
+TO:18;
+
+FROM:18;
+TO:20;
+
+FROM:17;
+TO:19;
+
+FROM:8;
+TO:16;
+

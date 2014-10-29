@@ -1,0 +1,230 @@
+START:0;
+FROM:0;
+size7 := 100;
+TO:2;
+
+FROM:2;
+TO:3;
+
+FROM:3;
+tmp9 := nondet();
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+TO:6;
+
+FROM:5;
+TO:6;
+
+FROM:6;
+ret_my_malloc10 := 1;
+TO:7;
+
+FROM:5;
+TO:8;
+
+FROM:8;
+ret_my_malloc10 := 0;
+TO:9;
+
+FROM:11;
+tmp := ret_my_malloc10;
+TO:10;
+
+FROM:10;
+retval := tmp;
+TO:12;
+
+FROM:12;
+assume(retval==1);
+TO:13;
+
+FROM:13;
+size11 := 100;
+TO:14;
+
+FROM:14;
+TO:15;
+
+FROM:15;
+tmp13 := nondet();
+TO:16;
+
+FROM:16;
+TO:17;
+
+FROM:17;
+TO:18;
+
+FROM:17;
+TO:18;
+
+FROM:18;
+ret_my_malloc14 := 1;
+TO:19;
+
+FROM:17;
+TO:20;
+
+FROM:20;
+ret_my_malloc14 := 0;
+TO:21;
+
+FROM:23;
+retval := ret_my_malloc14;
+TO:22;
+
+FROM:22;
+assume((retval + 1)<=1);
+TO:24;
+
+FROM:22;
+assume(retval>=(1 + 1));
+TO:24;
+
+FROM:24;
+size15 := 100;
+TO:25;
+
+FROM:25;
+TO:26;
+
+FROM:26;
+assume((nondet() + 1)<=0);
+TO:27;
+
+FROM:26;
+TO:27;
+
+FROM:27;
+TO:28;
+
+FROM:26;
+TO:29;
+
+FROM:31;
+TO:30;
+
+FROM:30;
+TO:32;
+
+FROM:22;
+assume(retval==1);
+TO:33;
+
+FROM:12;
+assume((retval + 1)<=1);
+TO:34;
+
+FROM:12;
+assume(retval>=(1 + 1));
+TO:34;
+
+FROM:34;
+size17 := 100;
+TO:35;
+
+FROM:35;
+TO:36;
+
+FROM:36;
+assume((nondet() + 1)<=0);
+TO:37;
+
+FROM:36;
+TO:37;
+
+FROM:37;
+TO:38;
+
+FROM:36;
+TO:39;
+
+FROM:41;
+TO:40;
+
+FROM:40;
+TO:32;
+
+FROM:33;
+TO:42;
+
+FROM:42;
+TO:43;
+
+FROM:43;
+tmp___1 := nondet();
+TO:44;
+
+FROM:44;
+assume((tmp___1 + 1)<=-1);
+TO:45;
+
+FROM:44;
+assume(tmp___1>=(1 + -1));
+TO:45;
+
+FROM:45;
+tmp___0 := nondet();
+TO:46;
+
+FROM:46;
+TO:47;
+
+FROM:44;
+assume(tmp___1==-1);
+TO:48;
+
+FROM:48;
+TO:49;
+
+FROM:49;
+TO:50;
+
+FROM:50;
+__len21 := 100;
+TO:51;
+
+FROM:51;
+tmp22 := nondet();
+TO:52;
+
+FROM:52;
+TO:53;
+
+FROM:54;
+TO:47;
+
+FROM:47;
+TO:32;
+
+FROM:53;
+TO:54;
+
+FROM:39;
+TO:41;
+
+FROM:38;
+TO:41;
+
+FROM:29;
+TO:31;
+
+FROM:28;
+TO:31;
+
+FROM:21;
+TO:23;
+
+FROM:19;
+TO:23;
+
+FROM:9;
+TO:11;
+
+FROM:7;
+TO:11;
+

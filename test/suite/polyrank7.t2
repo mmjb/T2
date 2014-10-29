@@ -1,0 +1,22 @@
+//Program "interaction" from Polyranking for Polynomial Loops
+//Terminates, but needs Taylor Polyranking functions!
+
+START:0;
+
+FROM:0;
+TO:1;
+
+FROM:1;
+  assume(x>=0);
+TO:2;
+
+FROM:2;
+  x:=x+z;
+  y:=y+1;
+  z:=z-2;
+TO:2;
+
+FROM:2;  
+  x:=x+y;
+  y:=y-2;
+TO:2;

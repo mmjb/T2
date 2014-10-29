@@ -1,0 +1,20 @@
+START: 3;
+CUTPOINT: 300;
+
+FROM: 3;
+TO: 2;
+
+FROM: 2;
+AT(6,"p-18.c ")  x_5 := -1+x_5;
+  assume(0<=-1-x_5);
+TO: 1;
+
+FROM: 2;
+AT(6,"p-18.c ")  x_5 := -1+x_5;
+  assume(-1-x_5<0);
+TO: 2;
+
+FROM: 1;
+AT(1,"p-18.c ")  Result_4 := nondet();
+TO: 300;
+

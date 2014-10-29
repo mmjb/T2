@@ -1,0 +1,984 @@
+START:0;
+FROM:0;
+child_num_arg := nondet();
+TO:7;
+
+FROM:7;
+assume(child_num_arg>=(1 + 0));
+TO:8;
+
+FROM:8;
+do_ACCEPT := 0;
+TO:9;
+
+FROM:9;
+die_now := 0;
+TO:10;
+
+FROM:10;
+last_poll_idx := 0;
+TO:11;
+
+FROM:11;
+ap_threads_per_child := 0;
+TO:12;
+
+FROM:12;
+ap_daemons_to_start := 0;
+TO:13;
+
+FROM:13;
+ap_daemons_min_free := 0;
+TO:14;
+
+FROM:14;
+ap_daemons_max_free := 0;
+TO:15;
+
+FROM:15;
+ap_daemons_limit := 0;
+TO:16;
+
+FROM:16;
+server_limit := 256;
+TO:17;
+
+FROM:17;
+first_server_limit := 0;
+TO:18;
+
+FROM:18;
+ap_listeners := nondet();
+TO:19;
+
+FROM:19;
+assume(ap_listeners>=(1 + 0));
+TO:20;
+
+FROM:22;
+TO:21;
+
+FROM:21;
+mpm_state := 9;
+TO:23;
+
+FROM:23;
+my_child_num := child_num_arg;
+TO:24;
+
+FROM:24;
+tmp1717 := nondet();
+TO:25;
+
+FROM:25;
+ret_getpid1818 := tmp1717;
+TO:26;
+
+FROM:28;
+ap_my_pid := ret_getpid1818;
+TO:27;
+
+FROM:27;
+requests_this_child := 0;
+TO:29;
+
+FROM:29;
+ap_server_conf___01919 := nondet();
+TO:30;
+
+FROM:32;
+TO:31;
+
+FROM:31;
+TO:33;
+
+FROM:35;
+TO:34;
+
+FROM:34;
+allocator___02121 := nondet();
+TO:36;
+
+FROM:36;
+ap_max_mem_free___02222 := ap_max_mem_free;
+TO:37;
+
+FROM:39;
+TO:38;
+
+FROM:38;
+TO:40;
+
+FROM:40;
+pconf___02424 := nondet();
+TO:41;
+
+FROM:41;
+NL2525 := 0;
+TO:42;
+
+FROM:42;
+allocator___02626 := nondet();
+TO:43;
+
+FROM:45;
+TO:44;
+
+FROM:44;
+allocator___02727 := nondet();
+TO:46;
+
+FROM:46;
+pchild___02828 := nondet();
+TO:47;
+
+FROM:49;
+TO:48;
+
+FROM:48;
+TO:50;
+
+FROM:50;
+pchild___03030 := nondet();
+TO:51;
+
+FROM:53;
+TO:52;
+
+FROM:52;
+ptrans___03131 := nondet();
+TO:54;
+
+FROM:54;
+TO:55;
+
+FROM:57;
+TO:56;
+
+FROM:56;
+pchild___03333 := nondet();
+TO:58;
+
+FROM:58;
+NL3434 := 0;
+TO:59;
+
+FROM:59;
+z3535 := 0;
+TO:60;
+
+FROM:62;
+TO:61;
+
+FROM:61;
+TO:63;
+
+FROM:63;
+ap_lock_fname___03737 := ap_lock_fname;
+TO:64;
+
+FROM:64;
+pchild___03838 := nondet();
+TO:65;
+
+FROM:65;
+tmp3939 := nondet();
+TO:66;
+
+FROM:66;
+ret_apr_proc_mutex_child_init4040 := tmp3939;
+TO:67;
+
+FROM:69;
+status := ret_apr_proc_mutex_child_init4040;
+TO:68;
+
+FROM:68;
+assume((status + 1)<=7);
+TO:70;
+
+FROM:68;
+assume(status>=(1 + 7));
+TO:70;
+
+FROM:70;
+APm4141 := 3;
+TO:71;
+
+FROM:71;
+APe4242 := 1;
+TO:72;
+
+FROM:72;
+status___04343 := status;
+TO:73;
+
+FROM:73;
+ap_server_conf___04444 := nondet();
+TO:74;
+
+FROM:74;
+a4545 := nondet();
+TO:75;
+
+FROM:75;
+b4646 := ap_lock_fname;
+TO:76;
+
+FROM:76;
+c4747 := ap_accept_lock_mech;
+TO:77;
+
+FROM:79;
+TO:78;
+
+FROM:78;
+a4848 := 1;
+TO:80;
+
+FROM:82;
+TO:81;
+
+FROM:68;
+assume(status==7);
+TO:81;
+
+FROM:81;
+ret_unixd_setup_child4949 := 0;
+TO:83;
+
+FROM:85;
+tmp1 := ret_unixd_setup_child4949;
+TO:84;
+
+FROM:84;
+assume((tmp1 + 1)<=0);
+TO:86;
+
+FROM:84;
+assume(tmp1>=(1 + 0));
+TO:86;
+
+FROM:86;
+a5050 := 1;
+TO:87;
+
+FROM:89;
+TO:88;
+
+FROM:84;
+assume(tmp1==0);
+TO:88;
+
+FROM:88;
+pchild___05151 := nondet();
+TO:90;
+
+FROM:90;
+ap_server_conf___05252 := nondet();
+TO:91;
+
+FROM:93;
+TO:92;
+
+FROM:92;
+TO:94;
+
+FROM:94;
+pchild___05454 := nondet();
+TO:95;
+
+FROM:95;
+my_child_num___05555 := my_child_num;
+TO:96;
+
+FROM:96;
+z5656 := 0;
+TO:97;
+
+FROM:99;
+TO:98;
+
+FROM:98;
+sbh___05757 := nondet();
+TO:100;
+
+FROM:100;
+SER5858 := 1;
+TO:101;
+
+FROM:101;
+NL5959 := 0;
+TO:102;
+
+FROM:104;
+TO:103;
+
+FROM:103;
+TO:105;
+
+FROM:105;
+num_listensocks___06161 := num_listensocks;
+TO:106;
+
+FROM:106;
+pchild___06262 := nondet();
+TO:107;
+
+FROM:107;
+z6363 := 0;
+TO:108;
+
+FROM:110;
+TO:109;
+
+FROM:109;
+num_listensocks := nondet();
+TO:111;
+
+FROM:111;
+assume(num_listensocks>=(1 + 0));
+TO:112;
+
+FROM:112;
+lr := ap_listeners;
+TO:113;
+
+FROM:113;
+i := num_listensocks;
+TO:6;
+
+FROM:6;
+TO:114;
+
+FROM:114;
+tmp___03 := i;
+TO:115;
+
+FROM:115;
+i := (i - 1);
+TO:116;
+
+FROM:116;
+assume((tmp___03 + 1)<=0);
+TO:117;
+
+FROM:116;
+assume(tmp___03>=(1 + 0));
+TO:117;
+
+FROM:116;
+assume(tmp___03==0);
+TO:118;
+
+FROM:117;
+pfd___02 := 0;
+TO:119;
+
+FROM:119;
+pfd_desc_type := 6;
+TO:120;
+
+FROM:120;
+pfd_desc_s := 1;
+TO:121;
+
+FROM:121;
+pfd_reqevents := 5;
+TO:122;
+
+FROM:122;
+pfd_client_data := lr;
+TO:123;
+
+FROM:123;
+pollset___06464 := nondet();
+TO:124;
+
+FROM:124;
+TO:125;
+
+FROM:126;
+TO:6;
+
+FROM:128;
+TO:127;
+
+FROM:127;
+mpm_state := 8;
+TO:129;
+
+FROM:129;
+TO:5;
+
+FROM:5;
+TO:130;
+
+FROM:130;
+assume(die_now==0);
+TO:131;
+
+FROM:130;
+assume((die_now + 1)<=0);
+TO:132;
+
+FROM:130;
+assume(die_now>=(1 + 0));
+TO:132;
+
+FROM:131;
+ptrans___06666 := nondet();
+TO:133;
+
+FROM:135;
+TO:134;
+
+FROM:134;
+assume(ap_max_requests_per_child>=(1 + 0));
+TO:136;
+
+FROM:136;
+tmp___15 := requests_this_child;
+TO:137;
+
+FROM:137;
+requests_this_child := (requests_this_child + 1);
+TO:138;
+
+FROM:138;
+assume(tmp___15>=ap_max_requests_per_child);
+TO:139;
+
+FROM:139;
+a6767 := 0;
+TO:140;
+
+FROM:142;
+TO:141;
+
+FROM:138;
+assume((tmp___15 + 1)<=ap_max_requests_per_child);
+TO:141;
+
+FROM:134;
+assume(ap_max_requests_per_child<=0);
+TO:141;
+
+FROM:141;
+sbh___06868 := nondet();
+TO:143;
+
+FROM:143;
+SER6969 := 1;
+TO:144;
+
+FROM:144;
+NL7070 := 0;
+TO:145;
+
+FROM:147;
+TO:146;
+
+FROM:146;
+ret_accept_mutex_on7171 := 0;
+TO:148;
+
+FROM:150;
+tmp___26 := ret_accept_mutex_on7171;
+TO:149;
+
+FROM:149;
+a7272 := tmp___26;
+TO:151;
+
+FROM:153;
+TO:152;
+
+FROM:152;
+do_ACCEPT := 1;
+TO:154;
+
+FROM:154;
+do_ACCEPT := 0;
+TO:155;
+
+FROM:155;
+assume(num_listensocks==1);
+TO:156;
+
+FROM:156;
+lr := ap_listeners;
+TO:157;
+
+FROM:155;
+assume((num_listensocks + 1)<=1);
+TO:4;
+
+FROM:155;
+assume(num_listensocks>=(1 + 1));
+TO:4;
+
+FROM:4;
+TO:158;
+
+FROM:158;
+pollset___07373 := nondet();
+TO:159;
+
+FROM:159;
+a7474 := -1;
+TO:160;
+
+FROM:160;
+TO:161;
+
+FROM:161;
+TO:162;
+
+FROM:162;
+ret_apr_pollset_poll7777 := 0;
+TO:163;
+
+FROM:165;
+status := ret_apr_pollset_poll7777;
+TO:164;
+
+FROM:164;
+assume((status + 1)<=7);
+TO:166;
+
+FROM:164;
+assume(status>=(1 + 7));
+TO:166;
+
+FROM:166;
+a7878 := status;
+TO:167;
+
+FROM:167;
+ret_APR_STATUS_IS_EINTR7979 := 0;
+TO:168;
+
+FROM:170;
+tmp___310 := ret_APR_STATUS_IS_EINTR7979;
+TO:169;
+
+FROM:169;
+assume((tmp___310 + 1)<=0);
+TO:171;
+
+FROM:169;
+assume(tmp___310>=(1 + 0));
+TO:171;
+
+FROM:171;
+assume((one_process + 1)<=0);
+TO:172;
+
+FROM:171;
+assume(one_process>=(1 + 0));
+TO:172;
+
+FROM:172;
+assume((shutdown_pending + 1)<=0);
+TO:3;
+
+FROM:172;
+assume(shutdown_pending>=(1 + 0));
+TO:3;
+
+FROM:3;
+TO:173;
+
+FROM:173;
+TO:3;
+
+FROM:175;
+TO:174;
+
+FROM:172;
+assume(shutdown_pending==0);
+TO:174;
+
+FROM:171;
+assume(one_process==0);
+TO:174;
+
+FROM:169;
+assume(tmp___310==0);
+TO:176;
+
+FROM:176;
+APm8080 := 3;
+TO:177;
+
+FROM:177;
+APe8181 := 2;
+TO:178;
+
+FROM:178;
+status___08282 := status;
+TO:179;
+
+FROM:179;
+ap_server_conf___08383 := nondet();
+TO:180;
+
+FROM:180;
+a8484 := nondet();
+TO:181;
+
+FROM:183;
+TO:182;
+
+FROM:182;
+a8585 := 1;
+TO:184;
+
+FROM:186;
+TO:185;
+
+FROM:164;
+assume(status==7);
+TO:185;
+
+FROM:185;
+assume(last_poll_idx>=numdesc___07);
+TO:187;
+
+FROM:187;
+last_poll_idx := 0;
+TO:188;
+
+FROM:185;
+assume((last_poll_idx + 1)<=numdesc___07);
+TO:188;
+
+FROM:188;
+lr := 1;
+TO:189;
+
+FROM:190;
+TO:4;
+
+FROM:191;
+TO:157;
+
+FROM:157;
+status := nondet();
+TO:192;
+
+FROM:192;
+ret_accept_mutex_off8686 := 0;
+TO:193;
+
+FROM:195;
+tmp___412 := ret_accept_mutex_off8686;
+TO:194;
+
+FROM:194;
+a8787 := tmp___412;
+TO:196;
+
+FROM:198;
+TO:197;
+
+FROM:197;
+assume(status==4);
+TO:199;
+
+FROM:199;
+a8888 := 1;
+TO:200;
+
+FROM:202;
+TO:201;
+
+FROM:197;
+assume((status + 1)<=4);
+TO:203;
+
+FROM:197;
+assume(status>=(1 + 4));
+TO:203;
+
+FROM:203;
+assume((status + 1)<=7);
+TO:204;
+
+FROM:203;
+assume(status>=(1 + 7));
+TO:204;
+
+FROM:203;
+assume(status==7);
+TO:201;
+
+FROM:201;
+ptrans___08989 := nondet();
+TO:205;
+
+FROM:205;
+ap_server_conf___09090 := nondet();
+TO:206;
+
+FROM:206;
+csd9191 := nondet();
+TO:207;
+
+FROM:207;
+my_child_num___09292 := my_child_num;
+TO:208;
+
+FROM:208;
+sbh___09393 := nondet();
+TO:209;
+
+FROM:209;
+bucket_alloc___09494 := nondet();
+TO:210;
+
+FROM:210;
+ret_ap_run_create_connection9595 := 0;
+TO:211;
+
+FROM:213;
+current_conn := ret_ap_run_create_connection9595;
+TO:212;
+
+FROM:212;
+assume((current_conn + 1)<=0);
+TO:214;
+
+FROM:212;
+assume(current_conn>=(1 + 0));
+TO:214;
+
+FROM:214;
+current_conn___09696 := current_conn;
+TO:215;
+
+FROM:215;
+csd9797 := nondet();
+TO:216;
+
+FROM:218;
+TO:217;
+
+FROM:217;
+current_conn___09898 := current_conn;
+TO:219;
+
+FROM:221;
+TO:220;
+
+FROM:212;
+assume(current_conn==0);
+TO:220;
+
+FROM:220;
+a9999 := nondet();
+TO:222;
+
+FROM:222;
+tmp100100 := nondet();
+TO:223;
+
+FROM:223;
+ret_ap_mpm_pod_check101101 := tmp100100;
+TO:224;
+
+FROM:226;
+tmp___614 := ret_ap_mpm_pod_check101101;
+TO:225;
+
+FROM:225;
+assume(tmp___614==7);
+TO:227;
+
+FROM:227;
+die_now := 1;
+TO:228;
+
+FROM:225;
+assume((tmp___614 + 1)<=7);
+TO:229;
+
+FROM:225;
+assume(tmp___614>=(1 + 7));
+TO:229;
+
+FROM:229;
+tmp___513 := nondet();
+TO:230;
+
+FROM:230;
+assume((ap_my_generation + 1)<=tmp___513);
+TO:231;
+
+FROM:230;
+assume(ap_my_generation>=(1 + tmp___513));
+TO:231;
+
+FROM:231;
+die_now := 1;
+TO:228;
+
+FROM:230;
+assume(ap_my_generation==tmp___513);
+TO:228;
+
+FROM:228;
+TO:5;
+
+FROM:233;
+TO:232;
+
+FROM:232;
+a102102 := 0;
+TO:234;
+
+FROM:235;
+TO:2;
+
+FROM:2;
+TO:236;
+
+FROM:236;
+TO:2;
+
+FROM:238;
+TO:237;
+
+FROM:237;
+TO:239;
+
+FROM:239;
+TO:240;
+
+FROM:234;
+TO:235;
+
+FROM:224;
+TO:226;
+
+FROM:219;
+TO:221;
+
+FROM:216;
+TO:218;
+
+FROM:211;
+TO:213;
+
+FROM:204;
+TO:228;
+
+FROM:200;
+TO:202;
+
+FROM:196;
+TO:198;
+
+FROM:193;
+TO:195;
+
+FROM:189;
+TO:191;
+
+FROM:184;
+TO:186;
+
+FROM:181;
+TO:183;
+
+FROM:174;
+TO:190;
+
+FROM:168;
+TO:170;
+
+FROM:163;
+TO:165;
+
+FROM:151;
+TO:153;
+
+FROM:148;
+TO:150;
+
+FROM:145;
+TO:147;
+
+FROM:140;
+TO:142;
+
+FROM:133;
+TO:135;
+
+FROM:132;
+TO:233;
+
+FROM:125;
+TO:126;
+
+FROM:118;
+TO:128;
+
+FROM:108;
+TO:110;
+
+FROM:102;
+TO:104;
+
+FROM:97;
+TO:99;
+
+FROM:91;
+TO:93;
+
+FROM:87;
+TO:89;
+
+FROM:83;
+TO:85;
+
+FROM:80;
+TO:82;
+
+FROM:77;
+TO:79;
+
+FROM:67;
+TO:69;
+
+FROM:60;
+TO:62;
+
+FROM:55;
+TO:57;
+
+FROM:51;
+TO:53;
+
+FROM:47;
+TO:49;
+
+FROM:43;
+TO:45;
+
+FROM:37;
+TO:39;
+
+FROM:33;
+TO:35;
+
+FROM:30;
+TO:32;
+
+FROM:26;
+TO:28;
+
+FROM:20;
+TO:22;
+

@@ -1,0 +1,18 @@
+START: 300;
+CUTPOINT: 300;
+
+FROM: 3;
+AT(1,"n-12a.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 2;
+  assume(0<=-1-x_5);
+TO: 3;
+
+FROM: 2;
+  assume(-1-x_5<0);
+TO: 2;
+
+FROM: 300;
+TO: 2;
+

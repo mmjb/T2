@@ -1,0 +1,390 @@
+// ARMC error state:  toeplz-err-0
+// ARMC return state: toeplz-ret-0	 -> 1
+// toeplz-0-12	 -> 2
+// toeplz-2-0	 -> 3
+// toeplz-3-0	 -> 4
+// toeplz-1-13	 -> 5
+// toeplz-5-0	 -> 6
+// toeplz-7-0	 -> 7
+// toeplz-6-13	 -> 8
+// toeplz-4-18	 -> 9
+// toeplz-9-0	 -> 10
+// toeplz-10-0	 -> 11
+// toeplz-8-18	 -> 12
+// toeplz-13-18	 -> 13
+// toeplz-14-22	 -> 14
+// toeplz-15-18	 -> 15
+// toeplz-17-0	 -> 16
+// toeplz-18-0	 -> 17
+// toeplz-19-0	 -> 18
+// toeplz-16-22	 -> 19
+// toeplz-22-22	 -> 20
+// toeplz-23-22	 -> 21
+// toeplz-24-22	 -> 22
+// toeplz-25-0	 -> 23
+// toeplz-26-0	 -> 24
+// toeplz-21-0	 -> 25
+// toeplz-20-26	 -> 26
+// toeplz-28-0	 -> 27
+// toeplz-27-28	 -> 28
+// toeplz-30-0	 -> 29
+// toeplz-29-28	 -> 30
+// toeplz-33-28	 -> 31
+// toeplz-34-28	 -> 32
+// toeplz-35-28	 -> 33
+// toeplz-36-0	 -> 34
+// toeplz-32-0	 -> 35
+// toeplz-31-29	 -> 36
+// toeplz-38-0	 -> 37
+// toeplz-40-0	 -> 38
+// toeplz-39-29	 -> 39
+// toeplz-37-33	 -> 40
+// toeplz-42-0	 -> 41
+// toeplz-43-0	 -> 42
+// toeplz-44-0	 -> 43
+// toeplz-41-33	 -> 44
+// toeplz-47-33	 -> 45
+// toeplz-48-33	 -> 46
+// toeplz-49-33	 -> 47
+// toeplz-50-0	 -> 48
+// toeplz-51-0	 -> 49
+// toeplz-52-0	 -> 50
+// toeplz-46-0	 -> 51
+// toeplz-45-44	 -> 52
+// toeplz-54-0	 -> 53
+// toeplz-55-0	 -> 54
+// toeplz-56-0	 -> 55
+// toeplz-57-0	 -> 56
+// toeplz-58-0	 -> 57
+// toeplz-59-0	 -> 58
+// toeplz-53-44	 -> 59
+// toeplz-62-44	 -> 60
+// toeplz-63-44	 -> 61
+// toeplz-64-44	 -> 62
+// toeplz-65-0	 -> 63
+// toeplz-66-0	 -> 64
+// toeplz-67-0	 -> 65
+// toeplz-68-0	 -> 66
+// toeplz-69-0	 -> 67
+// toeplz-70-0	 -> 68
+// toeplz-71-0	 -> 69
+// toeplz-72-0	 -> 70
+// toeplz-73-0	 -> 71
+// toeplz-74-0	 -> 72
+// toeplz-61-0	 -> 73
+// toeplz-60-18	 -> 74
+// toeplz-12-0	 -> 75
+// toeplz-11-0	 -> 76
+// toeplz-75-56	 -> 77
+START:2;
+FROM:2;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+assume(n==1);
+TO:6;
+
+FROM:6;
+TO:7;
+
+FROM:7;
+TO:8;
+
+FROM:8;
+TO:1;
+
+FROM:5;
+assume((n + 1)<=1);
+TO:9;
+
+FROM:5;
+assume(n>=(1 + 1));
+TO:9;
+
+FROM:9;
+TO:10;
+
+FROM:10;
+TO:11;
+
+FROM:11;
+m := 1;
+TO:12;
+
+FROM:12;
+TO:13;
+
+FROM:13;
+assume(m<=n);
+TO:14;
+
+FROM:13;
+assume(m>=(1 + n));
+TO:15;
+
+FROM:14;
+m1 := (m + 1);
+TO:16;
+
+FROM:16;
+sxn := (-nondet());
+TO:17;
+
+FROM:17;
+sd := (-nondet());
+TO:18;
+
+FROM:18;
+j := 1;
+TO:19;
+
+FROM:19;
+TO:20;
+
+FROM:20;
+assume(j<=m);
+TO:21;
+
+FROM:20;
+assume(j>=(1 + m));
+TO:22;
+
+FROM:21;
+sxn := (sxn + (nondet() * nondet()));
+TO:23;
+
+FROM:23;
+sd := (sd + (nondet() * nondet()));
+TO:24;
+
+FROM:24;
+j := (j + 1);
+TO:19;
+
+FROM:25;
+TO:26;
+
+FROM:26;
+assume(sd==0);
+TO:27;
+
+FROM:27;
+TO:28;
+
+FROM:26;
+assume((sd + 1)<=0);
+TO:28;
+
+FROM:26;
+assume(sd>=(1 + 0));
+TO:28;
+
+FROM:28;
+TO:29;
+
+FROM:29;
+j := 1;
+TO:30;
+
+FROM:30;
+TO:31;
+
+FROM:31;
+assume(j<=m);
+TO:32;
+
+FROM:31;
+assume(j>=(1 + m));
+TO:33;
+
+FROM:32;
+TO:34;
+
+FROM:34;
+j := (j + 1);
+TO:30;
+
+FROM:35;
+TO:36;
+
+FROM:36;
+assume(m1==n);
+TO:37;
+
+FROM:37;
+TO:38;
+
+FROM:38;
+TO:39;
+
+FROM:39;
+TO:1;
+
+FROM:36;
+assume((m1 + 1)<=n);
+TO:40;
+
+FROM:36;
+assume(m1>=(1 + n));
+TO:40;
+
+FROM:40;
+sgn := (-nondet());
+TO:41;
+
+FROM:41;
+shn := (-nondet());
+TO:42;
+
+FROM:42;
+sgd := (-nondet());
+TO:43;
+
+FROM:43;
+j := 1;
+TO:44;
+
+FROM:44;
+TO:45;
+
+FROM:45;
+assume(j<=m);
+TO:46;
+
+FROM:45;
+assume(j>=(1 + m));
+TO:47;
+
+FROM:46;
+sgn := (sgn + (nondet() * nondet()));
+TO:48;
+
+FROM:48;
+shn := (shn + (nondet() * nondet()));
+TO:49;
+
+FROM:49;
+sgd := (sgd + (nondet() * nondet()));
+TO:50;
+
+FROM:50;
+j := (j + 1);
+TO:44;
+
+FROM:51;
+TO:52;
+
+FROM:52;
+TO:53;
+
+FROM:53;
+TO:54;
+
+FROM:54;
+k := m;
+TO:55;
+
+FROM:55;
+m2 := ((m + 1) / 2);
+TO:56;
+
+FROM:56;
+pp := nondet();
+TO:57;
+
+FROM:57;
+qq := nondet();
+TO:58;
+
+FROM:58;
+j := 1;
+TO:59;
+
+FROM:59;
+TO:60;
+
+FROM:60;
+assume(j<=m2);
+TO:61;
+
+FROM:60;
+assume(j>=(1 + m2));
+TO:62;
+
+FROM:61;
+pt1 := nondet();
+TO:63;
+
+FROM:63;
+pt2 := nondet();
+TO:64;
+
+FROM:64;
+qt1 := nondet();
+TO:65;
+
+FROM:65;
+qt2 := nondet();
+TO:66;
+
+FROM:66;
+TO:67;
+
+FROM:67;
+TO:68;
+
+FROM:68;
+TO:69;
+
+FROM:69;
+tmp := k;
+TO:70;
+
+FROM:70;
+k := (k - 1);
+TO:71;
+
+FROM:71;
+TO:72;
+
+FROM:72;
+j := (j + 1);
+TO:59;
+
+FROM:73;
+TO:74;
+
+FROM:74;
+m := (m + 1);
+TO:12;
+
+FROM:75;
+TO:76;
+
+FROM:76;
+TO:77;
+
+FROM:77;
+TO:1;
+
+FROM:62;
+TO:73;
+
+FROM:47;
+TO:51;
+
+FROM:33;
+TO:35;
+
+FROM:22;
+TO:25;
+
+FROM:15;
+TO:75;
+

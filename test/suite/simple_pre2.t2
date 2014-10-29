@@ -1,0 +1,26 @@
+START:0;
+FROM:0;
+a := 1;
+TO:2;
+
+FROM:2;
+x2 := a;
+TO:3;
+
+FROM:3;
+ret_incr3 := (x2 + 1);
+TO:4;
+
+FROM:6;
+a := ret_incr3;
+TO:5;
+
+FROM:5;
+TO:7;
+
+FROM:7;
+TO:8;
+
+FROM:4;
+TO:6;
+

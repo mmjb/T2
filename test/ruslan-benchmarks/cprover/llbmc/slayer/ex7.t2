@@ -1,0 +1,66 @@
+START:0;
+FROM:0;
+tmp := nondet();
+TO:3;
+
+FROM:3;
+s := tmp;
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+length4 := 10;
+TO:6;
+
+FROM:6;
+i5 := 0;
+TO:2;
+
+FROM:2;
+TO:7;
+
+FROM:7;
+assume((i5 + 1)<=length4);
+TO:8;
+
+FROM:7;
+assume(i5>=length4);
+TO:9;
+
+FROM:8;
+tmp___08 := nondet();
+TO:10;
+
+FROM:10;
+TO:11;
+
+FROM:11;
+TO:12;
+
+FROM:12;
+TO:13;
+
+FROM:13;
+i5 := (i5 + 1);
+TO:2;
+
+FROM:15;
+TO:14;
+
+FROM:14;
+TO:16;
+
+FROM:18;
+TO:17;
+
+FROM:17;
+TO:19;
+
+FROM:16;
+TO:18;
+
+FROM:9;
+TO:15;
+

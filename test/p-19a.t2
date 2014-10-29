@@ -1,0 +1,32 @@
+START: 1;
+CUTPOINT: 300;
+
+FROM: 2;
+AT(7,"p-19a.c ")  lt_11 := x_5;
+AT(7,"p-19a.c ")  lt_12 := cnt_27;
+  assume(0<=-1+lt_12);
+AT(7,"p-19a.c ")  lt_11 := nondet();
+AT(7,"p-19a.c ")  lt_12 := nondet();
+AT(8,"p-19a.c ")  lt_8 := lt_29;
+AT(8,"p-19a.c ")  lt_9 := cnt_27;
+AT(8,"p-19a.c ")  lt_10 := lt_29;
+AT(8,"p-19a.c ")  lt_8 := nondet();
+AT(8,"p-19a.c ")  lt_9 := nondet();
+AT(8,"p-19a.c ")  lt_10 := nondet();
+TO: 2;
+
+FROM: 2;
+AT(7,"p-19a.c ")  lt_11 := x_5;
+AT(7,"p-19a.c ")  lt_12 := cnt_27;
+  assume(-1+lt_12<0);
+AT(7,"p-19a.c ")  lt_11 := nondet();
+AT(7,"p-19a.c ")  lt_12 := nondet();
+AT(1,"p-19a.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 1;
+AT(1,"p-19a.c ")  p_6 := nondet();
+AT(1,"p-19a.c ")  x_5 := nondet();
+AT(5,"p-19a.c ")  q_7 := p_6;
+TO: 2;
+

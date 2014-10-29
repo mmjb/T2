@@ -1,0 +1,70 @@
+START:0;
+FROM:0;
+k := nondet();
+TO:3;
+
+FROM:3;
+i := 0;
+TO:2;
+
+FROM:2;
+TO:4;
+
+FROM:4;
+assume((nondet() + 1)<=0);
+TO:5;
+
+FROM:4;
+TO:5;
+
+FROM:4;
+TO:6;
+
+FROM:5;
+TO:7;
+
+FROM:7;
+i := (i + 1);
+TO:2;
+
+FROM:9;
+TO:8;
+
+FROM:8;
+TO:10;
+
+FROM:10;
+assume(k>=0);
+TO:11;
+
+FROM:11;
+assume((k + 1)<=i);
+TO:12;
+
+FROM:12;
+TO:13;
+
+FROM:13;
+TO:14;
+
+FROM:12;
+assume((nondet() + 1)<=0);
+TO:15;
+
+FROM:12;
+TO:15;
+
+FROM:11;
+assume(k>=i);
+TO:15;
+
+FROM:10;
+assume((k + 1)<=0);
+TO:15;
+
+FROM:15;
+TO:14;
+
+FROM:6;
+TO:9;
+

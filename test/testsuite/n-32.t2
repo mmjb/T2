@@ -1,0 +1,28 @@
+START: 3;
+CUTPOINT: 300;
+
+FROM: 2;
+  assume(0<=-1-x_5);
+AT(8,"n-32.c ")  x_5 := nondet();
+AT(9,"n-32.c ")  x_5 := -2+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(-1-x_5<0);
+  assume(0<=-1+x_5);
+AT(11,"n-32.c ")  x_5 := nondet();
+AT(12,"n-32.c ")  x_5 := 2+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(-1-x_5<0);
+  assume(-1+x_5<0);
+TO: 1;
+
+FROM: 1;
+AT(1,"n-32.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 3;
+TO: 2;
+

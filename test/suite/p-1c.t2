@@ -1,0 +1,31 @@
+START: 2;
+CUTPOINT: 300;
+
+FROM: 2;
+AT(6,"p-1c.c ")  y_6 := nondet();
+AT(6,"p-1c.c ")  x_5 := nondet();
+AT(9,"p-1c.c ")  ct_13 := nondet();
+AT(9,"p-1c.c ")  ct_13 := nondet();
+AT(10,"p-1c.c ")  ct_12 := nondet();
+AT(10,"p-1c.c ")  ct_12 := nondet();
+TO: 300;
+
+FROM: 300;
+AT(12,"p-1c.c ")  lt_10 := ct_21;
+AT(12,"p-1c.c ")  lt_11 := ct_27;
+  assume(0<=-1-lt_10+lt_11);
+AT(12,"p-1c.c ")  lt_10 := nondet();
+AT(12,"p-1c.c ")  lt_11 := nondet();
+AT(13,"p-1c.c ")  lt_9 := ct_21;
+AT(13,"p-1c.c ")  lt_9 := nondet();
+TO: 300;
+
+FROM: 300;
+AT(12,"p-1c.c ")  lt_10 := ct_21;
+AT(12,"p-1c.c ")  lt_11 := ct_27;
+  assume(-1-lt_10+lt_11<0);
+AT(12,"p-1c.c ")  lt_10 := nondet();
+AT(12,"p-1c.c ")  lt_11 := nondet();
+AT(6,"p-1c.c ")  Result_4 := nondet();
+TO: 1;
+

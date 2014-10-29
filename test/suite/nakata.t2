@@ -1,0 +1,333 @@
+// ARMC error state:  main-err-0
+// ARMC return state: main-ret-0	 -> 1
+// main-0-30	 -> 2
+// main-2-0	 -> 3
+// main-3-0	 -> 4
+// main-4-0	 -> 5
+// main-5-0	 -> 6
+// main-6-0	 -> 7
+// main-7-0	 -> 8
+// main-8-0	 -> 9
+// main-9-0	 -> 10
+// main-10-0	 -> 11
+// main-11-0	 -> 12
+// main-12-0	 -> 13
+// main-13-0	 -> 14
+// main-14-0	 -> 15
+// main-1-32	 -> 16
+// main-17-32	 -> 17
+// main-18-39	 -> 18
+// main-19-32	 -> 19
+// main-21-0	 -> 20
+// main-22-0	 -> 21
+// main-20-42	 -> 22
+// main-24-43	 -> 23
+// main-26-44	 -> 24
+// main-28-0	 -> 25
+// main-23-69	 -> 26
+// main-27-46	 -> 27
+// main-29-47	 -> 28
+// main-30-49	 -> 29
+// main-32-0	 -> 30
+// main-31-51	 -> 31
+// main-33-51	 -> 32
+// main-35-54	 -> 33
+// main-37-0	 -> 34
+// main-38-0	 -> 35
+// main-36-0	 -> 36
+// main-34-62	 -> 37
+// main-39-0	 -> 38
+// main-40-0	 -> 39
+// main-41-0	 -> 40
+// main-42-0	 -> 41
+// main-43-0	 -> 42
+// main-25-66	 -> 43
+// main-44-74	 -> 44
+// main-46-0	 -> 45
+// main-47-0	 -> 46
+// main-45-76	 -> 47
+// main-49-77	 -> 48
+// main-51-78	 -> 49
+// main-53-0	 -> 50
+// main-48-103	 -> 51
+// main-52-80	 -> 52
+// main-54-81	 -> 53
+// main-55-83	 -> 54
+// main-57-0	 -> 55
+// main-56-85	 -> 56
+// main-58-85	 -> 57
+// main-60-88	 -> 58
+// main-62-0	 -> 59
+// main-63-0	 -> 60
+// main-61-0	 -> 61
+// main-59-96	 -> 62
+// main-64-0	 -> 63
+// main-65-0	 -> 64
+// main-66-0	 -> 65
+// main-67-0	 -> 66
+// main-68-0	 -> 67
+// main-50-100	 -> 68
+// main-69-104	 -> 69
+// main-71-104	 -> 70
+// main-70-107	 -> 71
+// main-16-0	 -> 72
+// main-15-115	 -> 73
+START:2;
+FROM:2;
+seq := 1;
+TO:3;
+FROM:3;
+wpos := 0;
+TO:4;
+FROM:4;
+pi := seq;
+TO:5;
+FROM:5;
+z := nondet();
+TO:6;
+FROM:6;
+assume(z>=0);
+TO:7;
+FROM:7;
+pos := 0;
+TO:8;
+FROM:8;
+n := nondet();
+TO:9;
+FROM:9;
+assume(n>=0);
+TO:10;
+FROM:10;
+max := nondet();
+TO:11;
+FROM:11;
+assume(max>=0);
+TO:12;
+FROM:12;
+assume(max<=n);
+TO:13;
+FROM:13;
+m := nondet();
+TO:14;
+FROM:14;
+assume(m<=max);
+TO:15;
+FROM:15;
+assume(m>=0);
+TO:16;
+FROM:16;
+TO:17;
+FROM:17;
+assume(m>=(1 + 0));
+TO:18;
+FROM:17;
+assume(m<=0);
+TO:19;
+FROM:18;
+c1 := nondet();
+TO:20;
+FROM:20;
+assume(c1>=0);
+TO:21;
+FROM:21;
+assume(c1<=1);
+TO:22;
+FROM:22;
+assume(z<=0);
+TO:23;
+FROM:23;
+assume(pos<=0);
+TO:24;
+FROM:24;
+assume(c1<=0);
+TO:25;
+FROM:25;
+pos := (pos + 1);
+TO:26;
+FROM:23;
+assume(pos>=(1 + 0));
+TO:27;
+FROM:27;
+assume(pos<=1);
+TO:28;
+FROM:28;
+assume(wpos<=0);
+TO:29;
+FROM:29;
+assume(c1>=1);
+TO:30;
+FROM:30;
+wpos := (wpos + 1);
+TO:26;
+FROM:28;
+assume(wpos>=(1 + 0));
+TO:31;
+FROM:31;
+assume(wpos<=1);
+TO:32;
+FROM:32;
+assume(pi>=(1 + 0));
+TO:33;
+FROM:33;
+assume(c1<=0);
+TO:34;
+FROM:34;
+wpos := 0;
+TO:35;
+FROM:35;
+pi := (pi - 1);
+TO:26;
+FROM:32;
+assume(pi<=0);
+TO:36;
+FROM:31;
+assume(wpos>=(1 + 1));
+TO:37;
+FROM:37;
+seq := (seq + 1);
+TO:38;
+FROM:38;
+wpos := 0;
+TO:39;
+FROM:39;
+pos := 0;
+TO:40;
+FROM:40;
+pi := seq;
+TO:41;
+FROM:41;
+z := nondet();
+TO:42;
+FROM:42;
+assume(z>=0);
+TO:26;
+FROM:27;
+assume(pos>=(1 + 1));
+TO:26;
+FROM:22;
+assume(z>=(1 + 0));
+TO:43;
+FROM:43;
+z := (z - 1);
+TO:26;
+FROM:26;
+assume(c1>=1);
+TO:44;
+FROM:44;
+c2 := nondet();
+TO:45;
+FROM:45;
+assume(c2>=0);
+TO:46;
+FROM:46;
+assume(c2<=1);
+TO:47;
+FROM:47;
+assume(z<=0);
+TO:48;
+FROM:48;
+assume(pos<=0);
+TO:49;
+FROM:49;
+assume(c2<=0);
+TO:50;
+FROM:50;
+pos := (pos + 1);
+TO:51;
+FROM:48;
+assume(pos>=(1 + 0));
+TO:52;
+FROM:52;
+assume(pos<=1);
+TO:53;
+FROM:53;
+assume(wpos<=0);
+TO:54;
+FROM:54;
+assume(c2>=1);
+TO:55;
+FROM:55;
+wpos := (wpos + 1);
+TO:51;
+FROM:53;
+assume(wpos>=(1 + 0));
+TO:56;
+FROM:56;
+assume(wpos<=1);
+TO:57;
+FROM:57;
+assume(pi>=(1 + 0));
+TO:58;
+FROM:58;
+assume(c2<=0);
+TO:59;
+FROM:59;
+wpos := 0;
+TO:60;
+FROM:60;
+pi := (pi - 1);
+TO:51;
+FROM:57;
+assume(pi<=0);
+TO:61;
+FROM:56;
+assume(wpos>=(1 + 1));
+TO:62;
+FROM:62;
+seq := (seq + 1);
+TO:63;
+FROM:63;
+wpos := 0;
+TO:64;
+FROM:64;
+pos := 0;
+TO:65;
+FROM:65;
+pi := seq;
+TO:66;
+FROM:66;
+z := nondet();
+TO:67;
+FROM:67;
+assume(z>=0);
+TO:51;
+FROM:52;
+assume(pos>=(1 + 1));
+TO:51;
+FROM:47;
+assume(z>=(1 + 0));
+TO:68;
+FROM:68;
+z := (z - 1);
+TO:51;
+FROM:51;
+assume(c2>=1);
+TO:69;
+FROM:69;
+assume((m + 1)<=max);
+TO:70;
+FROM:70;
+m := (m + 1);
+TO:16;
+FROM:69;
+assume(m>=max);
+TO:16;
+FROM:51;
+assume((c2 + 1)<=1);
+TO:71;
+FROM:71;
+m := (m - 1);
+TO:16;
+FROM:26;
+assume((c1 + 1)<=1);
+TO:16;
+FROM:72;
+TO:73;
+FROM:73;
+TO:1;
+FROM:61;
+TO:62;
+FROM:36;
+TO:37;
+FROM:19;
+TO:72;

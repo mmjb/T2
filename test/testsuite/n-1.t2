@@ -1,0 +1,27 @@
+START: 2;
+CUTPOINT: 300;
+
+FROM: 1;
+AT(7,"n-1.c ")  lt_8 := cnt_15;
+AT(7,"n-1.c ")  lt_9 := cnt_20;
+  assume(lt_8!=lt_9);
+AT(7,"n-1.c ")  lt_8 := nondet();
+AT(7,"n-1.c ")  lt_9 := nondet();
+AT(8,"n-1.c ")  lt_7 := cnt_15;
+AT(8,"n-1.c ")  lt_7 := nondet();
+TO: 1;
+
+FROM: 1;
+AT(7,"n-1.c ")  lt_8 := cnt_15;
+AT(7,"n-1.c ")  lt_9 := cnt_20;
+  assume(lt_8==lt_9);
+AT(7,"n-1.c ")  lt_8 := nondet();
+AT(7,"n-1.c ")  lt_9 := nondet();
+AT(4,"n-1.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 2;
+AT(4,"n-1.c ")  y_6 := nondet();
+AT(4,"n-1.c ")  x_5 := nondet();
+TO: 1;
+

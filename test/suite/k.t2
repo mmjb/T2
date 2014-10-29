@@ -1,0 +1,150 @@
+START: 0;
+
+FROM: 0;
+    
+    seq := 1; 
+    wpos := 0; 
+    pi := 0+seq; 
+    z := nondet(); 
+    assume(0 <= 0+z); 
+    pos := 0; 
+    n := nondet(); 
+    assume(0 <= 0+n); 
+    max := nondet(); 
+    assume(0 <= 0+max); 
+    assume(0+max <= 0+n); 
+    m := nondet(); 
+    assume(0+m <= 0+max); 
+    assume(0 <= 0+m); 
+    
+    assume(1 <= 0+m); 
+    c1 := nondet(); 
+    assume(0 <= 0+c1); 
+    assume(0+c1 <= 1); 
+    assume(0+z <= 0); 
+    assume(0+pos <= 0); 
+    assume(0+c1 <= 0); 
+    pos := 1+pos; 
+    assume(1+c1 <= 1); 
+TO: 1;
+
+FROM: 1;
+    
+    assume(1 <= 0+m); 
+    c1 := nondet(); 
+    assume(0 <= 0+c1); 
+    assume(0+c1 <= 1); 
+    assume(0+z <= 0); 
+    assume(1 <= 0+pos); 
+    assume(0+pos <= 1); 
+    assume(0+wpos <= 0); 
+    assume(1 <= 0+c1); 
+    wpos := 1+wpos; 
+    assume(1 <= 0+c1); 
+    c2 := nondet(); 
+    assume(0 <= 0+c2); 
+    assume(0+c2 <= 1); 
+    assume(0+z <= 0); 
+    assume(1 <= 0+pos); 
+    assume(0+pos <= 1); 
+    assume(1 <= 0+wpos); 
+    assume(0+wpos <= 1); 
+    assume(1 <= 0+pi); 
+    assume(0+c2 <= 0); 
+    wpos := 0; 
+    pi := -1+pi; 
+    assume(1+c2 <= 1); 
+    m := -1+m; 
+    
+    
+    assume(1 <= 0+m); 
+    c1 := nondet(); 
+    assume(0 <= 0+c1); 
+    assume(0+c1 <= 1); 
+    assume(0+z <= 0); 
+    assume(1 <= 0+pos); 
+    assume(0+pos <= 1); 
+    assume(0+wpos <= 0); 
+    assume(1 <= 0+c1); 
+    wpos := 1+wpos; 
+    assume(1 <= 0+c1); 
+    c2 := nondet(); 
+    assume(0 <= 0+c2); 
+    assume(0+c2 <= 1); 
+    assume(0+z <= 0); 
+    assume(1 <= 0+pos); 
+    assume(0+pos <= 1); 
+    assume(1 <= 0+wpos); 
+    assume(0+wpos <= 1); 
+    assume(0+pi <= 0); 
+    seq := 1+seq; 
+    wpos := 0; 
+    pos := 0; 
+    pi := 0+seq; 
+    z := nondet(); 
+    assume(0 <= 0+z); 
+    assume(1 <= 0+c2); 
+    assume(1+m <= 0+max); 
+    m := 1+m; 
+    
+    
+    assume(1 <= 0+m); 
+    c1 := nondet(); 
+    assume(0 <= 0+c1); 
+    assume(0+c1 <= 1); 
+    assume(1 <= 0+z); 
+    z := -1+z; 
+    assume(1 <= 0+c1); 
+    c2 := nondet(); 
+    assume(0 <= 0+c2); 
+    assume(0+c2 <= 1); 
+    assume(1 <= 0+z); 
+    z := -1+z; 
+    assume(1 <= 0+c2); 
+    assume(1+m <= 0+max); 
+    m := 1+m; 
+    
+    assume(1 <= 0+m); 
+    c1 := nondet(); 
+    assume(0 <= 0+c1); 
+    assume(0+c1 <= 1); 
+    assume(0+z <= 0); 
+    assume(0+pos <= 0); 
+    assume(0+c1 <= 0); 
+    pos := 1+pos; 
+    assume(1+c1 <= 1); 
+    
+    
+    assume(1 <= 0+m); 
+    c1 := nondet(); 
+    assume(0 <= 0+c1); 
+    assume(0+c1 <= 1); 
+    assume(0+z <= 0); 
+    assume(1 <= 0+pos); 
+    assume(0+pos <= 1); 
+    assume(0+wpos <= 0); 
+    assume(1 <= 0+c1); 
+    wpos := 1+wpos; 
+    assume(1 <= 0+c1); 
+    c2 := nondet(); 
+    assume(0 <= 0+c2); 
+    assume(0+c2 <= 1); 
+    assume(0+z <= 0); 
+    assume(1 <= 0+pos); 
+    assume(0+pos <= 1); 
+    assume(1 <= 0+wpos); 
+    assume(0+wpos <= 1); 
+    assume(1 <= 0+pi); 
+    assume(0+c2 <= 0); 
+    wpos := 0; 
+    pi := -1+pi; 
+    assume(1+c2 <= 1); 
+    m := -1+m; 
+    
+    
+    
+    
+    
+    
+    
+TO: 1;

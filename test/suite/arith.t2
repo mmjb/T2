@@ -1,0 +1,19 @@
+START: 1;
+
+FROM: 0;
+AT(3,"c:\src\t2\test\arith.c")	assume(((0 >= x!14)));
+AT(6,"c:\src\t2\test\arith.c")	result!12 := temp0!15;
+TO: 2;
+
+FROM: 0;
+AT(3,"c:\src\t2\test\arith.c")	assume(((0 < x!14)));
+AT(4,"c:\src\t2\test\arith.c")	x!14 := (-1 + x!14);
+AT(3,"c:\src\t2\test\arith.c")	assume(((x!14 == (-1 + x!20)) && (0 < x!20)));
+TO: 0;
+
+FROM: 1;
+AT(2,"c:\src\t2\test\arith.c")	nondet!13 := nondet(); 
+AT(2,"c:\src\t2\test\arith.c")	x!14 := nondet!13;
+AT(2,"c:\src\t2\test\arith.c")	nondet!13 := nondet(); 
+TO: 0;
+

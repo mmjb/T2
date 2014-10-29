@@ -1,0 +1,209 @@
+%{
+// Copyright (c) Microsoft Corporation
+//
+// All rights reserved. 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the ""Software""), to 
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included 
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
+module E = ParseError
+
+///
+/// Location in a T2 file (either numerical or a name)
+///
+type parsedLoc =
+    | NumLoc of int
+    | NameLoc of string
+
+let annotate = ref false
+let incomplete_abstraction = ref false
+
+let normalize_var (v : string) =
+  if v.StartsWith Formula.instrumentation_prefix then
+    Var.var ("_" ^ v)
+  else
+    Var.var v
+
+%}
+
+%token <string> Id Const String
+%token <bigint> Num
+%token AT
+%token SEMICOLON COLON COMMA
+%token EOF
+%token LPAREN RPAREN
+%token DIV REM STAR PLUS MINUS 
+%token EQ GE GT LE LT NE NOT 
+%token AND_OP OR_OP
+%token ASSUME ASSIGN NONDET SHADOW
+%token TO FROM CUTPOINT START
+%token AF AG AW AX EF EG EU EX
+
+%start program
+%start CTL_formula
+%start Fairness_constraint
+
+%type <CTL.CTL_Formula> CTL_formula
+%type <parsedLoc * parsedLoc * (parsedLoc * Programs.command list * parsedLoc) list * (Var.var * Var.var) list * bool> program
+%type <(parsedLoc * Programs.command list * parsedLoc) list> blocks
+%type <parsedLoc * Programs.command list * parsedLoc> block
+%type <Programs.command> command
+%type <Programs.command list> commands
+%type <Formula.formula> formula
+%type <Term.term> term
+%type <bigint> num
+%type <Formula.formula * Formula.formula> Fairness_constraint
+%type <parsedLoc> loc
+
+%left   OR_OP
+%left   AND_OP
+%left   PLUS MINUS
+%left   STAR DIV REM
+%left   UMINUS
+
+
+%%
+
+
+program : START COLON loc SEMICOLON CUTPOINT COLON loc SEMICOLON shadows blocks 
+        { ($3,$7,$10,$9,!incomplete_abstraction) }
+       |  START COLON loc SEMICOLON shadows blocks 
+        { ($3,NumLoc -1,$6,$5,!incomplete_abstraction) }
+
+
+blocks
+        : { [] }
+        | block SEMICOLON blocks
+          { $1::$3 }
+
+block : FROM COLON loc SEMICOLON commands TO COLON loc
+        { ($3,$5,$8) }
+
+shadows
+        : { [] }
+        | shadow SEMICOLON shadows
+          { $1::$3 }
+
+shadow : SHADOW LPAREN Id COMMA Id RPAREN 
+        { (normalize_var $3, normalize_var $5) }
+
+commands
+        : { [] }
+        | command SEMICOLON commands
+          { $1::$3 }
+
+loc
+	: Num
+		{ NumLoc(int $1) }
+	| Id
+		{ NameLoc($1) }
+
+command 
+    : AT LPAREN Num COMMA String RPAREN Id ASSIGN term    
+            { if Term.contains_nondet $9 then 
+                  Programs.Assign(Some(int $3,$5),normalize_var ($7),Term.Nondet)
+              else 
+                  Programs.Assign(Some(int $3,$5),normalize_var ($7),$9) 
+            }
+    | AT LPAREN Num COMMA String RPAREN ASSUME LPAREN formula RPAREN        
+            { Programs.Assume(Some(int $3,$5),$9) }
+    | AT LPAREN Num COMMA String RPAREN ASSUME LPAREN term RPAREN              
+            { if Term.contains_nondet $9 then
+                Programs.Assume(Some(int $3,$5),Formula.Not(Formula.Eq(Term.Nondet,Term.constant 0))) 
+              else
+                Programs.Assume(Some(int $3,$5),Formula.Not(Formula.Eq($9,Term.constant 0))) 
+            }
+    | Id ASSIGN term                         
+            { if !annotate then
+                  Programs.Assign(Some(E.getLine(),E.getFilename()),normalize_var ($1),$3) 
+              else 
+                  Programs.Assign(None,normalize_var ($1),$3) 
+            }
+    | ASSUME LPAREN formula RPAREN        
+            { let pos = if !annotate then Some(E.getLine(),E.getFilename()) 
+                        else None
+              in Programs.Assume(pos,$3) 
+            }
+    | ASSUME LPAREN term RPAREN              
+            { let pos = if !annotate then Some(E.getLine(),E.getFilename()) 
+                        else None
+              in Programs.Assume(pos,Formula.Not(Formula.Eq($3,Term.constant 0))) 
+            }
+    ;
+
+
+
+
+term    : Num                   { Term.Const($1) }
+        | MINUS term %prec UMINUS  { Term.Sub(Term.constant 0,$2) }
+        | Id                    { Term.Var(normalize_var  $1) }
+        | LPAREN term RPAREN    { $2 }
+        | term PLUS term        { Term.Add($1,$3) }
+    | term MINUS term       { Term.Sub($1,$3) }
+    | term STAR term        { Term.Mul($1,$3) }
+    | term REM term         { incomplete_abstraction := true; Term.Nondet }
+    | term DIV term         { incomplete_abstraction := true; Term.Nondet }
+    | NONDET LPAREN RPAREN  { Term.Nondet }
+        ;
+
+
+
+formula
+    : term LT term { Formula.Lt($1,$3) }
+    | term GT term { Formula.Gt($1,$3) }
+    | term LE term { Formula.Le($1,$3) }
+    | term GE term { Formula.Ge($1,$3) }
+    | term EQ term { Formula.Eq($1,$3) }
+    | term NE term { Formula.Not(Formula.Eq($1,$3)) }
+    | NOT formula {Formula.Not $2}
+    | formula AND_OP formula { Formula.And($1,$3) }
+        | formula OR_OP formula { Formula.Or($1,$3) }
+    | LPAREN formula RPAREN { $2 }
+    ;
+
+ATOM
+	: term LT term { Formula.Lt($1,$3) }
+    | term GT term { Formula.Gt($1,$3) }
+    | term LE term { Formula.Le($1,$3) }
+    | term GE term { Formula.Ge($1,$3) }
+    | term EQ term { Formula.Eq($1,$3) }
+    | term NE term { Formula.Not(Formula.Eq($1,$3)) }
+    ;
+
+CTL_formula
+	: ATOM { CTL.CTL_Formula.Atom $1}
+	| CTL_formula AND_OP CTL_formula { CTL.CTL_Formula.CTL_And($1, $3) }
+    | CTL_formula OR_OP CTL_formula { CTL.CTL_Formula.CTL_Or($1, $3) }
+	| AF LPAREN  CTL_formula RPAREN { CTL.CTL_Formula.AF $3}
+    | AG LPAREN CTL_formula RPAREN { CTL.CTL_Formula.AG $3}
+	| AW LPAREN CTL_formula RPAREN COMMA LPAREN CTL_formula RPAREN { CTL.CTL_Formula.AW($3, $7) }
+    | AX LPAREN CTL_formula RPAREN { CTL.CTL_Formula.AX $3}
+	| EF LPAREN  CTL_formula RPAREN { CTL.CTL_Formula.EF $3}
+    | EG LPAREN CTL_formula RPAREN { CTL.CTL_Formula.EG $3}
+	| EU LPAREN CTL_formula RPAREN COMMA LPAREN CTL_formula RPAREN { CTL.CTL_Formula.EU($3, $7) }
+    | EX LPAREN CTL_formula RPAREN { CTL.CTL_Formula.EX $3}
+	| LPAREN CTL_formula RPAREN { $2 }
+	;
+
+Fairness_constraint
+	: LPAREN formula COMMA formula RPAREN { ($2, $4) }
+	;
+
+num
+    : Num { $1 }
+        | MINUS Num  { -$2 }

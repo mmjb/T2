@@ -1,0 +1,30 @@
+START:0;
+FROM:0;
+j := 0;
+TO:2;
+
+FROM:2;
+j := (j + 2);
+TO:3;
+
+FROM:3;
+i := (j + 2);
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+assume((j + 1)<=20);
+TO:6;
+
+FROM:5;
+assume(j>=20);
+TO:7;
+
+FROM:7;
+TO:8;
+
+FROM:6;
+TO:2;
+

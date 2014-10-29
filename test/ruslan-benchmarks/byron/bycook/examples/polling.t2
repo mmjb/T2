@@ -1,0 +1,452 @@
+START:0;
+FROM:0;
+ret_nondet22 := x11;
+TO:4;
+
+FROM:6;
+WarmPollPeriod := ret_nondet22;
+TO:5;
+
+FROM:5;
+ret_nondet44 := x33;
+TO:7;
+
+FROM:9;
+status := ret_nondet44;
+TO:8;
+
+FROM:8;
+ret_nondet66 := x55;
+TO:10;
+
+FROM:12;
+polling := ret_nondet66;
+TO:11;
+
+FROM:11;
+ret_nondet88 := x77;
+TO:13;
+
+FROM:15;
+PowerStateIsAC := ret_nondet88;
+TO:14;
+
+FROM:17;
+TO:16;
+
+FROM:16;
+assume(status>=(1 + 0));
+TO:18;
+
+FROM:20;
+TO:19;
+
+FROM:22;
+TO:21;
+
+FROM:24;
+TO:23;
+
+FROM:23;
+ret_nondet2225 := x2124;
+TO:25;
+
+FROM:27;
+WarmPollPeriod := ret_nondet2225;
+TO:26;
+
+FROM:26;
+assume((WarmPollPeriod + 1)<=5);
+TO:28;
+
+FROM:28;
+WarmPollPeriod := 5;
+TO:29;
+
+FROM:26;
+assume(WarmPollPeriod>=5);
+TO:30;
+
+FROM:30;
+assume(WarmPollPeriod>=(1 + 20));
+TO:31;
+
+FROM:31;
+WarmPollPeriod := 20;
+TO:29;
+
+FROM:30;
+assume(WarmPollPeriod<=20);
+TO:29;
+
+FROM:29;
+ret_nondet2427 := x2326;
+TO:32;
+
+FROM:34;
+tmp___422 := ret_nondet2427;
+TO:33;
+
+FROM:33;
+assume((tmp___422 + 1)<=0);
+TO:35;
+
+FROM:33;
+assume(tmp___422>=(1 + 0));
+TO:35;
+
+FROM:35;
+polling := 1;
+TO:36;
+
+FROM:36;
+ret_nondet2629 := x2528;
+TO:37;
+
+FROM:39;
+tmp___321 := ret_nondet2629;
+TO:38;
+
+FROM:38;
+assume((tmp___321 + 1)<=0);
+TO:40;
+
+FROM:38;
+assume(tmp___321>=(1 + 0));
+TO:40;
+
+FROM:40;
+pollingFailureThreshold13 := 10;
+TO:3;
+
+FROM:3;
+TO:41;
+
+FROM:41;
+ret_nondet2831 := x2730;
+TO:42;
+
+FROM:44;
+status___09 := ret_nondet2831;
+TO:43;
+
+FROM:43;
+ret_nondet3033 := x2932;
+TO:45;
+
+FROM:47;
+tmp14 := ret_nondet3033;
+TO:46;
+
+FROM:46;
+assume((tmp14 + 1)<=0);
+TO:48;
+
+FROM:46;
+assume(tmp14>=(1 + 0));
+TO:48;
+
+FROM:46;
+assume(tmp14==0);
+TO:49;
+
+FROM:49;
+assume(PowerStateIsAC==0);
+TO:50;
+
+FROM:49;
+assume((PowerStateIsAC + 1)<=0);
+TO:51;
+
+FROM:49;
+assume(PowerStateIsAC>=(1 + 0));
+TO:51;
+
+FROM:51;
+assume(-1==status___09);
+TO:52;
+
+FROM:52;
+ret_nondet3235 := x3134;
+TO:53;
+
+FROM:55;
+tmp___219 := ret_nondet3235;
+TO:54;
+
+FROM:54;
+assume((tmp___219 + 1)<=0);
+TO:56;
+
+FROM:54;
+assume(tmp___219>=(1 + 0));
+TO:56;
+
+FROM:56;
+ret_nondet3437 := x3336;
+TO:57;
+
+FROM:59;
+tmp___118 := ret_nondet3437;
+TO:58;
+
+FROM:58;
+assume((tmp___118 + 1)<=0);
+TO:60;
+
+FROM:58;
+assume(tmp___118>=(1 + 0));
+TO:60;
+
+FROM:60;
+requestRescan12 := 0;
+TO:61;
+
+FROM:61;
+ret_nondet3639 := x3538;
+TO:62;
+
+FROM:64;
+deviceStatus10 := ret_nondet3639;
+TO:63;
+
+FROM:63;
+ret_nondet3841 := x3740;
+TO:65;
+
+FROM:67;
+tmp___017 := ret_nondet3841;
+TO:66;
+
+FROM:66;
+assume((tmp___017 + 1)<=0);
+TO:68;
+
+FROM:66;
+assume(tmp___017>=(1 + 0));
+TO:68;
+
+FROM:66;
+assume(tmp___017==0);
+TO:69;
+
+FROM:69;
+ret_nondet4043 := x3942;
+TO:70;
+
+FROM:72;
+devId11 := ret_nondet4043;
+TO:71;
+
+FROM:71;
+assume((devId11 + 1)<=0);
+TO:73;
+
+FROM:71;
+assume(devId11>=(1 + 0));
+TO:73;
+
+FROM:75;
+TO:74;
+
+FROM:74;
+assume((mfg15 + 1)<=0);
+TO:76;
+
+FROM:74;
+assume(mfg15>=(1 + 0));
+TO:76;
+
+FROM:76;
+assume((mdl16 + 1)<=0);
+TO:77;
+
+FROM:76;
+assume(mdl16>=(1 + 0));
+TO:77;
+
+FROM:77;
+requestRescan12 := 1;
+TO:78;
+
+FROM:76;
+assume(mdl16==0);
+TO:78;
+
+FROM:74;
+assume(mfg15==0);
+TO:78;
+
+FROM:71;
+assume(devId11==0);
+TO:78;
+
+FROM:78;
+assume((requestRescan12 + 1)<=0);
+TO:68;
+
+FROM:78;
+assume(requestRescan12>=(1 + 0));
+TO:68;
+
+FROM:78;
+assume(requestRescan12==0);
+TO:79;
+
+FROM:80;
+TO:68;
+
+FROM:82;
+TO:81;
+
+FROM:81;
+assume((requestRescan12 + 1)<=0);
+TO:83;
+
+FROM:81;
+assume(requestRescan12>=(1 + 0));
+TO:83;
+
+FROM:85;
+TO:84;
+
+FROM:81;
+assume(requestRescan12==0);
+TO:84;
+
+FROM:58;
+assume(tmp___118==0);
+TO:84;
+
+FROM:54;
+assume(tmp___219==0);
+TO:84;
+
+FROM:51;
+assume((-1 + 1)<=status___09);
+TO:84;
+
+FROM:51;
+assume(-1>=(1 + status___09));
+TO:84;
+
+FROM:84;
+TO:3;
+
+FROM:87;
+TO:86;
+
+FROM:86;
+polling := 0;
+TO:88;
+
+FROM:38;
+assume(tmp___321==0);
+TO:89;
+
+FROM:89;
+polling := 0;
+TO:88;
+
+FROM:33;
+assume(tmp___422==0);
+TO:88;
+
+FROM:16;
+assume(status<=0);
+TO:88;
+
+FROM:88;
+polling := 1;
+TO:2;
+
+FROM:2;
+TO:90;
+
+FROM:91;
+TO:2;
+
+FROM:93;
+TO:92;
+
+FROM:92;
+TO:94;
+
+FROM:94;
+TO:95;
+
+FROM:90;
+TO:91;
+
+FROM:83;
+TO:85;
+
+FROM:68;
+TO:82;
+
+FROM:79;
+TO:80;
+
+FROM:73;
+TO:75;
+
+FROM:70;
+TO:72;
+
+FROM:65;
+TO:67;
+
+FROM:62;
+TO:64;
+
+FROM:57;
+TO:59;
+
+FROM:53;
+TO:55;
+
+FROM:50;
+TO:84;
+
+FROM:48;
+TO:87;
+
+FROM:45;
+TO:47;
+
+FROM:42;
+TO:44;
+
+FROM:37;
+TO:39;
+
+FROM:32;
+TO:34;
+
+FROM:25;
+TO:27;
+
+FROM:21;
+TO:24;
+
+FROM:19;
+TO:22;
+
+FROM:18;
+TO:20;
+
+FROM:14;
+TO:17;
+
+FROM:13;
+TO:15;
+
+FROM:10;
+TO:12;
+
+FROM:7;
+TO:9;
+
+FROM:4;
+TO:6;
+

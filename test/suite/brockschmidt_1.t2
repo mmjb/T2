@@ -1,0 +1,16 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 1;
+assume (x > 0 && y <= 1);
+x := 0;
+y := x - 1;
+TO: 1;
+
+FROM: 1;
+assume (x > -1 && y > 1);
+x := x + 1;
+y := y - 2;
+TO: 1;

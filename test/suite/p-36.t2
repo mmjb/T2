@@ -1,0 +1,84 @@
+START: 300;
+CUTPOINT: 300;
+
+FROM: 5;
+AT(8,"p-36.c ")  __cil_tmp2_11 := __retres1_10;
+AT(8,"p-36.c ")  Result_4 := __cil_tmp2_11;
+TO: 2;
+
+FROM: 300;
+AT(10,"p-36.c ")  MaximumInterfaceType_9 := nondet();
+AT(10,"p-36.c ")  ntStatus_8 := nondet();
+AT(10,"p-36.c ")  fdoExtension_7 := nondet();
+AT(10,"p-36.c ")  Dc_6 := nondet();
+AT(10,"p-36.c ")  InterfaceType_5 := nondet();
+TO: 1;
+
+FROM: 4;
+AT(8,"p-36.c ")  __cil_tmp2_11 := __retres1_10;
+AT(8,"p-36.c ")  Result_4 := __cil_tmp2_11;
+TO: 3;
+
+FROM: 1;
+AT(12,"p-36.c ")  lt_17 := cnt_27;
+AT(12,"p-36.c ")  lt_18 := cnt_32;
+  assume(-1-lt_17+lt_18<0);
+AT(12,"p-36.c ")  lt_17 := nondet();
+AT(12,"p-36.c ")  lt_18 := nondet();
+AT(28,"p-36.c ")  __retres1_10 := 0;
+TO: 4;
+
+FROM: 1;
+AT(12,"p-36.c ")  lt_17 := cnt_27;
+AT(12,"p-36.c ")  lt_18 := cnt_32;
+  assume(0<=-1-lt_17+lt_18);
+AT(12,"p-36.c ")  lt_17 := nondet();
+AT(12,"p-36.c ")  lt_18 := nondet();
+AT(17,"p-36.c ")  lt_16 := cnt_27;
+AT(17,"p-36.c ")  lt_16 := nondet();
+AT(19,"p-36.c ")  ct_15 := nondet();
+AT(19,"p-36.c ")  ct_15 := nondet();
+AT(21,"p-36.c ")  lt_14 := ct_49;
+  assume(0<=-1+lt_14);
+AT(21,"p-36.c ")  lt_14 := nondet();
+AT(21,"p-36.c ")  lt_13 := ct_49;
+  assume(lt_13==256);
+AT(21,"p-36.c ")  lt_13 := nondet();
+TO: 1;
+
+FROM: 1;
+AT(12,"p-36.c ")  lt_17 := cnt_27;
+AT(12,"p-36.c ")  lt_18 := cnt_32;
+  assume(0<=-1-lt_17+lt_18);
+AT(12,"p-36.c ")  lt_17 := nondet();
+AT(12,"p-36.c ")  lt_18 := nondet();
+AT(17,"p-36.c ")  lt_16 := cnt_27;
+AT(17,"p-36.c ")  lt_16 := nondet();
+AT(19,"p-36.c ")  ct_15 := nondet();
+AT(19,"p-36.c ")  ct_15 := nondet();
+AT(21,"p-36.c ")  lt_14 := ct_49;
+  assume(-1+lt_14<0);
+AT(21,"p-36.c ")  lt_14 := nondet();
+TO: 1;
+
+FROM: 1;
+AT(12,"p-36.c ")  lt_17 := cnt_27;
+AT(12,"p-36.c ")  lt_18 := cnt_32;
+  assume(0<=-1-lt_17+lt_18);
+AT(12,"p-36.c ")  lt_17 := nondet();
+AT(12,"p-36.c ")  lt_18 := nondet();
+AT(17,"p-36.c ")  lt_16 := cnt_27;
+AT(17,"p-36.c ")  lt_16 := nondet();
+AT(19,"p-36.c ")  ct_15 := nondet();
+AT(19,"p-36.c ")  ct_15 := nondet();
+AT(21,"p-36.c ")  lt_14 := ct_49;
+  assume(0<=-1+lt_14);
+AT(21,"p-36.c ")  lt_14 := nondet();
+AT(21,"p-36.c ")  lt_13 := ct_49;
+  assume(lt_13!=256);
+AT(21,"p-36.c ")  lt_13 := nondet();
+AT(23,"p-36.c ")  lt_12 := ct_49;
+AT(23,"p-36.c ")  __retres1_10 := lt_12;
+AT(23,"p-36.c ")  lt_12 := nondet();
+TO: 5;
+

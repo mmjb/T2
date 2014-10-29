@@ -1,0 +1,61 @@
+START:0;
+FROM:0;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+r := 1;
+TO:5;
+
+FROM:5;
+q := N;
+TO:2;
+
+FROM:2;
+TO:6;
+
+FROM:6;
+assume(((r + 1) + 1)<=q);
+TO:7;
+
+FROM:6;
+assume((r + 1)>=q);
+TO:8;
+
+FROM:7;
+p := nondet();
+TO:9;
+
+FROM:9;
+assume((N + 1)<=(p * p));
+TO:10;
+
+FROM:10;
+q := p;
+TO:2;
+
+FROM:9;
+assume(N>=(p * p));
+TO:11;
+
+FROM:11;
+r := p;
+TO:2;
+
+FROM:13;
+TO:12;
+
+FROM:12;
+TO:14;
+
+FROM:14;
+TO:15;
+
+FROM:15;
+TO:16;
+
+FROM:8;
+TO:13;
+

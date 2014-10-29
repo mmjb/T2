@@ -1,0 +1,30 @@
+START: 0;
+CUTPOINT: 3;
+
+FROM: 0;
+  alloc(p);
+  tmp := 0;
+  store p->Data := tmp;
+TO: 1;
+
+FROM: 1;
+  load tmp := p->Data;
+  assume(tmp < 10);
+  tmp := tmp + 1;
+  store p->Data := tmp;
+TO: 1;
+
+FROM: 1;
+  load tmp := p->Data;
+  assume(tmp >= 10);
+TO: 2;
+
+FROM: 2;
+  assume(tmp > 10);
+TO: 3;
+
+
+0 : 0 == 0 | emp ;
+1 : 0 == 0 | p --> [Flink: h, Data: d] ;
+2 : 0 == 0 | p --> [Flink: h, Data: d] ;
+3 : 0 == 1 | p --> [Flink: h, Data: d] ;

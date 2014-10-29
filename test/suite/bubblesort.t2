@@ -1,0 +1,112 @@
+START:0;
+FROM:0;
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+TO:6;
+
+FROM:6;
+TO:7;
+
+FROM:7;
+TO:8;
+
+FROM:8;
+j := 0;
+TO:9;
+
+FROM:9;
+i := 4;
+TO:3;
+
+FROM:3;
+TO:10;
+
+FROM:10;
+assume(i>=0);
+TO:2;
+
+FROM:10;
+assume((i + 1)<=0);
+TO:11;
+
+FROM:2;
+TO:12;
+
+FROM:12;
+assume((j + 1)<=i);
+TO:13;
+
+FROM:12;
+assume(j>=i);
+TO:14;
+
+FROM:13;
+TO:15;
+
+FROM:15;
+x3 := j;
+TO:16;
+
+FROM:16;
+y4 := (j + 1);
+TO:17;
+
+FROM:17;
+tmp5 := nondet();
+TO:18;
+
+FROM:18;
+TO:19;
+
+FROM:19;
+TO:20;
+
+FROM:22;
+TO:21;
+
+FROM:13;
+TO:21;
+
+FROM:21;
+j := (j + 1);
+TO:2;
+
+FROM:24;
+TO:23;
+
+FROM:23;
+i := (i - 1);
+TO:3;
+
+FROM:26;
+TO:25;
+
+FROM:25;
+TO:27;
+
+FROM:27;
+TO:28;
+
+FROM:25;
+assume((nondet() + 1)<=0);
+TO:28;
+
+FROM:25;
+TO:28;
+
+FROM:28;
+TO:29;
+
+FROM:20;
+TO:22;
+
+FROM:14;
+TO:24;
+
+FROM:11;
+TO:26;
+

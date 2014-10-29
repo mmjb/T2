@@ -1,0 +1,44 @@
+START:0;
+FROM:0;
+hi := 0;
+TO:3;
+
+FROM:3;
+lo := 99;
+TO:2;
+
+FROM:2;
+TO:4;
+
+FROM:4;
+assume((hi + 1)<=lo);
+TO:5;
+
+FROM:4;
+assume(hi>=lo);
+TO:6;
+
+FROM:5;
+assume((nondet() + 1)<=nondet());
+TO:7;
+
+FROM:7;
+hi := nondet();
+TO:2;
+
+FROM:5;
+TO:8;
+
+FROM:8;
+lo := nondet();
+TO:2;
+
+FROM:10;
+TO:9;
+
+FROM:9;
+TO:11;
+
+FROM:6;
+TO:10;
+

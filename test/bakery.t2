@@ -1,0 +1,91 @@
+START: 0;
+
+FROM: 0;
+P := 0;
+Q := 0;
+pid := nondet();
+assume(pid > 0);
+j_min := nondet();
+assume(j_min > 0);
+MIN := nondet();
+assume(MIN > 0);
+MAX := nondet();
+assume(MAX >= MIN);
+NONCRITICAL := 1;
+CRITICAL := 0;
+TO: 1;
+
+FROM: 1;
+assume(0 < 1);
+num := 1 + MAX;
+MAX := 1 + MAX;
+NONCRITICAL := 1;
+CRITICAL := 0;
+TO: 2;
+
+FROM: 2;
+assume(num >= MIN);
+assume(pid > j_min);
+conditional := nondet();
+TO: 3;
+
+FROM: 3;
+assume(conditional > 1);
+INCREASE := nondet();
+assume(INCREASE >= 1);
+MAX:= MAX + INCREASE;
+conditional := nondet();
+TO: 4;
+
+FROM: 3;
+assume(conditional <= 1);
+conditional := nondet();
+TO: 4;
+
+FROM: 4;
+assume(conditional > 1);
+INCREASE := nondet();
+MAX_MIN := MAX - MIN;
+NUM_MIN := num - MIN;
+assume(INCREASE >= num);
+assume(INCREASE <= MAX - MIN);
+assume(INCREASE <= NUM_MIN);
+MIN := MIN + INCREASE;
+Q := 1;
+j_min := nondet();
+assume(j_min > 0);
+conditional := nondet();
+TO: 2;
+
+FROM: 4;
+assume(conditional <= 1);
+P := 1;
+conditional := nondet();
+TO: 6;
+
+FROM: 6;
+assume(conditional > 1);
+INCREASE := nondet();
+assume(INCREASE >= 1);
+j_min := j_min + INCREASE;
+conditional := nondet();
+TO: 2;
+
+FROM: 6;
+assume(conditional <= 1);
+conditional := nondet();
+TO: 2;
+
+FROM: 2;
+Q := 0;
+P := 0;
+assume(num < MIN);
+CRITICAL := 1;
+TO: 1;
+
+FROM: 2;
+Q := 0;
+P := 0;
+assume(pid <= j_min);
+CRITICAL := 1;
+TO: 1;

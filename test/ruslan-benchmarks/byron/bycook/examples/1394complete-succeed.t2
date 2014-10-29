@@ -1,0 +1,857 @@
+START:0;
+FROM:0;
+ioR := 0;
+TO:8;
+
+FROM:8;
+ioA := ioR;
+TO:9;
+
+FROM:9;
+keR := ioA;
+TO:10;
+
+FROM:10;
+keA := keR;
+TO:11;
+
+FROM:11;
+phi_nSUC_ret := 0;
+TO:12;
+
+FROM:12;
+phi_io_compl := 0;
+TO:13;
+
+FROM:13;
+__rho_666_ := nondet();
+TO:14;
+
+FROM:16;
+TO:15;
+
+FROM:15;
+__rho_1_ := nondet();
+TO:17;
+
+FROM:17;
+assume(__rho_1_>=(1 + 0));
+TO:18;
+
+FROM:18;
+a11 := DeviceObject;
+TO:19;
+
+FROM:19;
+b22 := Irp;
+TO:20;
+
+FROM:20;
+ret_t1394Diag_PnpStopDevice33 := 0;
+TO:21;
+
+FROM:23;
+ntStatus := ret_t1394Diag_PnpStopDevice33;
+TO:22;
+
+FROM:17;
+assume(__rho_1_<=0);
+TO:22;
+
+FROM:22;
+ret_IoSetDeviceInterfaceState44 := 0;
+TO:24;
+
+FROM:26;
+ntStatus := ret_IoSetDeviceInterfaceState44;
+TO:25;
+
+FROM:25;
+TO:27;
+
+FROM:27;
+TO:28;
+
+FROM:28;
+keA := 1;
+TO:29;
+
+FROM:29;
+keA := 0;
+TO:30;
+
+FROM:32;
+TO:31;
+
+FROM:31;
+__rho_5_ := nondet();
+TO:33;
+
+FROM:33;
+k1 := __rho_5_;
+TO:7;
+
+FROM:7;
+TO:34;
+
+FROM:34;
+assume(k1<=0);
+TO:35;
+
+FROM:34;
+assume(k1>=(1 + 0));
+TO:36;
+
+FROM:36;
+CromData := nondet();
+TO:37;
+
+FROM:37;
+k1 := (k1 - 1);
+TO:38;
+
+FROM:38;
+assume(CromData>=(1 + 0));
+TO:39;
+
+FROM:39;
+__rho_2_ := nondet();
+TO:40;
+
+FROM:40;
+assume(__rho_2_>=(1 + 0));
+TO:41;
+
+FROM:43;
+TO:42;
+
+FROM:40;
+assume(__rho_2_<=0);
+TO:42;
+
+FROM:42;
+__rho_3_ := nondet();
+TO:44;
+
+FROM:44;
+assume(__rho_3_>=(1 + 0));
+TO:45;
+
+FROM:47;
+TO:46;
+
+FROM:44;
+assume(__rho_3_<=0);
+TO:46;
+
+FROM:46;
+a77 := CromData;
+TO:48;
+
+FROM:49;
+TO:7;
+
+FROM:38;
+assume(CromData<=0);
+TO:7;
+
+FROM:51;
+TO:50;
+
+FROM:50;
+TO:52;
+
+FROM:52;
+i___099 := Irql;
+TO:53;
+
+FROM:53;
+keR := 1;
+TO:54;
+
+FROM:54;
+keR := 0;
+TO:55;
+
+FROM:57;
+TO:56;
+
+FROM:56;
+TO:58;
+
+FROM:58;
+TO:59;
+
+FROM:59;
+keA := 1;
+TO:60;
+
+FROM:60;
+keA := 0;
+TO:61;
+
+FROM:63;
+TO:62;
+
+FROM:62;
+__rho_4_ := nondet();
+TO:64;
+
+FROM:64;
+k2 := __rho_4_;
+TO:6;
+
+FROM:6;
+TO:65;
+
+FROM:65;
+assume(k2<=0);
+TO:66;
+
+FROM:65;
+assume(k2>=(1 + 0));
+TO:67;
+
+FROM:67;
+AsyncAddressData := nondet();
+TO:68;
+
+FROM:68;
+AsyncAddressData := nondet();
+TO:69;
+
+FROM:69;
+k2 := (k2 - 1);
+TO:70;
+
+FROM:70;
+__rho_7_ := nondet();
+TO:71;
+
+FROM:71;
+assume(__rho_7_>=(1 + 0));
+TO:72;
+
+FROM:74;
+TO:73;
+
+FROM:71;
+assume(__rho_7_<=0);
+TO:73;
+
+FROM:73;
+__rho_8_ := nondet();
+TO:75;
+
+FROM:75;
+assume(__rho_8_>=(1 + 0));
+TO:76;
+
+FROM:78;
+TO:77;
+
+FROM:75;
+assume(__rho_8_<=0);
+TO:77;
+
+FROM:77;
+__rho_9_ := nondet();
+TO:79;
+
+FROM:79;
+assume(__rho_9_>=(1 + 0));
+TO:80;
+
+FROM:82;
+TO:81;
+
+FROM:79;
+assume(__rho_9_<=0);
+TO:81;
+
+FROM:81;
+assume(AsyncAddressData>=(1 + 0));
+TO:83;
+
+FROM:84;
+TO:6;
+
+FROM:81;
+assume(AsyncAddressData<=0);
+TO:6;
+
+FROM:86;
+TO:85;
+
+FROM:85;
+TO:87;
+
+FROM:87;
+i___01313 := Irql;
+TO:88;
+
+FROM:88;
+keR := 1;
+TO:89;
+
+FROM:89;
+keR := 0;
+TO:90;
+
+FROM:92;
+TO:91;
+
+FROM:91;
+__rho_10_ := nondet();
+TO:93;
+
+FROM:93;
+k3 := __rho_10_;
+TO:5;
+
+FROM:5;
+TO:94;
+
+FROM:94;
+TO:95;
+
+FROM:95;
+TO:96;
+
+FROM:96;
+keA := 1;
+TO:97;
+
+FROM:97;
+keA := 0;
+TO:98;
+
+FROM:100;
+TO:99;
+
+FROM:99;
+assume(k3>=(1 + 0));
+TO:101;
+
+FROM:101;
+IsochDetachData := nondet();
+TO:102;
+
+FROM:102;
+i := nondet();
+TO:103;
+
+FROM:103;
+IsochDetachData := nondet();
+TO:104;
+
+FROM:104;
+k3 := (k3 - 1);
+TO:105;
+
+FROM:107;
+TO:106;
+
+FROM:106;
+TO:108;
+
+FROM:108;
+i___01717 := Irql;
+TO:109;
+
+FROM:109;
+keR := 1;
+TO:110;
+
+FROM:110;
+keR := 0;
+TO:111;
+
+FROM:113;
+TO:112;
+
+FROM:112;
+a1818 := IsochDetachData;
+TO:114;
+
+FROM:115;
+TO:5;
+
+FROM:99;
+assume(k3<=0);
+TO:116;
+
+FROM:116;
+TO:117;
+
+FROM:117;
+i___02020 := Irql;
+TO:118;
+
+FROM:118;
+keR := 1;
+TO:119;
+
+FROM:119;
+keR := 0;
+TO:120;
+
+FROM:122;
+TO:121;
+
+FROM:124;
+TO:123;
+
+FROM:123;
+__rho_11_ := nondet();
+TO:125;
+
+FROM:125;
+k4 := __rho_11_;
+TO:4;
+
+FROM:4;
+TO:126;
+
+FROM:126;
+TO:127;
+
+FROM:127;
+TO:128;
+
+FROM:128;
+keA := 1;
+TO:129;
+
+FROM:129;
+keA := 0;
+TO:130;
+
+FROM:132;
+TO:131;
+
+FROM:131;
+assume(k4>=(1 + 0));
+TO:133;
+
+FROM:133;
+IsochResourceData := nondet();
+TO:134;
+
+FROM:134;
+k4 := (k4 - 1);
+TO:135;
+
+FROM:135;
+TO:136;
+
+FROM:136;
+i___02424 := Irql;
+TO:137;
+
+FROM:137;
+keR := 1;
+TO:138;
+
+FROM:138;
+keR := 0;
+TO:139;
+
+FROM:141;
+TO:140;
+
+FROM:140;
+assume(IsochResourceData>=(1 + 0));
+TO:142;
+
+FROM:142;
+pIrb := nondet();
+TO:143;
+
+FROM:143;
+ResourceIrp := nondet();
+TO:144;
+
+FROM:144;
+StackSize := nondet();
+TO:145;
+
+FROM:145;
+a2525 := StackSize;
+TO:146;
+
+FROM:146;
+b2626 := 0;
+TO:147;
+
+FROM:147;
+ret_IoAllocateIrp2727 := 0;
+TO:148;
+
+FROM:150;
+ResourceIrp := ret_IoAllocateIrp2727;
+TO:149;
+
+FROM:149;
+assume(ResourceIrp==0);
+TO:4;
+
+FROM:149;
+assume((ResourceIrp + 1)<=0);
+TO:151;
+
+FROM:149;
+assume(ResourceIrp>=(1 + 0));
+TO:151;
+
+FROM:151;
+a2828 := 1;
+TO:152;
+
+FROM:152;
+b2929 := 0;
+TO:153;
+
+FROM:153;
+ret_ExAllocatePool3030 := 0;
+TO:154;
+
+FROM:156;
+pIrb := ret_ExAllocatePool3030;
+TO:155;
+
+FROM:155;
+assume(pIrb<=0);
+TO:157;
+
+FROM:157;
+a3131 := ResourceIrp;
+TO:158;
+
+FROM:159;
+TO:4;
+
+FROM:155;
+assume(pIrb>=(1 + 0));
+TO:160;
+
+FROM:160;
+a3232 := pIrb;
+TO:161;
+
+FROM:161;
+b3333 := 0;
+TO:162;
+
+FROM:164;
+TO:163;
+
+FROM:163;
+a3434 := ResourceIrp;
+TO:165;
+
+FROM:165;
+b3535 := pIrb;
+TO:166;
+
+FROM:166;
+ret_t1394_SubmitIrpSynch3636 := 0;
+TO:167;
+
+FROM:169;
+ntStatus := ret_t1394_SubmitIrpSynch3636;
+TO:168;
+
+FROM:168;
+a3737 := pIrb;
+TO:170;
+
+FROM:172;
+TO:171;
+
+FROM:171;
+a3838 := ResourceIrp;
+TO:173;
+
+FROM:174;
+TO:4;
+
+FROM:140;
+assume(IsochResourceData<=0);
+TO:4;
+
+FROM:131;
+assume(k4<=0);
+TO:175;
+
+FROM:175;
+TO:176;
+
+FROM:176;
+i___04040 := Irql;
+TO:177;
+
+FROM:177;
+keR := 1;
+TO:178;
+
+FROM:178;
+keR := 0;
+TO:179;
+
+FROM:181;
+TO:180;
+
+FROM:183;
+TO:182;
+
+FROM:182;
+TO:184;
+
+FROM:184;
+TO:185;
+
+FROM:185;
+keA := 1;
+TO:186;
+
+FROM:186;
+keA := 0;
+TO:187;
+
+FROM:189;
+TO:188;
+
+FROM:188;
+__rho_12_ := nondet();
+TO:190;
+
+FROM:190;
+k5 := __rho_12_;
+TO:3;
+
+FROM:3;
+TO:191;
+
+FROM:191;
+assume(k5<=0);
+TO:192;
+
+FROM:191;
+assume(k5>=(1 + 0));
+TO:193;
+
+FROM:193;
+prevCancel := 0;
+TO:194;
+
+FROM:194;
+BusResetIrp := nondet();
+TO:195;
+
+FROM:195;
+k5 := (k5 - 1);
+TO:196;
+
+FROM:196;
+a4343 := 0;
+TO:197;
+
+FROM:197;
+ret_IoSetCancelRoutine4444 := 0;
+TO:198;
+
+FROM:200;
+prevCancel := ret_IoSetCancelRoutine4444;
+TO:199;
+
+FROM:199;
+a4545 := 2;
+TO:201;
+
+FROM:201;
+phi_io_compl := 1;
+TO:202;
+
+FROM:204;
+TO:203;
+
+FROM:203;
+a4646 := BusResetIrp;
+TO:205;
+
+FROM:206;
+TO:3;
+
+FROM:208;
+TO:207;
+
+FROM:207;
+TO:209;
+
+FROM:209;
+i___04848 := Irql;
+TO:210;
+
+FROM:210;
+keR := 1;
+TO:211;
+
+FROM:211;
+keR := 0;
+TO:212;
+
+FROM:214;
+TO:213;
+
+FROM:213;
+assume((ntStatus + 1)<=2);
+TO:215;
+
+FROM:213;
+assume(ntStatus>=(1 + 2));
+TO:215;
+
+FROM:215;
+phi_nSUC_ret := 1;
+TO:2;
+
+FROM:213;
+assume(ntStatus==2);
+TO:2;
+
+FROM:2;
+TO:216;
+
+FROM:216;
+TO:2;
+
+FROM:218;
+TO:217;
+
+FROM:220;
+TO:219;
+
+FROM:219;
+TO:221;
+
+FROM:217;
+TO:220;
+
+FROM:212;
+TO:214;
+
+FROM:205;
+TO:206;
+
+FROM:202;
+TO:204;
+
+FROM:198;
+TO:200;
+
+FROM:192;
+TO:208;
+
+FROM:187;
+TO:189;
+
+FROM:180;
+TO:183;
+
+FROM:179;
+TO:181;
+
+FROM:173;
+TO:174;
+
+FROM:170;
+TO:172;
+
+FROM:167;
+TO:169;
+
+FROM:162;
+TO:164;
+
+FROM:158;
+TO:159;
+
+FROM:154;
+TO:156;
+
+FROM:148;
+TO:150;
+
+FROM:139;
+TO:141;
+
+FROM:130;
+TO:132;
+
+FROM:121;
+TO:124;
+
+FROM:120;
+TO:122;
+
+FROM:114;
+TO:115;
+
+FROM:111;
+TO:113;
+
+FROM:105;
+TO:107;
+
+FROM:98;
+TO:100;
+
+FROM:90;
+TO:92;
+
+FROM:83;
+TO:84;
+
+FROM:80;
+TO:82;
+
+FROM:76;
+TO:78;
+
+FROM:72;
+TO:74;
+
+FROM:66;
+TO:86;
+
+FROM:61;
+TO:63;
+
+FROM:55;
+TO:57;
+
+FROM:48;
+TO:49;
+
+FROM:45;
+TO:47;
+
+FROM:41;
+TO:43;
+
+FROM:35;
+TO:51;
+
+FROM:30;
+TO:32;
+
+FROM:24;
+TO:26;
+
+FROM:21;
+TO:23;
+
+FROM:14;
+TO:16;
+

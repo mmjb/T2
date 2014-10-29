@@ -1,0 +1,9 @@
+START: 0;
+CUTPOINT: 1;
+FROM: 0;
+x := 5;
+y := x;
+assume(y <= 0);
+TO: 1;
+
+

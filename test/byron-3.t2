@@ -1,0 +1,22 @@
+START: 1;
+
+//NODE: 0 AT(5,"z:\src\t2\test\byron-3.c ");
+//  //LABEL: ;
+FROM: 0;
+AT(5,"z:\src\t2\test\byron-3.c ")  assume(0 >= x_13);
+AT(9,"z:\src\t2\test\byron-3.c ")  rt_11 := st_14;
+TO: 2;
+
+FROM: 0;
+AT(5,"z:\src\t2\test\byron-3.c ")  assume(0 < x_13);
+AT(6,"z:\src\t2\test\byron-3.c ")  x_13 := x_13+y_15;
+AT(7,"z:\src\t2\test\byron-3.c ")  y_15 := -1+y_15;
+TO: 0;
+
+//NODE: 1 ;
+//  //LABEL: main_enter;
+FROM: 1;
+TO: 0;
+
+//NODE: 2 ;
+//  //LABEL: main_exit_postfree;

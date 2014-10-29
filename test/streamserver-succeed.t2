@@ -1,0 +1,162 @@
+START: 0;
+
+FROM: 0;
+one := 1;
+listen_index := 0;
+added := 0;
+MAXADDR := nondet();
+addrs := nondet();
+assume(addrs>=0);
+MaxBackends := nondet();
+assume(MaxBackends>0);
+ret := nondet();
+TO: 1;
+
+FROM: 1;
+assume(family == AF_UNIX);
+service := sock_path;
+ret := nondet();
+addr := addrs;
+TO: 2;
+
+FROM: 1;
+assume(family != AF_UNIX);
+service := 1;
+ret := nondet();
+addr := addrs;
+TO: 2;
+
+FROM: 2;
+assume(addr < MAXADDR);
+TO: 5;
+
+FROM: 5;
+assume(IS_AF_UNIX > 0);
+TO: 3;
+
+FROM: 5;
+assume(IS_AF_UNIX <= 0);
+TO: 8;
+
+
+FROM: 8;
+assume(listen_index < MaxListen);
+listen_index := listen_index + 1;
+TO: 7;
+
+FROM: 7;
+assume(ListenSocket_OF_listen_index != -1);
+TO: 8;
+
+FROM: 7;
+assume(ListenSocket_OF_listen_index == -1);
+TO: 21;
+
+FROM: 8;
+assume(listen_index >= MaxListen);
+TO: 21;
+
+FROM: 21;
+assume(listen_index >= MaxListen);
+TO: 4;
+
+FROM: 21;
+assume(listen_index < MaxListen);
+TO: 10;
+
+FROM: 10;
+assume(0 <= 0);
+TO: 11;
+
+FROM: 10;
+assume(0 <= 0);
+TO: 3;
+
+FROM: 11;
+err := nondet();
+TO: 12;
+
+FROM: 12;
+assume(err < 0);
+closed := 1;
+TO: 3;
+
+FROM: 12;
+assume(err >= 0);
+TO: 13;
+
+FROM: 13;
+assume(addr_ai_family > 0);
+TO: 14;
+
+FROM: 14;
+assume(STATUS_OK > 0);
+closed := 1;
+TO: 4;
+
+FROM: 14;
+assume(STATUS_OK <= 0);
+TO: 15;
+
+FROM: 13;
+assume(addr_ai_family <= 0);
+TO: 15;
+
+FROM: 15;
+maxconn := MaxBackends + MaxBackends;
+TO: 16;
+
+FROM: 16;
+assume(maxconn > 10);
+maxconn := 10;
+err := nondet();
+TO: 17;
+
+FROM: 16;
+assume(maxconn <= 10);
+err := nondet();
+TO: 17;
+
+FROM: 17;
+assume(err < 0);
+closed := 1;
+TO: 3;
+
+FROM: 17;
+assume(err >= 0);
+ListenSocket_OF_listen_index := fd;
+added := added + 1;
+TO: 3;
+
+FROM: 10;
+assume(0 <= 0);
+TO: 3;
+
+FROM: 8;
+assume(listen_index >= MaxListen);
+TO: 4;
+
+FROM: 3;
+assume(0<=0);
+addrs := addrs + 1;
+TO: 2;
+
+FROM: 2;
+assume(addr >= MAXADDR);
+TO: 4;
+
+FROM: 4;
+assume(added >= 1);
+ret := 1;
+TO: 20;
+
+FROM: 4;
+assume(added < 1);
+ret := 0;
+TO: 20;
+
+FROM: 20;
+assume(0<=0);
+TO: 20;
+
+

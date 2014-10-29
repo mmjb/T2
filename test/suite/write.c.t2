@@ -1,0 +1,108 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 0;
+TO: 2;
+
+FROM: 0;
+TO: 3;
+
+FROM: 0;
+TO: 4;
+
+FROM: 0;
+TO: 5;
+
+FROM: 0;
+TO: 6;
+
+FROM: 1;
+oldX0 := x0;
+oldX1 := nondet();
+x0 := oldX1;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+oldX1 := nondet();
+assume(oldX1 >= 0 && oldX1 <= 4294967295);
+x0 := oldX1;
+TO: 3;
+
+FROM: 3;
+oldX0 := x0;
+assume(oldX0 = 0 && oldX0 >= 0 && oldX0 <= 4294967295);
+x0 := oldX0;
+TO: 4;
+
+FROM: 3;
+oldX0 := x0;
+assume(oldX0 <= 8192 && oldX0 >= 0 && oldX0 <= 4294967295);
+x0 := oldX0;
+TO: 4;
+
+FROM: 3;
+oldX0 := x0;
+assume(oldX0 < 0 && oldX0 > 8192 && oldX0 >= 0 && oldX0 <= 4294967295);
+x0 := oldX0;
+TO: 5;
+
+FROM: 3;
+oldX0 := x0;
+assume(oldX0 > 0 && oldX0 > 8192 && oldX0 >= 0 && oldX0 <= 4294967295);
+x0 := oldX0;
+TO: 5;
+
+FROM: 4;
+oldX0 := x0;
+oldX1 := nondet();
+assume(oldX0 = 0 && oldX0 >= 0 && oldX0 <= 4294967295);
+x0 := oldX1;
+TO: 6;
+
+FROM: 4;
+oldX0 := x0;
+oldX1 := nondet();
+assume(oldX0 <= 8192 && oldX0 >= 0 && oldX0 <= 4294967295);
+x0 := oldX1;
+TO: 6;
+
+FROM: 5;
+oldX0 := x0;
+assume(oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 < 0 && oldX0 > 8192 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 - 8192 >= 0 && oldX0 - 8192 <= 4294967295);
+x0 := oldX0 - 8192;
+TO: 3;
+
+FROM: 5;
+oldX0 := x0;
+assume(oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 < 0 && oldX0 > 8192 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 - 8192 < 0 && oldX0 + 4294959104 >= 0 && oldX0 + 4294959104 <= 4294967295);
+x0 := oldX0 + 4294959104;
+TO: 3;
+
+FROM: 5;
+oldX0 := x0;
+assume(oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 < 0 && oldX0 > 8192 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 - 8192 > 4294967295 && oldX0 - 4294975488 >= 0 && oldX0 - 4294975488 <= 4294967295);
+x0 := oldX0 - 4294975488;
+TO: 3;
+
+FROM: 5;
+oldX0 := x0;
+assume(oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 > 0 && oldX0 > 8192 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 - 8192 >= 0 && oldX0 - 8192 <= 4294967295);
+x0 := oldX0 - 8192;
+TO: 3;
+
+FROM: 5;
+oldX0 := x0;
+assume(oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 > 0 && oldX0 > 8192 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 - 8192 < 0 && oldX0 + 4294959104 >= 0 && oldX0 + 4294959104 <= 4294967295);
+x0 := oldX0 + 4294959104;
+TO: 3;
+
+FROM: 5;
+oldX0 := x0;
+assume(oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 > 0 && oldX0 > 8192 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX0 - 8192 > 4294967295 && oldX0 - 4294975488 >= 0 && oldX0 - 4294975488 <= 4294967295);
+x0 := oldX0 - 4294975488;
+TO: 3;
+
+

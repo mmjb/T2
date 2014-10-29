@@ -1,0 +1,26 @@
+START: 2;
+CUTPOINT: 300;
+
+FROM: 300;
+  assume(0<=-1-x);
+  assume(y==-1);
+//AT(6,"p-55.c ")  x := 1+x;
+AT(7,"p-55.c ")  y := 1+y;
+AT(9,"p-55.c ")  x := -99+x;
+TO: 300;
+
+FROM: 300;
+  assume(0<=-1-x);
+  assume(y!=-1);
+AT(6,"p-55.c ")  x := 1+x;
+AT(7,"p-55.c ")  y := 1+y;
+TO: 300;
+
+FROM: 300;
+  assume(-1-x<0);
+AT(1,"p-55.c ")  Result := nondet();
+TO: 1;
+
+FROM: 2;
+TO: 300;
+

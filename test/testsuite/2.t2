@@ -1,0 +1,122 @@
+START: 300;
+CUTPOINT: 16;
+
+FROM: 3;
+TO: 20;
+
+FROM: 2;
+  Result_4 := nondet();
+TO: 13;
+
+FROM: 12;
+  assume(0<=len_47);
+  assume(x_18!=0);
+  t_17 := x_18;
+  lt_21 := nondet();
+  x_18 := lt_21;
+  lt_21 := nondet();
+TO: 11;
+
+FROM: 11;
+  assume(0<=a_140);
+  assume(x_18!=0);
+  t_17 := x_18;
+  lt_21 := nondet();
+  x_18 := lt_21;
+  lt_21 := nondet();
+TO: 11;
+
+FROM: 11;
+  assume(0<=a_140);
+  assume((x_18==0));
+  Result_4 := nondet();
+TO: 18;
+
+FROM: 7;
+  assume(0<=len_47);
+  tmp_20 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+
+FROM: 10;
+  assume((x_18==0));
+  Result_4 := nondet();
+TO: 19;
+
+FROM: 17;
+  assume(((0>(length_10-i_11-2))));
+  __cil_tmp6_15 := head_12;
+  Result_4 := __cil_tmp6_15;
+TO: 6;
+
+FROM: 17;
+  assume((0<=(length_10-i_11-2)));
+  tmp___0_14 := nondet();
+  tmp_13 := tmp___0_14;
+  head_12 := tmp_13;
+  i_11 := (i_11+1);
+TO: 16;
+
+FROM: 4;
+  assume(0<=len_47);
+TO: 8;
+
+FROM: 18;
+TO: 1;
+
+FROM: 6;
+  tmp_20 := Result_4;
+  Result_4 := nondet();
+TO: 5;
+
+FROM: 16;
+  assume(0<=len_47);
+  assume(((0>(length_10-i_11-2))));
+  __cil_tmp6_15 := head_12;
+  Result_4 := __cil_tmp6_15;
+TO: 7;
+
+FROM: 16;
+  assume(0<=len_47);
+  assume((0<=(length_10-i_11-2)));
+  tmp___0_14 := nondet();
+  tmp_13 := tmp___0_14;
+  head_12 := tmp_13;
+  i_11 := (i_11+1);
+TO: 16;
+
+FROM: 14;
+  assume(0<=len_47);
+  x_18 := a_16;
+TO: 12;
+
+FROM: 8;
+  assume(0<=len_47);
+TO: 14;
+
+FROM: 5;
+TO: 9;
+
+FROM: 300;
+  length_19 := nondet();
+TO: 3;
+
+FROM: 19;
+TO: 2;
+
+FROM: 15;
+  x_18 := a_16;
+TO: 10;
+
+FROM: 1;
+  Result_4 := nondet();
+TO: 13;
+
+FROM: 9;
+TO: 15;
+
+FROM: 20;
+  head_12 := 0;
+  i_11 := 0;
+TO: 17;
+

@@ -1,0 +1,115 @@
+START:0;
+FROM:0;
+WItemsNum := nondet();
+TO:6;
+
+FROM:8;
+TO:7;
+
+FROM:7;
+WItemsNum := nondet();
+TO:5;
+
+FROM:5;
+TO:4;
+
+FROM:4;
+TO:9;
+
+FROM:9;
+assume(WItemsNum<=5);
+TO:10;
+
+FROM:9;
+assume(WItemsNum>=(1 + 5));
+TO:11;
+
+FROM:11;
+tmp1 := nondet();
+TO:12;
+
+FROM:12;
+assume((tmp1 + 1)<=0);
+TO:10;
+
+FROM:12;
+assume(tmp1>=(1 + 0));
+TO:10;
+
+FROM:12;
+assume(tmp1==0);
+TO:13;
+
+FROM:10;
+assume(WItemsNum<=5);
+TO:14;
+
+FROM:16;
+TO:15;
+
+FROM:15;
+WItemsNum := (WItemsNum + 1);
+TO:4;
+
+FROM:10;
+assume(WItemsNum>=(1 + 5));
+TO:17;
+
+FROM:17;
+WItemsNum := (WItemsNum + 1);
+TO:4;
+
+FROM:18;
+TO:3;
+
+FROM:3;
+TO:19;
+
+FROM:19;
+assume(WItemsNum>=(1 + 2));
+TO:20;
+
+FROM:19;
+assume(WItemsNum<=2);
+TO:21;
+
+FROM:23;
+TO:22;
+
+FROM:22;
+WItemsNum := (WItemsNum - 1);
+TO:3;
+
+FROM:24;
+TO:5;
+
+FROM:25;
+TO:2;
+
+FROM:2;
+TO:2;
+
+FROM:27;
+TO:26;
+
+FROM:26;
+TO:28;
+
+FROM:28;
+TO:29;
+
+FROM:20;
+TO:23;
+
+FROM:21;
+TO:24;
+
+FROM:14;
+TO:16;
+
+FROM:13;
+TO:18;
+
+FROM:6;
+TO:8;
+

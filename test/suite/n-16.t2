@@ -1,0 +1,22 @@
+START: 3;
+CUTPOINT: 300;
+
+FROM: 2;
+AT(6,"n-16.c ")  x_5 := -1+x_5;
+  assume(0<=-1+x_5);
+TO: 300;
+
+FROM: 2;
+AT(6,"n-16.c ")  x_5 := -1+x_5;
+  assume(-1+x_5<0);
+TO: 1;
+
+FROM: 3;
+TO: 2;
+
+FROM: 300;
+TO: 2;
+
+FROM: 1;
+TO: 2;
+

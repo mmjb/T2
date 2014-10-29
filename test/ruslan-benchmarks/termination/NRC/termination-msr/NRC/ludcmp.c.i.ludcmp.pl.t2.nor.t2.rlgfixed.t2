@@ -1,0 +1,441 @@
+// ARMC error state:  ludcmp-err-0
+// ARMC return state: ludcmp-ret-0	 -> 1
+// ludcmp-0-13	 -> 2
+// ludcmp-2-0	 -> 3
+// ludcmp-1-14	 -> 4
+// ludcmp-5-14	 -> 5
+// ludcmp-6-15	 -> 6
+// ludcmp-7-14	 -> 7
+// ludcmp-8-16	 -> 8
+// ludcmp-11-16	 -> 9
+// ludcmp-12-17	 -> 10
+// ludcmp-13-16	 -> 11
+// ludcmp-15-0	 -> 12
+// ludcmp-14-17	 -> 13
+// ludcmp-17-17	 -> 14
+// ludcmp-16-16	 -> 15
+// ludcmp-10-0	 -> 16
+// ludcmp-9-18	 -> 17
+// ludcmp-19-0	 -> 18
+// ludcmp-18-14	 -> 19
+// ludcmp-20-0	 -> 20
+// ludcmp-4-0	 -> 21
+// ludcmp-3-21	 -> 22
+// ludcmp-23-21	 -> 23
+// ludcmp-24-22	 -> 24
+// ludcmp-25-21	 -> 25
+// ludcmp-28-22	 -> 26
+// ludcmp-29-23	 -> 27
+// ludcmp-30-22	 -> 28
+// ludcmp-31-24	 -> 29
+// ludcmp-34-24	 -> 30
+// ludcmp-35-24	 -> 31
+// ludcmp-36-24	 -> 32
+// ludcmp-37-0	 -> 33
+// ludcmp-33-0	 -> 34
+// ludcmp-32-22	 -> 35
+// ludcmp-38-0	 -> 36
+// ludcmp-27-0	 -> 37
+// ludcmp-26-27	 -> 38
+// ludcmp-39-28	 -> 39
+// ludcmp-42-28	 -> 40
+// ludcmp-43-29	 -> 41
+// ludcmp-44-28	 -> 42
+// ludcmp-45-30	 -> 43
+// ludcmp-48-30	 -> 44
+// ludcmp-49-30	 -> 45
+// ludcmp-50-30	 -> 46
+// ludcmp-51-0	 -> 47
+// ludcmp-47-0	 -> 48
+// ludcmp-46-33	 -> 49
+// ludcmp-53-0	 -> 50
+// ludcmp-54-0	 -> 51
+// ludcmp-52-33	 -> 52
+// ludcmp-56-35	 -> 53
+// ludcmp-57-0	 -> 54
+// ludcmp-55-28	 -> 55
+// ludcmp-41-0	 -> 56
+// ludcmp-40-38	 -> 57
+// ludcmp-59-39	 -> 58
+// ludcmp-62-39	 -> 59
+// ludcmp-63-39	 -> 60
+// ludcmp-64-39	 -> 61
+// ludcmp-65-0	 -> 62
+// ludcmp-66-0	 -> 63
+// ludcmp-67-0	 -> 64
+// ludcmp-61-0	 -> 65
+// ludcmp-60-45	 -> 66
+// ludcmp-68-0	 -> 67
+// ludcmp-58-47	 -> 68
+// ludcmp-69-48	 -> 69
+// ludcmp-71-48	 -> 70
+// ludcmp-70-49	 -> 71
+// ludcmp-73-50	 -> 72
+// ludcmp-74-51	 -> 73
+// ludcmp-76-51	 -> 74
+// ludcmp-77-51	 -> 75
+// ludcmp-78-51	 -> 76
+// ludcmp-79-0	 -> 77
+// ludcmp-75-0	 -> 78
+// ludcmp-72-21	 -> 79
+// ludcmp-22-0	 -> 80
+// ludcmp-21-0	 -> 81
+// ludcmp-80-55	 -> 82
+START:2;
+FROM:2;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+assume(i<=n);
+TO:6;
+
+FROM:5;
+assume(i>=(1 + n));
+TO:7;
+
+FROM:6;
+big := 0;
+TO:8;
+
+FROM:8;
+TO:9;
+
+FROM:9;
+assume(j<=n);
+TO:10;
+
+FROM:9;
+assume(j>=(1 + n));
+TO:11;
+
+FROM:10;
+tmp := nondet();
+TO:12;
+
+FROM:12;
+temp := tmp;
+TO:13;
+
+FROM:13;
+assume(temp>=(1 + big));
+TO:14;
+
+FROM:14;
+big := temp;
+TO:15;
+
+FROM:13;
+assume(temp<=big);
+TO:15;
+
+FROM:15;
+j := (j + 1);
+TO:8;
+
+FROM:16;
+TO:17;
+
+FROM:17;
+assume(big==0);
+TO:18;
+
+FROM:18;
+TO:19;
+
+FROM:17;
+assume((big + 1)<=0);
+TO:19;
+
+FROM:17;
+assume(big>=(1 + 0));
+TO:19;
+
+FROM:19;
+TO:20;
+
+FROM:20;
+i := (i + 1);
+TO:4;
+
+FROM:21;
+TO:22;
+
+FROM:22;
+TO:23;
+
+FROM:23;
+assume(j<=n);
+TO:24;
+
+FROM:23;
+assume(j>=(1 + n));
+TO:25;
+
+FROM:24;
+TO:26;
+
+FROM:26;
+assume((i + 1)<=j);
+TO:27;
+
+FROM:26;
+assume(i>=j);
+TO:28;
+
+FROM:27;
+sum := nondet();
+TO:29;
+
+FROM:29;
+TO:30;
+
+FROM:30;
+assume((k + 1)<=i);
+TO:31;
+
+FROM:30;
+assume(k>=i);
+TO:32;
+
+FROM:31;
+sum := nondet();
+TO:33;
+
+FROM:33;
+k := (k + 1);
+TO:29;
+
+FROM:34;
+TO:35;
+
+FROM:35;
+TO:36;
+
+FROM:36;
+i := (i + 1);
+TO:24;
+
+FROM:37;
+TO:38;
+
+FROM:38;
+big := 0;
+TO:39;
+
+FROM:39;
+TO:40;
+
+FROM:40;
+assume(i<=n);
+TO:41;
+
+FROM:40;
+assume(i>=(1 + n));
+TO:42;
+
+FROM:41;
+sum := nondet();
+TO:43;
+
+FROM:43;
+TO:44;
+
+FROM:44;
+assume((k + 1)<=j);
+TO:45;
+
+FROM:44;
+assume(k>=j);
+TO:46;
+
+FROM:45;
+sum := nondet();
+TO:47;
+
+FROM:47;
+k := (k + 1);
+TO:43;
+
+FROM:48;
+TO:49;
+
+FROM:49;
+TO:50;
+
+FROM:50;
+tmp___0 := nondet();
+TO:51;
+
+FROM:51;
+dum := nondet();
+TO:52;
+
+FROM:52;
+assume(dum>=big);
+TO:53;
+
+FROM:53;
+big := dum;
+TO:54;
+
+FROM:54;
+imax := i;
+TO:55;
+
+FROM:52;
+assume((dum + 1)<=big);
+TO:55;
+
+FROM:55;
+i := (i + 1);
+TO:39;
+
+FROM:56;
+TO:57;
+
+FROM:57;
+assume((j + 1)<=imax);
+TO:58;
+
+FROM:57;
+assume(j>=(1 + imax));
+TO:58;
+
+FROM:58;
+TO:59;
+
+FROM:59;
+assume(k<=n);
+TO:60;
+
+FROM:59;
+assume(k>=(1 + n));
+TO:61;
+
+FROM:60;
+dum := nondet();
+TO:62;
+
+FROM:62;
+TO:63;
+
+FROM:63;
+TO:64;
+
+FROM:64;
+k := (k + 1);
+TO:58;
+
+FROM:65;
+TO:66;
+
+FROM:66;
+TO:67;
+
+FROM:67;
+TO:68;
+
+FROM:57;
+assume(j==imax);
+TO:68;
+
+FROM:68;
+TO:69;
+
+FROM:69;
+TO:70;
+
+FROM:70;
+TO:71;
+
+FROM:69;
+assume((nondet() + 1)<=0);
+TO:71;
+
+FROM:69;
+assume(nondet()>=(1 + 0));
+TO:71;
+
+FROM:71;
+assume((j + 1)<=n);
+TO:72;
+
+FROM:71;
+assume(j>=(1 + n));
+TO:72;
+
+FROM:72;
+dum := nondet();
+TO:73;
+
+FROM:73;
+TO:74;
+
+FROM:74;
+assume(i<=n);
+TO:75;
+
+FROM:74;
+assume(i>=(1 + n));
+TO:76;
+
+FROM:75;
+TO:77;
+
+FROM:77;
+i := (i + 1);
+TO:73;
+
+FROM:78;
+TO:79;
+
+FROM:71;
+assume(j==n);
+TO:79;
+
+FROM:79;
+j := (j + 1);
+TO:22;
+
+FROM:80;
+TO:81;
+
+FROM:81;
+TO:82;
+
+FROM:82;
+TO:1;
+
+FROM:76;
+TO:78;
+
+FROM:61;
+TO:65;
+
+FROM:46;
+TO:48;
+
+FROM:42;
+TO:56;
+
+FROM:32;
+TO:34;
+
+FROM:28;
+TO:37;
+
+FROM:25;
+TO:80;
+
+FROM:11;
+TO:16;
+
+FROM:7;
+TO:21;
+

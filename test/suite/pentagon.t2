@@ -1,0 +1,53 @@
+// See http://delivery.acm.org/10.1145/1470000/1467272/p111-winkler.pdf?ip=128.16.11.199&acc=ACTIVE%20SERVICE&CFID=85332900&CFTOKEN=62855534&__acm__=1338372109_d358fb15506d8bd64425f0440be718e3
+// See also http://delivery.acm.org/10.1145/1470000/1461952/p104-winkler.pdf?ip=128.16.11.199&acc=ACTIVE%20SERVICE&CFID=85332900&CFTOKEN=62855534&__acm__=1338371965_9489a5750c1af6ee2bc78f2baa4d6894
+START: 1;
+
+FROM: 0;
+    assume(a < 0);
+    a := -a;
+    b := b-a;
+    e := e-a;
+TO: 0;
+
+FROM: 0;
+    assume(b < 0);
+    b := -b;
+    a := a-b;
+    c := c-b;
+TO: 0;
+
+FROM: 0;
+    assume(c < 0);
+    c := -c;
+    b := b-c;
+    d := d-c;
+TO: 0;
+
+FROM: 0;
+    assume(d < 0);
+    d := -d;
+    c := c-d;
+    e := e-d;
+TO: 0;
+
+FROM: 0;
+    assume(e < 0);
+    e := -e;
+    d := d-e;
+    a := a-e;
+TO: 0;
+
+
+FROM: 1;
+    a := nondet();
+    b := nondet();
+    c := nondet();
+    d := nondet();
+    e := nondet();
+TO: 2;
+
+FROM: 2;
+assume(a + b + c + d + e > 0);
+sum := a + b + c + d + e;
+TO: 0;
+

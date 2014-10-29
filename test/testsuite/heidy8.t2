@@ -1,0 +1,50 @@
+START: 0;
+
+FROM: 0;
+	p := 0;
+	start := 0;
+TO: 1;
+
+FROM: 1;
+	start := 1;
+TO: 2;
+
+FROM: 2;
+	start := 0;
+TO: 3;
+
+FROM: 3;
+	assume(x > 0);
+	__rho_1 := nondet();
+TO: 4;
+
+FROM: 4;
+	assume(__rho_1 > 0);
+	x := x - 1;
+TO: 3;
+
+FROM: 4;
+	assume(__rho_1 <= 0);
+	x := x - 2;
+TO: 3;
+
+FROM: 3;
+	assume(x <= 0);
+TO: 5;
+
+FROM: 5;
+	__rho_2 := nondet();
+TO: 6;
+
+FROM: 6;
+	assume(__rho_2 > 0);
+	p := 1;
+TO: 5;
+
+FROM: 6;
+	assume(__rho_2 <= 0);
+	p := 0;
+TO: 5;
+
+
+

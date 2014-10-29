@@ -1,0 +1,42 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 1;
+assume(i1 < n);
+i1 := i1 + 1;
+TO: 1;
+
+FROM: 1;
+assume(i1 >= n);
+i2 := i1;
+TO: 2;
+
+FROM: 2;
+assume(i2 > 0);
+i2 := i2 - 1;
+TO: 2;
+
+FROM: 2;
+assume(i2 <= 0);
+i3 := i2;
+TO: 3;
+
+FROM: 3;
+assume(i3 < n);
+i3 := i3 + 1;
+TO: 3;
+
+FROM: 3;
+assume(i3 >= n);
+i4 := i3;
+TO: 4;
+
+FROM: 4;
+assume(i4 > 0);
+i4 := i4 - 1;
+TO: 4;
+
+
+

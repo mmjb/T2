@@ -1,0 +1,24 @@
+START: 3;
+
+FROM: 2;
+  assume(0<=-31+y_6);
+AT(8,"p-21.c ")  y_6 := -1+y_6;
+TO: 2;
+
+FROM: 2;
+  assume(-31+y_6<0);
+AT(9,"p-21.c ")  x_5 := -1+x_5;
+TO: 300;
+
+FROM: 300;
+  assume(0<=-21+x_5);
+TO: 2;
+
+FROM: 300;
+  assume(-21+x_5<0);
+AT(1,"p-21.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 3;
+TO: 300;
+

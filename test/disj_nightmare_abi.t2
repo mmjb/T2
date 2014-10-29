@@ -1,0 +1,16 @@
+// it turned out to be not such a nighmare after all :)
+
+START: 0;
+
+FROM: 0;
+  assume(y < 0);
+  assume(x == 0);
+  x := y;
+TO: 0;
+
+FROM: 0;
+  assume(y > 0);
+  assume(x == 0);
+  x := y;
+TO: 0;
+

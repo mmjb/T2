@@ -1,0 +1,48 @@
+// go spiral towards center:
+//     y ^
+//       |
+//   > > > > v
+//   ^ > > v v
+//   ^ ^ 0 < v ----> 
+//   ^ ^ < < <     x
+//   ^ ...
+//
+
+START: 0;
+
+FROM:0;
+TO:1;
+
+FROM: 1;
+    assume(x != 0);
+    assume(y != 0);
+TO: 2;
+
+FROM: 2;
+    assume(x >= y);
+    assume(x > -y+1);
+    y := y-1;
+TO: 1;
+
+FROM: 2;
+    assume(y <= 1-x);
+    assume(y < x);
+    x := x-1;
+TO: 1;
+
+FROM: 2;
+    assume(x <= y);
+    assume(x < -y);
+    y := y+1;
+TO: 1;
+
+FROM: 2;
+    assume(y >= -x);
+    assume(y > x);
+    x := x+1;
+TO: 1;
+
+
+
+
+

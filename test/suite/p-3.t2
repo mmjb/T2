@@ -1,0 +1,25 @@
+START: 2;
+CUTPOINT: 300;
+
+FROM: 2;
+TO: 1;
+
+FROM: 1;
+  assume(0<=-1-x_5+y_6);
+AT(7,"p-3.c ")  x_5 := 1+x_5;
+TO: 1;
+
+FROM: 1;
+  assume(-1-x_5+y_6<0);
+  assume(-1-x_5+y_6<0);
+  assume(x_5==y_6);
+AT(7,"p-3.c ")  x_5 := 1+x_5;
+TO: 1;
+
+FROM: 1;
+  assume(-1-x_5+y_6<0);
+  assume(-1-x_5+y_6<0);
+  assume(x_5!=y_6);
+AT(1,"p-3.c ")  Result_4 := nondet();
+TO: 300;
+

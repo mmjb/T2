@@ -1,0 +1,22 @@
+START: 1;
+
+FROM: 1;
+  assume(x>0);
+  assume(y>0);
+TO: 2;
+
+FROM: 2;
+  x := x - 1;  
+TO: 3;
+
+FROM: 2;
+  y := y - 1;  
+TO: 3;
+
+
+FROM: 3;
+  assume(x>0);
+  assume(y>0);
+TO: 2;
+
+

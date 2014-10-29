@@ -1,0 +1,28 @@
+START: 1;
+CUTPOINT: 300;
+
+FROM: 2;
+AT(7,"p-19.c ")  lt_9 := x_5;
+AT(7,"p-19.c ")  lt_10 := cnt_25;
+  assume(0<=-1+lt_10);
+AT(7,"p-19.c ")  lt_9 := nondet();
+AT(7,"p-19.c ")  lt_10 := nondet();
+AT(8,"p-19.c ")  lt_8 := cnt_25;
+AT(8,"p-19.c ")  lt_8 := nondet();
+TO: 2;
+
+FROM: 2;
+AT(7,"p-19.c ")  lt_9 := x_5;
+AT(7,"p-19.c ")  lt_10 := cnt_25;
+  assume(-1+lt_10<0);
+AT(7,"p-19.c ")  lt_9 := nondet();
+AT(7,"p-19.c ")  lt_10 := nondet();
+AT(1,"p-19.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 1;
+AT(1,"p-19.c ")  p_6 := nondet();
+AT(1,"p-19.c ")  x_5 := nondet();
+AT(5,"p-19.c ")  q_7 := p_6;
+TO: 2;
+

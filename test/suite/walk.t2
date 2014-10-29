@@ -1,0 +1,161 @@
+START: 22;
+CUTPOINT: 17;
+
+FROM: 15;
+  len_54 := 2;
+  x_13 := Result_4;
+  Result_4 := nondet();
+TO: 3;
+
+FROM: 12;
+  x_13 := Result_4;
+  Result_4 := nondet();
+TO: 1;
+
+FROM: 21;
+TO: 8;
+
+FROM: 9;
+  tmp_8 := nondet();
+AT(9,"walk_noterm.c ")  x_7 := tmp_8;
+AT(12,"walk_noterm.c ")  __cil_tmp5_9 := x_7;
+AT(12,"walk_noterm.c ")  Result_4 := __cil_tmp5_9;
+TO: 12;
+
+FROM: 16;
+  assume(0<=len_54);
+TO: 11;
+
+FROM: 5;
+  assume(0<=k_121);
+TO: 7;
+
+FROM: 2;
+  assume(0<=k_83);
+TO: 6;
+
+FROM: 1;
+TO: 21;
+
+FROM: 19;
+  assume(0<=k_121);
+TO: 5;
+
+FROM: 22;
+AT(26,"walk_noterm.c ")  x_13 := 0;
+AT(26,"walk_noterm.c ")  y_14 := 0;
+TO: 23;
+
+FROM: 300;
+  assume(0<=len_181);
+TO: 4;
+
+FROM: 8;
+  tmp_8 := nondet();
+AT(9,"walk_noterm.c ")  x_7 := tmp_8;
+AT(12,"walk_noterm.c ")  __cil_tmp5_9 := x_7;
+AT(12,"walk_noterm.c ")  Result_4 := __cil_tmp5_9;
+TO: 15;
+
+FROM: 11;
+  assume(0<=len_54);
+  tmp_8 := nondet();
+AT(9,"walk_noterm.c ")  x_7 := tmp_8;
+AT(12,"walk_noterm.c ")  __cil_tmp5_9 := x_7;
+AT(12,"walk_noterm.c ")  Result_4 := __cil_tmp5_9;
+TO: 14;
+
+FROM: 10;
+  assume(0<=k_83);
+  tmp_8 := nondet();
+AT(9,"walk_noterm.c ")  x_7 := tmp_8;
+AT(12,"walk_noterm.c ")  __cil_tmp5_9 := x_7;
+AT(12,"walk_noterm.c ")  Result_4 := __cil_tmp5_9;
+TO: 13;
+
+FROM: 6;
+  assume(0<=k_83);
+TO: 10;
+
+FROM: 23;
+TO: 9;
+
+FROM: 4;
+  assume(0<=len_181);
+AT(32,"walk_noterm.c ")  Result_4 := nondet();
+TO: 20;
+
+FROM: 3;
+  assume(0<=len_54);
+TO: 16;
+
+FROM: 17;
+  assume(0<=a_178);
+  assume(0<=len_181);
+  len_181 := 1+len_181;
+  assume(y_11>x_12);
+  lt_15 := nondet();
+AT(20,"walk_noterm.c ")  x_12 := lt_15;
+AT(20,"walk_noterm.c ")  lt_15 := nondet();
+TO: 17;
+
+FROM: 17;
+  assume(0<=a_178);
+  assume(0<=len_181);
+  len_181 := 1+len_181;
+  assume(y_11<x_12);
+  lt_15 := nondet();
+AT(20,"walk_noterm.c ")  x_12 := lt_15;
+AT(20,"walk_noterm.c ")  lt_15 := nondet();
+TO: 17;
+
+FROM: 17;
+  assume(0<=a_178);
+  assume(0<=len_181);
+  assume(y_11==x_12);
+AT(23,"walk_noterm.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 7;
+  assume(0<=k_121);
+AT(16,"walk_noterm.c ")  x_12 := a_10;
+  assume(y_11>x_12);
+TO: 18;
+
+FROM: 7;
+  assume(0<=k_121);
+AT(16,"walk_noterm.c ")  x_12 := a_10;
+  assume(y_11<x_12);
+TO: 18;
+
+FROM: 18;
+  assume(0<=k_121);
+  len_181 := 1;
+  assume(y_11>x_12);
+  lt_15 := nondet();
+AT(20,"walk_noterm.c ")  x_12 := lt_15;
+AT(20,"walk_noterm.c ")  lt_15 := nondet();
+TO: 17;
+
+FROM: 18;
+  assume(0<=k_121);
+  len_181 := 1;
+  assume(y_11<x_12);
+  lt_15 := nondet();
+AT(20,"walk_noterm.c ")  x_12 := lt_15;
+AT(20,"walk_noterm.c ")  lt_15 := nondet();
+TO: 17;
+
+FROM: 14;
+  assume(0<=len_54);
+  k_83 := 1+len_54;
+  x_13 := Result_4;
+  Result_4 := nondet();
+TO: 2;
+
+FROM: 13;
+  assume(0<=k_83);
+  x_13 := Result_4;
+  Result_4 := nondet();
+TO: 19;
+

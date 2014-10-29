@@ -1,0 +1,21 @@
+//Program "cube" from Polyranking for Polynomial Loops
+
+START:0;
+
+FROM:0;
+TO:1;
+
+FROM:1;
+  assume(x>=0);
+  assume(y<=z);  
+TO:2;
+
+FROM:2;
+  x:=x-1;
+  y:=y-1;
+TO:1;
+
+FROM:2;  
+  y:=y-1;
+  z:=z+y;
+TO:1;

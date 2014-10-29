@@ -1,0 +1,9 @@
+obj/
+bin/
+defect.t2
+defect.tt
+*.dot
+*~
+absparse.mli
+*.suo
+src/packages

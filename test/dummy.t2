@@ -1,0 +1,14 @@
+START: 0;
+CUTPOINT: 1;
+
+FROM:0;
+TO:300;
+
+FROM: 300;
+assume(x>0);
+assume(y<0);
+TO: 1;
+
+FROM: 1;
+x := x - y;
+TO: 300;

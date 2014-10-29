@@ -1,0 +1,1147 @@
+// ARMC error state:  hqr-err-0
+// ARMC return state: hqr-ret-0	 -> 1
+// hqr-0-10	 -> 2
+// hqr-1-11	 -> 3
+// hqr-4-11	 -> 4
+// hqr-5-12	 -> 5
+// hqr-6-11	 -> 6
+// hqr-9-12	 -> 7
+// hqr-10-12	 -> 8
+// hqr-11-12	 -> 9
+// hqr-12-0	 -> 10
+// hqr-13-0	 -> 11
+// hqr-8-0	 -> 12
+// hqr-7-11	 -> 13
+// hqr-3-0	 -> 14
+// hqr-2-15	 -> 15
+// hqr-15-0	 -> 16
+// hqr-14-16	 -> 17
+// hqr-18-16	 -> 18
+// hqr-19-17	 -> 19
+// hqr-20-16	 -> 20
+// hqr-21-18	 -> 21
+// hqr-23-19	 -> 22
+// hqr-26-19	 -> 23
+// hqr-27-20	 -> 24
+// hqr-28-19	 -> 25
+// hqr-30-0	 -> 26
+// hqr-31-0	 -> 27
+// hqr-29-21	 -> 28
+// hqr-33-21	 -> 29
+// hqr-32-22	 -> 30
+// hqr-34-22	 -> 31
+// hqr-36-22	 -> 32
+// hqr-35-19	 -> 33
+// hqr-25-0	 -> 34
+// hqr-24-24	 -> 35
+// hqr-37-25	 -> 36
+// hqr-39-27	 -> 37
+// hqr-41-0	 -> 38
+// hqr-42-0	 -> 39
+// hqr-43-0	 -> 40
+// hqr-38-18	 -> 41
+// hqr-40-30	 -> 42
+// hqr-45-0	 -> 43
+// hqr-44-31	 -> 44
+// hqr-46-35	 -> 45
+// hqr-49-0	 -> 46
+// hqr-50-0	 -> 47
+// hqr-51-0	 -> 48
+// hqr-52-0	 -> 49
+// hqr-53-0	 -> 50
+// hqr-48-36	 -> 51
+// hqr-55-37	 -> 52
+// hqr-58-37	 -> 53
+// hqr-60-0	 -> 54
+// hqr-57-38	 -> 55
+// hqr-59-37	 -> 56
+// hqr-61-0	 -> 57
+// hqr-63-0	 -> 58
+// hqr-64-0	 -> 59
+// hqr-65-0	 -> 60
+// hqr-62-39	 -> 61
+// hqr-67-39	 -> 62
+// hqr-66-40	 -> 63
+// hqr-68-0	 -> 64
+// hqr-69-0	 -> 65
+// hqr-54-45	 -> 66
+// hqr-56-43	 -> 67
+// hqr-70-0	 -> 68
+// hqr-71-0	 -> 69
+// hqr-72-0	 -> 70
+// hqr-73-0	 -> 71
+// hqr-74-0	 -> 72
+// hqr-47-47	 -> 73
+// hqr-76-0	 -> 74
+// hqr-75-48	 -> 75
+// hqr-78-48	 -> 76
+// hqr-79-48	 -> 77
+// hqr-80-49	 -> 78
+// hqr-81-50	 -> 79
+// hqr-84-50	 -> 80
+// hqr-85-50	 -> 81
+// hqr-86-50	 -> 82
+// hqr-87-0	 -> 83
+// hqr-83-0	 -> 84
+// hqr-82-53	 -> 85
+// hqr-88-0	 -> 86
+// hqr-89-0	 -> 87
+// hqr-90-0	 -> 88
+// hqr-91-0	 -> 89
+// hqr-92-0	 -> 90
+// hqr-77-55	 -> 91
+// hqr-93-56	 -> 92
+// hqr-96-56	 -> 93
+// hqr-97-66	 -> 94
+// hqr-98-56	 -> 95
+// hqr-100-0	 -> 96
+// hqr-101-0	 -> 97
+// hqr-102-0	 -> 98
+// hqr-103-0	 -> 99
+// hqr-104-0	 -> 100
+// hqr-105-0	 -> 101
+// hqr-106-0	 -> 102
+// hqr-107-0	 -> 103
+// hqr-108-0	 -> 104
+// hqr-109-0	 -> 105
+// hqr-110-0	 -> 106
+// hqr-111-0	 -> 107
+// hqr-99-67	 -> 108
+// hqr-113-67	 -> 109
+// hqr-112-69	 -> 110
+// hqr-115-0	 -> 111
+// hqr-116-0	 -> 112
+// hqr-117-0	 -> 113
+// hqr-118-0	 -> 114
+// hqr-119-0	 -> 115
+// hqr-120-0	 -> 116
+// hqr-121-0	 -> 117
+// hqr-122-0	 -> 118
+// hqr-114-70	 -> 119
+// hqr-124-70	 -> 120
+// hqr-123-56	 -> 121
+// hqr-95-0	 -> 122
+// hqr-94-72	 -> 123
+// hqr-127-72	 -> 124
+// hqr-128-73	 -> 125
+// hqr-129-72	 -> 126
+// hqr-130-74	 -> 127
+// hqr-132-74	 -> 128
+// hqr-131-72	 -> 129
+// hqr-126-0	 -> 130
+// hqr-125-76	 -> 131
+// hqr-134-76	 -> 132
+// hqr-135-77	 -> 133
+// hqr-136-76	 -> 134
+// hqr-138-80	 -> 135
+// hqr-140-0	 -> 136
+// hqr-141-0	 -> 137
+// hqr-139-81	 -> 138
+// hqr-143-81	 -> 139
+// hqr-142-82	 -> 140
+// hqr-145-0	 -> 141
+// hqr-146-0	 -> 142
+// hqr-147-0	 -> 143
+// hqr-144-82	 -> 144
+// hqr-148-85	 -> 145
+// hqr-149-0	 -> 146
+// hqr-150-0	 -> 147
+// hqr-137-88	 -> 148
+// hqr-152-88	 -> 149
+// hqr-154-0	 -> 150
+// hqr-155-0	 -> 151
+// hqr-151-88	 -> 152
+// hqr-153-88	 -> 153
+// hqr-156-0	 -> 154
+// hqr-157-0	 -> 155
+// hqr-159-89	 -> 156
+// hqr-161-90	 -> 157
+// hqr-163-91	 -> 158
+// hqr-160-99	 -> 159
+// hqr-162-93	 -> 160
+// hqr-165-0	 -> 161
+// hqr-166-0	 -> 162
+// hqr-167-0	 -> 163
+// hqr-168-0	 -> 164
+// hqr-169-0	 -> 165
+// hqr-164-100	 -> 166
+// hqr-172-100	 -> 167
+// hqr-173-101	 -> 168
+// hqr-174-100	 -> 169
+// hqr-175-102	 -> 170
+// hqr-177-104	 -> 171
+// hqr-178-0	 -> 172
+// hqr-176-100	 -> 173
+// hqr-179-0	 -> 174
+// hqr-180-0	 -> 175
+// hqr-171-0	 -> 176
+// hqr-170-109	 -> 177
+// hqr-182-109	 -> 178
+// hqr-181-110	 -> 179
+// hqr-183-109	 -> 180
+// hqr-185-110	 -> 181
+// hqr-186-111	 -> 182
+// hqr-187-110	 -> 183
+// hqr-188-112	 -> 184
+// hqr-190-114	 -> 185
+// hqr-191-0	 -> 186
+// hqr-189-110	 -> 187
+// hqr-192-0	 -> 188
+// hqr-193-0	 -> 189
+// hqr-184-0	 -> 190
+// hqr-158-76	 -> 191
+// hqr-133-0	 -> 192
+// hqr-194-18	 -> 193
+// hqr-196-18	 -> 194
+// hqr-195-18	 -> 195
+// hqr-22-0	 -> 196
+// hqr-17-0	 -> 197
+// hqr-16-125	 -> 198
+START:2;
+FROM:2;
+anorm := 0;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+assume(i<=n);
+TO:5;
+
+FROM:4;
+assume(i>=(1 + n));
+TO:6;
+
+FROM:5;
+TO:7;
+
+FROM:7;
+assume(j<=n);
+TO:8;
+
+FROM:7;
+assume(j>=(1 + n));
+TO:9;
+
+FROM:8;
+tmp := nondet();
+TO:10;
+
+FROM:10;
+anorm := (anorm + tmp);
+TO:11;
+
+FROM:11;
+j := (j + 1);
+TO:5;
+
+FROM:12;
+TO:13;
+
+FROM:13;
+i := (i + 1);
+TO:3;
+
+FROM:14;
+TO:15;
+
+FROM:15;
+nn := n;
+TO:16;
+
+FROM:16;
+t := 0;
+TO:17;
+
+FROM:17;
+TO:18;
+
+FROM:18;
+assume(nn>=1);
+TO:19;
+
+FROM:18;
+assume((nn + 1)<=1);
+TO:20;
+
+FROM:19;
+its := 0;
+TO:21;
+
+FROM:21;
+TO:22;
+
+FROM:22;
+TO:23;
+
+FROM:23;
+assume(l>=2);
+TO:24;
+
+FROM:23;
+assume((l + 1)<=2);
+TO:25;
+
+FROM:24;
+tmp___0 := nondet();
+TO:26;
+
+FROM:26;
+tmp___1 := nondet();
+TO:27;
+
+FROM:27;
+s := (tmp___0 + tmp___1);
+TO:28;
+
+FROM:28;
+assume(s==0);
+TO:29;
+
+FROM:29;
+s := anorm;
+TO:30;
+
+FROM:28;
+assume((s + 1)<=0);
+TO:30;
+
+FROM:28;
+assume(s>=(1 + 0));
+TO:30;
+
+FROM:30;
+tmp___2 := nondet();
+TO:31;
+
+FROM:31;
+assume((tmp___2 + s)==s);
+TO:32;
+
+FROM:31;
+assume(((tmp___2 + s) + 1)<=s);
+TO:33;
+
+FROM:31;
+assume((tmp___2 + s)>=(1 + s));
+TO:33;
+
+FROM:33;
+l := (l - 1);
+TO:22;
+
+FROM:34;
+TO:35;
+
+FROM:35;
+x := nondet();
+TO:36;
+
+FROM:36;
+assume(l==nn);
+TO:37;
+
+FROM:37;
+TO:38;
+
+FROM:38;
+tmp___3 := nn;
+TO:39;
+
+FROM:39;
+nn := (nn - 1);
+TO:40;
+
+FROM:40;
+TO:41;
+
+FROM:36;
+assume((l + 1)<=nn);
+TO:42;
+
+FROM:36;
+assume(l>=(1 + nn));
+TO:42;
+
+FROM:42;
+y := nondet();
+TO:43;
+
+FROM:43;
+w := (nondet() * nondet());
+TO:44;
+
+FROM:44;
+assume(l==(nn - 1));
+TO:45;
+
+FROM:45;
+tmp := nondet(); 
+assume(tmp + tmp ==(y-x));
+p := tmp;
+TO:46;
+
+FROM:46;
+q := ((p * p) + w);
+TO:47;
+
+FROM:47;
+tmp___4 := nondet();
+TO:48;
+
+FROM:48;
+tmp___5 := nondet();
+TO:49;
+
+FROM:49;
+z := tmp___5;
+TO:50;
+
+FROM:50;
+x := (x + t);
+TO:51;
+
+FROM:51;
+assume(q>=0);
+TO:52;
+
+FROM:52;
+assume(p>=0);
+TO:53;
+
+FROM:53;
+tmp___6 := nondet();
+TO:54;
+
+FROM:54;
+tmp___8 := tmp___6;
+TO:55;
+
+FROM:52;
+assume((p + 1)<=0);
+TO:56;
+
+FROM:56;
+tmp___7 := nondet();
+TO:57;
+
+FROM:57;
+tmp___8 := (-tmp___7);
+TO:55;
+
+FROM:55;
+z := (p + tmp___8);
+TO:58;
+
+FROM:58;
+tmp___9 := (x + z);
+TO:59;
+
+FROM:59;
+TO:60;
+
+FROM:60;
+TO:61;
+
+FROM:61;
+assume((z + 1)<=0);
+TO:62;
+
+FROM:61;
+assume(z>=(1 + 0));
+TO:62;
+
+FROM:62;
+TO:63;
+
+FROM:61;
+assume(z==0);
+TO:63;
+
+FROM:63;
+tmp___10 := 0;
+TO:64;
+
+FROM:64;
+TO:65;
+
+FROM:65;
+TO:66;
+
+FROM:51;
+assume((q + 1)<=0);
+TO:67;
+
+FROM:67;
+tmp___11 := (x + p);
+TO:68;
+
+FROM:68;
+TO:69;
+
+FROM:69;
+TO:70;
+
+FROM:70;
+tmp := z;
+TO:71;
+
+FROM:71;
+TO:72;
+
+FROM:72;
+TO:66;
+
+FROM:66;
+nn := (nn - 2);
+TO:41;
+
+FROM:44;
+assume((l + 1)<=(nn - 1));
+TO:73;
+
+FROM:44;
+assume(l>=(1 + (nn - 1)));
+TO:73;
+
+FROM:73;
+assume(its==30);
+TO:74;
+
+FROM:74;
+TO:75;
+
+FROM:73;
+assume((its + 1)<=30);
+TO:75;
+
+FROM:73;
+assume(its>=(1 + 30));
+TO:75;
+
+FROM:75;
+assume(its==10);
+TO:76;
+
+FROM:75;
+assume((its + 1)<=10);
+TO:77;
+
+FROM:75;
+assume(its>=(1 + 10));
+TO:77;
+
+FROM:77;
+assume(its==20);
+TO:78;
+
+FROM:78;
+t := (t + x);
+TO:79;
+
+FROM:79;
+TO:80;
+
+FROM:80;
+assume(i<=nn);
+TO:81;
+
+FROM:80;
+assume(i>=(1 + nn));
+TO:82;
+
+FROM:81;
+TO:83;
+
+FROM:83;
+i := (i + 1);
+TO:79;
+
+FROM:84;
+TO:85;
+
+FROM:85;
+tmp___13 := nondet();
+TO:86;
+
+FROM:86;
+tmp___14 := nondet();
+TO:87;
+
+FROM:87;
+s := (tmp___13 + tmp___14);
+TO:88;
+
+FROM:88;
+tmp := nondet();
+assume(tmp + tmp + tmp + tmp == s);
+x := tmp + tmp + tmp;
+TO:89;
+
+FROM:89;
+y := x;
+TO:90;
+
+FROM:90;
+//w := ((-0.4375 * s) * s);
+w := nondet();
+TO:91;
+
+FROM:77;
+assume((its + 1)<=20);
+TO:91;
+
+FROM:77;
+assume(its>=(1 + 20));
+TO:91;
+
+FROM:91;
+its := (its + 1);
+TO:92;
+
+FROM:92;
+TO:93;
+
+FROM:93;
+assume(m>=l);
+TO:94;
+
+FROM:93;
+assume((m + 1)<=l);
+TO:95;
+
+FROM:94;
+z := nondet();
+TO:96;
+
+FROM:96;
+r := (x - z);
+TO:97;
+
+FROM:97;
+s := (y - z);
+TO:98;
+
+FROM:98;
+p := ((((r * s) - w) / nondet()) + nondet());
+TO:99;
+
+FROM:99;
+q := (((nondet() - z) - r) - s);
+TO:100;
+
+FROM:100;
+r := nondet();
+TO:101;
+
+FROM:101;
+tmp___15 := nondet();
+TO:102;
+
+FROM:102;
+tmp___16 := nondet();
+TO:103;
+
+FROM:103;
+tmp___17 := nondet();
+TO:104;
+
+FROM:104;
+s := ((tmp___15 + tmp___16) + tmp___17);
+TO:105;
+
+FROM:105;
+p := (p / s);
+TO:106;
+
+FROM:106;
+q := (q / s);
+TO:107;
+
+FROM:107;
+r := (r / s);
+TO:108;
+
+FROM:108;
+assume(m==l);
+TO:109;
+
+FROM:108;
+assume((m + 1)<=l);
+TO:110;
+
+FROM:108;
+assume(m>=(1 + l));
+TO:110;
+
+FROM:110;
+tmp___18 := nondet();
+TO:111;
+
+FROM:111;
+tmp___19 := nondet();
+TO:112;
+
+FROM:112;
+tmp___20 := nondet();
+TO:113;
+
+FROM:113;
+u := (tmp___18 * (tmp___19 + tmp___20));
+TO:114;
+
+FROM:114;
+tmp___21 := nondet();
+TO:115;
+
+FROM:115;
+tmp___22 := nondet();
+TO:116;
+
+FROM:116;
+tmp___23 := nondet();
+TO:117;
+
+FROM:117;
+tmp___24 := nondet();
+TO:118;
+
+FROM:118;
+v := (tmp___21 * ((tmp___22 + tmp___23) + tmp___24));
+TO:119;
+
+FROM:119;
+assume((u + v)==v);
+TO:120;
+
+FROM:119;
+assume(((u + v) + 1)<=v);
+TO:121;
+
+FROM:119;
+assume((u + v)>=(1 + v));
+TO:121;
+
+FROM:121;
+m := (m - 1);
+TO:92;
+
+FROM:122;
+TO:123;
+
+FROM:123;
+TO:124;
+
+FROM:124;
+assume(i<=nn);
+TO:125;
+
+FROM:124;
+assume(i>=(1 + nn));
+TO:126;
+
+FROM:125;
+TO:127;
+
+FROM:127;
+assume((i + 1)<=(m + 2));
+TO:128;
+
+FROM:127;
+assume(i>=(1 + (m + 2)));
+TO:128;
+
+FROM:128;
+TO:129;
+
+FROM:127;
+assume(i==(m + 2));
+TO:129;
+
+FROM:129;
+i := (i + 1);
+TO:123;
+
+FROM:130;
+TO:131;
+
+FROM:131;
+TO:132;
+
+FROM:132;
+assume(k<=(nn - 1));
+TO:133;
+
+FROM:132;
+assume(k>=(1 + (nn - 1)));
+TO:134;
+
+FROM:133;
+assume((k + 1)<=m);
+TO:135;
+
+FROM:133;
+assume(k>=(1 + m));
+TO:135;
+
+FROM:135;
+p := nondet();
+TO:136;
+
+FROM:136;
+q := nondet();
+TO:137;
+
+FROM:137;
+r := 0;
+TO:138;
+
+FROM:138;
+assume((k + 1)<=(nn - 1));
+TO:139;
+
+FROM:138;
+assume(k>=(1 + (nn - 1)));
+TO:139;
+
+FROM:139;
+r := nondet();
+TO:140;
+
+FROM:138;
+assume(k==(nn - 1));
+TO:140;
+
+FROM:140;
+tmp___25 := nondet();
+TO:141;
+
+FROM:141;
+tmp___26 := nondet();
+TO:142;
+
+FROM:142;
+tmp___27 := nondet();
+TO:143;
+
+FROM:143;
+x := ((tmp___25 + tmp___26) + tmp___27);
+TO:144;
+
+FROM:144;
+assume((x + 1)<=0);
+TO:145;
+
+FROM:144;
+assume(x>=(1 + 0));
+TO:145;
+
+FROM:145;
+p := (p / x);
+TO:146;
+
+FROM:146;
+q := (q / x);
+TO:147;
+
+FROM:147;
+r := (r / x);
+TO:148;
+
+FROM:144;
+assume(x==0);
+TO:148;
+
+FROM:133;
+assume(k==m);
+TO:148;
+
+FROM:148;
+assume(p>=0);
+TO:149;
+
+FROM:149;
+tmp___28 := nondet();
+TO:150;
+
+FROM:150;
+tmp___29 := nondet();
+TO:151;
+
+FROM:151;
+s := tmp___29;
+TO:152;
+
+FROM:148;
+assume((p + 1)<=0);
+TO:153;
+
+FROM:153;
+tmp___30 := nondet();
+TO:154;
+
+FROM:154;
+tmp___31 := nondet();
+TO:155;
+
+FROM:155;
+s := (-tmp___31);
+TO:152;
+
+FROM:152;
+assume((s + 1)<=0);
+TO:156;
+
+FROM:152;
+assume(s>=(1 + 0));
+TO:156;
+
+FROM:156;
+assume(k==m);
+TO:157;
+
+FROM:157;
+assume((l + 1)<=m);
+TO:158;
+
+FROM:157;
+assume(l>=(1 + m));
+TO:158;
+
+FROM:158;
+TO:159;
+
+FROM:157;
+assume(l==m);
+TO:159;
+
+FROM:156;
+assume((k + 1)<=m);
+TO:160;
+
+FROM:156;
+assume(k>=(1 + m));
+TO:160;
+
+FROM:160;
+TO:159;
+
+FROM:159;
+p := (p + s);
+TO:161;
+
+FROM:161;
+x := (p / s);
+TO:162;
+
+FROM:162;
+y := (q / s);
+TO:163;
+
+FROM:163;
+z := (r / s);
+TO:164;
+
+FROM:164;
+q := (q / p);
+TO:165;
+
+FROM:165;
+r := (r / p);
+TO:166;
+
+FROM:166;
+TO:167;
+
+FROM:167;
+assume(j<=nn);
+TO:168;
+
+FROM:167;
+assume(j>=(1 + nn));
+TO:169;
+
+FROM:168;
+p := (nondet() + (q * nondet()));
+TO:170;
+
+FROM:170;
+assume((k + 1)<=(nn - 1));
+TO:171;
+
+FROM:170;
+assume(k>=(1 + (nn - 1)));
+TO:171;
+
+FROM:171;
+p := (p + (r * nondet()));
+TO:172;
+
+FROM:172;
+TO:173;
+
+FROM:170;
+assume(k==(nn - 1));
+TO:173;
+
+FROM:173;
+TO:174;
+
+FROM:174;
+TO:175;
+
+FROM:175;
+j := (j + 1);
+TO:166;
+
+FROM:176;
+TO:177;
+
+FROM:177;
+assume((nn + 1)<=(k + 3));
+TO:178;
+
+FROM:178;
+mmin := nn;
+TO:179;
+
+FROM:177;
+assume(nn>=(k + 3));
+TO:180;
+
+FROM:180;
+mmin := (k + 3);
+TO:179;
+
+FROM:179;
+TO:181;
+
+FROM:181;
+assume(i<=mmin);
+TO:182;
+
+FROM:181;
+assume(i>=(1 + mmin));
+TO:183;
+
+FROM:182;
+p := ((x * nondet()) + (y * nondet()));
+TO:184;
+
+FROM:184;
+assume((k + 1)<=(nn - 1));
+TO:185;
+
+FROM:184;
+assume(k>=(1 + (nn - 1)));
+TO:185;
+
+FROM:185;
+p := (p + (z * nondet()));
+TO:186;
+
+FROM:186;
+TO:187;
+
+FROM:184;
+assume(k==(nn - 1));
+TO:187;
+
+FROM:187;
+TO:188;
+
+FROM:188;
+TO:189;
+
+FROM:189;
+i := (i + 1);
+TO:179;
+
+FROM:190;
+TO:191;
+
+FROM:152;
+assume(s==0);
+TO:191;
+
+FROM:191;
+k := (k + 1);
+TO:131;
+
+FROM:192;
+TO:41;
+
+FROM:41;
+assume((l + 1)<=(nn - 1));
+TO:193;
+
+FROM:193;
+assume(its<=30);
+TO:21;
+
+FROM:193;
+assume(its>=(1 + 30));
+TO:194;
+
+FROM:41;
+assume(l>=(nn - 1));
+TO:195;
+
+FROM:196;
+TO:17;
+
+FROM:197;
+TO:198;
+
+FROM:198;
+TO:1;
+
+FROM:195;
+TO:196;
+
+FROM:194;
+TO:196;
+
+FROM:183;
+TO:190;
+
+FROM:169;
+TO:176;
+
+FROM:134;
+TO:192;
+
+FROM:126;
+TO:130;
+
+FROM:120;
+TO:122;
+
+FROM:109;
+TO:122;
+
+FROM:95;
+TO:122;
+
+FROM:82;
+TO:84;
+
+FROM:76;
+TO:78;
+
+FROM:32;
+TO:34;
+
+FROM:25;
+TO:34;
+
+FROM:20;
+TO:197;
+
+FROM:9;
+TO:12;
+
+FROM:6;
+TO:14;
+

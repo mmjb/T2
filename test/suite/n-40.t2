@@ -1,0 +1,64 @@
+START: 1;
+
+FROM: 2;
+  assume(1-x_6<0);
+  assume(2-w_5<0);
+AT(1,"n-40.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 2;
+  assume(0<=1-x_6);
+AT(6,"n-40.c ")  x_6 := 1+x_6;
+AT(7,"n-40.c ")  w_5 := 1+w_5;
+  assume(x_6==2);
+  assume(w_5==2);
+AT(9,"n-40.c ")  w_5 := 1;
+TO: 2;
+
+FROM: 2;
+  assume(0<=1-x_6);
+AT(6,"n-40.c ")  x_6 := 1+x_6;
+AT(7,"n-40.c ")  w_5 := 1+w_5;
+  assume(x_6==2);
+  assume(w_5!=2);
+TO: 2;
+
+FROM: 2;
+  assume(0<=1-x_6);
+AT(6,"n-40.c ")  x_6 := 1+x_6;
+AT(7,"n-40.c ")  w_5 := 1+w_5;
+  assume(x_6!=2);
+  assume(w_5==2);
+AT(9,"n-40.c ")  w_5 := 1;
+TO: 2;
+
+FROM: 2;
+  assume(0<=1-x_6);
+AT(6,"n-40.c ")  x_6 := 1+x_6;
+AT(7,"n-40.c ")  w_5 := 1+w_5;
+  assume(x_6!=2);
+  assume(w_5!=2);
+TO: 2;
+
+FROM: 2;
+  assume(1-x_6<0);
+  assume(0<=2-w_5);
+AT(6,"n-40.c ")  x_6 := 1+x_6;
+AT(7,"n-40.c ")  w_5 := 1+w_5;
+  assume(x_6!=2);
+  assume(w_5==2);
+AT(9,"n-40.c ")  w_5 := 1;
+TO: 2;
+
+FROM: 2;
+  assume(1-x_6<0);
+  assume(0<=2-w_5);
+AT(6,"n-40.c ")  x_6 := 1+x_6;
+AT(7,"n-40.c ")  w_5 := 1+w_5;
+  assume(x_6!=2);
+  assume(w_5!=2);
+TO: 2;
+
+FROM: 1;
+TO: 2;
+

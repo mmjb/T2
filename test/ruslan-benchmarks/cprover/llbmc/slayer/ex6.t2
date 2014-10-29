@@ -1,0 +1,30 @@
+START:0;
+FROM:0;
+assume((nondet() + 1)<=0);
+TO:2;
+
+FROM:0;
+TO:2;
+
+FROM:2;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:0;
+TO:5;
+
+FROM:5;
+tmp := nondet();
+TO:6;
+
+FROM:6;
+TO:7;
+
+FROM:7;
+TO:4;
+
+FROM:4;
+TO:8;
+

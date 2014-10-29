@@ -1,0 +1,35 @@
+START: 3;
+
+FROM: 0;
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(i_13 >= 10);
+AT(5,"c:\src\slayer\test\slayer-2.c ")  rt_11 := st_14;
+TO: 4;
+
+FROM: 0;
+AT(4,"c:\src\slayer\test\slayer-2.c ")  i_21 := nondet();
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(i_13 < 10);
+AT(4,"c:\src\slayer\test\slayer-2.c ")  i_13 := 1+i_13;
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(i_13 == 1+i_21);
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(i_21 < 10);
+TO: 0;
+
+FROM: 1;
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(i_13 < 10);
+AT(4,"c:\src\slayer\test\slayer-2.c ")  i_13 := 1+i_13;
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(1 == i_13);
+TO: 0;
+
+FROM: 2;
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(i_13 < 10);
+AT(4,"c:\src\slayer\test\slayer-2.c ")  i_13 := 1+i_13;
+AT(4,"c:\src\slayer\test\slayer-2.c ")  i_13 := nondet();
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(2 == i_13);
+AT(4,"c:\src\slayer\test\slayer-2.c ")  a_20 := nondet();
+AT(4,"c:\src\slayer\test\slayer-2.c ")  assume(a_20 == i_13);
+TO: 0;
+
+FROM: 3;
+AT(4,"c:\src\slayer\test\slayer-2.c ")  i_13 := 0;
+  assume(0 == i_13);
+TO: 0;
+

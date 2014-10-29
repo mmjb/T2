@@ -1,0 +1,15 @@
+START:0;
+FROM:0;
+tmp := nondet();
+TO:2;
+
+FROM:2;
+x := tmp;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+TO:5;
+

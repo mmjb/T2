@@ -1,0 +1,37 @@
+These benchmarks have been collected and organized by the Systems Analysis
+and Verification group at NEC Laboratories America (http://www.nec-labs.com). 
+They include programs written by researchers at NEC Laboratories as well as
+freely available programs from the web.
+
+Permission is granted to use and redistribute them for research purposes.
+
+NEC Laboratories America or its associates make no representations whatsoever 
+about these benchmarks, and cannot be held liable for any damages whatsoever
+incurred during their use. 
+
+For questions, corrections and new contributions, please contact 
+Franjo Ivancic <ivancic@nec-labs.com>. 
+
+
+
+Versioning information
+----------------------
+
+V1.0 (2008, Sriram Sankaranarayanan): 
+  * Initial Release
+
+V1.1 (Jan. 2011, Franjo Ivancic):
+  * Updated bugs file for examples ex13, ex25, ex28, and ex40. 
+  * Slight changes made to examples ex40 and ex41. 
+  * We are grateful to Lucas Cordeiro from the University of Southampton
+    for pointing out a number of inconsistencies in the expected results file. 
+
+V1.2 (Sun Aug 12 22:54:10 BST 2012, Ruslan Ledesma-Garza)
+  * Adapted the benchmarks for translation into the format of T2. The
+    following changes were applied:
+    - Removed inclusion of stdlib.h and defined NULL as 0 where
+      needed.
+    - Renamed the main function as 'main'.
+    - Marked all other functions with 'inline'.
+  * Benchmarks ex37.c and ex43.c were not translated into the format
+    of T2. The translation utility could not deal with the programs.

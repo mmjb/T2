@@ -1,0 +1,23 @@
+START: 0;
+
+FROM: 0;
+x := nondet();
+assume(x > 0);
+TO: 1;
+
+FROM: 1;
+assume(x != 1);
+assume(x != 2);
+assume(x != 4);
+y := nondet();
+TO: 2;
+
+FROM: 2;
+assume(2*y == x);
+x := y;
+TO: 1;
+
+FROM: 2;
+assume((2*y) + 1 == x);
+x := (3*x) + 1;
+TO: 1;

@@ -1,0 +1,32 @@
+START: 3;
+
+FROM: 0;
+AT(4,"c:\src\t2\test\s2.c")	assume(((i!14 >= 10)));
+AT(5,"c:\src\t2\test\s2.c")	result!12 := temp0!15;
+TO: 4;
+
+FROM: 0;
+AT(4,"c:\src\t2\test\s2.c")	assume(((i!14 < 10)));
+AT(4,"c:\src\t2\test\s2.c")	i!14 := (1 + i!14);
+AT(4,"c:\src\t2\test\s2.c")	assume(((i!14 == (1 + i!22)) && (i!22 < 10)));
+TO: 0;
+
+FROM: 1;
+AT(4,"c:\src\t2\test\s2.c")	assume(((i!14 < 10)));
+AT(4,"c:\src\t2\test\s2.c")	i!14 := (1 + i!14);
+AT(4,"c:\src\t2\test\s2.c")	assume(((1 == i!14)));
+AT(4,"c:\src\t2\test\s2.c")	assume(((1 == i!14)));
+TO: 2;
+
+FROM: 2;
+AT(4,"c:\src\t2\test\s2.c")	assume(((i!14 < 10)));
+AT(4,"c:\src\t2\test\s2.c")	i!14 := (1 + i!14);
+AT(4,"c:\src\t2\test\s2.c")	assume(((2 == i!14)));
+TO: 0;
+
+FROM: 3;
+AT(4,"c:\src\t2\test\s2.c")	i!14 := 0;
+AT(4,"c:\src\t2\test\s2.c")	assume(((0 == i!14)));
+AT(4,"c:\src\t2\test\s2.c")	assume(((0 == i!14)));
+TO: 1;
+

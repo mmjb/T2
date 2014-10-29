@@ -1,0 +1,19 @@
+START: 1;
+CUTPOINT: 8;
+
+FROM: 1;
+pc_Loop := 2;
+TO: 2;
+
+FROM: 2;
+pc_Loop := 3;
+TO: 4;
+
+FROM: 4;
+pc_Loop := 2;
+TO: 2;
+
+FROM: 8;
+pc_Loop := 2;
+TO: 8;
+

@@ -1,0 +1,15 @@
+These are the SNU real-time benchmarks.
+Original source: http://archi.snu.ac.kr/realtime/benchmark/
+
+Slightly adapted for ANSI complicane (see NOTES).
+
+
+Versioning information
+----------------------
+
+V2.0 (Mon Aug 13 01:27:11 BST 2012, Ruslan Ledesma-Garza)
+  * Adapted the benchmarks for translation into the format of T2. The
+    following changes were applied:
+    - Removed inclusion of stdlib.h and defined NULL as 0 where
+      needed.
+    - Marked all other functions with 'inline'.

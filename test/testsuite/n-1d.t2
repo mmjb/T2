@@ -1,0 +1,24 @@
+START: 2;
+CUTPOINT: 300;
+
+FROM: 2;
+TO: 300;
+
+FROM: 300;
+  assume(0<=-1-x_5+y_6);
+AT(8,"n-1d.c ")  tmp_7 := nondet();
+  assume(tmp_7!=0);
+AT(8,"n-1d.c ")  x_5 := 1+x_5;
+TO: 300;
+
+FROM: 300;
+  assume(0<=-1-x_5+y_6);
+AT(8,"n-1d.c ")  tmp_7 := nondet();
+  assume(tmp_7==0);
+TO: 300;
+
+FROM: 300;
+  assume(-1-x_5+y_6<0);
+AT(2,"n-1d.c ")  Result_4 := nondet();
+TO: 1;
+

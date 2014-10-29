@@ -1,0 +1,28 @@
+START: 1;
+CUTPOINT: 300;
+
+FROM: 300;
+  assume(0<=9-x_6);
+  assume(0<=-101+i_5);
+AT(4,"p-61.c ")  i_5 := -1+i_5;
+TO: 300;
+
+FROM: 300;
+  assume(0<=9-x_6);
+  assume(-101+i_5<0);
+AT(7,"p-61.c ")  __retres3_7 := 0;
+AT(1,"p-61.c ")  __cil_tmp4_8 := __retres3_7;
+AT(1,"p-61.c ")  Result_4 := __cil_tmp4_8;
+TO: 2;
+
+FROM: 300;
+  assume(9-x_6<0);
+AT(7,"p-61.c ")  __retres3_7 := 0;
+AT(1,"p-61.c ")  __cil_tmp4_8 := __retres3_7;
+AT(1,"p-61.c ")  Result_4 := __cil_tmp4_8;
+TO: 2;
+
+FROM: 1;
+AT(4,"p-61.c ")  i_5 := 1000;
+TO: 300;
+

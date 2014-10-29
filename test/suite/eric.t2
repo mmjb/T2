@@ -1,0 +1,43 @@
+START: 1;
+
+FROM: 1;
+    assume(id<=m);
+    assume(0<id);
+    assume(0<m);
+    x := id + 1;
+    assume(x<=m+1);
+    assume(0<=x);
+TO: 2;
+
+FROM: 2;
+    assume(x<id);
+TO: 3;
+
+
+FROM: 2;
+    assume(x>id);
+TO: 3;
+
+FROM: 3;
+    assume(x>m);
+    assume(x>0);
+TO: 4;
+
+FROM: 3;
+    assume(x<=m);
+TO: 5;
+
+FROM: 4;
+    x := 0;
+    assume(x<=m+1);
+    assume(0<=x);
+TO: 2;
+
+FROM: 5;
+    x := x + 1;
+    assume(x<=m+1);
+    assume(0<=x);
+TO: 2;
+
+
+

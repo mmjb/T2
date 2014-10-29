@@ -1,0 +1,26 @@
+START: 0;
+CUTPOINT: 5;
+
+FROM:0;
+TO:1;
+
+FROM: 1;
+v_next := nondet();
+pre_v := v;
+TO: 2;
+
+FROM: 2;
+v := v_next;
+TO: 3;
+
+FROM: 3;
+v := v+1;
+TO: 4;
+
+FROM: 4;
+TO: 1;
+
+FROM: 4;
+assume(v<v_next);
+TO: 5;
+

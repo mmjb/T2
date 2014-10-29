@@ -1,0 +1,31 @@
+START: 3;
+CUTPOINT: 300;
+
+FROM: 3;
+AT(5,"p-7.c ")  b_7 := 0;
+TO: 1;
+
+FROM: 1;
+  assume(-1-x_5+y_6<0);
+AT(1,"p-7.c ")  Result_4 := nondet();
+TO: 2;
+
+FROM: 1;
+  assume(0<=-1-x_5+y_6);
+  assume(b_7==0);
+AT(9,"p-7.c ")  b_7 := 1;
+AT(10,"p-7.c ")  x_5 := 1+x_5;
+TO: 300;
+
+FROM: 300;
+  assume(-1-x_5+y_6<0);
+AT(1,"p-7.c ")  Result_4 := nondet();
+TO: 2;
+
+FROM: 300;
+  assume(0<=-1-x_5+y_6);
+  assume(b_7!=0);
+AT(12,"p-7.c ")  b_7 := 0;
+AT(13,"p-7.c ")  y_6 := -1+y_6;
+TO: 1;
+

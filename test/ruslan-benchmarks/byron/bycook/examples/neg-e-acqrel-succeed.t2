@@ -1,0 +1,110 @@
+START:0;
+FROM:0;
+A := 0;
+TO:5;
+
+FROM:5;
+R := 0;
+TO:6;
+
+FROM:8;
+TO:7;
+
+FROM:7;
+__rho_1_ := nondet();
+TO:9;
+
+FROM:9;
+dobreak := __rho_1_;
+TO:4;
+
+FROM:4;
+TO:10;
+
+FROM:10;
+assume(dobreak>=(1 + 0));
+TO:11;
+
+FROM:10;
+assume(dobreak<=0);
+TO:12;
+
+FROM:12;
+A := 1;
+TO:13;
+
+FROM:13;
+A := 0;
+TO:14;
+
+FROM:14;
+n := nondet();
+TO:15;
+
+FROM:15;
+assume(n>=(1 + 0));
+TO:3;
+
+FROM:3;
+TO:16;
+
+FROM:16;
+assume(n<=0);
+TO:17;
+
+FROM:16;
+assume(n>=(1 + 0));
+TO:18;
+
+FROM:18;
+TO:3;
+
+FROM:20;
+TO:19;
+
+FROM:19;
+R := 1;
+TO:21;
+
+FROM:21;
+R := 0;
+TO:22;
+
+FROM:22;
+__rho_1_ := nondet();
+TO:23;
+
+FROM:23;
+dobreak := __rho_1_;
+TO:4;
+
+FROM:24;
+TO:2;
+
+FROM:2;
+TO:25;
+
+FROM:25;
+TO:2;
+
+FROM:27;
+TO:26;
+
+FROM:29;
+TO:28;
+
+FROM:28;
+TO:30;
+
+FROM:26;
+TO:29;
+
+FROM:17;
+TO:20;
+
+FROM:11;
+TO:24;
+
+FROM:6;
+TO:8;
+

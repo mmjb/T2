@@ -1,0 +1,25 @@
+START: 3;
+CUTPOINT: 300;
+
+FROM: 2;
+  assume(0<=29-y_6);
+AT(8,"n-21.c ")  x_5 := -1+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(29-y_6<0);
+AT(9,"n-21.c ")  x_5 := -1+x_5;
+TO: 300;
+
+FROM: 300;
+  assume(0<=19-x_5);
+TO: 2;
+
+FROM: 300;
+  assume(19-x_5<0);
+AT(1,"n-21.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 3;
+TO: 300;
+

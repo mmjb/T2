@@ -1,0 +1,44 @@
+START: 0;
+
+FROM: 0;
+A := 0;
+R := 0;
+dobreak := nondet();
+n := nondet();
+TO: 1;
+
+FROM: 1;
+assume(dobreak <= 0);
+TO: 6;
+
+FROM: 6;
+A := 1;
+TO: 5;
+
+FROM: 5;
+A := 0;
+TO: 2;
+
+FROM: 2;
+assume(n > 0);
+n := n - 1;
+TO: 2;
+
+FROM: 2;
+assume(n <= 0);
+R := 1;
+TO: 4;
+
+FROM: 4;
+R := 0;
+dobreak := nondet();
+TO: 1;
+
+//FROM: 1;
+//assume(dobreak > 0);
+//TO: 3;
+
+//FROM: 3;
+//assume(0 >= 0);
+//TO: 3;
+

@@ -1,0 +1,180 @@
+// ARMC error state:  main-err-0
+// ARMC return state: main-ret-0	 -> 1
+// main-0-21	 -> 2
+// main-2-0	 -> 3
+// main-3-0	 -> 4
+// main-4-0	 -> 5
+// main-5-0	 -> 6
+// main-6-0	 -> 7
+// main-7-0	 -> 8
+// main-1-31	 -> 9
+// main-10-31	 -> 10
+// main-11-35	 -> 11
+// main-12-31	 -> 12
+// main-14-37	 -> 13
+// main-16-40	 -> 14
+// main-19-0	 -> 15
+// main-18-41	 -> 16
+// main-21-43	 -> 17
+// main-23-0	 -> 18
+// main-20-46	 -> 19
+// main-22-45	 -> 20
+// main-13-66	 -> 21
+// main-17-50	 -> 22
+// main-25-50	 -> 23
+// main-24-57	 -> 24
+// main-26-51	 -> 25
+// main-27-0	 -> 26
+// main-28-0	 -> 27
+// main-29-0	 -> 28
+// main-15-63	 -> 29
+// main-30-0	 -> 30
+// main-31-0	 -> 31
+// main-33-67	 -> 32
+// main-32-73	 -> 33
+// main-34-70	 -> 34
+// main-35-74	 -> 35
+// main-36-77	 -> 36
+// main-9-0	 -> 37
+// main-8-80	 -> 38
+START:2;
+FROM:2;
+pattern := 0;
+TO:3;
+FROM:3;
+seqlen := 1;
+TO:4;
+FROM:4;
+it := seqlen;
+TO:5;
+FROM:5;
+xx := 0;
+TO:6;
+FROM:6;
+yy := 0;
+TO:7;
+FROM:7;
+z := nondet();
+TO:8;
+FROM:8;
+assume(z>=1);
+TO:9;
+FROM:9;
+TO:10;
+FROM:10;
+assume(xx==yy);
+TO:11;
+FROM:10;
+assume((xx + 1)<=yy);
+TO:12;
+FROM:10;
+assume(xx>=(1 + yy));
+TO:12;
+FROM:11;
+assume(z==0);
+TO:13;
+FROM:13;
+assume(it>=(1 + 0));
+TO:14;
+FROM:14;
+it := (it - 1);
+TO:15;
+FROM:15;
+buffer := pattern;
+TO:16;
+FROM:16;
+assume(buffer>=(1 + 2));
+TO:17;
+FROM:17;
+c2 := 1;
+TO:18;
+FROM:18;
+buffer := (buffer - 2);
+TO:19;
+FROM:16;
+assume(buffer<=2);
+TO:20;
+FROM:20;
+c2 := 0;
+TO:19;
+FROM:19;
+c1 := buffer;
+TO:21;
+FROM:13;
+assume(it<=0);
+TO:22;
+FROM:22;
+assume(pattern>=3);
+TO:23;
+FROM:23;
+pattern := 0;
+TO:24;
+FROM:22;
+assume((pattern + 1)<=3);
+TO:25;
+FROM:25;
+pattern := (pattern + 1);
+TO:24;
+FROM:24;
+z := nondet();
+TO:26;
+FROM:26;
+assume(z>=1);
+TO:27;
+FROM:27;
+seqlen := (seqlen + 1);
+TO:28;
+FROM:28;
+it := seqlen;
+TO:21;
+FROM:11;
+assume((z + 1)<=0);
+TO:29;
+FROM:11;
+assume(z>=(1 + 0));
+TO:29;
+FROM:29;
+z := (z - 1);
+TO:30;
+FROM:30;
+c1 := nondet();
+TO:31;
+FROM:31;
+c2 := nondet();
+TO:21;
+FROM:21;
+assume(c1==0);
+TO:32;
+FROM:32;
+xx := 0;
+TO:33;
+FROM:21;
+assume((c1 + 1)<=0);
+TO:34;
+FROM:21;
+assume(c1>=(1 + 0));
+TO:34;
+FROM:34;
+xx := 1;
+TO:33;
+FROM:33;
+assume(c2==0);
+TO:35;
+FROM:35;
+yy := 0;
+TO:9;
+FROM:33;
+assume((c2 + 1)<=0);
+TO:36;
+FROM:33;
+assume(c2>=(1 + 0));
+TO:36;
+FROM:36;
+yy := 1;
+TO:9;
+FROM:37;
+TO:38;
+FROM:38;
+TO:1;
+FROM:12;
+TO:37;

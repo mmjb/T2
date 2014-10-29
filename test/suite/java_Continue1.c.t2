@@ -1,0 +1,55 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 0;
+TO: 2;
+
+FROM: 0;
+TO: 3;
+
+FROM: 0;
+TO: 4;
+
+FROM: 0;
+TO: 5;
+
+FROM: 0;
+TO: 6;
+
+FROM: 1;
+oldX0 := x0;
+oldX1 := nondet();
+x0 := oldX1;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+x0 := 0;
+TO: 3;
+
+FROM: 3;
+oldX0 := x0;
+assume(oldX0 <= 19);
+x0 := oldX0;
+TO: 4;
+
+FROM: 3;
+oldX0 := x0;
+assume(oldX0 > 19);
+x0 := oldX0;
+TO: 5;
+
+FROM: 4;
+oldX0 := x0;
+x0 := oldX0 + 1;
+TO: 3;
+
+FROM: 5;
+oldX0 := x0;
+oldX1 := nondet();
+x0 := oldX1;
+TO: 6;
+
+

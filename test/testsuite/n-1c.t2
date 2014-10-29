@@ -1,0 +1,39 @@
+START: 2;
+CUTPOINT: 300;
+
+FROM: 1;
+AT(7,"n-1c.c ")  lt_9 := cnt_16;
+AT(7,"n-1c.c ")  lt_10 := cnt_21;
+  assume(0<=-1-lt_9+lt_10);
+AT(7,"n-1c.c ")  lt_9 := nondet();
+AT(7,"n-1c.c ")  lt_10 := nondet();
+AT(8,"n-1c.c ")  tmp_7 := nondet();
+  assume(tmp_7!=0);
+AT(8,"n-1c.c ")  lt_8 := cnt_16;
+AT(8,"n-1c.c ")  lt_8 := nondet();
+TO: 1;
+
+FROM: 1;
+AT(7,"n-1c.c ")  lt_9 := cnt_16;
+AT(7,"n-1c.c ")  lt_10 := cnt_21;
+  assume(0<=-1-lt_9+lt_10);
+AT(7,"n-1c.c ")  lt_9 := nondet();
+AT(7,"n-1c.c ")  lt_10 := nondet();
+AT(8,"n-1c.c ")  tmp_7 := nondet();
+  assume(tmp_7==0);
+TO: 1;
+
+FROM: 1;
+AT(7,"n-1c.c ")  lt_9 := cnt_16;
+AT(7,"n-1c.c ")  lt_10 := cnt_21;
+  assume(-1-lt_9+lt_10<0);
+AT(7,"n-1c.c ")  lt_9 := nondet();
+AT(7,"n-1c.c ")  lt_10 := nondet();
+AT(4,"n-1c.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 2;
+AT(4,"n-1c.c ")  y_6 := nondet();
+AT(4,"n-1c.c ")  x_5 := nondet();
+TO: 1;
+

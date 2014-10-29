@@ -1,0 +1,702 @@
+START:0;
+FROM:0;
+nDim := 4;
+TO:12;
+
+FROM:12;
+nN := nondet();
+TO:13;
+
+FROM:13;
+nSum := nondet();
+TO:14;
+
+FROM:14;
+bDomain := 1;
+TO:15;
+
+FROM:15;
+bDistinct := 1;
+TO:16;
+
+FROM:16;
+bSum := 1;
+TO:17;
+
+FROM:17;
+bSymmetry := 0;
+TO:18;
+
+FROM:18;
+nSumDiag1 := 0;
+TO:19;
+
+FROM:19;
+nSumDiag2 := 0;
+TO:20;
+
+FROM:20;
+nSumRow := 0;
+TO:21;
+
+FROM:21;
+nSumCol := 0;
+TO:22;
+
+FROM:22;
+tmp := nondet();
+TO:23;
+
+FROM:23;
+TO:24;
+
+FROM:24;
+ni := 0;
+TO:11;
+
+FROM:11;
+TO:25;
+
+FROM:25;
+assume((ni + 1)<=nN);
+TO:26;
+
+FROM:25;
+assume(ni>=nN);
+TO:27;
+
+FROM:26;
+TO:28;
+
+FROM:28;
+ni := (ni + 1);
+TO:11;
+
+FROM:30;
+TO:29;
+
+FROM:29;
+ni := 0;
+TO:10;
+
+FROM:10;
+TO:31;
+
+FROM:31;
+assume((ni + 1)<=nN);
+TO:32;
+
+FROM:31;
+assume(ni>=nN);
+TO:33;
+
+FROM:32;
+assume((bDomain + 1)<=0);
+TO:34;
+
+FROM:32;
+assume(bDomain>=(1 + 0));
+TO:34;
+
+FROM:34;
+assume(1<=nondet());
+TO:35;
+
+FROM:35;
+TO:36;
+
+FROM:36;
+tmp___0 := 1;
+TO:37;
+
+FROM:35;
+TO:38;
+
+FROM:38;
+tmp___0 := 0;
+TO:37;
+
+FROM:34;
+assume(1>=(1 + nondet()));
+TO:39;
+
+FROM:39;
+tmp___0 := 0;
+TO:37;
+
+FROM:32;
+assume(bDomain==0);
+TO:40;
+
+FROM:40;
+tmp___0 := 0;
+TO:37;
+
+FROM:37;
+bDomain := tmp___0;
+TO:41;
+
+FROM:41;
+ni := (ni + 1);
+TO:10;
+
+FROM:43;
+TO:42;
+
+FROM:42;
+ni := 0;
+TO:9;
+
+FROM:9;
+TO:44;
+
+FROM:44;
+assume((ni + 1)<=nN);
+TO:45;
+
+FROM:44;
+assume(ni>=nN);
+TO:46;
+
+FROM:45;
+nj := (ni + 1);
+TO:8;
+
+FROM:8;
+TO:47;
+
+FROM:47;
+assume((nj + 1)<=nN);
+TO:48;
+
+FROM:47;
+assume(nj>=nN);
+TO:49;
+
+FROM:48;
+assume((bDistinct + 1)<=0);
+TO:50;
+
+FROM:48;
+assume(bDistinct>=(1 + 0));
+TO:50;
+
+FROM:50;
+assume((nondet() + 1)<=nondet());
+TO:51;
+
+FROM:50;
+TO:51;
+
+FROM:51;
+tmp___1 := 1;
+TO:52;
+
+FROM:50;
+TO:53;
+
+FROM:53;
+tmp___1 := 0;
+TO:52;
+
+FROM:48;
+assume(bDistinct==0);
+TO:54;
+
+FROM:54;
+tmp___1 := 0;
+TO:52;
+
+FROM:52;
+bDistinct := tmp___1;
+TO:55;
+
+FROM:55;
+nj := (nj + 1);
+TO:8;
+
+FROM:57;
+TO:56;
+
+FROM:56;
+ni := (ni + 1);
+TO:9;
+
+FROM:59;
+TO:58;
+
+FROM:58;
+ni := 0;
+TO:7;
+
+FROM:7;
+TO:60;
+
+FROM:60;
+assume((ni + 1)<=nDim);
+TO:61;
+
+FROM:60;
+assume(ni>=nDim);
+TO:62;
+
+FROM:61;
+nSumDiag1 := (nSumDiag1 + nondet());
+TO:63;
+
+FROM:63;
+ni := (ni + 1);
+TO:7;
+
+FROM:65;
+TO:64;
+
+FROM:64;
+assume((bSum + 1)<=0);
+TO:66;
+
+FROM:64;
+assume(bSum>=(1 + 0));
+TO:66;
+
+FROM:66;
+assume(nSumDiag1==nSum);
+TO:67;
+
+FROM:67;
+tmp___2 := 1;
+TO:68;
+
+FROM:66;
+assume((nSumDiag1 + 1)<=nSum);
+TO:69;
+
+FROM:66;
+assume(nSumDiag1>=(1 + nSum));
+TO:69;
+
+FROM:69;
+tmp___2 := 0;
+TO:68;
+
+FROM:64;
+assume(bSum==0);
+TO:70;
+
+FROM:70;
+tmp___2 := 0;
+TO:68;
+
+FROM:68;
+bSum := tmp___2;
+TO:71;
+
+FROM:71;
+ni := 0;
+TO:6;
+
+FROM:6;
+TO:72;
+
+FROM:72;
+assume((ni + 1)<=nDim);
+TO:73;
+
+FROM:72;
+assume(ni>=nDim);
+TO:74;
+
+FROM:73;
+nSumDiag2 := (nSumDiag2 + nondet());
+TO:75;
+
+FROM:75;
+ni := (ni + 1);
+TO:6;
+
+FROM:77;
+TO:76;
+
+FROM:76;
+assume((bSum + 1)<=0);
+TO:78;
+
+FROM:76;
+assume(bSum>=(1 + 0));
+TO:78;
+
+FROM:78;
+assume(nSumDiag2==nSum);
+TO:79;
+
+FROM:79;
+tmp___3 := 1;
+TO:80;
+
+FROM:78;
+assume((nSumDiag2 + 1)<=nSum);
+TO:81;
+
+FROM:78;
+assume(nSumDiag2>=(1 + nSum));
+TO:81;
+
+FROM:81;
+tmp___3 := 0;
+TO:80;
+
+FROM:76;
+assume(bSum==0);
+TO:82;
+
+FROM:82;
+tmp___3 := 0;
+TO:80;
+
+FROM:80;
+bSum := tmp___3;
+TO:83;
+
+FROM:83;
+ni := 0;
+TO:5;
+
+FROM:5;
+TO:84;
+
+FROM:84;
+assume((ni + 1)<=nDim);
+TO:85;
+
+FROM:84;
+assume(ni>=nDim);
+TO:86;
+
+FROM:85;
+nSumRow := 0;
+TO:87;
+
+FROM:87;
+nj := 0;
+TO:4;
+
+FROM:4;
+TO:88;
+
+FROM:88;
+assume((nj + 1)<=nDim);
+TO:89;
+
+FROM:88;
+assume(nj>=nDim);
+TO:90;
+
+FROM:89;
+nSumRow := (nSumRow + nondet());
+TO:91;
+
+FROM:91;
+nj := (nj + 1);
+TO:4;
+
+FROM:93;
+TO:92;
+
+FROM:92;
+assume((bSum + 1)<=0);
+TO:94;
+
+FROM:92;
+assume(bSum>=(1 + 0));
+TO:94;
+
+FROM:94;
+assume(nSumRow==nSum);
+TO:95;
+
+FROM:95;
+tmp___4 := 1;
+TO:96;
+
+FROM:94;
+assume((nSumRow + 1)<=nSum);
+TO:97;
+
+FROM:94;
+assume(nSumRow>=(1 + nSum));
+TO:97;
+
+FROM:97;
+tmp___4 := 0;
+TO:96;
+
+FROM:92;
+assume(bSum==0);
+TO:98;
+
+FROM:98;
+tmp___4 := 0;
+TO:96;
+
+FROM:96;
+bSum := tmp___4;
+TO:99;
+
+FROM:99;
+ni := (ni + 1);
+TO:5;
+
+FROM:101;
+TO:100;
+
+FROM:100;
+nj := 0;
+TO:3;
+
+FROM:3;
+TO:102;
+
+FROM:102;
+assume((nj + 1)<=nDim);
+TO:103;
+
+FROM:102;
+assume(nj>=nDim);
+TO:104;
+
+FROM:103;
+nSumCol := 0;
+TO:105;
+
+FROM:105;
+ni := 0;
+TO:2;
+
+FROM:2;
+TO:106;
+
+FROM:106;
+assume((ni + 1)<=nDim);
+TO:107;
+
+FROM:106;
+assume(ni>=nDim);
+TO:108;
+
+FROM:107;
+nSumCol := (nSumCol + nondet());
+TO:109;
+
+FROM:109;
+ni := (ni + 1);
+TO:2;
+
+FROM:111;
+TO:110;
+
+FROM:110;
+assume((bSum + 1)<=0);
+TO:112;
+
+FROM:110;
+assume(bSum>=(1 + 0));
+TO:112;
+
+FROM:112;
+assume(nSumCol==nSum);
+TO:113;
+
+FROM:113;
+tmp___5 := 1;
+TO:114;
+
+FROM:112;
+assume((nSumCol + 1)<=nSum);
+TO:115;
+
+FROM:112;
+assume(nSumCol>=(1 + nSum));
+TO:115;
+
+FROM:115;
+tmp___5 := 0;
+TO:114;
+
+FROM:110;
+assume(bSum==0);
+TO:116;
+
+FROM:116;
+tmp___5 := 0;
+TO:114;
+
+FROM:114;
+bSum := tmp___5;
+TO:117;
+
+FROM:117;
+nj := (nj + 1);
+TO:3;
+
+FROM:119;
+TO:118;
+
+FROM:118;
+assume((nondet() + 1)<=nondet());
+TO:120;
+
+FROM:120;
+assume((nondet() + 1)<=nondet());
+TO:121;
+
+FROM:121;
+assume((nondet() + 1)<=nondet());
+TO:122;
+
+FROM:122;
+assume((nondet() + 1)<=nondet());
+TO:123;
+
+FROM:123;
+tmp___6 := 1;
+TO:124;
+
+FROM:122;
+TO:125;
+
+FROM:125;
+tmp___6 := 0;
+TO:124;
+
+FROM:121;
+TO:126;
+
+FROM:126;
+tmp___6 := 0;
+TO:124;
+
+FROM:120;
+TO:127;
+
+FROM:127;
+tmp___6 := 0;
+TO:124;
+
+FROM:118;
+TO:128;
+
+FROM:128;
+tmp___6 := 0;
+TO:124;
+
+FROM:124;
+bSymmetry := tmp___6;
+TO:129;
+
+FROM:129;
+assume((bDomain + 1)<=0);
+TO:130;
+
+FROM:129;
+assume(bDomain>=(1 + 0));
+TO:130;
+
+FROM:130;
+assume((bDistinct + 1)<=0);
+TO:131;
+
+FROM:130;
+assume(bDistinct>=(1 + 0));
+TO:131;
+
+FROM:131;
+assume((bSum + 1)<=0);
+TO:132;
+
+FROM:131;
+assume(bSum>=(1 + 0));
+TO:132;
+
+FROM:132;
+assume((bSymmetry + 1)<=0);
+TO:133;
+
+FROM:132;
+assume(bSymmetry>=(1 + 0));
+TO:133;
+
+FROM:133;
+tmp___7 := 0;
+TO:134;
+
+FROM:132;
+assume(bSymmetry==0);
+TO:135;
+
+FROM:135;
+tmp___7 := 1;
+TO:134;
+
+FROM:131;
+assume(bSum==0);
+TO:136;
+
+FROM:136;
+tmp___7 := 1;
+TO:134;
+
+FROM:130;
+assume(bDistinct==0);
+TO:137;
+
+FROM:137;
+tmp___7 := 1;
+TO:134;
+
+FROM:129;
+assume(bDomain==0);
+TO:138;
+
+FROM:138;
+tmp___7 := 1;
+TO:134;
+
+FROM:134;
+TO:139;
+
+FROM:139;
+TO:140;
+
+FROM:140;
+TO:141;
+
+FROM:108;
+TO:111;
+
+FROM:104;
+TO:119;
+
+FROM:90;
+TO:93;
+
+FROM:86;
+TO:101;
+
+FROM:74;
+TO:77;
+
+FROM:62;
+TO:65;
+
+FROM:49;
+TO:57;
+
+FROM:46;
+TO:59;
+
+FROM:33;
+TO:43;
+
+FROM:27;
+TO:30;
+

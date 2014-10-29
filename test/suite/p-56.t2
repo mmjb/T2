@@ -1,0 +1,25 @@
+START: 2;
+CUTPOINT: 300;
+
+FROM: 2;
+  assume(-2+k_7<0);
+AT(19,"p-56.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 2;
+  assume(0<=-2+k_7);
+  assume(0<=-2+w_8);
+TO: 300;
+
+FROM: 300;
+  assume(-2-x_5<0);
+AT(19,"p-56.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 300;
+  assume(0<=-2-x_5);
+AT(10,"p-56.c ")  x_5 := 1+x_5;
+AT(11,"p-56.c ")  y_6 := 1+y_6;
+  assume(y_6!=0);
+TO: 300;
+

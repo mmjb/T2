@@ -1,0 +1,164 @@
+START: 999;
+
+FROM: 999;
+  assume(
+    op1a_0 >= 0 &&
+
+    op1a_1 == 0 &&
+    op2a_1 == 0 &&
+    hda_1 == 0 &&
+
+    op1a_2 == 0 &&
+    op2b_2 == 0 &&
+    hdb_2 == 0 &&
+    hdc_2 == 0 &&
+
+    op1a_3 == 0 &&
+    op2a_3 == 0 &&
+    op2b_3 == 0 &&
+    hda_3 == 0 &&
+    hdb_3 == 0 &&
+    hdc_3 == 0 &&
+    
+    op1a_4 == 0 &&
+    op2a_4 == 0 &&
+    op2c_4 == 0 &&
+    hda_4 == 0 &&
+    hdd_4 == 0 &&
+
+    op1a_5 == 0 &&
+    op1b_5 == 0 &&
+    op2b_5 == 0 &&
+    op2d_5 == 0 &&
+    hdb_5 == 0 &&
+    hdc_5 == 0 &&
+    hde_5 == 0 &&
+    hdf_5 == 0 &&
+    hdg_5 == 0
+  );
+TO: 0;
+
+FROM: 0;
+  assume(op1a_0 > 0);
+  op1a_1 := op1a_1 + op1a_0 - 1;
+  op1a_0 := 0;
+  op2a_1 := op2a_1 + 1;
+  hda_1 := hda_1 + 1;
+TO: 1;
+
+FROM: 1;
+  op1a_0 := op1a_0 + op1a_1;
+  op1a_1 := 0;
+TO: 0;
+
+FROM: 1;
+  assume(op2a_1 > 0 && hda_1 > 0);
+  op1a_2 := op1a_2 + op1a_1;
+  op2b_2 := op2b_2 + op2a_1 - 1;
+  hdb_2 := hdb_2 + hda_1 - 1;
+  hdc_2 := hdc_2 + 1;
+  op1a_1 := 0;
+  op2a_1 := 0;
+  hda_1 := 0;
+TO: 2;
+
+FROM: 2;
+  op1a_0 := op1a_0 + op1a_2;
+  op1a_2 := 0;
+TO: 0;
+
+FROM: 2;
+  assume(op1a_2 > 0);
+  op1a_3 := op1a_3 + op1a_2 - 1;
+  op2a_3 := op2a_3 + 1;
+  op2b_3 := op2b_3 + op2b_2;
+  hda_3 := hda_3 + 1;
+  hdb_3 := hdb_3 + hdb_2;
+  hdc_3 := hdc_3 + hdc_2;
+  op1a_2 := 0;
+  op2b_2 := 0;
+  hdb_2 := 0;
+  hdc_2 := 0;
+TO: 3;
+
+FROM: 3;
+  op1a_2 := op1a_2 + op1a_3;
+  op2b_2 := op2b_2 + op2b_3;
+  hdb_2 := hdb_2 + hdb_3;
+  hdc_2 := hdc_2 + hdc_3;
+  op1a_3 := 0;
+  op2b_3 := 0;
+  hdb_3 := 0;
+  hdc_3 := 0;
+TO: 2;
+
+FROM: 3;
+    op1a_1 := op1a_1 + op1a_3;
+    op2a_1 := op2a_1 + op2a_3;
+    hda_1 := hda_1 + hda_3;
+    op1a_3 := 0;
+    op2a_3 := 0;
+    hda_3 := 0;
+TO: 1;
+
+FROM: 3;
+  op1a_0 := op1a_0 + op1a_3;
+  op1a_3 := 0;
+TO: 0;
+
+FROM: 1;
+  assume(op1a_1 > 0);
+  op1a_4 := op1a_4 + op1a_1 - 1;
+  op2a_4 := op2a_4 + op2a_1;
+  op2c_4 := op2c_4 + 1;
+  hda_4 := hda_4 + hda_1;
+  hdd_4 := hdd_4 + 1;
+  op1a_1 := 0;
+  op2a_1 := 0;
+  hda_1 := 0;
+TO: 4;
+
+FROM: 4;
+  op1a_1 := op1a_1 + op1a_4;
+  op2a_1 := op2a_1 + op2a_4 + op2c_4;
+  hda_1 := hda_1 + hda_4 + hdd_4;
+  op1a_4 := 0;
+  op2a_4 := 0;
+  op2c_4 := 0;
+  hda_4 := 0;
+  hdd_4 := 0;
+TO: 1;
+
+FROM: 2;
+  assume(t5 > 0 && t5 <= op2b_2 && t5 <= hdb_2 && hdc_2 > 0);
+  op1a_5 := op1a_5 + op1a_2;
+  op1b_5 := op1b_5 + 1;
+  op2b_5 := op2b_5 + op2b_2 - t5;
+  op2d_5 := op2d_5 + t5 - 1;
+  hdb_5 := hdb_5 + hdb_2 - t5;
+  hdc_5 := hdc_5 + hdc_2 - 1;
+  hde_5 := hde_5 + t5 - 1;
+  hdf_5 := hdf_5 + 1;
+  hdg_5 := hdg_5 + 1;
+  op1a_2 := 0;
+  op2b_2 := 0;
+  hdb_2 := 0;
+  hdc_2 := 0;
+  t5 := nondet();
+TO: 5;
+
+FROM: 5;
+  op1a_2 := op1a_2 + op1a_5 + op1b_5;
+  op2b_2 := op2b_2 + op2b_5 + op2d_5;
+  hdb_2 := hdb_2 + hdb_5 + hde_5 + hdg_5;
+  hdc_2 := hdc_2 + hdc_5 + hdf_5;
+  op1a_5 := 0;
+  op1b_5 := 0;
+  op2b_5 := 0;
+  op2d_5 := 0;
+  hdb_5 := 0;
+  hdc_5 := 0;
+  hde_5 := 0;
+  hdf_5 := 0;
+  hdg_5 := 0;
+TO: 2;

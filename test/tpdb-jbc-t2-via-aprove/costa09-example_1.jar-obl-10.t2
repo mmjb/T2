@@ -1,0 +1,61 @@
+START: 1;
+
+FROM: 1;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := x2;
+x0 := 0;
+x1 := 0;
+x2 := 0;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := x2;
+assume(oldX1 > -1 && oldX0 > -1 && oldX1 < 1001 && oldX1 == oldX2);
+x0 := oldX0 + oldX1;
+x1 := oldX1 + 1;
+x2 := oldX1 + 1;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := x2;
+assume(oldX1 > 1000 && oldX1 == oldX2);
+x0 := 0;
+x1 := 0;
+x2 := 0;
+TO: 3;
+
+FROM: 3;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := x2;
+assume(oldX1 > -1 && oldX0 > -1 && oldX1 < 1001 && oldX1 == oldX2);
+x0 := oldX0 + oldX1;
+x1 := oldX1 + 2;
+x2 := oldX1 + 2;
+TO: 3;
+
+FROM: 3;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := x2;
+assume(oldX1 > 1000 && oldX1 == oldX2);
+x0 := 0;
+x1 := 0;
+x2 := 0;
+TO: 4;
+
+FROM: 4;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := x2;
+assume(oldX1 > -1 && oldX0 > -1 && oldX1 < 1001 && oldX1 == oldX2);
+x0 := oldX0 + oldX1;
+x1 := oldX1 + 3;
+x2 := oldX1 + 3;
+TO: 4;
+

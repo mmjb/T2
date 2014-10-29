@@ -1,0 +1,925 @@
+START:0;
+FROM:0;
+keA := 0;
+TO:8;
+
+FROM:8;
+keR := 0;
+TO:9;
+
+FROM:11;
+TO:10;
+
+FROM:10;
+__rho_1_ := nondet();
+TO:12;
+
+FROM:12;
+assume(__rho_1_>=(1 + 0));
+TO:13;
+
+FROM:13;
+a11 := DeviceObject;
+TO:14;
+
+FROM:14;
+b22 := Irp;
+TO:15;
+
+FROM:15;
+ret_t1394Diag_PnpStopDevice33 := 0;
+TO:16;
+
+FROM:18;
+ntStatus := ret_t1394Diag_PnpStopDevice33;
+TO:17;
+
+FROM:12;
+assume(__rho_1_<=0);
+TO:17;
+
+FROM:17;
+ret_IoSetDeviceInterfaceState44 := 0;
+TO:19;
+
+FROM:21;
+ntStatus := ret_IoSetDeviceInterfaceState44;
+TO:20;
+
+FROM:20;
+keA := 1;
+TO:22;
+
+FROM:22;
+keA := 0;
+TO:23;
+
+FROM:23;
+TO:24;
+
+FROM:24;
+TO:25;
+
+FROM:25;
+keA := 1;
+TO:26;
+
+FROM:26;
+keA := 0;
+TO:27;
+
+FROM:29;
+TO:28;
+
+FROM:28;
+__rho_2_ := nondet();
+TO:30;
+
+FROM:30;
+k1 := __rho_2_;
+TO:7;
+
+FROM:7;
+TO:31;
+
+FROM:31;
+assume(k1<=0);
+TO:32;
+
+FROM:31;
+assume(k1>=(1 + 0));
+TO:33;
+
+FROM:33;
+__rho_3_ := nondet();
+TO:34;
+
+FROM:34;
+CromData := __rho_3_;
+TO:35;
+
+FROM:35;
+k1 := (k1 - 1);
+TO:36;
+
+FROM:36;
+assume(CromData>=(1 + 0));
+TO:37;
+
+FROM:37;
+__rho_4_ := nondet();
+TO:38;
+
+FROM:38;
+assume(__rho_4_>=(1 + 0));
+TO:39;
+
+FROM:41;
+TO:40;
+
+FROM:38;
+assume(__rho_4_<=0);
+TO:40;
+
+FROM:40;
+__rho_5_ := nondet();
+TO:42;
+
+FROM:42;
+assume(__rho_5_>=(1 + 0));
+TO:43;
+
+FROM:45;
+TO:44;
+
+FROM:42;
+assume(__rho_5_<=0);
+TO:44;
+
+FROM:44;
+a77 := CromData;
+TO:46;
+
+FROM:47;
+TO:7;
+
+FROM:36;
+assume(CromData<=0);
+TO:7;
+
+FROM:49;
+TO:48;
+
+FROM:48;
+keR := 1;
+TO:50;
+
+FROM:50;
+keR := 0;
+TO:51;
+
+FROM:51;
+TO:52;
+
+FROM:52;
+i___099 := Irql;
+TO:53;
+
+FROM:53;
+keR := 1;
+TO:54;
+
+FROM:54;
+keR := 0;
+TO:55;
+
+FROM:57;
+TO:56;
+
+FROM:56;
+keA := 1;
+TO:58;
+
+FROM:58;
+keA := 0;
+TO:59;
+
+FROM:59;
+TO:60;
+
+FROM:60;
+TO:61;
+
+FROM:61;
+keA := 1;
+TO:62;
+
+FROM:62;
+keA := 0;
+TO:63;
+
+FROM:65;
+TO:64;
+
+FROM:64;
+__rho_6_ := nondet();
+TO:66;
+
+FROM:66;
+k2 := __rho_6_;
+TO:6;
+
+FROM:6;
+TO:67;
+
+FROM:67;
+assume(k2<=0);
+TO:68;
+
+FROM:67;
+assume(k2>=(1 + 0));
+TO:69;
+
+FROM:69;
+AsyncAddressData := nondet();
+TO:70;
+
+FROM:70;
+AsyncAddressData := nondet();
+TO:71;
+
+FROM:71;
+k2 := (k2 - 1);
+TO:72;
+
+FROM:72;
+__rho_7_ := nondet();
+TO:73;
+
+FROM:73;
+assume(__rho_7_>=(1 + 0));
+TO:74;
+
+FROM:76;
+TO:75;
+
+FROM:73;
+assume(__rho_7_<=0);
+TO:75;
+
+FROM:75;
+__rho_8_ := nondet();
+TO:77;
+
+FROM:77;
+assume(__rho_8_>=(1 + 0));
+TO:78;
+
+FROM:80;
+TO:79;
+
+FROM:77;
+assume(__rho_8_<=0);
+TO:79;
+
+FROM:79;
+__rho_9_ := nondet();
+TO:81;
+
+FROM:81;
+assume(__rho_9_>=(1 + 0));
+TO:82;
+
+FROM:84;
+TO:83;
+
+FROM:81;
+assume(__rho_9_<=0);
+TO:83;
+
+FROM:83;
+assume(AsyncAddressData>=(1 + 0));
+TO:85;
+
+FROM:86;
+TO:6;
+
+FROM:83;
+assume(AsyncAddressData<=0);
+TO:6;
+
+FROM:88;
+TO:87;
+
+FROM:87;
+keR := 1;
+TO:89;
+
+FROM:89;
+keR := 0;
+TO:90;
+
+FROM:90;
+TO:91;
+
+FROM:91;
+i___01313 := Irql;
+TO:92;
+
+FROM:92;
+keR := 1;
+TO:93;
+
+FROM:93;
+keR := 0;
+TO:94;
+
+FROM:95;
+TO:5;
+
+FROM:5;
+TO:96;
+
+FROM:96;
+keA := 1;
+TO:97;
+
+FROM:97;
+keA := 0;
+TO:98;
+
+FROM:98;
+TO:99;
+
+FROM:99;
+TO:100;
+
+FROM:100;
+keA := 1;
+TO:101;
+
+FROM:101;
+keA := 0;
+TO:102;
+
+FROM:104;
+TO:103;
+
+FROM:103;
+__rho_10_ := nondet();
+TO:105;
+
+FROM:105;
+k3 := __rho_10_;
+TO:106;
+
+FROM:106;
+assume(k3>=(1 + 0));
+TO:107;
+
+FROM:107;
+IsochDetachData := nondet();
+TO:108;
+
+FROM:108;
+i := nondet();
+TO:109;
+
+FROM:109;
+IsochDetachData := nondet();
+TO:110;
+
+FROM:110;
+k3 := (k3 - 1);
+TO:111;
+
+FROM:113;
+TO:112;
+
+FROM:112;
+keR := 1;
+TO:114;
+
+FROM:114;
+keR := 0;
+TO:115;
+
+FROM:115;
+TO:116;
+
+FROM:116;
+i___01717 := Irql;
+TO:117;
+
+FROM:117;
+keR := 1;
+TO:118;
+
+FROM:118;
+keR := 0;
+TO:119;
+
+FROM:121;
+TO:120;
+
+FROM:120;
+a1818 := IsochDetachData;
+TO:122;
+
+FROM:123;
+TO:5;
+
+FROM:106;
+assume(k3<=0);
+TO:124;
+
+FROM:124;
+keR := 1;
+TO:125;
+
+FROM:125;
+keR := 0;
+TO:126;
+
+FROM:126;
+TO:127;
+
+FROM:127;
+i___02020 := Irql;
+TO:128;
+
+FROM:128;
+keR := 1;
+TO:129;
+
+FROM:129;
+keR := 0;
+TO:130;
+
+FROM:132;
+TO:131;
+
+FROM:134;
+TO:133;
+
+FROM:133;
+__rho_11_ := nondet();
+TO:135;
+
+FROM:135;
+k4 := __rho_11_;
+TO:4;
+
+FROM:4;
+TO:136;
+
+FROM:136;
+keA := 1;
+TO:137;
+
+FROM:137;
+keA := 0;
+TO:138;
+
+FROM:138;
+TO:139;
+
+FROM:139;
+TO:140;
+
+FROM:140;
+keA := 1;
+TO:141;
+
+FROM:141;
+keA := 0;
+TO:142;
+
+FROM:144;
+TO:143;
+
+FROM:143;
+assume(k4>=(1 + 0));
+TO:145;
+
+FROM:145;
+__rho_12_ := nondet();
+TO:146;
+
+FROM:146;
+IsochResourceData := __rho_12_;
+TO:147;
+
+FROM:147;
+k4 := (k4 - 1);
+TO:148;
+
+FROM:148;
+keR := 1;
+TO:149;
+
+FROM:149;
+keR := 0;
+TO:150;
+
+FROM:150;
+TO:151;
+
+FROM:151;
+i___02424 := Irql;
+TO:152;
+
+FROM:152;
+keR := 1;
+TO:153;
+
+FROM:153;
+keR := 0;
+TO:154;
+
+FROM:156;
+TO:155;
+
+FROM:155;
+assume(IsochResourceData>=(1 + 0));
+TO:157;
+
+FROM:157;
+pIrb := nondet();
+TO:158;
+
+FROM:158;
+ResourceIrp := nondet();
+TO:159;
+
+FROM:159;
+StackSize := nondet();
+TO:160;
+
+FROM:160;
+a2525 := StackSize;
+TO:161;
+
+FROM:161;
+b2626 := 0;
+TO:162;
+
+FROM:162;
+__rho_99_ := nondet();
+TO:163;
+
+FROM:163;
+ret_IoAllocateIrp2727 := __rho_99_;
+TO:164;
+
+FROM:166;
+ResourceIrp := ret_IoAllocateIrp2727;
+TO:165;
+
+FROM:165;
+assume(ResourceIrp==0);
+TO:4;
+
+FROM:165;
+assume((ResourceIrp + 1)<=0);
+TO:167;
+
+FROM:165;
+assume(ResourceIrp>=(1 + 0));
+TO:167;
+
+FROM:167;
+a2828 := 1;
+TO:168;
+
+FROM:168;
+b2929 := 0;
+TO:169;
+
+FROM:169;
+ret_ExAllocatePool3030 := 0;
+TO:170;
+
+FROM:172;
+pIrb := ret_ExAllocatePool3030;
+TO:171;
+
+FROM:171;
+assume(pIrb<=0);
+TO:173;
+
+FROM:173;
+a3131 := ResourceIrp;
+TO:174;
+
+FROM:175;
+TO:4;
+
+FROM:171;
+assume(pIrb>=(1 + 0));
+TO:176;
+
+FROM:176;
+a3232 := pIrb;
+TO:177;
+
+FROM:177;
+b3333 := 0;
+TO:178;
+
+FROM:180;
+TO:179;
+
+FROM:179;
+a3434 := ResourceIrp;
+TO:181;
+
+FROM:181;
+b3535 := pIrb;
+TO:182;
+
+FROM:182;
+ret_t1394_SubmitIrpSynch3636 := 0;
+TO:183;
+
+FROM:185;
+ntStatus := ret_t1394_SubmitIrpSynch3636;
+TO:184;
+
+FROM:184;
+a3737 := pIrb;
+TO:186;
+
+FROM:188;
+TO:187;
+
+FROM:187;
+a3838 := ResourceIrp;
+TO:189;
+
+FROM:190;
+TO:4;
+
+FROM:155;
+assume(IsochResourceData<=0);
+TO:4;
+
+FROM:143;
+assume(k4<=0);
+TO:191;
+
+FROM:191;
+keR := 1;
+TO:192;
+
+FROM:192;
+keR := 0;
+TO:193;
+
+FROM:193;
+TO:194;
+
+FROM:194;
+i___04040 := Irql;
+TO:195;
+
+FROM:195;
+keR := 1;
+TO:196;
+
+FROM:196;
+keR := 0;
+TO:197;
+
+FROM:199;
+TO:198;
+
+FROM:201;
+TO:200;
+
+FROM:200;
+keA := 1;
+TO:202;
+
+FROM:202;
+keA := 0;
+TO:203;
+
+FROM:203;
+TO:204;
+
+FROM:204;
+TO:205;
+
+FROM:205;
+keA := 1;
+TO:206;
+
+FROM:206;
+keA := 0;
+TO:207;
+
+FROM:209;
+TO:208;
+
+FROM:208;
+__rho_13_ := nondet();
+TO:210;
+
+FROM:210;
+k5 := __rho_13_;
+TO:3;
+
+FROM:3;
+TO:211;
+
+FROM:211;
+assume(k5<=0);
+TO:212;
+
+FROM:211;
+assume(k5>=(1 + 0));
+TO:213;
+
+FROM:213;
+prevCancel := 0;
+TO:214;
+
+FROM:214;
+BusResetIrp := nondet();
+TO:215;
+
+FROM:215;
+k5 := (k5 - 1);
+TO:216;
+
+FROM:216;
+a4343 := 0;
+TO:217;
+
+FROM:217;
+ret_IoSetCancelRoutine4444 := 0;
+TO:218;
+
+FROM:220;
+prevCancel := ret_IoSetCancelRoutine4444;
+TO:219;
+
+FROM:219;
+a4545 := 2;
+TO:221;
+
+FROM:223;
+TO:222;
+
+FROM:222;
+a4646 := BusResetIrp;
+TO:224;
+
+FROM:225;
+TO:3;
+
+FROM:227;
+TO:226;
+
+FROM:226;
+keR := 1;
+TO:228;
+
+FROM:228;
+keR := 0;
+TO:229;
+
+FROM:229;
+TO:230;
+
+FROM:230;
+i___04848 := Irql;
+TO:231;
+
+FROM:231;
+keR := 1;
+TO:232;
+
+FROM:232;
+keR := 0;
+TO:233;
+
+FROM:234;
+TO:2;
+
+FROM:2;
+TO:235;
+
+FROM:235;
+TO:2;
+
+FROM:237;
+TO:236;
+
+FROM:239;
+TO:238;
+
+FROM:238;
+TO:240;
+
+FROM:236;
+TO:239;
+
+FROM:233;
+TO:234;
+
+FROM:224;
+TO:225;
+
+FROM:221;
+TO:223;
+
+FROM:218;
+TO:220;
+
+FROM:212;
+TO:227;
+
+FROM:207;
+TO:209;
+
+FROM:198;
+TO:201;
+
+FROM:197;
+TO:199;
+
+FROM:189;
+TO:190;
+
+FROM:186;
+TO:188;
+
+FROM:183;
+TO:185;
+
+FROM:178;
+TO:180;
+
+FROM:174;
+TO:175;
+
+FROM:170;
+TO:172;
+
+FROM:164;
+TO:166;
+
+FROM:154;
+TO:156;
+
+FROM:142;
+TO:144;
+
+FROM:131;
+TO:134;
+
+FROM:130;
+TO:132;
+
+FROM:122;
+TO:123;
+
+FROM:119;
+TO:121;
+
+FROM:111;
+TO:113;
+
+FROM:102;
+TO:104;
+
+FROM:94;
+TO:95;
+
+FROM:85;
+TO:86;
+
+FROM:82;
+TO:84;
+
+FROM:78;
+TO:80;
+
+FROM:74;
+TO:76;
+
+FROM:68;
+TO:88;
+
+FROM:63;
+TO:65;
+
+FROM:55;
+TO:57;
+
+FROM:46;
+TO:47;
+
+FROM:43;
+TO:45;
+
+FROM:39;
+TO:41;
+
+FROM:32;
+TO:49;
+
+FROM:27;
+TO:29;
+
+FROM:19;
+TO:21;
+
+FROM:16;
+TO:18;
+
+FROM:9;
+TO:11;
+

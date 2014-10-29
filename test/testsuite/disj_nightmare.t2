@@ -1,0 +1,30 @@
+// it turned out to be not such a nighmare after all :)
+
+START: 3;
+
+FROM: 3;
+TO: 0;
+
+FROM: 0;
+  assume(y != 0);
+  assume(x == 0);
+  x := y;
+TO: 1;
+
+FROM: 1;
+  assume(x != z0);
+  assume(x != z1);
+  assume(x != z2);
+  assume(x != z3);
+  assume(x != z4);
+  assume(x != z5);
+  assume(x != z6);
+  assume(x != z7);
+  assume(x != z8);
+  assume(x != z9);
+  assume(x != z10);
+  assume(x != z11);
+  assume(x != z12);
+  assume(x != z13);
+TO: 0;
+

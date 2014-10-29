@@ -1,0 +1,68 @@
+START: 12;
+CUTPOINT: 300;
+
+FROM: 9;
+TO: 6;
+
+FROM: 7;
+AT(4,"p-37.c ")  __cil_tmp2_6 := x_5;
+AT(4,"p-37.c ")  Result_4 := __cil_tmp2_6;
+TO: 300;
+
+FROM: 12;
+AT(9,"p-37.c ")  maxRetries_9 := 400;
+AT(10,"p-37.c ")  retryCount_10 := 0;
+AT(11,"p-37.c ")  selected_11 := 0;
+TO: 5;
+
+FROM: 4;
+AT(14,"p-37.c ")  retryCount_10 := 1+retryCount_10;
+TO: 5;
+
+FROM: 3;
+AT(14,"p-37.c ")  retryCount_10 := 1+retryCount_10;
+TO: 5;
+
+FROM: 300;
+  selected_11 := Result_4;
+  Result_4 := nondet();
+TO: 3;
+
+FROM: 5;
+  assume(selected_11==0);
+  assume(0<=-1+maxRetries_9-retryCount_10);
+TO: 9;
+
+FROM: 5;
+  assume(selected_11==0);
+  assume(-1+maxRetries_9-retryCount_10<0);
+AT(16,"p-37.c ")  __cil_tmp6_12 := selected_11;
+AT(16,"p-37.c ")  Result_4 := __cil_tmp6_12;
+TO: 11;
+
+FROM: 5;
+  assume(selected_11!=0);
+AT(16,"p-37.c ")  __cil_tmp6_12 := selected_11;
+AT(16,"p-37.c ")  Result_4 := __cil_tmp6_12;
+TO: 10;
+
+FROM: 8;
+AT(4,"p-37.c ")  __cil_tmp2_6 := x_5;
+AT(4,"p-37.c ")  Result_4 := __cil_tmp2_6;
+TO: 2;
+
+FROM: 6;
+AT(4,"p-37.c ")  __cil_tmp2_6 := x_5;
+AT(4,"p-37.c ")  Result_4 := __cil_tmp2_6;
+TO: 1;
+
+FROM: 2;
+  selected_11 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+
+FROM: 1;
+  selected_11 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+

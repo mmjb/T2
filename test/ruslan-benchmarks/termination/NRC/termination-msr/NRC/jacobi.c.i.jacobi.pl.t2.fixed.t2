@@ -1,0 +1,738 @@
+// ARMC error state:  jacobi-err-0
+// ARMC return state: jacobi-ret-0	 -> 1
+// jacobi-0-13	 -> 2
+// jacobi-2-0	 -> 3
+// jacobi-1-14	 -> 4
+// jacobi-5-14	 -> 5
+// jacobi-6-15	 -> 6
+// jacobi-7-14	 -> 7
+// jacobi-10-15	 -> 8
+// jacobi-11-15	 -> 9
+// jacobi-12-15	 -> 10
+// jacobi-13-0	 -> 11
+// jacobi-9-0	 -> 12
+// jacobi-8-14	 -> 13
+// jacobi-14-0	 -> 14
+// jacobi-4-0	 -> 15
+// jacobi-3-18	 -> 16
+// jacobi-17-18	 -> 17
+// jacobi-18-18	 -> 18
+// jacobi-19-18	 -> 19
+// jacobi-20-0	 -> 20
+// jacobi-21-0	 -> 21
+// jacobi-22-0	 -> 22
+// jacobi-23-0	 -> 23
+// jacobi-16-0	 -> 24
+// jacobi-15-22	 -> 25
+// jacobi-24-23	 -> 26
+// jacobi-27-23	 -> 27
+// jacobi-28-24	 -> 28
+// jacobi-29-23	 -> 29
+// jacobi-30-25	 -> 30
+// jacobi-33-25	 -> 31
+// jacobi-34-26	 -> 32
+// jacobi-35-25	 -> 33
+// jacobi-38-26	 -> 34
+// jacobi-39-26	 -> 35
+// jacobi-40-26	 -> 36
+// jacobi-41-0	 -> 37
+// jacobi-42-0	 -> 38
+// jacobi-37-0	 -> 39
+// jacobi-36-25	 -> 40
+// jacobi-32-0	 -> 41
+// jacobi-31-29	 -> 42
+// jacobi-44-0	 -> 43
+// jacobi-46-0	 -> 44
+// jacobi-45-32	 -> 45
+// jacobi-43-34	 -> 46
+// jacobi-48-35	 -> 47
+// jacobi-47-38	 -> 48
+// jacobi-49-37	 -> 49
+// jacobi-52-38	 -> 50
+// jacobi-53-39	 -> 51
+// jacobi-54-38	 -> 52
+// jacobi-57-39	 -> 53
+// jacobi-58-40	 -> 54
+// jacobi-59-39	 -> 55
+// jacobi-61-0	 -> 56
+// jacobi-60-41	 -> 57
+// jacobi-63-41	 -> 58
+// jacobi-66-0	 -> 59
+// jacobi-65-41	 -> 60
+// jacobi-67-41	 -> 61
+// jacobi-70-0	 -> 62
+// jacobi-69-41	 -> 63
+// jacobi-71-43	 -> 64
+// jacobi-62-39	 -> 65
+// jacobi-72-41	 -> 66
+// jacobi-68-41	 -> 67
+// jacobi-64-44	 -> 68
+// jacobi-73-44	 -> 69
+// jacobi-74-46	 -> 70
+// jacobi-76-0	 -> 71
+// jacobi-77-0	 -> 72
+// jacobi-75-46	 -> 73
+// jacobi-79-47	 -> 74
+// jacobi-78-61	 -> 75
+// jacobi-80-50	 -> 76
+// jacobi-82-0	 -> 77
+// jacobi-83-0	 -> 78
+// jacobi-84-0	 -> 79
+// jacobi-81-51	 -> 80
+// jacobi-85-51	 -> 81
+// jacobi-87-0	 -> 82
+// jacobi-88-0	 -> 83
+// jacobi-89-0	 -> 84
+// jacobi-90-0	 -> 85
+// jacobi-91-0	 -> 86
+// jacobi-92-0	 -> 87
+// jacobi-93-0	 -> 88
+// jacobi-94-0	 -> 89
+// jacobi-95-0	 -> 90
+// jacobi-86-62	 -> 91
+// jacobi-98-62	 -> 92
+// jacobi-99-62	 -> 93
+// jacobi-100-62	 -> 94
+// jacobi-101-0	 -> 95
+// jacobi-102-0	 -> 96
+// jacobi-103-0	 -> 97
+// jacobi-104-0	 -> 98
+// jacobi-97-0	 -> 99
+// jacobi-96-65	 -> 100
+// jacobi-107-65	 -> 101
+// jacobi-108-65	 -> 102
+// jacobi-109-65	 -> 103
+// jacobi-110-0	 -> 104
+// jacobi-111-0	 -> 105
+// jacobi-112-0	 -> 106
+// jacobi-113-0	 -> 107
+// jacobi-106-0	 -> 108
+// jacobi-105-68	 -> 109
+// jacobi-116-68	 -> 110
+// jacobi-117-68	 -> 111
+// jacobi-118-68	 -> 112
+// jacobi-119-0	 -> 113
+// jacobi-120-0	 -> 114
+// jacobi-121-0	 -> 115
+// jacobi-122-0	 -> 116
+// jacobi-115-0	 -> 117
+// jacobi-114-71	 -> 118
+// jacobi-125-71	 -> 119
+// jacobi-126-71	 -> 120
+// jacobi-127-71	 -> 121
+// jacobi-128-0	 -> 122
+// jacobi-129-0	 -> 123
+// jacobi-130-0	 -> 124
+// jacobi-131-0	 -> 125
+// jacobi-124-0	 -> 126
+// jacobi-123-74	 -> 127
+// jacobi-56-0	 -> 128
+// jacobi-55-38	 -> 129
+// jacobi-51-0	 -> 130
+// jacobi-50-78	 -> 131
+// jacobi-134-78	 -> 132
+// jacobi-135-78	 -> 133
+// jacobi-136-78	 -> 134
+// jacobi-137-0	 -> 135
+// jacobi-138-0	 -> 136
+// jacobi-139-0	 -> 137
+// jacobi-133-0	 -> 138
+// jacobi-132-23	 -> 139
+// jacobi-26-0	 -> 140
+// jacobi-25-0	 -> 141
+// jacobi-140-85	 -> 142
+START:2;
+FROM:2;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+assume(ip<=n);
+TO:6;
+
+FROM:5;
+assume(ip>=(1 + n));
+TO:7;
+
+FROM:6;
+TO:8;
+
+FROM:8;
+assume(iq<=n);
+TO:9;
+
+FROM:8;
+assume(iq>=(1 + n));
+TO:10;
+
+FROM:9;
+TO:11;
+
+FROM:11;
+iq := (iq + 1);
+TO:6;
+
+FROM:12;
+TO:13;
+
+FROM:13;
+TO:14;
+
+FROM:14;
+ip := (ip + 1);
+TO:4;
+
+FROM:15;
+TO:16;
+
+FROM:16;
+TO:17;
+
+FROM:17;
+assume(ip<=n);
+TO:18;
+
+FROM:17;
+assume(ip>=(1 + n));
+TO:19;
+
+FROM:18;
+tmp := nondet();
+TO:20;
+
+FROM:20;
+TO:21;
+
+FROM:21;
+TO:22;
+
+FROM:22;
+TO:23;
+
+FROM:23;
+ip := (ip + 1);
+TO:16;
+
+FROM:24;
+TO:25;
+
+FROM:25;
+TO:26;
+
+FROM:26;
+TO:27;
+
+FROM:27;
+assume(i<=50);
+TO:28;
+
+FROM:27;
+assume(i>=(1 + 50));
+TO:29;
+
+FROM:28;
+sm := 0;
+TO:30;
+
+FROM:30;
+TO:31;
+
+FROM:31;
+assume(ip<=(n - 1));
+TO:32;
+
+FROM:31;
+assume(ip>=(1 + (n - 1)));
+TO:33;
+
+FROM:32;
+TO:34;
+
+FROM:34;
+assume(iq<=n);
+TO:35;
+
+FROM:34;
+assume(iq>=(1 + n));
+TO:36;
+
+FROM:35;
+tmp___0 := nondet();
+TO:37;
+
+FROM:37;
+sm := (sm + tmp___0);
+TO:38;
+
+FROM:38;
+iq := (iq + 1);
+TO:32;
+
+FROM:39;
+TO:40;
+
+FROM:40;
+ip := (ip + 1);
+TO:30;
+
+FROM:41;
+TO:42;
+
+FROM:42;
+assume(sm==0);
+TO:43;
+
+FROM:43;
+TO:44;
+
+FROM:44;
+TO:45;
+
+FROM:45;
+TO:1;
+
+FROM:42;
+assume((sm + 1)<=0);
+TO:46;
+
+FROM:42;
+assume(sm>=(1 + 0));
+TO:46;
+
+FROM:46;
+assume((i + 1)<=4);
+TO:47;
+
+FROM:47;
+//tresh := ((0.2 * sm) / (n * n));
+tresh := nondet();
+TO:48;
+
+FROM:46;
+assume(i>=4);
+TO:49;
+
+FROM:49;
+tresh := 0;
+TO:48;
+
+FROM:48;
+TO:50;
+
+FROM:50;
+assume(ip<=(n - 1));
+TO:51;
+
+FROM:50;
+assume(ip>=(1 + (n - 1)));
+TO:52;
+
+FROM:51;
+TO:53;
+
+FROM:53;
+assume(iq<=n);
+TO:54;
+
+FROM:53;
+assume(iq>=(1 + n));
+TO:55;
+
+FROM:54;
+tmp___1 := nondet();
+TO:56;
+
+FROM:56;
+g := (100 * tmp___1);
+TO:57;
+
+FROM:57;
+assume(i>=(1 + 4));
+TO:58;
+
+FROM:58;
+tmp___8 := nondet();
+TO:59;
+
+FROM:59;
+tmp___9 := nondet();
+TO:60;
+
+FROM:60;
+assume((tmp___8 + g)==tmp___9);
+TO:61;
+
+FROM:61;
+tmp___10 := nondet();
+TO:62;
+
+FROM:62;
+tmp___11 := nondet();
+TO:63;
+
+FROM:63;
+assume((tmp___10 + g)==tmp___11);
+TO:64;
+
+FROM:64;
+TO:65;
+
+FROM:63;
+assume(((tmp___10 + g) + 1)<=tmp___11);
+TO:66;
+
+FROM:63;
+assume((tmp___10 + g)>=(1 + tmp___11));
+TO:66;
+
+FROM:60;
+assume(((tmp___8 + g) + 1)<=tmp___9);
+TO:67;
+
+FROM:60;
+assume((tmp___8 + g)>=(1 + tmp___9));
+TO:67;
+
+FROM:57;
+assume(i<=4);
+TO:68;
+
+FROM:68;
+tmp___7 := nondet();
+TO:69;
+
+FROM:69;
+assume(tmp___7>=(1 + tresh));
+TO:70;
+
+FROM:70;
+h := (nondet() - nondet());
+TO:71;
+
+FROM:71;
+tmp___4 := nondet();
+TO:72;
+
+FROM:72;
+tmp___5 := nondet();
+TO:73;
+
+FROM:73;
+assume((tmp___4 + g)==tmp___5);
+TO:74;
+
+FROM:74;
+t := (nondet() / h);
+TO:75;
+
+FROM:73;
+assume(((tmp___4 + g) + 1)<=tmp___5);
+TO:76;
+
+FROM:73;
+assume((tmp___4 + g)>=(1 + tmp___5));
+TO:76;
+
+FROM:76;
+//theta := ((0.5 * h) / nondet());
+theta := nondet();
+TO:77;
+
+FROM:77;
+tmp___2 := nondet();
+TO:78;
+
+FROM:78;
+tmp___3 := nondet();
+TO:79;
+
+FROM:79;
+t := (1 / (tmp___2 + tmp___3));
+TO:80;
+
+FROM:80;
+assume((theta + 1)<=0);
+TO:81;
+
+FROM:81;
+t := (-t);
+TO:75;
+
+FROM:80;
+assume(theta>=0);
+TO:75;
+
+FROM:75;
+tmp___6 := nondet();
+TO:82;
+
+FROM:82;
+c := (1 / tmp___6);
+TO:83;
+
+FROM:83;
+s := (t * c);
+TO:84;
+
+FROM:84;
+tau := (s / (1 + c));
+TO:85;
+
+FROM:85;
+h := (t * nondet());
+TO:86;
+
+FROM:86;
+TO:87;
+
+FROM:87;
+TO:88;
+
+FROM:88;
+TO:89;
+
+FROM:89;
+TO:90;
+
+FROM:90;
+TO:91;
+
+FROM:91;
+TO:92;
+
+FROM:92;
+assume(j<=(ip - 1));
+TO:93;
+
+FROM:92;
+assume(j>=(1 + (ip - 1)));
+TO:94;
+
+FROM:93;
+g := nondet();
+TO:95;
+
+FROM:95;
+h := nondet();
+TO:96;
+
+FROM:96;
+TO:97;
+
+FROM:97;
+TO:98;
+
+FROM:98;
+j := (j + 1);
+TO:91;
+
+FROM:99;
+TO:100;
+
+FROM:100;
+TO:101;
+
+FROM:101;
+assume(j<=(iq - 1));
+TO:102;
+
+FROM:101;
+assume(j>=(1 + (iq - 1)));
+TO:103;
+
+FROM:102;
+g := nondet();
+TO:104;
+
+FROM:104;
+h := nondet();
+TO:105;
+
+FROM:105;
+TO:106;
+
+FROM:106;
+TO:107;
+
+FROM:107;
+j := (j + 1);
+TO:100;
+
+FROM:108;
+TO:109;
+
+FROM:109;
+TO:110;
+
+FROM:110;
+assume(j<=n);
+TO:111;
+
+FROM:110;
+assume(j>=(1 + n));
+TO:112;
+
+FROM:111;
+g := nondet();
+TO:113;
+
+FROM:113;
+h := nondet();
+TO:114;
+
+FROM:114;
+TO:115;
+
+FROM:115;
+TO:116;
+
+FROM:116;
+j := (j + 1);
+TO:109;
+
+FROM:117;
+TO:118;
+
+FROM:118;
+TO:119;
+
+FROM:119;
+assume(j<=n);
+TO:120;
+
+FROM:119;
+assume(j>=(1 + n));
+TO:121;
+
+FROM:120;
+g := nondet();
+TO:122;
+
+FROM:122;
+h := nondet();
+TO:123;
+
+FROM:123;
+TO:124;
+
+FROM:124;
+TO:125;
+
+FROM:125;
+j := (j + 1);
+TO:118;
+
+FROM:126;
+TO:127;
+
+FROM:127;
+TO:65;
+
+FROM:69;
+assume(tmp___7<=tresh);
+TO:65;
+
+FROM:65;
+iq := (iq + 1);
+TO:51;
+
+FROM:128;
+TO:129;
+
+FROM:129;
+ip := (ip + 1);
+TO:48;
+
+FROM:130;
+TO:131;
+
+FROM:131;
+TO:132;
+
+FROM:132;
+assume(ip<=n);
+TO:133;
+
+FROM:132;
+assume(ip>=(1 + n));
+TO:134;
+
+FROM:133;
+TO:135;
+
+FROM:135;
+TO:136;
+
+FROM:136;
+TO:137;
+
+FROM:137;
+ip := (ip + 1);
+TO:131;
+
+FROM:138;
+TO:139;
+
+FROM:139;
+i := (i + 1);
+TO:26;
+
+FROM:140;
+TO:141;
+
+FROM:141;
+TO:142;
+
+FROM:142;
+TO:1;
+
+FROM:134;
+TO:138;
+
+FROM:121;
+TO:126;
+
+FROM:112;
+TO:117;
+
+FROM:103;
+TO:108;
+
+FROM:94;
+TO:99;
+
+FROM:67;
+TO:68;
+
+FROM:66;
+TO:68;
+
+FROM:55;
+TO:128;
+
+FROM:52;
+TO:130;
+
+FROM:36;
+TO:39;
+
+FROM:33;
+TO:41;
+
+FROM:29;
+TO:140;
+
+FROM:19;
+TO:24;
+
+FROM:10;
+TO:12;
+
+FROM:7;
+TO:15;
+

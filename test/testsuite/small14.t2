@@ -1,0 +1,63 @@
+START: 0;
+CUTPOINT: 10000;
+
+FROM: 0;
+c := 0;
+TO: 1;
+
+FROM: 1;
+assume(x > 0);
+sx := x;
+sy := y;
+sz := z;
+TO: 2;
+
+FROM: 1;
+assume(x > 0);
+TO: 2;
+
+FROM: 2;
+x := x - 1;
+TO: 1;
+
+FROM: 2;
+y := y - 1;
+x := z;
+TO: 1;
+
+FROM: 1;
+assume(c >= 1);
+TO: 6;
+
+FROM: 6;
+assume(0 >= 0);
+TO: 7;
+
+FROM: 7;
+assume(x >= ox);
+TO: 8;
+
+FROM: 7;
+assume(sx < 1);
+TO: 8;
+
+FROM: 8;
+assume(0 >= 0);
+TO: 10000;
+
+FROM: 1;
+assume(0 >= 0);
+TO: 4;
+
+FROM: 4;
+c := 1;
+ox := x;
+oy := y;
+oz := z;
+TO: 5;
+
+FROM: 5;
+sx := x;
+sy := y;
+sz := z;
+TO: 2;

@@ -1,0 +1,19 @@
+START: 0;
+CUTPOINT: 10000;
+
+FROM: 0;
+x := 0;
+y := 0;
+TO: 1;
+
+FROM: 1;
+x := x + 1;
+y := y + 1;
+TO: 1;
+
+FROM: 1;
+TO: 2;
+
+FROM: 2;
+assume(x > y);
+TO: 10000;

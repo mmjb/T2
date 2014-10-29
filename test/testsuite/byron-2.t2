@@ -1,0 +1,39 @@
+START: 1;
+
+//NODE: 0 AT(5,"z:\src\t2\test\byron-2.c ");
+//  //LABEL: ;
+FROM: 0;
+AT(5,"z:\src\t2\test\byron-2.c ")  assume(0 >= x_13);
+AT(14,"z:\src\t2\test\byron-2.c ")  rt_11 := st_14;
+TO: 2;
+
+FROM: 0;
+AT(5,"z:\src\t2\test\byron-2.c ")  assume(0 < x_13);
+AT(6,"z:\src\t2\test\byron-2.c ")  nd_12 := nondet();
+AT(6,"z:\src\t2\test\byron-2.c ")  rv_15 := nd_12;
+AT(6,"z:\src\t2\test\byron-2.c ")  nd_12 := nondet();
+AT(6,"z:\src\t2\test\byron-2.c ")  assume(0 == rv_15);
+AT(10,"z:\src\t2\test\byron-2.c ")  y_17 := -1+y_17;
+AT(11,"z:\src\t2\test\byron-2.c ")  st_16 := nondet();
+AT(11,"z:\src\t2\test\byron-2.c ")  assume(y_17 > 1);
+TO: 0;
+
+FROM: 0;
+AT(5,"z:\src\t2\test\byron-2.c ")  assume(0 < x_13);
+AT(6,"z:\src\t2\test\byron-2.c ")  nd_12 := nondet();
+AT(6,"z:\src\t2\test\byron-2.c ")  rv_15 := nd_12;
+AT(6,"z:\src\t2\test\byron-2.c ")  nd_12 := nondet();
+AT(6,"z:\src\t2\test\byron-2.c ")  assume(0 != rv_15);
+AT(7,"z:\src\t2\test\byron-2.c ")  x_13 := -1+x_13;
+AT(8,"z:\src\t2\test\byron-2.c ")  nd_12 := nondet();
+AT(8,"z:\src\t2\test\byron-2.c ")  y_17 := nd_12;
+AT(8,"z:\src\t2\test\byron-2.c ")  nd_12 := nondet();
+TO: 0;
+
+//NODE: 1 ;
+//  //LABEL: main_enter;
+FROM: 1;
+TO: 0;
+
+//NODE: 2 ;
+//  //LABEL: main_exit_postfree;

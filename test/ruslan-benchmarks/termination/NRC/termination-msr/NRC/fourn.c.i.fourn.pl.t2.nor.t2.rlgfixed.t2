@@ -1,0 +1,471 @@
+// ARMC error state:  fourn-err-0
+// ARMC return state: fourn-ret-0	 -> 1
+// fourn-0-12	 -> 2
+// fourn-3-12	 -> 3
+// fourn-4-12	 -> 4
+// fourn-5-12	 -> 5
+// fourn-6-0	 -> 6
+// fourn-2-0	 -> 7
+// fourn-1-14	 -> 8
+// fourn-7-15	 -> 9
+// fourn-10-15	 -> 10
+// fourn-11-21	 -> 11
+// fourn-12-15	 -> 12
+// fourn-14-0	 -> 13
+// fourn-15-0	 -> 14
+// fourn-16-0	 -> 15
+// fourn-17-0	 -> 16
+// fourn-18-0	 -> 17
+// fourn-13-22	 -> 18
+// fourn-21-22	 -> 19
+// fourn-22-23	 -> 20
+// fourn-23-22	 -> 21
+// fourn-25-24	 -> 22
+// fourn-27-24	 -> 23
+// fourn-28-25	 -> 24
+// fourn-29-24	 -> 25
+// fourn-32-25	 -> 26
+// fourn-33-25	 -> 27
+// fourn-34-25	 -> 28
+// fourn-35-0	 -> 29
+// fourn-36-0	 -> 30
+// fourn-37-0	 -> 31
+// fourn-38-0	 -> 32
+// fourn-39-0	 -> 33
+// fourn-40-0	 -> 34
+// fourn-41-0	 -> 35
+// fourn-31-0	 -> 36
+// fourn-30-24	 -> 37
+// fourn-26-0	 -> 38
+// fourn-24-32	 -> 39
+// fourn-42-33	 -> 40
+// fourn-45-33	 -> 41
+// fourn-47-33	 -> 42
+// fourn-46-35	 -> 43
+// fourn-49-33	 -> 44
+// fourn-48-33	 -> 45
+// fourn-50-0	 -> 46
+// fourn-44-0	 -> 47
+// fourn-43-22	 -> 48
+// fourn-51-0	 -> 49
+// fourn-20-0	 -> 50
+// fourn-19-39	 -> 51
+// fourn-52-40	 -> 52
+// fourn-55-40	 -> 53
+// fourn-56-47	 -> 54
+// fourn-57-40	 -> 55
+// fourn-59-0	 -> 56
+// fourn-60-0	 -> 57
+// fourn-61-0	 -> 58
+// fourn-62-0	 -> 59
+// fourn-63-0	 -> 60
+// fourn-64-0	 -> 61
+// fourn-58-48	 -> 62
+// fourn-67-48	 -> 63
+// fourn-68-49	 -> 64
+// fourn-69-48	 -> 65
+// fourn-72-49	 -> 66
+// fourn-73-50	 -> 67
+// fourn-74-49	 -> 68
+// fourn-77-50	 -> 69
+// fourn-78-50	 -> 70
+// fourn-79-50	 -> 71
+// fourn-80-0	 -> 72
+// fourn-81-0	 -> 73
+// fourn-82-0	 -> 74
+// fourn-83-0	 -> 75
+// fourn-84-0	 -> 76
+// fourn-85-0	 -> 77
+// fourn-86-0	 -> 78
+// fourn-87-0	 -> 79
+// fourn-76-0	 -> 80
+// fourn-75-49	 -> 81
+// fourn-71-0	 -> 82
+// fourn-70-48	 -> 83
+// fourn-88-0	 -> 84
+// fourn-89-0	 -> 85
+// fourn-90-0	 -> 86
+// fourn-66-0	 -> 87
+// fourn-65-64	 -> 88
+// fourn-54-0	 -> 89
+// fourn-53-15	 -> 90
+// fourn-91-0	 -> 91
+// fourn-9-0	 -> 92
+// fourn-8-68	 -> 93
+START:2;
+FROM:2;
+TO:3;
+
+FROM:3;
+assume(idim<=ndim);
+TO:4;
+
+FROM:3;
+assume(idim>=(1 + ndim));
+TO:5;
+
+FROM:4;
+ntot := nondet();
+TO:6;
+
+FROM:6;
+idim := (idim + 1);
+TO:2;
+
+FROM:7;
+TO:8;
+
+FROM:8;
+nprev := 1;
+TO:9;
+
+FROM:9;
+TO:10;
+
+FROM:10;
+assume(idim>=1);
+TO:11;
+
+FROM:10;
+assume((idim + 1)<=1);
+TO:12;
+
+FROM:11;
+n := nondet();
+TO:13;
+
+FROM:13;
+nrem := nondet();
+TO:14;
+
+FROM:14;
+ip1 := nondet();
+TO:15;
+
+FROM:15;
+ip2 := nondet();
+TO:16;
+
+FROM:16;
+ip3 := nondet();
+TO:17;
+
+FROM:17;
+i2rev := 1;
+TO:18;
+
+FROM:18;
+TO:19;
+
+FROM:19;
+assume(i2<=ip2);
+TO:20;
+
+FROM:19;
+assume(i2>=(1 + ip2));
+TO:21;
+
+FROM:20;
+assume((i2 + 1)<=i2rev);
+TO:22;
+
+FROM:22;
+TO:23;
+
+FROM:23;
+assume(i1<=((i2 + ip1) - 2));
+TO:24;
+
+FROM:23;
+assume(i1>=(1 + ((i2 + ip1) - 2)));
+TO:25;
+
+FROM:24;
+TO:26;
+
+FROM:26;
+assume(i3<=ip3);
+TO:27;
+
+FROM:26;
+assume(i3>=(1 + ip3));
+TO:28;
+
+FROM:27;
+i3rev := ((i2rev + i3) - i2);
+TO:29;
+
+FROM:29;
+tempr := nondet();
+TO:30;
+
+FROM:30;
+TO:31;
+
+FROM:31;
+TO:32;
+
+FROM:32;
+tempr := nondet();
+TO:33;
+
+FROM:33;
+TO:34;
+
+FROM:34;
+TO:35;
+
+FROM:35;
+i3 := (i3 + ip2);
+TO:24;
+
+FROM:36;
+TO:37;
+
+FROM:37;
+i1 := (i1 + 2);
+TO:22;
+
+FROM:38;
+TO:39;
+
+FROM:20;
+assume(i2>=i2rev);
+TO:39;
+
+FROM:39;
+ibit := nondet();
+TO:40;
+
+FROM:40;
+TO:41;
+
+FROM:41;
+assume(ibit>=ip1);
+TO:42;
+
+FROM:42;
+assume(i2rev>=(1 + ibit));
+TO:43;
+
+FROM:42;
+assume(i2rev<=ibit);
+TO:44;
+
+FROM:41;
+assume((ibit + 1)<=ip1);
+TO:45;
+
+FROM:43;
+i2rev := (i2rev - ibit);
+TO:46;
+
+FROM:46;
+ibit := nondet();
+TO:40;
+
+FROM:47;
+TO:48;
+
+FROM:48;
+i2rev := (i2rev + ibit);
+TO:49;
+
+FROM:49;
+i2 := (i2 + ip1);
+TO:18;
+
+FROM:50;
+TO:51;
+
+FROM:51;
+ifp1 := ip1;
+TO:52;
+
+FROM:52;
+TO:53;
+
+FROM:53;
+assume((ifp1 + 1)<=ip2);
+TO:54;
+
+FROM:53;
+assume(ifp1>=ip2);
+TO:55;
+
+FROM:54;
+ifp2 := nondet();
+TO:56;
+
+FROM:56;
+theta := nondet();
+TO:57;
+
+FROM:57;
+wtemp := nondet();
+TO:58;
+
+FROM:58;
+wpr := nondet();
+TO:59;
+
+FROM:59;
+wpi := nondet();
+TO:60;
+
+FROM:60;
+wr := 1;
+TO:61;
+
+FROM:61;
+wi := 0;
+TO:62;
+
+FROM:62;
+TO:63;
+
+FROM:63;
+assume(i3<=ifp1);
+TO:64;
+
+FROM:63;
+assume(i3>=(1 + ifp1));
+TO:65;
+
+FROM:64;
+TO:66;
+
+FROM:66;
+assume(i1<=((i3 + ip1) - 2));
+TO:67;
+
+FROM:66;
+assume(i1>=(1 + ((i3 + ip1) - 2)));
+TO:68;
+
+FROM:67;
+TO:69;
+
+FROM:69;
+assume(i2<=ip3);
+TO:70;
+
+FROM:69;
+assume(i2>=(1 + ip3));
+TO:71;
+
+FROM:70;
+k1 := i2;
+TO:72;
+
+FROM:72;
+k2 := (k1 + ifp1);
+TO:73;
+
+FROM:73;
+tempr := nondet();
+TO:74;
+
+FROM:74;
+tempi := nondet();
+TO:75;
+
+FROM:75;
+TO:76;
+
+FROM:76;
+TO:77;
+
+FROM:77;
+TO:78;
+
+FROM:78;
+TO:79;
+
+FROM:79;
+i2 := (i2 + ifp2);
+TO:67;
+
+FROM:80;
+TO:81;
+
+FROM:81;
+i1 := (i1 + 2);
+TO:64;
+
+FROM:82;
+TO:83;
+
+FROM:83;
+wtemp := wr;
+TO:84;
+
+FROM:84;
+wr := nondet();
+TO:85;
+
+FROM:85;
+wi := nondet();
+TO:86;
+
+FROM:86;
+i3 := (i3 + ip1);
+TO:62;
+
+FROM:87;
+TO:88;
+
+FROM:88;
+ifp1 := ifp2;
+TO:52;
+
+FROM:89;
+TO:90;
+
+FROM:90;
+nprev := nondet();
+TO:91;
+
+FROM:91;
+idim := (idim - 1);
+TO:9;
+
+FROM:92;
+TO:93;
+
+FROM:93;
+TO:1;
+
+FROM:71;
+TO:80;
+
+FROM:68;
+TO:82;
+
+FROM:65;
+TO:87;
+
+FROM:55;
+TO:89;
+
+FROM:45;
+TO:47;
+
+FROM:44;
+TO:47;
+
+FROM:28;
+TO:36;
+
+FROM:25;
+TO:38;
+
+FROM:21;
+TO:50;
+
+FROM:12;
+TO:92;
+
+FROM:5;
+TO:7;
+

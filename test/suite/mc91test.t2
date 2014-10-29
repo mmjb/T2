@@ -1,0 +1,51 @@
+START:0;
+CUTPOINT:2;
+
+FROM:0;
+n := nondet();
+e := 1;
+copied := 0;
+TO:1;
+
+FROM:1;
+assume(e>0);
+assume(n>100);
+n := n - 10;
+e := e - 1;
+TO:1;
+
+FROM:1;
+assume(e>0);
+assume(n<=100);
+n := n + 11;
+e := e + 1;
+TO:1;
+
+FROM:1;
+assume(copied<=0); 
+copied := 1;
+oldn := n;
+olde := e;
+assume(e>0);
+assume(n>100);
+n := n - 10;
+e := e - 1;
+TO:1;
+
+FROM:1;
+assume(copied<=0); 
+copied := 1;
+oldn := n;
+olde := e;
+assume(e>0);
+assume(n<=100);
+n := n + 11;
+e := e + 1;
+TO:1;
+
+
+FROM:1;
+assume(copied>=1);
+assume(e >= olde);
+assume(n <= oldn);
+TO:2;

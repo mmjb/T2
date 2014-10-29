@@ -1,0 +1,106 @@
+START:0;
+FROM:0;
+__rho_2_ := nondet();
+TO:4;
+
+FROM:4;
+c := __rho_2_;
+TO:5;
+
+FROM:5;
+assume(c>=(1 + 0));
+TO:6;
+
+FROM:6;
+servers := 4;
+TO:7;
+
+FROM:7;
+resp := 0;
+TO:8;
+
+FROM:8;
+curr_serv := servers;
+TO:9;
+
+FROM:11;
+TO:10;
+
+FROM:10;
+assume(c<=5);
+TO:3;
+
+FROM:3;
+TO:12;
+
+FROM:12;
+assume(curr_serv<=0);
+TO:13;
+
+FROM:12;
+assume(curr_serv>=(1 + 0));
+TO:14;
+
+FROM:14;
+__rho_1_ := nondet();
+TO:15;
+
+FROM:15;
+assume(__rho_1_>=(1 + 0));
+TO:16;
+
+FROM:16;
+c := (c - 1);
+TO:17;
+
+FROM:17;
+curr_serv := (curr_serv - 1);
+TO:18;
+
+FROM:18;
+resp := (resp + 1);
+TO:3;
+
+FROM:15;
+assume(__rho_1_<=0);
+TO:19;
+
+FROM:19;
+assume((c + 1)<=curr_serv);
+TO:20;
+
+FROM:20;
+curr_serv := (curr_serv - 1);
+TO:3;
+
+FROM:21;
+TO:2;
+
+FROM:10;
+assume(c>=(1 + 5));
+TO:2;
+
+FROM:2;
+TO:22;
+
+FROM:22;
+TO:2;
+
+FROM:24;
+TO:23;
+
+FROM:26;
+TO:25;
+
+FROM:25;
+TO:27;
+
+FROM:23;
+TO:26;
+
+FROM:13;
+TO:21;
+
+FROM:9;
+TO:11;
+

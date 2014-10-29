@@ -1,0 +1,28 @@
+* Wed Aug  8 11:23:14 BST 2012
+
+Today Byron requested to translate the files in this directory into
+T2. These benchmarks come from //depot/bycook/examples. I did a quick
+hack using:
+
+URL:
+https://svn.model.in.tum.de/svn/vs/code/trunk/ruslan/msr-sommer12/cream_cfrontend
+Revision: 15416
+
+URL:
+https://svn.model.in.tum.de/svn/vs/code/trunk/ruslan/msr-sommer12/cream_c2bc
+Revision: 15416
+
+URL:
+https://svn.model.in.tum.de/svn/vs/code/trunk/ruslan/msr-sommer12/qarmc3
+Revision: 15416
+
+
+* Tue Aug 14 02:11:07 BST 2012
+
+- Fixed the files by inling all functions and adding init(); body(); to main.
+- Added the ARMC enabled Makefile.
+
+
+* Tue Aug 14 13:35:37 BST 2012
+
+- These benchmarks do not terminate!

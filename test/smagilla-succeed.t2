@@ -1,0 +1,36 @@
+
+START: 0;
+
+FROM: 0;
+c := nondet();
+assume(c > 0);
+servers := 8;
+resp := 0;
+curr_serv := servers;
+__rho_1_ := nondet();
+TO: 1;
+
+FROM: 1;
+assume(curr_serv > 0);
+TO: 2;
+
+FROM: 2;
+assume(__rho_1_>0);
+c := c - 1;
+curr_serv := curr_serv - 1;
+resp := resp + 1;
+TO: 1;
+
+FROM: 2;
+assume(__rho_1_<=0);
+assume(c < curr_serv);
+curr_serv := curr_serv - 1;
+TO: 1;
+
+FROM: 1;
+assume(curr_serv <= 0);
+TO: 3;
+
+FROM: 3;
+assume(0 <= 0);
+TO: 3;

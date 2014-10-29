@@ -1,0 +1,34 @@
+START: 1;
+
+FROM: 0;
+AT(4,"c:\src\t2\test\p-46.c ")  assume(1 > a_13);
+AT(13,"c:\src\t2\test\p-46.c ")  result_11 := temp0_14;
+TO: 2;
+
+FROM: 0;
+AT(4,"c:\src\t2\test\p-46.c ")  a_21 := nondet();
+AT(4,"c:\src\t2\test\p-46.c ")  assume(1 <= a_13);
+AT(6,"c:\src\t2\test\p-46.c ")  nondet_12 := nondet();
+AT(6,"c:\src\t2\test\p-46.c ")  x_15 := nondet_12;
+AT(6,"c:\src\t2\test\p-46.c ")  nondet_12 := nondet();
+AT(7,"c:\src\t2\test\p-46.c ")  assume(a_13 != x_15*2);
+AT(10,"c:\src\t2\test\p-46.c ")  a_13 := 1+a_13*3;
+AT(4,"c:\src\t2\test\p-46.c ")  assume(a_13 == 1+a_21*3);
+AT(4,"c:\src\t2\test\p-46.c ")  assume(a_21 != x_15*2);
+AT(4,"c:\src\t2\test\p-46.c ")  assume(1 <= a_21);
+TO: 0;
+
+FROM: 0;
+AT(4,"c:\src\t2\test\p-46.c ")  assume(1 <= a_13);
+AT(6,"c:\src\t2\test\p-46.c ")  nondet_12 := nondet();
+AT(6,"c:\src\t2\test\p-46.c ")  x_15 := nondet_12;
+AT(6,"c:\src\t2\test\p-46.c ")  nondet_12 := nondet();
+AT(7,"c:\src\t2\test\p-46.c ")  assume(a_13 == x_15*2);
+AT(8,"c:\src\t2\test\p-46.c ")  a_13 := x_15;
+AT(4,"c:\src\t2\test\p-46.c ")  assume(a_13 == x_15);
+AT(4,"c:\src\t2\test\p-46.c ")  assume(1 <= x_15*2);
+TO: 0;
+
+FROM: 1;
+TO: 0;
+

@@ -1,0 +1,38 @@
+START: 3;
+
+//NODE: 0 AT(11,"z:\src\t2\test\byron-1.c ");
+//  //LABEL: ;
+FROM: 0;
+AT(11,"z:\src\t2\test\byron-1.c ")  rt_11 := st_14;
+TO: 4;
+
+//NODE: 1 AT(11,"z:\src\t2\test\byron-1.c ");
+//  //LABEL: ;
+FROM: 1;
+AT(11,"z:\src\t2\test\byron-1.c ")  rt_11 := st_14;
+TO: 4;
+
+//NODE: 2 AT(6,"z:\src\t2\test\byron-1.c ");
+//  //LABEL: ;
+FROM: 2;
+AT(6,"z:\src\t2\test\byron-1.c ")  assume(0 < x_15);
+AT(7,"z:\src\t2\test\byron-1.c ")  x_15 := -y_13+x_15;
+AT(8,"z:\src\t2\test\byron-1.c ")  y_13 := 1+y_13;
+TO: 2;
+
+FROM: 2;
+AT(6,"z:\src\t2\test\byron-1.c ")  assume(0 >= x_15);
+TO: 0;
+
+//NODE: 3 ;
+//  //LABEL: main_enter;
+FROM: 3;
+AT(5,"z:\src\t2\test\byron-1.c ")  assume(1 <= y_13);
+TO: 2;
+
+FROM: 3;
+AT(5,"z:\src\t2\test\byron-1.c ")  assume(1 > y_13);
+TO: 1;
+
+//NODE: 4 ;
+//  //LABEL: main_exit_postfree;

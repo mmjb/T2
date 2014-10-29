@@ -1,0 +1,207 @@
+START: 15;
+CUTPOINT: 300;
+
+FROM: 8;
+  assume(0<=-1-x_8+y_9);
+TO: 2;
+
+FROM: 8;
+  assume(-1-x_8+y_9<0);
+AT(6,"n-5.c ")  Result_4 := nondet();
+TO: 32;
+
+FROM: 14;
+AT(4,"n-5.c ")  lt_13 := 0;
+  assume(0<=4-lt_13);
+AT(4,"n-5.c ")  lt_13 := nondet();
+AT(5,"n-5.c ")  lt_12 := 0;
+AT(5,"n-5.c ")  lt_12 := nondet();
+AT(6,"n-5.c ")  __retres1_6 := 0;
+TO: 23;
+
+FROM: 13;
+  b_51 := -2;
+AT(4,"n-5.c ")  lt_13 := -1;
+  assume(0<=4-lt_13);
+AT(4,"n-5.c ")  lt_13 := nondet();
+AT(5,"n-5.c ")  lt_12 := -1;
+AT(5,"n-5.c ")  lt_12 := nondet();
+AT(6,"n-5.c ")  __retres1_6 := 0;
+TO: 22;
+
+FROM: 12;
+  b_76 := -1+b_51;
+AT(4,"n-5.c ")  lt_13 := b_51;
+  assume(0<=4-lt_13);
+AT(4,"n-5.c ")  lt_13 := nondet();
+AT(5,"n-5.c ")  lt_12 := b_51;
+AT(5,"n-5.c ")  lt_12 := nondet();
+AT(6,"n-5.c ")  __retres1_6 := 0;
+TO: 21;
+
+FROM: 12;
+AT(4,"n-5.c ")  lt_13 := b_51;
+  assume(4-lt_13<0);
+AT(4,"n-5.c ")  lt_13 := nondet();
+AT(9,"n-5.c ")  __retres1_6 := 1;
+TO: 20;
+
+FROM: 11;
+AT(4,"n-5.c ")  lt_13 := 0;
+  assume(0<=4-lt_13);
+AT(4,"n-5.c ")  lt_13 := nondet();
+AT(5,"n-5.c ")  lt_12 := 0;
+AT(5,"n-5.c ")  lt_12 := nondet();
+AT(6,"n-5.c ")  __retres1_6 := 0;
+TO: 19;
+
+FROM: 10;
+  b_128 := -2;
+AT(4,"n-5.c ")  lt_13 := -1;
+  assume(0<=4-lt_13);
+AT(4,"n-5.c ")  lt_13 := nondet();
+AT(5,"n-5.c ")  lt_12 := -1;
+AT(5,"n-5.c ")  lt_12 := nondet();
+AT(6,"n-5.c ")  __retres1_6 := 0;
+TO: 18;
+
+FROM: 9;
+AT(4,"n-5.c ")  lt_13 := b_128;
+  assume(0<=4-lt_13);
+AT(4,"n-5.c ")  lt_13 := nondet();
+AT(5,"n-5.c ")  lt_12 := b_128;
+AT(5,"n-5.c ")  lt_12 := nondet();
+AT(6,"n-5.c ")  __retres1_6 := 0;
+TO: 17;
+
+FROM: 9;
+AT(4,"n-5.c ")  lt_13 := b_128;
+  assume(4-lt_13<0);
+AT(4,"n-5.c ")  lt_13 := nondet();
+AT(9,"n-5.c ")  __retres1_6 := 1;
+TO: 16;
+
+FROM: 23;
+AT(14,"n-5.c ")  __cil_tmp2_7 := __retres1_6;
+AT(14,"n-5.c ")  Result_4 := __cil_tmp2_7;
+TO: 31;
+
+FROM: 22;
+AT(14,"n-5.c ")  __cil_tmp2_7 := __retres1_6;
+AT(14,"n-5.c ")  Result_4 := __cil_tmp2_7;
+TO: 30;
+
+FROM: 21;
+AT(14,"n-5.c ")  __cil_tmp2_7 := __retres1_6;
+AT(14,"n-5.c ")  Result_4 := __cil_tmp2_7;
+TO: 29;
+
+FROM: 20;
+AT(14,"n-5.c ")  __cil_tmp2_7 := __retres1_6;
+AT(14,"n-5.c ")  Result_4 := __cil_tmp2_7;
+TO: 28;
+
+FROM: 19;
+AT(14,"n-5.c ")  __cil_tmp2_7 := __retres1_6;
+AT(14,"n-5.c ")  Result_4 := __cil_tmp2_7;
+TO: 27;
+
+FROM: 18;
+AT(14,"n-5.c ")  __cil_tmp2_7 := __retres1_6;
+AT(14,"n-5.c ")  Result_4 := __cil_tmp2_7;
+TO: 26;
+
+FROM: 17;
+AT(14,"n-5.c ")  __cil_tmp2_7 := __retres1_6;
+AT(14,"n-5.c ")  Result_4 := __cil_tmp2_7;
+TO: 25;
+
+FROM: 16;
+AT(14,"n-5.c ")  __cil_tmp2_7 := __retres1_6;
+AT(14,"n-5.c ")  Result_4 := __cil_tmp2_7;
+TO: 24;
+
+FROM: 7;
+TO: 14;
+
+FROM: 6;
+TO: 9;
+
+FROM: 5;
+TO: 11;
+
+FROM: 15;
+AT(14,"n-5.c ")  count_5 := nondet();
+TO: 8;
+
+FROM: 2;
+  assume(-1-y_9+z_10<0);
+AT(26,"n-5.c ")  x_8 := 1+x_8;
+TO: 8;
+
+FROM: 2;
+  assume(0<=-1-y_9+z_10);
+TO: 7;
+
+FROM: 1;
+  assume(0<=-1-y_9+z_10);
+TO: 6;
+
+FROM: 300;
+  assume(-1-y_9+z_10<0);
+AT(26,"n-5.c ")  x_8 := 1+x_8;
+TO: 8;
+
+FROM: 300;
+  assume(0<=-1-y_9+z_10);
+TO: 5;
+
+FROM: 31;
+  tmp_11 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+
+FROM: 30;
+  tmp_11 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+
+FROM: 29;
+  tmp_11 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+
+FROM: 28;
+  tmp_11 := Result_4;
+  Result_4 := nondet();
+TO: 3;
+
+FROM: 27;
+  tmp_11 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+
+FROM: 26;
+  tmp_11 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+
+FROM: 25;
+  tmp_11 := Result_4;
+  Result_4 := nondet();
+TO: 4;
+
+FROM: 24;
+  tmp_11 := Result_4;
+  Result_4 := nondet();
+TO: 3;
+
+FROM: 4;
+  assume(tmp_11==0);
+TO: 1;
+
+FROM: 3;
+  assume(tmp_11!=0);
+AT(23,"n-5.c ")  y_9 := 1+y_9;
+TO: 300;
+

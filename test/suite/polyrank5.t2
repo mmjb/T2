@@ -1,0 +1,19 @@
+//Polyranking example where one tree is much deeper than the other.
+
+START:0;
+
+FROM:0;
+TO:1;
+
+FROM:1;
+  assume(x>0);
+  x:=x+y;
+  y:=y+z;
+  z:=z+a;
+  a:=a-1;
+TO:1;
+
+FROM:1;
+  assume(x>0);
+  x:=x-1;
+TO:1;

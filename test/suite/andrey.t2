@@ -1,0 +1,59 @@
+START:0; //main-0-3
+
+CUTPOINT:1; //main-err-0
+
+FROM:0; //main-0-3
+
+assume(1==1);
+
+x := x;
+
+TO:2; //main-3-3
+
+FROM:2; //main-3-3
+
+assume(x>=(1 + 0));
+
+x := x;
+
+TO:3; //main-4-4
+
+FROM:2; //main-3-3
+
+assume(x<=0);
+
+x := x;
+
+TO:4; //main-5-3
+
+FROM:3; //main-4-4
+
+assume(1==1);
+
+x := (x - 1);
+
+TO:0; //main-0-3
+
+FROM:5; //main-2-0
+
+assume(1==1);
+
+x := x;
+
+TO:6; //main-1-6
+
+FROM:6; //main-1-6
+
+assume(1==1);
+
+x := x;
+
+TO:7; //main-ret-0
+
+FROM:4; //main-5-3
+
+assume(1==1);
+
+x := x;
+
+TO:5; //main-2-0

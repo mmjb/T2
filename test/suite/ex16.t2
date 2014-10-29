@@ -1,0 +1,240 @@
+START:0;
+FROM:0;
+x7 := 3;
+TO:5;
+
+FROM:5;
+y8 := 3;
+TO:6;
+
+FROM:6;
+i9 := 0;
+TO:7;
+
+FROM:7;
+assume(x7==y8);
+TO:8;
+
+FROM:8;
+ret_foo10 := x7;
+TO:9;
+
+FROM:7;
+assume((x7 + 1)<=y8);
+TO:4;
+
+FROM:7;
+assume(x7>=(1 + y8));
+TO:4;
+
+FROM:4;
+TO:10;
+
+FROM:10;
+assume(i9<=x7);
+TO:11;
+
+FROM:10;
+assume(i9>=(1 + x7));
+TO:12;
+
+FROM:11;
+assume(x7>=(1 + 0));
+TO:13;
+
+FROM:13;
+y8 := (y8 + x7);
+TO:4;
+
+FROM:11;
+assume(x7<=0);
+TO:4;
+
+FROM:15;
+TO:14;
+
+FROM:14;
+ret_foo10 := y8;
+TO:16;
+
+FROM:18;
+tmp := ret_foo10;
+TO:17;
+
+FROM:17;
+i := tmp;
+TO:19;
+
+FROM:19;
+x11 := -3;
+TO:20;
+
+FROM:20;
+y12 := 4;
+TO:21;
+
+FROM:21;
+i13 := 0;
+TO:22;
+
+FROM:22;
+assume(x11==y12);
+TO:23;
+
+FROM:23;
+ret_foo14 := x11;
+TO:24;
+
+FROM:22;
+assume((x11 + 1)<=y12);
+TO:3;
+
+FROM:22;
+assume(x11>=(1 + y12));
+TO:3;
+
+FROM:3;
+TO:25;
+
+FROM:25;
+assume(i13<=x11);
+TO:26;
+
+FROM:25;
+assume(i13>=(1 + x11));
+TO:27;
+
+FROM:26;
+assume(x11>=(1 + 0));
+TO:28;
+
+FROM:28;
+y12 := (y12 + x11);
+TO:3;
+
+FROM:26;
+assume(x11<=0);
+TO:3;
+
+FROM:30;
+TO:29;
+
+FROM:29;
+ret_foo14 := y12;
+TO:31;
+
+FROM:33;
+tmp___0 := ret_foo14;
+TO:32;
+
+FROM:32;
+j := tmp___0;
+TO:34;
+
+FROM:34;
+x15 := 3;
+TO:35;
+
+FROM:35;
+y16 := -6;
+TO:36;
+
+FROM:36;
+i17 := 0;
+TO:37;
+
+FROM:37;
+assume(x15==y16);
+TO:38;
+
+FROM:38;
+ret_foo18 := x15;
+TO:39;
+
+FROM:37;
+assume((x15 + 1)<=y16);
+TO:2;
+
+FROM:37;
+assume(x15>=(1 + y16));
+TO:2;
+
+FROM:2;
+TO:40;
+
+FROM:40;
+assume(i17<=x15);
+TO:41;
+
+FROM:40;
+assume(i17>=(1 + x15));
+TO:42;
+
+FROM:41;
+assume(x15>=(1 + 0));
+TO:43;
+
+FROM:43;
+y16 := (y16 + x15);
+TO:2;
+
+FROM:41;
+assume(x15<=0);
+TO:2;
+
+FROM:45;
+TO:44;
+
+FROM:44;
+ret_foo18 := y16;
+TO:46;
+
+FROM:48;
+tmp___1 := ret_foo18;
+TO:47;
+
+FROM:47;
+k := tmp___1;
+TO:49;
+
+FROM:49;
+assume(i>=(1 + 4));
+TO:50;
+
+FROM:50;
+TO:51;
+
+FROM:49;
+assume(i<=4);
+TO:51;
+
+FROM:51;
+TO:52;
+
+FROM:46;
+TO:48;
+
+FROM:42;
+TO:45;
+
+FROM:39;
+TO:48;
+
+FROM:31;
+TO:33;
+
+FROM:27;
+TO:30;
+
+FROM:24;
+TO:33;
+
+FROM:16;
+TO:18;
+
+FROM:12;
+TO:15;
+
+FROM:9;
+TO:18;
+

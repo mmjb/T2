@@ -1,0 +1,12 @@
+START: 0;
+CUTPOINT: 10000;
+
+FROM: 0;
+TO: 1;
+
+FROM: 1;
+assume(0 >= 1);
+TO: 10000;
+
+FROM: 10000;
+TO: 1;

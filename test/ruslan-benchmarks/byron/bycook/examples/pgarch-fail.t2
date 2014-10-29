@@ -1,0 +1,177 @@
+START:0;
+FROM:0;
+wakend := 1;
+TO:4;
+
+FROM:4;
+got_SIGHUP := nondet();
+TO:5;
+
+FROM:7;
+TO:6;
+
+FROM:6;
+wakend := 1;
+TO:3;
+
+FROM:3;
+TO:8;
+
+FROM:8;
+assume(got_SIGHUP>=(1 + 0));
+TO:9;
+
+FROM:9;
+got_SIGHUP := 0;
+TO:10;
+
+FROM:10;
+a33 := 1;
+TO:11;
+
+FROM:13;
+TO:12;
+
+FROM:12;
+__rho_1_ := nondet();
+TO:14;
+
+FROM:14;
+ret_XLogArchivingActive44 := __rho_1_;
+TO:15;
+
+FROM:17;
+tmp2 := ret_XLogArchivingActive44;
+TO:16;
+
+FROM:16;
+tt1 := tmp2;
+TO:18;
+
+FROM:18;
+assume(tt1<=0);
+TO:19;
+
+FROM:18;
+assume(tt1>=(1 + 0));
+TO:20;
+
+FROM:8;
+assume(got_SIGHUP<=0);
+TO:20;
+
+FROM:20;
+assume(wakend>=(1 + 0));
+TO:21;
+
+FROM:21;
+wakend := 0;
+TO:22;
+
+FROM:24;
+TO:23;
+
+FROM:23;
+a55 := 0;
+TO:25;
+
+FROM:25;
+tmp66 := nondet();
+TO:26;
+
+FROM:26;
+ret_time77 := tmp66;
+TO:27;
+
+FROM:29;
+last_copy_time := ret_time77;
+TO:28;
+
+FROM:20;
+assume(wakend<=0);
+TO:28;
+
+FROM:28;
+assume(wakend<=0);
+TO:30;
+
+FROM:30;
+a88 := 0;
+TO:31;
+
+FROM:31;
+tmp99 := nondet();
+TO:32;
+
+FROM:32;
+ret_time1010 := tmp99;
+TO:33;
+
+FROM:35;
+curtime := ret_time1010;
+TO:34;
+
+FROM:34;
+assume((curtime - last_copy_time)>=1000);
+TO:36;
+
+FROM:36;
+wakend := 1;
+TO:37;
+
+FROM:34;
+assume(((curtime - last_copy_time) + 1)<=1000);
+TO:37;
+
+FROM:28;
+assume(wakend>=(1 + 0));
+TO:37;
+
+FROM:37;
+TO:38;
+
+FROM:39;
+TO:2;
+
+FROM:2;
+TO:40;
+
+FROM:40;
+TO:2;
+
+FROM:42;
+TO:41;
+
+FROM:44;
+TO:43;
+
+FROM:43;
+TO:45;
+
+FROM:41;
+TO:44;
+
+FROM:38;
+TO:39;
+
+FROM:33;
+TO:35;
+
+FROM:27;
+TO:29;
+
+FROM:22;
+TO:24;
+
+FROM:19;
+TO:39;
+
+FROM:15;
+TO:17;
+
+FROM:11;
+TO:13;
+
+FROM:5;
+TO:7;
+

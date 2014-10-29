@@ -1,0 +1,17 @@
+START: 300;
+CUTPOINT: 300;
+
+FROM: 2;
+AT(7,"n-16a.c ")  x_5 := x_5+y_6;
+  assume(0<=-1-x_5);
+AT(1,"n-16a.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 2;
+AT(7,"n-16a.c ")  x_5 := x_5+y_6;
+  assume(-1-x_5<0);
+TO: 2;
+
+FROM: 300;
+TO: 2;
+

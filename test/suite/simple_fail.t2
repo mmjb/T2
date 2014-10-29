@@ -1,0 +1,15 @@
+START:0;
+FROM:0;
+a := 1;
+TO:2;
+
+FROM:2;
+a := -1;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+TO:5;
+

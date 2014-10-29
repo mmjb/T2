@@ -1,0 +1,62 @@
+START: 300;
+CUTPOINT: 300;
+
+FROM: 300;
+AT(1,"n-20.c ")  px_8 := nondet();
+AT(1,"n-20.c ")  x_7 := nondet();
+AT(1,"n-20.c ")  py_6 := nondet();
+AT(1,"n-20.c ")  y_5 := nondet();
+AT(10,"n-20.c ")  q_9 := px_8;
+TO: 4;
+
+FROM: 4;
+AT(12,"n-20.c ")  lt_11 := x_7;
+AT(12,"n-20.c ")  lt_12 := cnt_33;
+  assume(0<=-1+lt_12);
+AT(12,"n-20.c ")  lt_11 := nondet();
+AT(12,"n-20.c ")  lt_12 := nondet();
+AT(13,"n-20.c ")  lt_10 := cnt_33;
+AT(13,"n-20.c ")  lt_10 := nondet();
+AT(14,"n-20.c ")  q_9 := py_6;
+TO: 3;
+
+FROM: 4;
+AT(12,"n-20.c ")  lt_11 := x_7;
+AT(12,"n-20.c ")  lt_12 := cnt_33;
+  assume(-1+lt_12<0);
+AT(12,"n-20.c ")  lt_11 := nondet();
+AT(12,"n-20.c ")  lt_12 := nondet();
+AT(1,"n-20.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 3;
+AT(12,"n-20.c ")  lt_11 := y_5;
+AT(12,"n-20.c ")  lt_12 := cnt_54;
+  assume(0<=-1+lt_12);
+AT(12,"n-20.c ")  lt_11 := nondet();
+AT(12,"n-20.c ")  lt_12 := nondet();
+AT(13,"n-20.c ")  lt_10 := -1+cnt_33;
+AT(13,"n-20.c ")  lt_10 := nondet();
+AT(14,"n-20.c ")  q_9 := py_6;
+TO: 2;
+
+FROM: 3;
+AT(12,"n-20.c ")  lt_11 := y_5;
+AT(12,"n-20.c ")  lt_12 := cnt_54;
+  assume(-1+lt_12<0);
+AT(12,"n-20.c ")  lt_11 := nondet();
+AT(12,"n-20.c ")  lt_12 := nondet();
+AT(1,"n-20.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 2;
+AT(12,"n-20.c ")  lt_11 := y_5;
+AT(12,"n-20.c ")  lt_12 := cnt_54;
+  assume(0<=-1+lt_12);
+AT(12,"n-20.c ")  lt_11 := nondet();
+AT(12,"n-20.c ")  lt_12 := nondet();
+AT(13,"n-20.c ")  lt_10 := -1+lt_65;
+AT(13,"n-20.c ")  lt_10 := nondet();
+AT(14,"n-20.c ")  q_9 := py_6;
+TO: 2;
+

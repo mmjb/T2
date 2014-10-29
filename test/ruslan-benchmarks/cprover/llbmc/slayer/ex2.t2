@@ -1,0 +1,11 @@
+START:0;
+FROM:0;
+TO:2;
+
+FROM:2;
+x := nondet();
+TO:3;
+
+FROM:3;
+TO:4;
+

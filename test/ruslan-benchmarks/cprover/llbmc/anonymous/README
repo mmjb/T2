@@ -1,0 +1,12 @@
+From "Model Checking Using SMT and Theory of Lists" by Aleksandar Miliceviv and Hillel Kugler (Proc. NFM 2011)
+
+
+Versioning information
+----------------------
+
+V2.0 (Mon Aug 13 11:34:04 BST 2012, Ruslan Ledesma-Garza)
+  * Adapted the benchmarks for translation into the format of T2. The
+    following changes were applied:
+    - Removed inclusion of stdlib.h.
+    - Renamed the main function as 'main'.
+    - Marked all other functions with 'inline'.

@@ -1,0 +1,19 @@
+START: 1;
+CUTPOINT: 300;
+
+FROM: 1;
+AT(1,"n-8a.c ")  z_7 := nondet();
+AT(6,"n-8a.c ")  p_8 := z_7;
+TO: 2;
+
+FROM: 2;
+  assume(0<=-1-x_5+y_6);
+AT(9,"n-8a.c ")  lt_9 := cnt_15;
+AT(9,"n-8a.c ")  lt_9 := nondet();
+TO: 2;
+
+FROM: 2;
+  assume(-1-x_5+y_6<0);
+AT(1,"n-8a.c ")  Result_4 := nondet();
+TO: 300;
+

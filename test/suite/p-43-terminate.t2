@@ -1,0 +1,524 @@
+START: 8;
+CUTPOINT: 300;
+
+//NODE: 0 AT(28,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 0;
+AT(28,"z:\src\t2\test\p-43-terminate.c ")  rt_11 := st_14;
+TO: 9;
+
+//NODE: 1 AT(28,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 1;
+AT(28,"z:\src\t2\test\p-43-terminate.c ")  rt_11 := st_14;
+TO: 9;
+
+//NODE: 2 AT(28,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 2;
+AT(28,"z:\src\t2\test\p-43-terminate.c ")  rt_11 := st_14;
+TO: 9;
+
+//NODE: 3 AT(28,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 3;
+AT(28,"z:\src\t2\test\p-43-terminate.c ")  rt_11 := st_14;
+TO: 9;
+
+//NODE: 4 AT(28,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 4;
+AT(28,"z:\src\t2\test\p-43-terminate.c ")  rt_11 := st_14;
+TO: 9;
+
+//NODE: 5 AT(28,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 5;
+AT(28,"z:\src\t2\test\p-43-terminate.c ")  rt_11 := st_14;
+TO: 9;
+
+//NODE: 6 AT(28,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 6;
+AT(28,"z:\src\t2\test\p-43-terminate.c ")  rt_11 := st_14;
+TO: 9;
+
+//NODE: 7 AT(28,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 7;
+AT(28,"z:\src\t2\test\p-43-terminate.c ")  rt_11 := st_14;
+TO: 9;
+
+//NODE: 10 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 10;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 27;
+
+FROM: 10;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 27;
+
+//NODE: 11 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 11;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 30;
+
+FROM: 11;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 28;
+
+//NODE: 12 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 30;
+
+FROM: 12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 28;
+
+//NODE: 13 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 13;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 31;
+
+FROM: 13;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 31;
+
+FROM: 13;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 29;
+
+FROM: 13;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 29;
+
+//NODE: 14 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 14;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 31;
+
+FROM: 14;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 29;
+
+//NODE: 15 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 15;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 31;
+
+FROM: 15;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 29;
+
+//NODE: 16 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 16;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 30;
+
+FROM: 16;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 28;
+
+//NODE: 17 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 17;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 30;
+
+FROM: 17;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 28;
+
+//NODE: 18 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 18;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 30;
+
+FROM: 18;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 28;
+
+//NODE: 19 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 19;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 31;
+
+FROM: 19;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 31;
+
+FROM: 19;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 29;
+
+FROM: 19;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 29;
+
+//NODE: 20 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 20;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 31;
+
+FROM: 20;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 29;
+
+//NODE: 21 AT(20,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 21;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_18);
+AT(21,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -1+x_13;
+AT(22,"z:\src\t2\test\p-43-terminate.c ")  y_15 := x_13;
+TO: 31;
+
+FROM: 21;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  rv_18 := nd_12;
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(20,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_18);
+AT(24,"z:\src\t2\test\p-43-terminate.c ")  x_13 := -2+y_15;
+AT(25,"z:\src\t2\test\p-43-terminate.c ")  y_15 := 1+x_13;
+TO: 29;
+
+//NODE: 22 AT(14,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 22;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 != c_16);
+TO: 10;
+
+//NODE: 23 AT(14,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 23;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 <= x_13);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_20 <= y_15);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19+o_20 <= x_13+y_15);
+AT(16,"z:\src\t2\test\p-43-terminate.c ")  e_21 := 1;
+TO: 300;
+
+FROM: 23;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 > x_13);
+TO: 12;
+
+FROM: 23;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 <= x_13);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_20 > y_15);
+TO: 11;
+
+//NODE: 24 AT(14,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 24;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 > x_13);
+TO: 15;
+
+FROM: 24;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 <= x_13);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_20 > y_15);
+TO: 14;
+
+FROM: 24;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 <= x_13);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_20 <= y_15);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19+o_20 <= x_13+y_15);
+AT(16,"z:\src\t2\test\p-43-terminate.c ")  e_21 := 1;
+TO: 300;
+
+//NODE: 25 AT(14,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 25;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 <= x_13);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_20 <= y_15);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19+o_20 <= x_13+y_15);
+AT(16,"z:\src\t2\test\p-43-terminate.c ")  e_21 := 1;
+TO: 300;
+
+FROM: 25;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 > x_13);
+TO: 17;
+
+FROM: 25;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 <= x_13);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_20 > y_15);
+TO: 16;
+
+//NODE: 26 AT(14,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 26;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 > x_13);
+TO: 21;
+
+FROM: 26;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 <= x_13);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_20 > y_15);
+TO: 20;
+
+FROM: 26;
+AT(14,"z:\src\t2\test\p-43-terminate.c ")  assume(1 == c_16);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19 <= x_13);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_20 <= y_15);
+AT(15,"z:\src\t2\test\p-43-terminate.c ")  assume(o_19+o_20 <= x_13+y_15);
+AT(16,"z:\src\t2\test\p-43-terminate.c ")  e_21 := 1;
+TO: 300;
+
+//NODE: 27 AT(9,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 27;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < y_15);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13+y_15);
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == c_16);
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  rv_17 := nd_12;
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == rv_17);
+TO: 22;
+
+FROM: 27;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < y_15);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13+y_15);
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  assume(0 == c_16);
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  rv_17 := nd_12;
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  nd_12 := nondet();
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != rv_17);
+AT(11,"z:\src\t2\test\p-43-terminate.c ")  c_16 := 1;
+AT(12,"z:\src\t2\test\p-43-terminate.c ")  o_19 := x_13;
+AT(13,"z:\src\t2\test\p-43-terminate.c ")  o_20 := y_15;
+TO: 18;
+
+FROM: 27;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 >= x_13);
+TO: 1;
+
+FROM: 27;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 >= y_15);
+TO: 0;
+
+//NODE: 28 AT(9,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 28;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < y_15);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13+y_15);
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != c_16);
+TO: 23;
+
+FROM: 28;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 >= x_13);
+TO: 3;
+
+FROM: 28;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 >= y_15);
+TO: 2;
+
+//NODE: 29 AT(9,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 29;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < y_15);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13+y_15);
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != c_16);
+TO: 24;
+
+FROM: 29;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 >= x_13);
+TO: 5;
+
+FROM: 29;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 >= y_15);
+TO: 4;
+
+//NODE: 30 AT(9,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 30;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < y_15);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13+y_15);
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != c_16);
+TO: 25;
+
+FROM: 30;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 >= x_13);
+TO: 6;
+
+//NODE: 31 AT(9,"z:\src\t2\test\p-43-terminate.c ");
+//  //LABEL: ;
+FROM: 31;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < y_15);
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 < x_13+y_15);
+AT(10,"z:\src\t2\test\p-43-terminate.c ")  assume(0 != c_16);
+TO: 26;
+
+FROM: 31;
+AT(9,"z:\src\t2\test\p-43-terminate.c ")  assume(0 >= x_13);
+TO: 7;
+
+//NODE: 8 ;
+//  //LABEL: main_enter;
+FROM: 8;
+AT(5,"z:\src\t2\test\p-43-terminate.c ")  e_21 := 0;
+AT(7,"z:\src\t2\test\p-43-terminate.c ")  c_16 := 0;
+TO: 27;
+
+//NODE: 9 ;
+//  //LABEL: main_exit_postfree;

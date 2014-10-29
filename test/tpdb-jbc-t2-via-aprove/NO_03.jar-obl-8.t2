@@ -1,0 +1,19 @@
+START: 1;
+
+FROM: 1;
+oldX0 := x0;
+x0 := 0;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+assume(0 == oldX0);
+x0 := 1;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+assume(1 == oldX0);
+x0 := 0;
+TO: 2;
+

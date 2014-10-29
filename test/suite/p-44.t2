@@ -1,0 +1,31 @@
+START: 2;
+
+FROM: 300;
+  assume(0<=-1+x_5);
+  assume(0<=-1+y_6);
+  assume(0<=-1+x_5+y_6);
+AT(6,"p-44.c ")  x_5 := -2+y_6;
+AT(7,"p-44.c ")  y_6 := 1+x_5;
+TO: 300;
+
+FROM: 300;
+  assume(0<=-1+x_5);
+  assume(0<=-1+y_6);
+  assume(-1+x_5+y_6<0);
+AT(1,"p-44.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 300;
+  assume(0<=-1+x_5);
+  assume(-1+y_6<0);
+AT(1,"p-44.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 300;
+  assume(-1+x_5<0);
+AT(1,"p-44.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 2;
+TO: 300;
+

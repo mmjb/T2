@@ -1,0 +1,34 @@
+START: 0;
+CUTPOINT: 1;
+
+FROM: 0;
+  alloc(xs);
+  zero := 0;
+  one := 1;
+  store xs->Flink := null;
+  store xs->Data := zero;
+  fold/base(null);
+  fold/rec(xs,null,null);
+  alloc(tmp);
+  store tmp->Data := one;
+  store tmp->Flink := xs;
+  fold/rec(tmp,xs,null);
+  heap_assign xs := tmp;
+TO: 2;
+
+FROM: 2;
+  unfold/rec(xs,null);
+  load y := xs->Data;
+  assume(y < 0);
+TO: 1;
+
+FROM: 2;
+  unfold/rec(xs,null);
+  load z := xs->Data;
+  assume(z > 0);
+TO: 1;
+
+
+0 : 0 == 0 | emp ;
+2 : 0 == 0 | ls(xs, null) ;
+1 : 0 == 1 | xs --> [Flink : h, Data : d] * ls(h,null);

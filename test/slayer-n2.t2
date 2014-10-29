@@ -1,0 +1,29 @@
+START: 2;
+
+FROM: 0;
+AT(4,"z:\src\t2\test\slayer-n2.c ")  assume(i_13 >= 10);
+AT(5,"z:\src\t2\test\slayer-n2.c ")  rt_11 := st_14;
+TO: 3;
+
+FROM: 0;
+AT(4,"z:\src\t2\test\slayer-n2.c ")  i_20 := nondet();
+AT(4,"z:\src\t2\test\slayer-n2.c ")  assume(i_13 < 10);
+AT(4,"z:\src\t2\test\slayer-n2.c ")  i_13 := -1+i_13;
+AT(4,"z:\src\t2\test\slayer-n2.c ")  assume(i_13 == -1+i_20);
+AT(4,"z:\src\t2\test\slayer-n2.c ")  assume(i_20 < 10);
+TO: 0;
+
+FROM: 1;
+AT(4,"z:\src\t2\test\slayer-n2.c ")  assume(i_13 < 10);
+AT(4,"z:\src\t2\test\slayer-n2.c ")  i_13 := -1+i_13;
+AT(4,"z:\src\t2\test\slayer-n2.c ")  i_13 := nondet();
+AT(4,"z:\src\t2\test\slayer-n2.c ")  assume(-1 == i_13);
+AT(4,"z:\src\t2\test\slayer-n2.c ")  a_19 := nondet();
+AT(4,"z:\src\t2\test\slayer-n2.c ")  assume(a_19 == i_13);
+TO: 0;
+
+FROM: 2;
+AT(4,"z:\src\t2\test\slayer-n2.c ")  i_13 := 0;
+  assume(0 == i_13);
+TO: 0;
+

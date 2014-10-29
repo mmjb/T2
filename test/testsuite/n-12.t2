@@ -1,0 +1,27 @@
+START: 3;
+CUTPOINT: 300;
+
+FROM: 3;
+TO: 2;
+
+FROM: 2;
+  assume(-1-x_5<0);
+AT(7,"n-12.c ")  tmp_6 := nondet();
+  assume(tmp_6!=0);
+AT(7,"n-12.c ")  x_5 := -1+x_5;
+TO: 2;
+
+FROM: 2;
+  assume(-1-x_5<0);
+AT(7,"n-12.c ")  tmp_6 := nondet();
+  assume(tmp_6==0);
+TO: 2;
+
+FROM: 2;
+  assume(0<=-1-x_5);
+TO: 1;
+
+FROM: 1;
+AT(1,"n-12.c ")  Result_4 := nondet();
+TO: 300;
+

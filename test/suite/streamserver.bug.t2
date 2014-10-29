@@ -1,0 +1,403 @@
+START:0;
+FROM:0;
+one := 1;
+TO:6;
+
+FROM:6;
+listen_index := 0;
+TO:7;
+
+FROM:7;
+added := 0;
+TO:8;
+
+FROM:8;
+MAXADDR := nondet();
+TO:9;
+
+FROM:9;
+addrs := nondet();
+TO:10;
+
+FROM:10;
+assume(addrs>=0);
+TO:11;
+
+FROM:11;
+MaxBackends := nondet();
+TO:12;
+
+FROM:12;
+assume(MaxBackends>=(1 + 0));
+TO:13;
+
+FROM:13;
+ret := nondet();
+TO:14;
+
+FROM:16;
+TO:15;
+
+FROM:15;
+assume(family==3);
+TO:17;
+
+FROM:17;
+TO:18;
+
+FROM:15;
+assume((family + 1)<=3);
+TO:19;
+
+FROM:15;
+assume(family>=(1 + 3));
+TO:19;
+
+FROM:19;
+TO:18;
+
+FROM:18;
+ret := nondet();
+TO:20;
+
+FROM:20;
+assume((ret + 1)<=0);
+TO:21;
+
+FROM:20;
+assume(ret>=(1 + 0));
+TO:21;
+
+FROM:21;
+tmp1 := 1;
+TO:22;
+
+FROM:20;
+assume(ret==0);
+TO:23;
+
+FROM:23;
+assume(addrs==0);
+TO:24;
+
+FROM:24;
+tmp1 := 1;
+TO:22;
+
+FROM:23;
+assume((addrs + 1)<=0);
+TO:25;
+
+FROM:23;
+assume(addrs>=(1 + 0));
+TO:25;
+
+FROM:25;
+tmp1 := 0;
+TO:22;
+
+FROM:22;
+addr := addrs;
+TO:5;
+
+FROM:5;
+TO:26;
+
+FROM:26;
+assume((addr + 1)<=MAXADDR);
+TO:27;
+
+FROM:26;
+assume(addr>=MAXADDR);
+TO:28;
+
+FROM:27;
+tmp___02 := nondet();
+TO:29;
+
+FROM:29;
+assume((tmp___02 + 1)<=0);
+TO:4;
+
+FROM:29;
+assume(tmp___02>=(1 + 0));
+TO:4;
+
+FROM:29;
+assume(tmp___02==0);
+TO:30;
+
+FROM:30;
+tmp___13 := nondet();
+TO:31;
+
+FROM:31;
+assume((tmp___13 + 1)<=0);
+TO:32;
+
+FROM:31;
+assume(tmp___13>=(1 + 0));
+TO:32;
+
+FROM:31;
+assume(tmp___13==0);
+TO:4;
+
+FROM:4;
+TO:33;
+
+FROM:33;
+assume((listen_index + 1)<=MaxListen);
+TO:34;
+
+FROM:33;
+assume(listen_index>=MaxListen);
+TO:35;
+
+FROM:34;
+assume(ListenSocket_OF_listen_index==-1);
+TO:36;
+
+FROM:34;
+assume((ListenSocket_OF_listen_index + 1)<=-1);
+TO:37;
+
+FROM:34;
+assume(ListenSocket_OF_listen_index>=(1 + -1));
+TO:37;
+
+FROM:37;
+listen_index := (listen_index + 1);
+TO:4;
+
+FROM:39;
+TO:38;
+
+FROM:38;
+assume(listen_index>=MaxListen);
+TO:40;
+
+FROM:38;
+assume((listen_index + 1)<=MaxListen);
+TO:41;
+
+FROM:41;
+fd := nondet();
+TO:42;
+
+FROM:42;
+assume((fd + 1)<=0);
+TO:43;
+
+FROM:42;
+assume(fd>=(1 + 0));
+TO:43;
+
+FROM:42;
+assume(fd==0);
+TO:44;
+
+FROM:44;
+tmp___35 := nondet();
+TO:45;
+
+FROM:45;
+assume((tmp___35 + 1)<=0);
+TO:46;
+
+FROM:45;
+assume(tmp___35>=(1 + 0));
+TO:46;
+
+FROM:46;
+tmp___24 := nondet();
+TO:47;
+
+FROM:47;
+assume((tmp___24 + 1)<=0);
+TO:48;
+
+FROM:47;
+assume(tmp___24>=(1 + 0));
+TO:48;
+
+FROM:47;
+assume(tmp___24==0);
+TO:49;
+
+FROM:45;
+assume(tmp___35==0);
+TO:49;
+
+FROM:49;
+err := nondet();
+TO:50;
+
+FROM:50;
+assume((err + 1)<=0);
+TO:51;
+
+FROM:51;
+closed := 1;
+TO:52;
+
+FROM:50;
+assume(err>=0);
+TO:53;
+
+FROM:53;
+assume(addr_ai_family==3);
+TO:54;
+
+FROM:54;
+tmp___46 := nondet();
+TO:55;
+
+FROM:55;
+assume((tmp___46 + 1)<=1);
+TO:56;
+
+FROM:55;
+assume(tmp___46>=(1 + 1));
+TO:56;
+
+FROM:56;
+closed := 1;
+TO:57;
+
+FROM:55;
+assume(tmp___46==1);
+TO:58;
+
+FROM:53;
+assume((addr_ai_family + 1)<=3);
+TO:58;
+
+FROM:53;
+assume(addr_ai_family>=(1 + 3));
+TO:58;
+
+FROM:58;
+maxconn := nondet();
+TO:59;
+
+FROM:59;
+assume(maxconn>=(1 + 10));
+TO:60;
+
+FROM:60;
+maxconn := 10;
+TO:61;
+
+FROM:59;
+assume(maxconn<=10);
+TO:61;
+
+FROM:61;
+err := nondet();
+TO:62;
+
+FROM:62;
+assume((err + 1)<=0);
+TO:63;
+
+FROM:63;
+closed := 1;
+TO:64;
+
+FROM:62;
+assume(err>=0);
+TO:65;
+
+FROM:65;
+ListenSocket_OF_listen_index := fd;
+TO:66;
+
+FROM:66;
+added := (added + 1);
+TO:67;
+
+FROM:67;
+addr := (addr + 1);
+TO:5;
+
+FROM:69;
+TO:68;
+
+FROM:68;
+assume(added==0);
+TO:70;
+
+FROM:70;
+ret := 0;
+TO:3;
+
+FROM:3;
+TO:71;
+
+FROM:71;
+TO:3;
+
+FROM:73;
+TO:72;
+
+FROM:68;
+assume((added + 1)<=0);
+TO:72;
+
+FROM:68;
+assume(added>=(1 + 0));
+TO:72;
+
+FROM:72;
+ret := 0;
+TO:2;
+
+FROM:2;
+TO:74;
+
+FROM:74;
+TO:2;
+
+FROM:76;
+TO:75;
+
+FROM:75;
+TO:77;
+
+FROM:77;
+TO:78;
+
+FROM:64;
+TO:67;
+
+FROM:57;
+TO:69;
+
+FROM:52;
+TO:67;
+
+FROM:48;
+TO:67;
+
+FROM:43;
+TO:67;
+
+FROM:40;
+TO:69;
+
+FROM:36;
+TO:39;
+
+FROM:35;
+TO:39;
+
+FROM:32;
+TO:67;
+
+FROM:28;
+TO:69;
+
+FROM:14;
+TO:16;
+

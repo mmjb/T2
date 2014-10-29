@@ -1,0 +1,37 @@
+START:0;
+FROM:0;
+assume(y>=1);
+TO:2;
+
+FROM:2;
+TO:3;
+
+FROM:3;
+assume(x>=(1 + 0));
+TO:4;
+
+FROM:3;
+assume(x<=0);
+TO:5;
+
+FROM:4;
+x := (x - y);
+TO:6;
+
+FROM:6;
+y := (y + 1);
+TO:2;
+
+FROM:8;
+TO:7;
+
+FROM:0;
+assume((y + 1)<=1);
+TO:7;
+
+FROM:7;
+TO:9;
+
+FROM:5;
+TO:8;
+

@@ -1,0 +1,26 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 1;
+i := 0;
+TO: 2;
+
+FROM: 2;
+assume(i < n);
+TO: 3;
+
+FROM: 3;
+j := 0;
+TO: 4;
+
+FROM: 4;
+assume(j < i);
+j := j + 1;
+TO: 4;
+
+FROM: 4;
+assume(j >= i);
+i := i + 1;
+TO: 2;

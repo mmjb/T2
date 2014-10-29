@@ -1,0 +1,17 @@
+START: 300;
+CUTPOINT: 300;
+
+FROM: 2;
+AT(6,"p-16.c ")  x_5 := -1+x_5;
+  assume(0<=-1-x_5);
+AT(1,"p-16.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 2;
+AT(6,"p-16.c ")  x_5 := -1+x_5;
+  assume(-1-x_5<0);
+TO: 2;
+
+FROM: 300;
+TO: 2;
+

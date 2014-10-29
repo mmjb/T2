@@ -1,0 +1,254 @@
+START: 6;
+
+
+
+
+
+
+
+
+
+
+
+
+
+FROM: 1;
+  head_9 := 0;
+  i_8 := 0;
+TO: 8;
+
+
+
+
+FROM: 6;
+  x_13 := 0;
+TO: 11;
+
+
+
+
+
+
+FROM: 7;
+assume(0<=len_48);
+TO: 10;
+
+
+
+
+FROM: 8;
+  len_48 := i_8;
+assume(0<=-1+length_7-i_8);
+  tmp___0_11 := nondet();
+  tmp_10 := tmp___0_11;
+  head_9 := tmp_10;
+  i_8 := 1+i_8;
+TO: 9;
+
+
+
+
+
+
+FROM: 9;
+assume(0<=len_48);
+  len_48 := 1+len_48;
+assume(0<=-1+length_7-i_8);
+  tmp___0_11 := nondet();
+  tmp_10 := tmp___0_11;
+  head_9 := tmp_10;
+  i_8 := 1+i_8;
+TO: 9;
+
+FROM: 9;
+assume(0<=len_48);
+assume(-1+length_7-i_8<0);
+  __cil_tmp6_12 := head_9;
+Result_6 := __cil_tmp6_12;
+TO: 7;
+
+
+
+
+
+
+
+
+FROM: 13;
+assume(0<=-1+len_48);
+  a_128 := -2+len_48;
+assume(c_15!=0);
+  y_14 := c_15;
+  lt_21 := y_110;
+  c_15 := lt_21;
+  lt_21 := nondet();
+  elem_16 := x_13;
+  prev_17 := 0;
+TO: 4;
+
+
+
+
+
+
+FROM: 14;
+assume(0<=len_48);
+assume(c_15!=0);
+  y_14 := c_15;
+  lt_21 := y_80;
+  c_15 := lt_21;
+  lt_21 := nondet();
+  elem_16 := x_13;
+  prev_17 := 0;
+TO: 3;
+
+
+
+
+
+
+FROM: 15;
+assume(0<=a_128);
+  __patmp1 := 1;
+  __patmp2 := -1+a_128;
+  len_246 := __patmp1;
+  a_243 := __patmp2;
+assume(c_15!=0);
+  y_14 := c_15;
+  lt_21 := y_158;
+  c_15 := lt_21;
+  lt_21 := nondet();
+  elem_16 := x_13;
+  prev_17 := 0;
+TO: 5;
+
+
+
+
+
+
+
+
+FROM: 16;
+assume(0<=a_243);
+assume(0<=k_296);
+  __patmp1 := 1+k_296;
+  __patmp2 := -1+a_243;
+  len_246 := __patmp1;
+  a_243 := __patmp2;
+assume(c_15!=0);
+  y_14 := c_15;
+  lt_21 := y_309;
+  c_15 := lt_21;
+  lt_21 := nondet();
+  elem_16 := x_13;
+  prev_17 := 0;
+TO: 5;
+
+FROM: 16;
+assume(0<=a_243);
+assume(0<=k_296);
+assume(c_15==0);
+Result_6 := nondet();
+TO: 12;
+
+
+
+
+
+
+
+FROM: 2;
+assume(0<=a_243);
+assume(0<=-1+len_246);
+TO: 0;
+
+
+
+
+
+FROM: 3;
+assume(0<=-1+len_48);
+assume(elem_16==0);
+assume(prev_17==0);
+  x_13 := y_14;
+TO: 13;
+
+
+
+
+
+
+FROM: 4;
+assume(0<=a_128);
+  cnt_133 := nondet();
+  cnt_139 := nondet();
+assume(elem_16!=0);
+  lt_19 := cnt_133;
+  lt_20 := cnt_139;
+assume(0<=lt_19-lt_20);
+  lt_19 := nondet();
+  lt_20 := nondet();
+assume(prev_17==0);
+  x_13 := y_14;
+TO: 15;
+
+
+
+
+
+
+
+
+FROM: 5;
+assume(0<=a_243);
+assume(0<=len_246);
+  cnt_269 := nondet();
+  cnt_276 := nondet();
+assume(elem_16!=0);
+  lt_19 := cnt_269;
+  lt_20 := cnt_276;
+assume(lt_19-lt_20<0);
+  lt_19 := nondet();
+  lt_20 := nondet();
+  prev_17 := elem_16;
+  lt_18 := y_259;
+  elem_16 := lt_18;
+  lt_18 := nondet();
+TO: 2;
+
+FROM: 5;
+assume(0<=a_243);
+assume(0<=len_246);
+  cnt_276 := nondet();
+  k_296 := len_246;
+assume(elem_16!=0);
+  lt_19 := cnt_269;
+  lt_20 := cnt_276;
+assume(0<=lt_19-lt_20);
+  lt_19 := nondet();
+  lt_20 := nondet();
+assume(prev_17==0);
+  x_13 := y_14;
+TO: 16;
+
+
+
+
+
+
+FROM: 10;
+assume(0<=len_48);
+x_13 := Result_6;
+  c_15 := x_13;
+  x_13 := 0;
+TO: 14;
+
+
+
+
+FROM: 11;
+  length_7 := 17;
+  x_13 := x_23;
+TO: 1;
+

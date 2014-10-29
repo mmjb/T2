@@ -1,0 +1,150 @@
+START: 23;
+CUTPOINT: 8;
+
+FROM: 6;
+  assume(0<=len_87);
+AT(18,"walk2_noterm.c ")  x_13 := a_11;
+TO: 22;
+
+FROM: 5;
+  assume(0<=len_165);
+TO: 19;
+
+FROM: 4;
+AT(48,"walk2_noterm.c ")  lt_28 := nondet();
+  lt_27 := nondet();
+TO: 15;
+
+FROM: 18;
+TO: 4;
+
+FROM: 7;
+  assume(0<=len_87);
+TO: 6;
+
+FROM: 20;
+TO: 13;
+
+FROM: 21;
+  len_87 := 2;
+AT(51,"walk2_noterm.c ")  lt_27 := nondet();
+  lt_26 := nondet();
+TO: 7;
+
+FROM: 10;
+  assume(0<=len_165);
+  assume(w_15!=x_17);
+AT(38,"walk2_noterm.c ")  t_16 := x_17;
+AT(41,"walk2_noterm.c ")  y_18 := t_16;
+TO: 9;
+
+FROM: 8;
+  assume(w_15!=x_17);
+AT(38,"walk2_noterm.c ")  t_16 := x_17;
+AT(41,"walk2_noterm.c ")  y_18 := t_16;
+TO: 8;
+
+FROM: 15;
+TO: 12;
+
+FROM: 12;
+  tmp_9 := nondet();
+AT(11,"walk2_noterm.c ")  x_8 := tmp_9;
+AT(14,"walk2_noterm.c ")  __cil_tmp5_10 := x_8;
+AT(14,"walk2_noterm.c ")  Result_4 := __cil_tmp5_10;
+TO: 17;
+
+FROM: 3;
+  assume(0<=k_191);
+  assume(0<=len_165);
+  __patmp1 := 1+len_165;
+  __patmp2 := k_191;
+  len_165 := __patmp1;
+  k_145 := __patmp2;
+AT(25,"walk2_noterm.c ")  lt_22 := nondet();
+  lt_21 := nondet();
+AT(26,"walk2_noterm.c ")  x_13 := lt_21;
+AT(26,"walk2_noterm.c ")  lt_21 := nondet();
+TO: 2;
+
+FROM: 1;
+  assume(0<=len_165);
+AT(30,"walk2_noterm.c ")  Result_4 := nondet();
+TO: 11;
+
+FROM: 17;
+TO: 21;
+
+FROM: 19;
+  assume(0<=len_165);
+  lt_25 := nondet();
+AT(36,"walk2_noterm.c ")  x_17 := lt_25;
+AT(36,"walk2_noterm.c ")  lt_25 := nondet();
+AT(36,"walk2_noterm.c ")  y_18 := w_15;
+TO: 10;
+
+FROM: 11;
+  assume(0<=len_165);
+TO: 300;
+
+FROM: 14;
+  assume(0<=k_110);
+  __patmp1 := 1;
+  __patmp2 := k_110;
+  len_165 := __patmp1;
+  k_145 := __patmp2;
+AT(22,"walk2_noterm.c ")  lt_24 := nondet();
+  lt_23 := nondet();
+AT(23,"walk2_noterm.c ")  x_13 := lt_23;
+AT(23,"walk2_noterm.c ")  lt_23 := nondet();
+TO: 2;
+
+FROM: 2;
+  assume(0<=-1+k_145);
+  assume(0<=len_165);
+  k_191 := -1+k_145;
+  assume(y_12!=x_13);
+  lt_22 := nondet();
+TO: 3;
+
+FROM: 2;
+  assume(0<=-1+k_145);
+  assume(0<=len_165);
+  assume(y_12==x_13);
+TO: 1;
+
+FROM: 22;
+  assume(0<=len_87);
+  k_110 := len_87;
+  assume(y_12!=x_13);
+  lt_24 := nondet();
+TO: 14;
+
+FROM: 16;
+  assume(0<=len_165);
+TO: 5;
+
+FROM: 13;
+  tmp_9 := nondet();
+AT(11,"walk2_noterm.c ")  x_8 := tmp_9;
+AT(14,"walk2_noterm.c ")  __cil_tmp5_10 := x_8;
+AT(14,"walk2_noterm.c ")  Result_4 := __cil_tmp5_10;
+TO: 18;
+
+FROM: 23;
+  x_19 := nondet();
+AT(47,"walk2_noterm.c ")  y_20 := 0;
+  lt_28 := nondet();
+TO: 20;
+
+FROM: 9;
+  assume(w_15!=x_17);
+AT(38,"walk2_noterm.c ")  t_16 := x_17;
+AT(41,"walk2_noterm.c ")  y_18 := t_16;
+TO: 8;
+
+FROM: 300;
+  assume(0<=len_165);
+AT(52,"walk2_noterm.c ")  lt_26 := nondet();
+TO: 16;
+

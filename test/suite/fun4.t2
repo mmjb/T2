@@ -1,0 +1,32 @@
+START:0;
+
+FROM:0;
+assume(wnt >= 0);
+assume(wnt <= 3);
+assume(deltaext >= 0);
+assume(deltaext <= 3);
+c0 := 2;
+TO:1;
+
+FROM:1;
+assume(c0 + wnt > 2 * deltaext);
+deltaext_new := deltaext + 1;
+TO:2;
+
+FROM:1;
+assume(c0 + wnt < 2 * deltaext - 1);
+deltaext_new := deltaext - 1;
+TO:2;
+
+FROM:1;
+assume(c0 + wnt >= 2 * deltaext - 1);
+assume(c0 + wnt <= 2 * deltaext);
+deltaext_new := deltaext;
+TO:2;
+
+FROM:2;
+assume(deltaext != deltaext_new);
+deltaext := deltaext_new;
+TO:1;
+
+

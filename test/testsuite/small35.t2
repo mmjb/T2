@@ -1,0 +1,22 @@
+START: 0;
+CUTPOINT: 10000;
+
+FROM: 0;
+x := y;
+TO: 2;
+
+FROM: 2;
+z := z + 1;
+TO: 3;
+
+FROM: 3;
+x := x - 1;
+TO: 4;
+
+FROM: 4;
+y := y - 1;
+TO: 2;
+
+FROM: 2;
+assume(x < y);
+TO: 10000;

@@ -1,0 +1,543 @@
+START:2;g
+
+
+FROM:2;g
+assume(1==1);g
+TO:3;g
+
+
+FROM:3;g
+assume(1==1);g
+TO:4;g
+
+
+FROM:4;g
+assume(z>=0);g
+TO:5;g
+
+
+FROM:5;g
+assume(1==1);g
+pos := 0;g
+TO:6;g
+
+
+FROM:6;g
+assume(1==1);g
+next := 1;g
+TO:7;g
+
+
+FROM:7;g
+assume(N>=1);g
+TO:8;g
+
+
+FROM:8;g
+assume(1==1);g
+i := 0;g
+TO:9;g
+
+
+FROM:9;g
+assume(1==1);g
+TO:10;g
+
+
+FROM:10;g
+assume((i + 1)<=N);g
+i := nondet();g
+TO:11;g
+
+
+FROM:10;g
+assume(i>=N);g
+TO:12;g
+
+
+FROM:11;g
+assume(i<=0);g
+TO:13;g
+
+
+FROM:13;g
+assume(1==1);g
+fs := 1;g
+TO:14;g
+
+
+FROM:11;g
+assume(i>=(1 + 0));g
+TO:15;g
+
+
+FROM:15;g
+assume(1==1);g
+fs := 0;g
+TO:14;g
+
+
+FROM:14;g
+assume(i>=(N - 1));g
+TO:16;g
+
+
+FROM:16;g
+assume(1==1);g
+ls := 1;g
+TO:17;g
+
+
+FROM:14;g
+assume((i + 1)<=(N - 1));g
+TO:18;g
+
+
+FROM:18;g
+assume(1==1);g
+ls := 0;g
+TO:17;g
+
+
+FROM:17;g
+assume(1==1);g
+bs := s_ab;g
+TO:19;g
+
+
+FROM:19;g
+assume(1==1);g
+TO:20;g
+
+
+FROM:20;g
+assume(1==1);g
+TO:21;g
+
+
+FROM:21;g
+assume(c1>=0);g
+TO:22;g
+
+
+FROM:22;g
+assume(c1<=1);g
+TO:23;g
+
+
+FROM:23;g
+assume(z<=0);g
+TO:24;g
+
+
+FROM:24;g
+assume(pos<=0);g
+TO:25;g
+
+
+FROM:25;g
+assume(c1>=1);g
+TO:26;g
+
+
+FROM:26;g
+assume(1==1);g
+pos := (pos + 1);g
+TO:27;g
+
+
+FROM:24;g
+assume(pos>=(1 + 0));g
+TO:28;g
+
+
+FROM:28;g
+assume(pos<=1);g
+TO:29;g
+
+
+FROM:29;g
+assume(c1>=1);g
+TO:30;g
+
+
+FROM:30;g
+assume(1==1);g
+pos := (pos + 1);g
+TO:27;g
+
+
+FROM:28;g
+assume(pos>=(1 + 1));g
+TO:31;g
+
+
+FROM:31;g
+assume(1==1);g
+next := (next + 1);g
+TO:32;g
+
+
+FROM:32;g
+assume(1==1);g
+TO:33;g
+
+
+FROM:33;g
+assume(z>=0);g
+TO:34;g
+
+
+FROM:34;g
+assume(1==1);g
+pos := 0;g
+TO:27;g
+
+
+FROM:23;g
+assume(z>=(1 + 0));g
+TO:35;g
+
+
+FROM:35;g
+assume(1==1);g
+z := (z - 1);g
+TO:27;g
+
+
+FROM:27;g
+assume(c1>=1);g
+TO:36;g
+
+
+FROM:36;g
+assume(1==1);g
+fr := fs;g
+TO:37;g
+
+
+FROM:37;g
+assume(1==1);g
+lr := ls;g
+TO:38;g
+
+
+FROM:38;g
+assume(1==1);g
+br := bs;g
+TO:39;g
+
+
+FROM:39;g
+assume(recv<=0);g
+TO:40;g
+
+
+FROM:40;g
+assume(1==1);g
+r_ab := br;g
+TO:41;g
+
+
+FROM:39;g
+assume(recv>=(1 + 0));g
+TO:41;g
+
+
+FROM:41;g
+assume(1==1);g
+recv := 1;g
+TO:42;g
+
+
+FROM:42;g
+assume(r_ab==br);g
+TO:43;g
+
+
+FROM:43;g
+assume((fr + 1)<=0);g
+TO:44;g
+
+
+FROM:43;g
+assume(fr>=(1 + 0));g
+TO:44;g
+
+
+FROM:44;g
+assume(lr==0);g
+TO:45;g
+
+
+FROM:45;g
+assume(1==1);g
+rrep := 1;g
+TO:46;g
+
+
+FROM:44;g
+assume((lr + 1)<=0);g
+TO:47;g
+
+
+FROM:44;g
+assume(lr>=(1 + 0));g
+TO:47;g
+
+
+FROM:43;g
+assume(fr==0);g
+TO:48;g
+
+
+FROM:48;g
+assume(fr<=0);g
+TO:49;g
+
+
+FROM:49;g
+assume(lr<=0);g
+TO:50;g
+
+
+FROM:50;g
+assume(1==1);g
+rrep := 2;g
+TO:46;g
+
+
+FROM:49;g
+assume(lr>=(1 + 0));g
+TO:51;g
+
+
+FROM:48;g
+assume(fr>=(1 + 0));g
+TO:52;g
+
+
+FROM:52;g
+assume(lr>=1);g
+TO:53;g
+
+
+FROM:53;g
+assume(1==1);g
+rrep := 3;g
+TO:46;g
+
+
+FROM:52;g
+assume((lr + 1)<=1);g
+TO:46;g
+
+
+FROM:46;g
+assume(r_ab>=1);g
+TO:54;g
+
+
+FROM:54;g
+assume(1==1);g
+r_ab := 0;g
+TO:55;g
+
+
+FROM:46;g
+assume((r_ab + 1)<=1);g
+TO:56;g
+
+
+FROM:56;g
+assume(1==1);g
+r_ab := 1;g
+TO:55;g
+
+
+FROM:42;g
+assume((r_ab + 1)<=br);g
+TO:55;g
+
+
+FROM:42;g
+assume(r_ab>=(1 + br));g
+TO:55;g
+
+
+FROM:55;g
+assume(1==1);g
+TO:57;g
+
+
+FROM:57;g
+assume(c2>=0);g
+TO:58;g
+
+
+FROM:58;g
+assume(c2<=1);g
+TO:59;g
+
+
+FROM:59;g
+assume(z<=0);g
+TO:60;g
+
+
+FROM:60;g
+assume(pos<=0);g
+TO:61;g
+
+
+FROM:61;g
+assume(c2>=1);g
+TO:62;g
+
+
+FROM:62;g
+assume(1==1);g
+pos := (pos + 1);g
+TO:63;g
+
+
+FROM:60;g
+assume(pos>=(1 + 0));g
+TO:64;g
+
+
+FROM:64;g
+assume(pos<=1);g
+TO:65;g
+
+
+FROM:65;g
+assume(c2>=1);g
+TO:66;g
+
+
+FROM:66;g
+assume(1==1);g
+pos := (pos + 1);g
+TO:63;g
+
+
+FROM:64;g
+assume(pos>=(1 + 1));g
+TO:67;g
+
+
+FROM:67;g
+assume(1==1);g
+next := (next + 1);g
+TO:68;g
+
+
+FROM:68;g
+assume(1==1);g
+TO:69;g
+
+
+FROM:69;g
+assume(z>=0);g
+TO:70;g
+
+
+FROM:70;g
+assume(1==1);g
+pos := 0;g
+TO:63;g
+
+
+FROM:59;g
+assume(z>=(1 + 0));g
+TO:71;g
+
+
+FROM:71;g
+assume(1==1);g
+z := (z - 1);g
+TO:63;g
+
+
+FROM:63;g
+assume(c2==1);g
+TO:72;g
+
+
+FROM:72;g
+assume(s_ab>=1);g
+TO:73;g
+
+
+FROM:73;g
+assume(1==1);g
+s_ab := 0;g
+TO:74;g
+
+
+FROM:72;g
+assume((s_ab + 1)<=1);g
+TO:75;g
+
+
+FROM:75;g
+assume(1==1);g
+s_ab := 1;g
+TO:74;g
+
+
+FROM:74;g
+assume(1==1);g
+i := (i + 1);g
+TO:76;g
+
+
+FROM:63;g
+assume((c2 + 1)<=1);g
+TO:19;g
+
+
+FROM:63;g
+assume(c2>=(1 + 1));g
+TO:19;g
+
+
+FROM:27;g
+assume((c1 + 1)<=1);g
+TO:19;g
+
+
+FROM:77;g
+assume(1==1);g
+TO:9;g
+
+
+FROM:78;g
+assume(1==1);g
+TO:79;g
+
+
+FROM:79;g
+assume(1==1);g
+TO:1;g
+
+
+FROM:76;g
+assume(1==1);g
+TO:77;g
+
+
+FROM:51;g
+assume(1==1);g
+TO:52;g
+
+
+FROM:47;g
+assume(1==1);g
+TO:48;g
+
+
+FROM:12;g
+assume(1==1);g
+TO:78;g

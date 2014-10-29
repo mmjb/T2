@@ -1,0 +1,377 @@
+START:0;
+FROM:0;
+TO:11;
+
+FROM:11;
+assume(idim<=ndim);
+TO:12;
+
+FROM:11;
+assume(idim>=(1 + ndim));
+TO:13;
+
+FROM:12;
+ntot := nondet();
+TO:14;
+
+FROM:14;
+idim := (idim + 1);
+TO:0;
+
+FROM:16;
+TO:15;
+
+FROM:15;
+nprev := 1;
+TO:10;
+
+FROM:10;
+TO:17;
+
+FROM:17;
+assume(idim>=1);
+TO:18;
+
+FROM:17;
+assume((idim + 1)<=1);
+TO:19;
+
+FROM:18;
+n := nondet();
+TO:20;
+
+FROM:20;
+nrem := nondet();
+TO:21;
+
+FROM:21;
+ip1 := nondet();
+TO:22;
+
+FROM:22;
+ip2 := nondet();
+TO:23;
+
+FROM:23;
+ip3 := nondet();
+TO:24;
+
+FROM:24;
+i2rev := 1;
+TO:9;
+
+FROM:9;
+TO:25;
+
+FROM:25;
+assume(i2<=ip2);
+TO:26;
+
+FROM:25;
+assume(i2>=(1 + ip2));
+TO:27;
+
+FROM:26;
+assume((i2 + 1)<=i2rev);
+TO:8;
+
+FROM:8;
+TO:28;
+
+FROM:28;
+assume(i1<=((i2 + ip1) - 2));
+TO:7;
+
+FROM:28;
+assume(i1>=(1 + ((i2 + ip1) - 2)));
+TO:29;
+
+FROM:7;
+TO:30;
+
+FROM:30;
+assume(i3<=ip3);
+TO:31;
+
+FROM:30;
+assume(i3>=(1 + ip3));
+TO:32;
+
+FROM:31;
+i3rev := ((i2rev + i3) - i2);
+TO:33;
+
+FROM:33;
+tempr := nondet();
+TO:34;
+
+FROM:34;
+TO:35;
+
+FROM:35;
+TO:36;
+
+FROM:36;
+tempr := nondet();
+TO:37;
+
+FROM:37;
+TO:38;
+
+FROM:38;
+TO:39;
+
+FROM:39;
+i3 := (i3 + ip2);
+TO:7;
+
+FROM:41;
+TO:40;
+
+FROM:40;
+i1 := (i1 + 2);
+TO:8;
+
+FROM:43;
+TO:42;
+
+FROM:26;
+assume(i2>=i2rev);
+TO:42;
+
+FROM:42;
+ibit := nondet();
+TO:6;
+
+FROM:6;
+TO:44;
+
+FROM:44;
+assume(ibit>=ip1);
+TO:45;
+
+FROM:45;
+assume(i2rev>=(1 + ibit));
+TO:46;
+
+FROM:45;
+assume(i2rev<=ibit);
+TO:47;
+
+FROM:44;
+assume((ibit + 1)<=ip1);
+TO:48;
+
+FROM:46;
+i2rev := (i2rev - ibit);
+TO:49;
+
+FROM:49;
+ibit := nondet();
+TO:6;
+
+FROM:51;
+TO:50;
+
+FROM:50;
+i2rev := (i2rev + ibit);
+TO:52;
+
+FROM:52;
+i2 := (i2 + ip1);
+TO:9;
+
+FROM:54;
+TO:53;
+
+FROM:53;
+ifp1 := ip1;
+TO:5;
+
+FROM:5;
+TO:55;
+
+FROM:55;
+assume((ifp1 + 1)<=ip2);
+TO:56;
+
+FROM:55;
+assume(ifp1>=ip2);
+TO:57;
+
+FROM:56;
+ifp2 := nondet();
+TO:58;
+
+FROM:58;
+theta := nondet();
+TO:59;
+
+FROM:59;
+wtemp := nondet();
+TO:60;
+
+FROM:60;
+wpr := nondet();
+TO:61;
+
+FROM:61;
+wpi := nondet();
+TO:62;
+
+FROM:62;
+wr := 1;
+TO:63;
+
+FROM:63;
+wi := 0;
+TO:4;
+
+FROM:4;
+TO:64;
+
+FROM:64;
+assume(i3<=ifp1);
+TO:3;
+
+FROM:64;
+assume(i3>=(1 + ifp1));
+TO:65;
+
+FROM:3;
+TO:66;
+
+FROM:66;
+assume(i1<=((i3 + ip1) - 2));
+TO:2;
+
+FROM:66;
+assume(i1>=(1 + ((i3 + ip1) - 2)));
+TO:67;
+
+FROM:2;
+TO:68;
+
+FROM:68;
+assume(i2<=ip3);
+TO:69;
+
+FROM:68;
+assume(i2>=(1 + ip3));
+TO:70;
+
+FROM:69;
+k1 := i2;
+TO:71;
+
+FROM:71;
+k2 := (k1 + ifp1);
+TO:72;
+
+FROM:72;
+tempr := nondet();
+TO:73;
+
+FROM:73;
+tempi := nondet();
+TO:74;
+
+FROM:74;
+TO:75;
+
+FROM:75;
+TO:76;
+
+FROM:76;
+TO:77;
+
+FROM:77;
+TO:78;
+
+FROM:78;
+i2 := (i2 + ifp2);
+TO:2;
+
+FROM:80;
+TO:79;
+
+FROM:79;
+i1 := (i1 + 2);
+TO:3;
+
+FROM:82;
+TO:81;
+
+FROM:81;
+wtemp := wr;
+TO:83;
+
+FROM:83;
+wr := nondet();
+TO:84;
+
+FROM:84;
+wi := nondet();
+TO:85;
+
+FROM:85;
+i3 := (i3 + ip1);
+TO:4;
+
+FROM:87;
+TO:86;
+
+FROM:86;
+ifp1 := ifp2;
+TO:5;
+
+FROM:89;
+TO:88;
+
+FROM:88;
+nprev := nondet();
+TO:90;
+
+FROM:90;
+idim := (idim - 1);
+TO:10;
+
+FROM:92;
+TO:91;
+
+FROM:91;
+TO:93;
+
+FROM:70;
+TO:80;
+
+FROM:67;
+TO:82;
+
+FROM:65;
+TO:87;
+
+FROM:57;
+TO:89;
+
+FROM:48;
+TO:51;
+
+FROM:47;
+TO:51;
+
+FROM:32;
+TO:41;
+
+FROM:29;
+TO:43;
+
+FROM:27;
+TO:54;
+
+FROM:19;
+TO:92;
+
+FROM:13;
+TO:16;
+

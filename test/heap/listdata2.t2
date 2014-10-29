@@ -1,0 +1,39 @@
+START: 0;
+CUTPOINT: 3;
+
+FROM: 0;
+  i := 0;
+  heap_assign xs := null;
+  fold/base(null);
+TO: 1;
+
+FROM: 1;
+  assume(i < 10);
+  alloc(tmp);
+  store tmp->Flink := xs;
+  store tmp->Data := i;
+  i := i + 1;
+  fold/rec(tmp,xs,null);
+  heap_assign xs := tmp;
+TO: 1;
+
+FROM: 1;
+  assume(i >= 10);
+TO: 2;
+
+FROM: 2;
+  heap_assume xs != null;
+  unfold/rec(xs,null);
+  load d := xs->Data;
+  assume(d < 10);
+  load tmp := xs->Flink;
+  free(xs);
+  heap_assign xs := tmp;
+TO: 2;
+
+FROM: 2;
+  heap_assume xs != null;
+  unfold/rec(xs,null);
+  load d := xs->Data;
+  assume(d < 0);
+TO: 3;

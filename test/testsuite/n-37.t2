@@ -1,0 +1,55 @@
+START: 10;
+CUTPOINT: 300;
+
+FROM: 7;
+AT(4,"n-37.c ")  __cil_tmp2_6 := x_5;
+AT(4,"n-37.c ")  Result_4 := __cil_tmp2_6;
+TO: 2;
+
+FROM: 10;
+AT(9,"n-37.c ")  maxRetries_9 := 4;
+AT(10,"n-37.c ")  retryCount_10 := 0;
+AT(11,"n-37.c ")  selected_11 := 0;
+TO: 4;
+
+FROM: 2;
+  selected_11 := Result_4;
+  Result_4 := nondet();
+TO: 3;
+
+FROM: 4;
+TO: 8;
+
+FROM: 4;
+  assume(nondet()==0);
+AT(16,"n-37.c ")  __cil_tmp6_12 := selected_11;
+AT(16,"n-37.c ")  Result_4 := __cil_tmp6_12;
+TO: 9;
+
+FROM: 8;
+TO: 5;
+
+FROM: 3;
+AT(14,"n-37.c ")  retryCount_10 := 1+retryCount_10;
+TO: 4;
+
+FROM: 5;
+AT(4,"n-37.c ")  __cil_tmp2_6 := x_5;
+AT(4,"n-37.c ")  Result_4 := __cil_tmp2_6;
+TO: 300;
+
+FROM: 6;
+AT(4,"n-37.c ")  __cil_tmp2_6 := x_5;
+AT(4,"n-37.c ")  Result_4 := __cil_tmp2_6;
+TO: 1;
+
+FROM: 300;
+  selected_11 := Result_4;
+  Result_4 := nondet();
+TO: 3;
+
+FROM: 1;
+  selected_11 := Result_4;
+  Result_4 := nondet();
+TO: 3;
+

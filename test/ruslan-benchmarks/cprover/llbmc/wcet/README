@@ -1,0 +1,24 @@
+Jan Gustafsson, Adam Betts, Andreas Ermedahl, and Björn Lisper. The Mälardalen WCET benchmarks -- past, present and future. In Björn Lisper, editor, Proc. 10th International Workshop on Worst-Case Execution Time Analysis (WCET’2010), pages 137–147, Brussels, Belgium, July 2010. OCG.
+
+http://www.mrtc.mdh.se/projects/wcet/benchmarks.html
+
+
+
+Versioning information
+----------------------
+
+V2.0 (Sun Aug 12 23:03:15 BST 2012, Ruslan Ledesma-Garza)
+  * Adapted the benchmarks for translation into the format of T2. The
+    following changes were applied:
+    - Removed inclusion of stdlib.h and defined NULL as 0 where
+      needed.
+    - Renamed the main function as 'main'.
+    - Marked all other functions with 'inline'.
+  * The benchmarks
+    - nsichneu.c
+    - recursion.c
+    - fac.c
+    - duff.c
+    - adpcm.c
+    were not translated into the format of T2. The translation utility
+    could not deal with the program.

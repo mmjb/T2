@@ -1,0 +1,21 @@
+START: 1;
+
+FROM: 1;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+oldX3 := nondet();
+assume(oldX2 > -1 && oldX1 > -1 && oldX0 > 0);
+x0 := oldX2;
+x1 := oldX3;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+assume(oldX0 < 2147483648);
+x0 := oldX0 + 1;
+x1 := oldX2;
+TO: 2;
+

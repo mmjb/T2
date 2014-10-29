@@ -1,0 +1,64 @@
+START: 5;
+CUTPOINT: 300;
+
+FROM: 5;
+TO: 300;
+
+FROM: 4;
+  assume(-1-y_6+z_7<0);
+AT(13,"n-4.c ")  x_5 := 1+x_5;
+TO: 300;
+
+FROM: 4;
+  assume(0<=-1-y_6+z_7);
+AT(9,"n-4.c ")  tmp_8 := nondet();
+  assume(tmp_8!=0);
+AT(10,"n-4.c ")  y_6 := 1+y_6;
+TO: 4;
+
+FROM: 4;
+  assume(0<=-1-y_6+z_7);
+AT(9,"n-4.c ")  tmp_8 := nondet();
+  assume(tmp_8==0);
+TO: 2;
+
+FROM: 3;
+  assume(-1-y_6+z_7<0);
+AT(13,"n-4.c ")  x_5 := 1+x_5;
+TO: 300;
+
+FROM: 3;
+  assume(0<=-1-y_6+z_7);
+AT(9,"n-4.c ")  tmp_8 := nondet();
+  assume(tmp_8!=0);
+AT(10,"n-4.c ")  y_6 := 1+y_6;
+TO: 4;
+
+FROM: 3;
+  assume(0<=-1-y_6+z_7);
+AT(9,"n-4.c ")  tmp_8 := nondet();
+  assume(tmp_8==0);
+TO: 2;
+
+FROM: 2;
+  assume(0<=-1-y_6+z_7);
+AT(9,"n-4.c ")  tmp_8 := nondet();
+  assume(tmp_8!=0);
+AT(10,"n-4.c ")  y_6 := 1+y_6;
+TO: 4;
+
+FROM: 2;
+  assume(0<=-1-y_6+z_7);
+AT(9,"n-4.c ")  tmp_8 := nondet();
+  assume(tmp_8==0);
+TO: 2;
+
+FROM: 300;
+  assume(-1-x_5+y_6<0);
+AT(1,"n-4.c ")  Result_4 := nondet();
+TO: 1;
+
+FROM: 300;
+  assume(0<=-1-x_5+y_6);
+TO: 3;
+

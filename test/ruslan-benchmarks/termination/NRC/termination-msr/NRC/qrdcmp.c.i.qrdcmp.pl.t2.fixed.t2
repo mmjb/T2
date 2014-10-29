@@ -1,0 +1,387 @@
+// ARMC error state:  qrdcmp-err-0
+// ARMC return state: qrdcmp-ret-0	 -> 1
+// qrdcmp-0-13	 -> 2
+// qrdcmp-2-0	 -> 3
+// qrdcmp-1-14	 -> 4
+// qrdcmp-5-14	 -> 5
+// qrdcmp-6-15	 -> 6
+// qrdcmp-7-14	 -> 7
+// qrdcmp-8-16	 -> 8
+// qrdcmp-11-16	 -> 9
+// qrdcmp-12-16	 -> 10
+// qrdcmp-13-16	 -> 11
+// qrdcmp-15-0	 -> 12
+// qrdcmp-16-0	 -> 13
+// qrdcmp-14-16	 -> 14
+// qrdcmp-18-16	 -> 15
+// qrdcmp-17-16	 -> 16
+// qrdcmp-19-16	 -> 17
+// qrdcmp-10-0	 -> 18
+// qrdcmp-9-17	 -> 19
+// qrdcmp-21-19	 -> 20
+// qrdcmp-23-0	 -> 21
+// qrdcmp-24-0	 -> 22
+// qrdcmp-25-0	 -> 23
+// qrdcmp-20-14	 -> 24
+// qrdcmp-22-21	 -> 25
+// qrdcmp-28-21	 -> 26
+// qrdcmp-29-21	 -> 27
+// qrdcmp-30-21	 -> 28
+// qrdcmp-31-0	 -> 29
+// qrdcmp-27-0	 -> 30
+// qrdcmp-26-22	 -> 31
+// qrdcmp-34-22	 -> 32
+// qrdcmp-35-22	 -> 33
+// qrdcmp-36-22	 -> 34
+// qrdcmp-37-22	 -> 35
+// qrdcmp-39-22	 -> 36
+// qrdcmp-38-22	 -> 37
+// qrdcmp-40-22	 -> 38
+// qrdcmp-41-0	 -> 39
+// qrdcmp-33-0	 -> 40
+// qrdcmp-32-23	 -> 41
+// qrdcmp-43-23	 -> 42
+// qrdcmp-45-0	 -> 43
+// qrdcmp-46-0	 -> 44
+// qrdcmp-42-26	 -> 45
+// qrdcmp-44-23	 -> 46
+// qrdcmp-47-0	 -> 47
+// qrdcmp-48-0	 -> 48
+// qrdcmp-50-0	 -> 49
+// qrdcmp-51-0	 -> 50
+// qrdcmp-49-27	 -> 51
+// qrdcmp-53-27	 -> 52
+// qrdcmp-54-28	 -> 53
+// qrdcmp-55-27	 -> 54
+// qrdcmp-58-28	 -> 55
+// qrdcmp-59-28	 -> 56
+// qrdcmp-60-28	 -> 57
+// qrdcmp-61-0	 -> 58
+// qrdcmp-57-0	 -> 59
+// qrdcmp-56-29	 -> 60
+// qrdcmp-62-30	 -> 61
+// qrdcmp-65-30	 -> 62
+// qrdcmp-66-30	 -> 63
+// qrdcmp-67-30	 -> 64
+// qrdcmp-68-0	 -> 65
+// qrdcmp-64-0	 -> 66
+// qrdcmp-63-27	 -> 67
+// qrdcmp-52-0	 -> 68
+// qrdcmp-4-0	 -> 69
+// qrdcmp-3-34	 -> 70
+// qrdcmp-69-35	 -> 71
+// qrdcmp-71-35	 -> 72
+// qrdcmp-70-36	 -> 73
+START:2;
+FROM:2;
+assume(n>=(1 + 1));
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+assume((k + 1)<=n);
+TO:6;
+
+FROM:5;
+assume(k>=n);
+TO:7;
+
+FROM:6;
+scale := 0;
+TO:8;
+
+FROM:8;
+TO:9;
+
+FROM:9;
+assume(i<=n);
+TO:10;
+
+FROM:9;
+assume(i>=(1 + n));
+TO:11;
+
+FROM:10;
+maxarg1 := scale;
+TO:12;
+
+FROM:12;
+tmp := nondet();
+TO:13;
+
+FROM:13;
+maxarg2 := tmp;
+TO:14;
+
+FROM:14;
+assume(maxarg1>=(1 + maxarg2));
+TO:15;
+
+FROM:15;
+scale := maxarg1;
+TO:16;
+
+FROM:14;
+assume(maxarg1<=maxarg2);
+TO:17;
+
+FROM:17;
+scale := maxarg2;
+TO:16;
+
+FROM:16;
+i := (i + 1);
+TO:8;
+
+FROM:18;
+TO:19;
+
+FROM:19;
+assume(scale==0);
+TO:20;
+
+FROM:20;
+TO:21;
+
+FROM:21;
+tmp___0 := 0;
+TO:22;
+
+FROM:22;
+TO:23;
+
+FROM:23;
+TO:24;
+
+FROM:19;
+assume((scale + 1)<=0);
+TO:25;
+
+FROM:19;
+assume(scale>=(1 + 0));
+TO:25;
+
+FROM:25;
+TO:26;
+
+FROM:26;
+assume(i<=n);
+TO:27;
+
+FROM:26;
+assume(i>=(1 + n));
+TO:28;
+
+FROM:27;
+TO:29;
+
+FROM:29;
+i := (i + 1);
+TO:25;
+
+FROM:30;
+TO:31;
+
+FROM:31;
+TO:32;
+
+FROM:32;
+assume(i<=n);
+TO:33;
+
+FROM:32;
+assume(i>=(1 + n));
+TO:34;
+
+FROM:33;
+sqrarg := nondet();
+TO:35;
+
+FROM:35;
+assume(sqrarg==0);
+TO:36;
+
+FROM:36;
+tmp___1 := 0;
+TO:37;
+
+FROM:35;
+assume((sqrarg + 1)<=0);
+TO:38;
+
+FROM:35;
+assume(sqrarg>=(1 + 0));
+TO:38;
+
+FROM:38;
+tmp___1 := (sqrarg * sqrarg);
+TO:37;
+
+FROM:37;
+sum := (sum + tmp___1);
+TO:39;
+
+FROM:39;
+i := (i + 1);
+TO:31;
+
+FROM:40;
+TO:41;
+
+FROM:41;
+TO:42;
+
+FROM:42;
+tmp___2 := nondet();
+TO:43;
+
+FROM:43;
+tmp___3 := nondet();
+TO:44;
+
+FROM:44;
+sigma := tmp___3;
+TO:45;
+
+FROM:41;
+TO:46;
+
+FROM:46;
+tmp___4 := nondet();
+TO:47;
+
+FROM:47;
+tmp___5 := nondet();
+TO:48;
+
+FROM:48;
+sigma := (-tmp___5);
+TO:45;
+
+FROM:45;
+TO:49;
+
+FROM:49;
+TO:50;
+
+FROM:50;
+TO:51;
+
+FROM:51;
+TO:52;
+
+FROM:52;
+assume(j<=n);
+TO:53;
+
+FROM:52;
+assume(j>=(1 + n));
+TO:54;
+
+FROM:53;
+TO:55;
+
+FROM:55;
+assume(i<=n);
+TO:56;
+
+FROM:55;
+assume(i>=(1 + n));
+TO:57;
+
+FROM:56;
+sum := (sum + (nondet() * nondet()));
+TO:58;
+
+FROM:58;
+i := (i + 1);
+TO:53;
+
+FROM:59;
+TO:60;
+
+FROM:60;
+tau := (sum / nondet());
+TO:61;
+
+FROM:61;
+TO:62;
+
+FROM:62;
+assume(i<=n);
+TO:63;
+
+FROM:62;
+assume(i>=(1 + n));
+TO:64;
+
+FROM:63;
+TO:65;
+
+FROM:65;
+i := (i + 1);
+TO:61;
+
+FROM:66;
+TO:67;
+
+FROM:67;
+j := (j + 1);
+TO:51;
+
+FROM:68;
+TO:24;
+
+FROM:24;
+k := (k + 1);
+TO:4;
+
+FROM:69;
+TO:70;
+
+FROM:70;
+TO:71;
+
+FROM:71;
+TO:72;
+
+FROM:72;
+TO:73;
+
+FROM:71;
+assume((nondet() + 1)<=0);
+TO:73;
+
+FROM:71;
+assume(nondet()>=(1 + 0));
+TO:73;
+
+FROM:73;
+TO:1;
+
+FROM:64;
+TO:66;
+
+FROM:57;
+TO:59;
+
+FROM:54;
+TO:68;
+
+FROM:34;
+TO:40;
+
+FROM:28;
+TO:30;
+
+FROM:11;
+TO:18;
+
+FROM:7;
+TO:69;
+

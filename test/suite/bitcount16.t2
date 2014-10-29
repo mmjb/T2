@@ -1,0 +1,107 @@
+START:0;
+FROM:0;
+nX4 := nX;
+TO:3;
+
+FROM:3;
+res5 := 0;
+TO:4;
+
+FROM:4;
+nI6 := 0;
+TO:2;
+
+FROM:2;
+TO:5;
+
+FROM:5;
+assume((nI6 + 1)<=(8 * 2));
+TO:6;
+
+FROM:5;
+assume(nI6>=(8 * 2));
+TO:7;
+
+FROM:6;
+TO:8;
+
+FROM:6;
+TO:8;
+
+FROM:8;
+tmp7 := 1;
+TO:9;
+
+FROM:6;
+TO:10;
+
+FROM:10;
+tmp7 := 0;
+TO:9;
+
+FROM:9;
+res5 := (res5 + tmp7);
+TO:11;
+
+FROM:11;
+nI6 := (nI6 + 1);
+TO:2;
+
+FROM:13;
+TO:12;
+
+FROM:12;
+ret_nBC18 := res5;
+TO:14;
+
+FROM:16;
+tmp := ret_nBC18;
+TO:15;
+
+FROM:15;
+nX9 := nX;
+TO:17;
+
+FROM:17;
+res10 := nX9;
+TO:18;
+
+FROM:18;
+res10 := nondet();
+TO:19;
+
+FROM:19;
+res10 := nondet();
+TO:20;
+
+FROM:20;
+res10 := nondet();
+TO:21;
+
+FROM:21;
+res10 := nondet();
+TO:22;
+
+FROM:22;
+ret_nBC211 := res10;
+TO:23;
+
+FROM:25;
+tmp___0 := ret_nBC211;
+TO:24;
+
+FROM:24;
+TO:26;
+
+FROM:26;
+TO:27;
+
+FROM:23;
+TO:25;
+
+FROM:14;
+TO:16;
+
+FROM:7;
+TO:13;
+

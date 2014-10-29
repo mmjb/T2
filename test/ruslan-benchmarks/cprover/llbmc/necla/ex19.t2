@@ -1,0 +1,62 @@
+START:0;
+FROM:0;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+x := i;
+TO:5;
+
+FROM:5;
+y := j;
+TO:2;
+
+FROM:2;
+TO:6;
+
+FROM:6;
+assume((x + 1)<=0);
+TO:7;
+
+FROM:6;
+assume(x>=(1 + 0));
+TO:7;
+
+FROM:6;
+assume(x==0);
+TO:8;
+
+FROM:7;
+x := (x - 1);
+TO:9;
+
+FROM:9;
+y := (y - 1);
+TO:2;
+
+FROM:11;
+TO:10;
+
+FROM:10;
+assume(i==j);
+TO:12;
+
+FROM:12;
+TO:13;
+
+FROM:10;
+assume((i + 1)<=j);
+TO:13;
+
+FROM:10;
+assume(i>=(1 + j));
+TO:13;
+
+FROM:13;
+TO:14;
+
+FROM:8;
+TO:11;
+

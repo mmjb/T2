@@ -1,0 +1,51 @@
+START:0;
+FROM:0;
+counter := 0;
+TO:3;
+
+FROM:3;
+assume((127 + 1)<=y);
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:3;
+assume(127>=y);
+TO:6;
+
+FROM:6;
+z := nondet();
+TO:2;
+
+FROM:2;
+TO:7;
+
+FROM:7;
+assume((counter + 1)<=36);
+TO:8;
+
+FROM:7;
+assume(counter>=36);
+TO:9;
+
+FROM:8;
+TO:10;
+
+FROM:10;
+z := (z + 1);
+TO:11;
+
+FROM:11;
+counter := (counter + 1);
+TO:2;
+
+FROM:13;
+TO:12;
+
+FROM:12;
+TO:5;
+
+FROM:9;
+TO:13;
+

@@ -1,0 +1,48 @@
+START:0;
+FROM:0;
+x := 5;
+TO:3;
+
+FROM:3;
+x := nondet();
+TO:2;
+
+FROM:2;
+TO:4;
+
+FROM:4;
+assume((x + 1)<=4);
+TO:5;
+
+FROM:4;
+assume(x>=4);
+TO:6;
+
+FROM:5;
+assume(x>=(1 + 0));
+TO:7;
+
+FROM:7;
+x := (x + 1);
+TO:2;
+
+FROM:5;
+assume(x<=0);
+TO:8;
+
+FROM:8;
+x := 1;
+TO:2;
+
+FROM:10;
+TO:9;
+
+FROM:9;
+TO:11;
+
+FROM:11;
+TO:12;
+
+FROM:6;
+TO:10;
+

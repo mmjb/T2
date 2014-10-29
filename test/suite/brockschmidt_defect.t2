@@ -1,0 +1,41 @@
+
+
+// STEM 0 ----------------------------------------------
+
+
+START: 0;
+FROM: 0;
+__iters_1 := 0;
+__copied_1 := 0;
+__iters_1 := __iters_1+1;
+assume(__copied_1 < 1);
+assume(0 <= 0);
+assume(0 <= 0+1_x); // at 1.t2:13
+assume(2 <= 0+1_y); // at 1.t2:13
+1_x := 1+1_x; // at 1.t2:14
+1_y := -2+1_y; // at 1.t2:15
+assume(0 <= 0);
+assume(0 <= 0);
+__iters_1 := __iters_1+1;
+assume(__copied_1 < 1);
+assume(0 <= 0);
+__copied_1 := 1;
+1_x_old_1 := 1_x;
+1_y_old_1 := 1_y;
+assume(0 <= 0+1_x); // at 1.t2:13
+assume(2 <= 0+1_y); // at 1.t2:13
+1_x := 1+1_x; // at 1.t2:14
+1_y := -2+1_y; // at 1.t2:15
+assume(0 <= 0);
+assume(__copied_1 >= 1);
+assume(0 <= 0);
+assume(__iters_1 >= 2);
+assume(0 <= 0);
+assume(0 <= 0);
+assume(0 <= 0);
+TO: 1;
+
+
+// CYCLE 0 ----------------------------------------------
+
+

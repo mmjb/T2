@@ -1,0 +1,27 @@
+START: 28; 
+CUTPOINT: 300;
+
+
+
+
+
+FROM: 28;
+  assume(0<=k_208);
+  __patmp1 := 1;
+  __patmp2 := k_208;
+  len_263 := __patmp1;
+  k_243 := __patmp2;
+TO: 6;
+
+
+
+
+FROM: 12;
+TO: 11;
+
+FROM: 6;
+  assume(0<=-1+k_243);
+TO: 20;
+
+
+

@@ -1,0 +1,39 @@
+START: 2;
+
+//NODE: 0 AT(7,"z:\src\t2\test\p-40.c ");
+//  //LABEL: ;
+FROM: 0;
+AT(7,"z:\src\t2\test\p-40.c ")  assume(i_13 >= 500);
+AT(8,"z:\src\t2\test\p-40.c ")  rt_11 := st_14;
+TO: 3;
+
+FROM: 0;
+AT(7,"z:\src\t2\test\p-40.c ")  assume(i_13 < 500);
+AT(7,"z:\src\t2\test\p-40.c ")  i_13 := 1+i_13;
+TO: 1;
+
+//NODE: 1 AT(7,"z:\src\t2\test\p-40.c ");
+//  //LABEL: ;
+FROM: 1;
+AT(7,"z:\src\t2\test\p-40.c ")  assume(i_13 >= 500);
+AT(8,"z:\src\t2\test\p-40.c ")  rt_11 := st_14;
+TO: 3;
+
+FROM: 1;
+AT(7,"z:\src\t2\test\p-40.c ")  assume(i_13 < 500);
+AT(7,"z:\src\t2\test\p-40.c ")  i_13 := 1+i_13;
+TO: 1;
+
+//NODE: 2 ;
+//  //LABEL: main_enter;
+FROM: 2;
+AT(4,"z:\src\t2\test\p-40.c ")  i_13 := s_17;
+AT(5,"z:\src\t2\test\p-40.c ")  j_15 := s_16;
+TO: 5;
+
+FROM: 5;
+AT(7,"z:\src\t2\test\p-40.c ")  i_13 := j_15;
+TO: 0;
+
+//NODE: 3 ;
+//  //LABEL: main_exit_postfree;

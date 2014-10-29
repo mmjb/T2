@@ -1,0 +1,22 @@
+START: 1;
+
+FROM: 1;
+t := -1;
+t := t - 1;
+t := t - 1;
+t := t - 1;
+t := t - 1;
+t := t - 1;
+t := t - 1;
+t := t - 1;
+t := t - 1;
+t := t - 1;
+assume(x >= -1);
+assume(y >= t);
+TO: 2;
+
+FROM: 2;
+assume(x >= 0);
+assume(y >= t);
+x := x + y;
+TO: 2;

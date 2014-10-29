@@ -1,0 +1,21 @@
+//Program "chase" from "Polyranking for Polynomial Loops".
+//It terminates because y increases faster than x
+
+START:0;
+
+FROM:0;
+TO:1;
+
+FROM:1;
+  assume(x>=y);
+  x:=x+1;
+  y:=y+x;
+TO:1;
+
+FROM:1;
+  assume(x>=y);
+  x:=x-z;
+  y:=y-2*z;
+  z:=z-1;
+TO:1;
+

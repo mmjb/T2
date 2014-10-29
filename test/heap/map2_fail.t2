@@ -1,0 +1,66 @@
+START: 0;
+CUTPOINT: 4;
+
+FROM: 0;
+  heap_assign xs := null;
+  fold/base(null);
+TO: 1;
+
+FROM: 1;
+  alloc(tmp);
+  store tmp->Flink := xs;
+  zero := 0;
+  store tmp->Data := zero;
+  fold/rec(tmp,xs,null);
+  heap_assign xs := tmp;
+TO: 1;
+
+FROM: 1;
+  heap_assume xs != null;
+  heap_assign ys := xs;
+  fold/base(xs);
+TO: 2;
+
+// ls(xs,ys) * ls(ys,null)
+FROM: 2;
+  heap_assume ys != null;
+  unfold/rec(ys,null);
+
+  // increment ys->Data
+  load d := ys->Data;
+  d := d + 1;
+  store ys->Data := d;
+
+  load tmp := ys->Flink;
+
+  fold/base(tmp);
+  fold/rec(ys,tmp,tmp);
+  // ls(xs,ys)*ls(ys,tmp)
+
+  fold/seg(xs,ys,tmp);
+
+  heap_assign ys := tmp;
+TO: 2;
+
+FROM: 2;
+  heap_assume ys == null;
+  unfold/base(ys, null);
+TO: 3;
+
+
+FROM: 3;
+  heap_assume xs != null;
+  unfold/rec(xs,null);
+  load d := xs->Data;
+  assume(d > 0);
+  load tmp := xs->Flink;
+  free(xs);
+  heap_assign xs := tmp;
+TO: 3;
+
+FROM: 3;
+  heap_assume xs != null;
+  unfold/rec(xs,null);
+  load d := xs->Data;
+  assume(d <= 1);
+TO: 4;

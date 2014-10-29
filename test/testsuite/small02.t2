@@ -1,0 +1,33 @@
+START: 0;
+CUTPOINT: 10000;
+
+FROM: 0;
+L := 0;
+TO: 2;
+
+FROM: 2;
+L := 1;
+o := n;
+TO: 3;
+
+FROM: 3;
+assume (n <= n);
+TO: 4;
+
+FROM: 3;
+L := 0;
+n := n + 1;
+TO: 4;
+
+FROM: 4;
+assume(n <= o);
+TO: 5;
+
+FROM: 4;
+assume(n > o);
+TO: 2;
+
+FROM: 2;
+assume(L <= 1);
+assume(L >= 1);
+TO: 10000;

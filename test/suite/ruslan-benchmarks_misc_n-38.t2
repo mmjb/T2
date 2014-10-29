@@ -1,0 +1,136 @@
+START:0;
+FROM:0;
+TO:2;
+
+FROM:2;
+TO:3;
+
+FROM:3;
+nPacketsOld := nPackets;
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+assume(loop_count>=loop_max);
+TO:6;
+
+FROM:5;
+assume((loop_count + 1)<=loop_max);
+TO:7;
+
+FROM:7;
+assume((nondet() + 1)<=0);
+TO:8;
+
+FROM:7;
+TO:8;
+
+FROM:8;
+assume((nondet() + 1)<=0);
+TO:9;
+
+FROM:8;
+TO:9;
+
+FROM:9;
+TO:10;
+
+FROM:10;
+TO:11;
+
+FROM:11;
+TO:12;
+
+FROM:12;
+TO:13;
+
+FROM:13;
+TO:14;
+
+FROM:14;
+TO:15;
+
+FROM:12;
+TO:16;
+
+FROM:16;
+TO:17;
+
+FROM:17;
+TO:15;
+
+FROM:15;
+tmp := nondet();
+TO:18;
+
+FROM:18;
+assume((tmp + 1)<=0);
+TO:19;
+
+FROM:18;
+assume(tmp>=(1 + 0));
+TO:19;
+
+FROM:19;
+nPackets := (nPackets + 1);
+TO:20;
+
+FROM:18;
+assume(tmp==0);
+TO:20;
+
+FROM:20;
+tmp___0 := nondet();
+TO:21;
+
+FROM:21;
+assume((tmp___0 + 1)<=0);
+TO:22;
+
+FROM:21;
+assume(tmp___0>=(1 + 0));
+TO:22;
+
+FROM:22;
+loop_count := (loop_count + 1);
+TO:23;
+
+FROM:21;
+assume(tmp___0==0);
+TO:23;
+
+FROM:8;
+TO:23;
+
+FROM:7;
+TO:23;
+
+FROM:23;
+assume(nPackets==nPacketsOld);
+TO:24;
+
+FROM:23;
+assume((nPackets + 1)<=nPacketsOld);
+TO:0;
+
+FROM:23;
+assume(nPackets>=(1 + nPacketsOld));
+TO:0;
+
+FROM:26;
+TO:25;
+
+FROM:25;
+TO:27;
+
+FROM:27;
+TO:28;
+
+FROM:24;
+TO:26;
+
+FROM:6;
+TO:26;
+

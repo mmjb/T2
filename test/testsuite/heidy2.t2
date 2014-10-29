@@ -1,0 +1,24 @@
+START: 3;
+
+FROM: 3;
+AT(8, "C:/src/T2/test/heidy2.c") x_1 := 2;
+TO: 0;
+
+FROM: 0;
+AT(9,"C:/src/T2/test/heidy2.c") assume(0 > 1);
+TO: 2;
+
+FROM: 0;
+AT(9,"C:/src/T2/test/heidy2.c") assume(1 > 0);
+AT(11,"C:/src/T2/test/heidy2.c") y_1 := nondet();
+TO: 1;
+
+FROM: 1;
+AT(13,"C:/src/T2/test/heidy2.c") assume(y_1 > 0);
+AT(14,"C:/src/T2/test/heidy2.c") x_1 := x_1+1;
+TO: 0;
+
+FROM: 1;
+AT(15,"C:/src/T2/test/heidy2.c") assume(y_1 <= 0);
+AT(16,"C:/src/T2/test/heidy2.c") x_1 := x_1-1;
+TO: 0;

@@ -1,0 +1,70 @@
+START: 30;
+CUTPOINT: 3;
+
+FROM: 30;
+x := 2;
+TO: 0;
+
+
+FROM: 0;
+xp := x;
+rhop := rho;
+TO: 4;
+
+FROM: 4;
+assume(xp>1);
+retpp := 1;
+TO: 5;
+
+FROM: 4;
+assume(xp<=1);
+retpp := 0;
+TO: 5;
+
+
+// NOTDET 
+FROM: 5;
+rhop := nondet();
+assume(rhop>=1);
+TO: 6;
+
+
+
+FROM: 6;
+assume(rhop<=0);
+xp := xp - 1;
+TO: 4;
+
+FROM: 6;
+assume(rhop>0);
+xp := xp+1;
+TO: 4;
+
+FROM: 5;
+assume(retpp <= 0);
+retp := 0;
+TO: 2;
+
+FROM: 5;
+retp := 1;
+TO: 2;
+
+
+
+FROM: 2;
+assume(retp <= 0);
+TO: 3;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,22 @@
+START: 3;
+
+FROM: 3;
+AT(7,"C:/src/T2/test/heidy3.c") p := 0;
+TO: 0;
+
+FROM: 0;
+AT(8,"C:/src/T2/test/heidy3.c") assume(y_1 <= 0);
+TO: 2;
+
+FROM: 0;
+AT(8,"C:/src/T2/test/heidy3.c") assume(y_1 > 0);
+AT(10,"C:/src/T2/tes/heidy3.c") y_1 := y_1-1;
+TO: 0;
+
+FROM: 2;
+AT(12,"C:/src/T2/test/heidy3.c") p := -1;
+TO: 4;
+
+FROM: 4;
+	assume(1 > 0);
+TO: 4;

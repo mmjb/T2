@@ -1,0 +1,68 @@
+START: 4;
+
+
+
+
+
+
+
+FROM: 1;
+nondet_8 := nondet();
+temp5_9 := nondet_8;
+assume(temp5_9!=0);
+assume(0<=-1+x_10);
+x_10 := 1+x_10;
+TO: 2;
+
+FROM: 1;
+nondet_8 := nondet();
+temp5_9 := nondet_8;
+assume(temp5_9==0);
+  Result_6 := nondet();
+TO: 0;
+
+
+
+
+FROM: 2;
+nondet_8 := nondet();
+temp5_9 := nondet_8;
+assume(temp5_9!=0);
+assume(0<=-1+x_10);
+x_10 := 1+x_10;
+TO: 2;
+
+FROM: 2;
+nondet_8 := nondet();
+temp5_9 := nondet_8;
+assume(temp5_9==0);
+  Result_6 := nondet();
+TO: 0;
+
+
+
+
+FROM: 3;
+nondet_8 := nondet();
+temp5_9 := nondet_8;
+assume(temp5_9!=0);
+assume(0<=-1+x_10);
+x_10 := 1+x_10;
+TO: 2;
+
+FROM: 3;
+nondet_8 := nondet();
+temp5_9 := nondet_8;
+assume(temp5_9==0);
+  Result_6 := nondet();
+TO: 0;
+
+
+
+
+FROM: 4;
+  nondet_7 := nondet();
+temp6_11 := nondet_7;
+x_10 := temp6_11;
+TO: 1;
+

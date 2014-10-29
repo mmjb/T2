@@ -1,0 +1,14 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 1;
+assume(x > 0);
+y := x;
+TO: 3;
+
+FROM: 3;
+assume(y <= 0);
+y := y + 1;
+TO: 1;

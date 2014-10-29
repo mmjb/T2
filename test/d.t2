@@ -1,0 +1,28 @@
+
+
+// STEM 0 ----------------------------------------------
+
+
+START: 0;
+FROM: 0;
+TO: 1;
+
+
+// CYCLE 0 ----------------------------------------------
+
+
+FROM: 1;
+assume(0<((1*len_98)+1));
+assume(0<((1*len_98)+0)); // at fun6.t2:60
+len_98 := nondet(); // at fun6.t2:61
+elem_13 := ((1*l_11)+0); // at fun6.t2:61
+assume(0<((1*len_98)+1));
+assume(0<((1*len_98)+0)); // at fun6.t2:96
+len_98 := nondet(); // at fun6.t2:97
+assume(0==((-1*elem_13)+0)); // at fun6.t2:97
+assume(0==((-1*0)+0)); // at fun6.t2:98
+l_11 := ((1*x_12)+0); // at fun6.t2:99
+assume(0<1);
+assume(0<1);
+assume(0<1);
+TO: 1;

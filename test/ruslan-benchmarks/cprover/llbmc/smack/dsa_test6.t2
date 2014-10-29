@@ -1,0 +1,51 @@
+START:0;
+FROM:0;
+tmp := nondet();
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+TO:5;
+
+FROM:5;
+i4 := 0;
+TO:2;
+
+FROM:2;
+TO:6;
+
+FROM:6;
+assume((i4 + 1)<=10);
+TO:7;
+
+FROM:6;
+assume(i4>=10);
+TO:8;
+
+FROM:7;
+TO:9;
+
+FROM:9;
+i4 := (i4 + 1);
+TO:2;
+
+FROM:11;
+TO:10;
+
+FROM:13;
+TO:12;
+
+FROM:12;
+TO:14;
+
+FROM:14;
+TO:15;
+
+FROM:10;
+TO:13;
+
+FROM:8;
+TO:11;
+

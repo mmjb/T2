@@ -1,0 +1,29 @@
+START: 1;
+
+FROM: 1;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+assume(oldX2 > -1 && oldX1 > 0 && oldX0 > 0);
+x0 := oldX0;
+x1 := oldX1;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+oldX3 := nondet();
+assume(oldX2 > -1 && oldX2 - 100 * oldX3 >= 0 && oldX2 - 100 * oldX3 < 100 && oldX1 > 0 && oldX0 > 0);
+x0 := oldX2 - 100 * oldX3;
+x1 := oldX1;
+TO: 3;
+
+FROM: 3;
+oldX0 := x0;
+oldX1 := x1;
+assume(oldX0 > 0 && oldX1 > 0 && oldX0 - 1 < oldX0);
+x0 := oldX0 - 1;
+x1 := oldX1;
+TO: 3;
+

@@ -1,0 +1,114 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 0;
+TO: 2;
+
+FROM: 0;
+TO: 3;
+
+FROM: 0;
+TO: 4;
+
+FROM: 0;
+TO: 5;
+
+FROM: 0;
+TO: 6;
+
+FROM: 0;
+TO: 7;
+
+FROM: 1;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+oldX3 := nondet();
+assume(oldX0 >= 0 && oldX0 <= 4294967295);
+x0 := oldX2;
+x1 := oldX3;
+TO: 2;
+
+FROM: 2;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+oldX3 := nondet();
+assume(oldX2 >= 0 && oldX2 <= 255 && oldX3 >= 0 && oldX3 <= 4294967295);
+x0 := oldX2;
+x1 := oldX3;
+TO: 3;
+
+FROM: 2;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+oldX3 := nondet();
+x0 := oldX2;
+x1 := oldX3;
+TO: 4;
+
+FROM: 3;
+oldX0 := x0;
+oldX1 := x1;
+assume(oldX0 >= 0 && oldX0 <= 255 && oldX1 >= 0 && oldX1 <= 4294967295);
+x0 := oldX0;
+x1 := oldX1;
+TO: 5;
+
+FROM: 5;
+oldX0 := x0;
+oldX1 := x1;
+assume(oldX0 < oldX1 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX1 >= 0 && oldX1 <= 4294967295);
+x0 := oldX0;
+x1 := oldX1;
+TO: 6;
+
+FROM: 5;
+oldX0 := x0;
+oldX1 := x1;
+assume(oldX0 > oldX1 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX1 >= 0 && oldX1 <= 4294967295);
+x0 := oldX0;
+x1 := oldX1;
+TO: 6;
+
+FROM: 5;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+oldX3 := nondet();
+assume(oldX0 = oldX1 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX1 >= 0 && oldX1 <= 4294967295);
+x0 := oldX2;
+x1 := oldX3;
+TO: 4;
+
+FROM: 6;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+assume(oldX0 < oldX1 && oldX2 >= 0 && oldX2 <= 4294967295 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX1 >= 0 && oldX1 <= 4294967295);
+x0 := oldX0;
+x1 := oldX2;
+TO: 5;
+
+FROM: 6;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+assume(oldX0 > oldX1 && oldX2 >= 0 && oldX2 <= 4294967295 && oldX0 >= 0 && oldX0 <= 4294967295 && oldX1 >= 0 && oldX1 <= 4294967295);
+x0 := oldX0;
+x1 := oldX2;
+TO: 5;
+
+FROM: 4;
+oldX0 := x0;
+oldX1 := x1;
+oldX2 := nondet();
+oldX3 := nondet();
+x0 := oldX2;
+x1 := oldX3;
+TO: 7;
+
+

@@ -1,0 +1,145 @@
+START: 0;
+
+FROM: 0;
+ap_daemons_to_start:=0;
+ap_daemons_min_free:=0;
+ap_daemons_max_free:=0;
+ap_daemons_limit:=0;
+server_limit := 256;
+first_server_limit := 0;
+mpm_state := 1;
+ap_max_daemons_limit := -1;
+one_process := 0;
+ap_my_generation:=0;
+tpf_child := 0;
+child_num_arg := nondet();
+assume(child_num_arg > 0);
+do_ACCEPT := 0;
+die_now := 0;
+last_poll_idx := 0;
+ap_threads_per_child := 0;
+ap_daemons_to_start:=0;
+ap_daemons_min_free:=0;
+ap_daemons_max_free:=0;
+ap_daemons_limit:=0; 
+server_limit := 256;
+first_server_limit := 0;
+ap_listeners := nondet();
+assume(ap_listeners > 0);
+TO: 1;
+
+FROM: 1;
+mpm_state := 9; 
+my_child_num := child_num_arg;
+ap_my_pid := nondet();
+requests_this_child := 0;
+status := nondet();
+TO: 2;
+
+FROM: 2;
+assume(0 >= 0);
+TO: 3;
+
+FROM: 3;
+num_listensocks := nondet();
+assume(num_listensocks>0);
+TO: 4;
+
+FROM: 4;
+lr := ap_listeners;
+i := num_listensocks;
+TO: 5;
+
+FROM: 5;
+assume(i > 0);
+pfd := 0;
+pfd_desc_type := 6;
+pfd_desc_s := 1;
+pfd_reqevents := 5;
+pfd_client_data := lr;
+i := i - 1;
+TO: 5;
+
+FROM: 5;
+assume(i <= 0);
+mpm_state := 8;
+bucket_alloc := nondet();
+TO: 6;
+
+FROM: 6;
+assume(die_now<=0);
+do_ACCEPT:=1;
+do_ACCEPT:=0;
+TO: 8;
+
+FROM: 8;
+assume(num_listensocks == 1);
+lr := ap_listeners;
+TO: 9;
+
+FROM: 8;
+assume(num_listensocks != 1);
+status := nondet();
+TO: 10;
+
+FROM: 10;
+assume(status != APR_SUCCESS);
+TO: 11;
+
+FROM: 11;
+assume(one_process>0 && shutdown_pending>0);
+TO: 11;
+
+FROM: 11;
+assume(one_process>0 && shutdown_pending>0);
+TO: 9;
+
+FROM: 10;
+assume(status == APR_SUCCESS);
+TO: 14;
+
+FROM: 14;
+assume(last_poll_idx >= numdesc);
+last_poll_idx := 0;
+TO: 12;
+
+FROM: 14;
+assume(last_poll_idx < numdesc);
+TO: 12;
+
+FROM: 12;
+lr := 1;
+TO: 9;
+
+FROM: 9;
+status := nondet();
+TO: 15;
+
+FROM: 15;
+assume(status == APR_SUCCESS);
+current_conn := nondet();
+dummy := nondet();
+TO: 16;
+
+FROM: 16;
+assume(some_nondet >= 7);
+die_now := 1;
+TO: 6;
+
+FROM: 16;
+assume(ap_my_generation != dummy);
+TO: 6;
+
+FROM: 15;
+assume(status != APR_SUCCESS);
+TO: 6;
+
+FROM: 6;
+assume(die_now>0);
+TO: 7;
+
+FROM: 7;
+assume(0>=0);
+TO: 7;
+
+

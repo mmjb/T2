@@ -1,0 +1,137 @@
+START:0;
+FROM:0;
+i2 := 1;
+TO:5;
+
+FROM:5;
+assume(i2==0);
+TO:6;
+
+FROM:6;
+TO:7;
+
+FROM:7;
+i34 := 999;
+TO:4;
+
+FROM:4;
+TO:8;
+
+FROM:8;
+assume(i34>=0);
+TO:9;
+
+FROM:8;
+assume((i34 + 1)<=0);
+TO:10;
+
+FROM:9;
+TO:11;
+
+FROM:11;
+i34 := (i34 - 1);
+TO:4;
+
+FROM:13;
+TO:12;
+
+FROM:15;
+TO:14;
+
+FROM:5;
+assume((i2 + 1)<=0);
+TO:14;
+
+FROM:5;
+assume(i2>=(1 + 0));
+TO:14;
+
+FROM:17;
+TO:16;
+
+FROM:16;
+TO:18;
+
+FROM:18;
+i6 := 999;
+TO:3;
+
+FROM:3;
+TO:19;
+
+FROM:19;
+assume(i6>=0);
+TO:20;
+
+FROM:19;
+assume((i6 + 1)<=0);
+TO:21;
+
+FROM:20;
+TO:22;
+
+FROM:22;
+i6 := (i6 - 1);
+TO:3;
+
+FROM:24;
+TO:23;
+
+FROM:26;
+TO:25;
+
+FROM:25;
+TO:27;
+
+FROM:27;
+i8 := 999;
+TO:2;
+
+FROM:2;
+TO:28;
+
+FROM:28;
+assume(i8>=0);
+TO:29;
+
+FROM:28;
+assume((i8 + 1)<=0);
+TO:30;
+
+FROM:29;
+TO:31;
+
+FROM:31;
+i8 := (i8 - 1);
+TO:2;
+
+FROM:33;
+TO:32;
+
+FROM:35;
+TO:34;
+
+FROM:34;
+TO:36;
+
+FROM:32;
+TO:35;
+
+FROM:30;
+TO:33;
+
+FROM:23;
+TO:26;
+
+FROM:21;
+TO:24;
+
+FROM:14;
+TO:17;
+
+FROM:12;
+TO:15;
+
+FROM:10;
+TO:13;
+

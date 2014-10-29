@@ -1,0 +1,37 @@
+START: 1;
+
+//NODE: 0 AT(7,"z:\src\t2\test\n-9.c ");
+//  //LABEL: ;
+FROM: 0;
+AT(7,"z:\src\t2\test\n-9.c ")  assume(lt_15 >= y_16);
+AT(7,"z:\src\t2\test\n-9.c ")  lt_15 := nondet();
+AT(12,"z:\src\t2\test\n-9.c ")  rt_11 := st_17;
+TO: 2;
+
+FROM: 0;
+AT(7,"z:\src\t2\test\n-9.c ")  assume(lt_15 < y_16);
+AT(7,"z:\src\t2\test\n-9.c ")  lt_15 := nondet();
+AT(8,"z:\src\t2\test\n-9.c ")  nd_12 := nondet();
+AT(8,"z:\src\t2\test\n-9.c ")  rv_18 := nd_12;
+AT(8,"z:\src\t2\test\n-9.c ")  nd_12 := nondet();
+AT(8,"z:\src\t2\test\n-9.c ")  assume(0 == rv_18);
+TO: 0;
+
+FROM: 0;
+AT(7,"z:\src\t2\test\n-9.c ")  assume(lt_15 < y_16);
+AT(7,"z:\src\t2\test\n-9.c ")  lt_15 := nondet();
+AT(8,"z:\src\t2\test\n-9.c ")  nd_12 := nondet();
+AT(8,"z:\src\t2\test\n-9.c ")  rv_18 := nd_12;
+AT(8,"z:\src\t2\test\n-9.c ")  nd_12 := nondet();
+AT(8,"z:\src\t2\test\n-9.c ")  assume(0 != rv_18);
+AT(9,"z:\src\t2\test\n-9.c ")  lt_19 := nondet();
+TO: 0;
+
+//NODE: 1 ;
+//  //LABEL: main_enter;
+FROM: 1;
+AT(5,"z:\src\t2\test\n-9.c ")  p_14 := x_13;
+TO: 0;
+
+//NODE: 2 ;
+//  //LABEL: main_exit_postfree;

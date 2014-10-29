@@ -1,0 +1,91 @@
+START:0;
+FROM:0;
+TO:3;
+
+FROM:3;
+TO:4;
+
+FROM:4;
+x := 0;
+TO:5;
+
+FROM:5;
+i := 0;
+TO:2;
+
+FROM:2;
+TO:6;
+
+FROM:6;
+assume((i + 1)<=N);
+TO:7;
+
+FROM:6;
+assume(i>=N);
+TO:8;
+
+FROM:7;
+TO:9;
+
+FROM:9;
+x := (x + 2);
+TO:10;
+
+FROM:7;
+TO:10;
+
+FROM:7;
+TO:10;
+
+FROM:10;
+i := (i + 1);
+TO:2;
+
+FROM:12;
+TO:11;
+
+FROM:11;
+assume(x==N);
+TO:13;
+
+FROM:13;
+tmp := 1;
+TO:14;
+
+FROM:11;
+assume((x + 1)<=N);
+TO:15;
+
+FROM:11;
+assume(x>=(1 + N));
+TO:15;
+
+FROM:15;
+assume(x==(N + 1));
+TO:16;
+
+FROM:16;
+tmp := 1;
+TO:14;
+
+FROM:15;
+assume((x + 1)<=(N + 1));
+TO:17;
+
+FROM:15;
+assume(x>=(1 + (N + 1)));
+TO:17;
+
+FROM:17;
+tmp := 0;
+TO:14;
+
+FROM:14;
+TO:18;
+
+FROM:18;
+TO:19;
+
+FROM:8;
+TO:12;
+

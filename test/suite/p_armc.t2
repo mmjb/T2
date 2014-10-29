@@ -1,0 +1,298 @@
+START:0; //main-0-10
+//CUTPOINT:1; //main-err-0
+FROM:0; //main-0-10
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:2; //main-3-10
+FROM:2; //main-3-10
+assume((a + 1)<=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:3; //main-4-11
+FROM:2; //main-3-10
+assume(a>=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:4; //main-5-10
+FROM:4; //main-5-10
+assume((b + 1)<=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:3; //main-4-11
+FROM:4; //main-5-10
+assume(b>=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:5; //main-6-10
+FROM:5; //main-6-10
+assume((c + 1)<=d);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:3; //main-4-11
+FROM:5; //main-6-10
+assume(c>=d);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:6; //main-7-10
+FROM:6; //main-7-10
+assume((e + 1)<=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:3; //main-4-11
+FROM:6; //main-7-10
+assume(e>=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:7; //main-8-10
+FROM:3; //main-4-11
+assume((a + 1)<=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:8; //main-9-14
+FROM:8; //main-9-14
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := b;
+a := (-a);
+TO:9; //main-11-0
+FROM:9; //main-11-0
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := (b - a);
+a := a;
+TO:10; //main-12-0
+FROM:10; //main-12-0
+assume(1==1);
+e := (e - a);
+d := d;
+c := c;
+b := b;
+a := a;
+TO:0; //main-0-10
+FROM:3; //main-4-11
+assume(a>=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:11; //main-10-15
+FROM:11; //main-10-15
+assume((b + 1)<=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:12; //main-13-18
+FROM:12; //main-13-18
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := (-b);
+a := a;
+TO:13; //main-15-0
+FROM:13; //main-15-0
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := b;
+a := (a - b);
+TO:14; //main-16-0
+FROM:14; //main-16-0
+assume(1==1);
+e := e;
+d := d;
+c := (c - b);
+b := b;
+a := a;
+TO:0; //main-0-10
+FROM:11; //main-10-15
+assume(b>=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:15; //main-14-19
+FROM:15; //main-14-19
+assume((c + 1)<=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:16; //main-17-22
+FROM:16; //main-17-22
+assume(1==1);
+e := e;
+d := d;
+c := (-c);
+b := b;
+a := a;
+TO:17; //main-19-0
+FROM:17; //main-19-0
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := (b - c);
+a := a;
+TO:18; //main-20-0
+FROM:18; //main-20-0
+assume(1==1);
+e := e;
+d := (d - c);
+c := c;
+b := b;
+a := a;
+TO:0; //main-0-10
+FROM:15; //main-14-19
+assume(c>=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:19; //main-18-23
+FROM:19; //main-18-23
+assume((d + 1)<=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:20; //main-21-26
+FROM:20; //main-21-26
+assume(1==1);
+e := e;
+d := (-d);
+c := c;
+b := b;
+a := a;
+TO:21; //main-23-0
+FROM:21; //main-23-0
+assume(1==1);
+e := e;
+d := d;
+c := (c - d);
+b := b;
+a := a;
+TO:22; //main-24-0
+FROM:22; //main-24-0
+assume(1==1);
+e := (e - d);
+d := d;
+c := c;
+b := b;
+a := a;
+TO:0; //main-0-10
+FROM:19; //main-18-23
+assume(d>=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:23; //main-22-27
+FROM:23; //main-22-27
+assume((e + 1)<=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:24; //main-25-30
+FROM:24; //main-25-30
+assume(1==1);
+e := (-e);
+d := d;
+c := c;
+b := b;
+a := a;
+TO:25; //main-26-0
+FROM:25; //main-26-0
+assume(1==1);
+e := e;
+d := (d - e);
+c := c;
+b := b;
+a := a;
+TO:26; //main-27-0
+FROM:26; //main-27-0
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := b;
+a := (a - e);
+TO:0; //main-0-10
+FROM:23; //main-22-27
+assume(e>=0);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:0; //main-0-10
+FROM:27; //main-2-0
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:28; //main-1-33
+FROM:28; //main-1-33
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:29; //main-ret-0
+FROM:7; //main-8-10
+assume(1==1);
+e := e;
+d := d;
+c := c;
+b := b;
+a := a;
+TO:27; //main-2-0

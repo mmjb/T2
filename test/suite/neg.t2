@@ -1,0 +1,7 @@
+START: 1;
+CUTPOINT: 2;
+
+FROM: 1;
+assume(!(!(1<0)));
+TO: 2;
+

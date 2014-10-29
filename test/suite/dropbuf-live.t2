@@ -1,0 +1,24 @@
+START:0;
+FROM:0;
+R := 0;
+TO:2;
+
+FROM:2;
+A := R;
+TO:3;
+
+FROM:3;
+istemp := nondet();
+TO:4;
+
+FROM:4;
+NLocBuffer := nondet();
+TO:5;
+
+FROM:5;
+NBuffers := nondet();
+TO:6;
+
+FROM:6;
+TO:7;
+

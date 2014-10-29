@@ -1,0 +1,25 @@
+START: 1;
+CUTPOINT: 300;
+
+FROM: 2;
+  assume(0<=1-x_6);
+AT(6,"p-42.c ")  x_6 := 1+x_6;
+AT(7,"p-42.c ")  w_5 := 1+w_5;
+TO: 2;
+
+FROM: 2;
+  assume(1-x_6<0);
+  assume(0<=2-w_5);
+AT(6,"p-42.c ")  x_6 := 1+x_6;
+AT(7,"p-42.c ")  w_5 := 1+w_5;
+TO: 2;
+
+FROM: 2;
+  assume(1-x_6<0);
+  assume(2-w_5<0);
+AT(1,"p-42.c ")  Result_4 := nondet();
+TO: 300;
+
+FROM: 1;
+TO: 2;
+

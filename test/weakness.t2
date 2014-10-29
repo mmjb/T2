@@ -1,0 +1,16 @@
+START: 0;
+
+FROM: 0;
+i := 0;
+y := nondet();
+TO: 1;
+
+FROM: 1;
+assume(x > 0);
+TO: 2;
+
+FROM: 2;
+z := y + i;
+x := x - z;
+i := i + 1;
+TO: 1;

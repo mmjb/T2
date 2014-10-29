@@ -1,0 +1,10 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 1;
+x := x - 1000;
+assume(x > 200); 
+TO: 1;
+
