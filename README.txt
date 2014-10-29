@@ -111,10 +111,10 @@ Commonly used options that modify T2 output behaviour:
     be hard to understand for non-developers.
 
 Typical calls of T2 on Windows, with output, look like this:
- $ src/bin/Debug/T2.exe -input_t2 test/testsuite/small01.t2 -termination -print_proof
+ $ src/bin/Debug/T2.exe -input_t2 test/testsuite/small02.t2 -safety 10000 -timeout 42
  Safety proof succeeded
 
- $ src/bin/Debug/T2.exe -input_t2 test/testsuite/small02.t2 -safety 10000 -timeout 42
+ $ src/bin/Debug/T2.exe -input_t2 test/testsuite/small01.t2 -termination -print_proof
  Termination proof succeeded
  Used the following cutpoint-specific lexicographic rank functions:
    * For cutpoint 7, used the following rank functions/bounds (in descending priority order):
