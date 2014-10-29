@@ -3,6 +3,8 @@
                  ======================================
 
 In this directory you will find the sources for the T2 temporal logic prover.
+T2 is designed to prove temporal properties of programs, such as safety,
+termination, or properties specified in the logic CTL.
 In this document, we first discuss how to use the tool and explain how to build
 it. Then, we give a rough overview of the implementation, and finally list the
 developers of the tool and point to some related research papers.
