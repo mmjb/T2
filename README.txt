@@ -12,9 +12,6 @@ developers of the tool and point to some related research papers.
                               -----------
 Windows
 ~~~~~~~
-For those interested in just running T2 we are including a precompiled binary
-in the directory bin.precompiled/.
-
 To build T2, we recommend using Visual Studio (2013 or later), but you can
 also follow the Mono instructions provided below. In VS, the F# Power
 Pack is managed through NuGet in Visual Studio and does not need to be
