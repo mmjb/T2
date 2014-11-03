@@ -28,8 +28,7 @@ For this, get z3 sources for z3/unstable (4.3.2 is known to work) from
    http://z3.codeplex.com/
 
 To install needed .NET libraries, you will need NuGet, which you can
-obtain from http://nuget.org/nuget.exe. To use it to download software,
-you will need to import certificates using "mozroots --import --sync".
+obtain from http://nuget.org/nuget.exe.
 
 Let $NUGET be the path to your nuget.exe download, $Z3DIR be the directory
 with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by 
@@ -43,7 +42,7 @@ with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by
      * fsharp
     On a Debian (>> squeezy) or Ubuntu (>= 14.04 LTS) system, this can be
     done by executing
-      $ apt-get install build-essential python mono-complete mono-xbuild fsharp
+      $ sudo apt-get install build-essential python mono-complete mono-xbuild fsharp
 
 (1) Build z3:
       $ pushd "$Z3DIR" && ./configure && pushd "$Z3DIR/build" && make && popd && popd
@@ -55,8 +54,9 @@ with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by
       $ cp "$Z3DIR/src/api/dotnet/obj/Debug/Microsoft.Z3.dll" "$T2DIR/src/"
       $ cp "$Z3DIR/build/libz3.so" "$T2DIR/src/"
 
-(4) Get required packages via NuGet:
-      $ pushd "$T2DIR/src" && $NUGET restore && popd
+(4) Get required packages via NuGet (may need to import certificates first):
+      $ mozroots --import --sync
+      $ pushd "$T2DIR/src" && mono $NUGET restore && popd
 
 (5) Build T2, in Debug mode:
       $ pushd "$T2DIR/src" && xbuild && popd
