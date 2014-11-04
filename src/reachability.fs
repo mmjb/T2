@@ -737,7 +737,8 @@ let refine abs v =
             for loc, intp in List.zip (path_to_locs formulae) interpolants do
                 check_not_removed abs loc
                 if not (entails1_psi abs loc intp) then
-                    log <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs.abs_node_to_program_loc.[loc]
+                    if Log.do_logging () then
+                        log <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs.abs_node_to_program_loc.[loc]
                     conjoin_with_psi abs loc intp
                     rm_from_covering abs (fun (x,y) -> y=loc && not (entails_psi abs x loc))
 
