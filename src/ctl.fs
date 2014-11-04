@@ -41,21 +41,21 @@ type CTL_Formula =
     member self.pp =
         // see comment to term2pp
         let protect strength force s =
-            if strength >= force then s else "(" ^ s ^ ")"
+            if strength >= force then s else "(" + s + ")"
 
         let rec pp' force e =
             match e with
             | Atom a -> protect 0 force a.pp
-            | AF e -> protect 3 force ("AF " ^ pp' 3 e)
-            | AG e -> protect 3 force ("AG " ^ pp' 3 e)
-            | AX e -> protect 3 force ("AX " ^ pp' 3 e)
-            | EF e -> protect 3 force ("EF " ^ pp' 3 e)
-            | EG e -> protect 3 force ("EG " ^ pp' 3 e)
-            | EX e -> protect 3 force ("EX " ^ pp' 3 e)
-            | CTL_And(e1,e2) -> protect 1 force  (pp' 1 e1 ^ " and " ^ pp' 1 e2)
-            | CTL_Or(e1,e2)  -> protect 1 force (pp' 1 e1 ^ " or " ^ pp' 1 e2)
-            | AW(e1,e2) -> protect 0 force ("A " ^ pp' 3 e1 ^ " W " ^ pp' 3 e2)
-            | EU(e1,e2) -> protect 0 force ("E " ^ pp' 3 e1 ^ " U " ^ pp' 3 e2)
+            | AF e -> protect 3 force ("AF " + pp' 3 e)
+            | AG e -> protect 3 force ("AG " + pp' 3 e)
+            | AX e -> protect 3 force ("AX " + pp' 3 e)
+            | EF e -> protect 3 force ("EF " + pp' 3 e)
+            | EG e -> protect 3 force ("EG " + pp' 3 e)
+            | EX e -> protect 3 force ("EX " + pp' 3 e)
+            | CTL_And(e1,e2) -> protect 1 force  (pp' 1 e1 + " and " + pp' 1 e2)
+            | CTL_Or(e1,e2)  -> protect 1 force (pp' 1 e1 + " or " + pp' 1 e2)
+            | AW(e1,e2) -> protect 0 force ("A " + pp' 3 e1 + " W " + pp' 3 e2)
+            | EU(e1,e2) -> protect 0 force ("E " + pp' 3 e1 + " U " + pp' 3 e2)
 
         pp' 0 self
 

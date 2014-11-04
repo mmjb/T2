@@ -212,7 +212,7 @@ let solve_k fs =
     let result = try (try solve_more_rec 0 fs solver with :? System.TimeoutException as e -> Stats.inc_stat "solve_k, Timeout"; raise e) finally Stats.end_time "Z3"
 
     match result with
-    | Some (k, _) -> Stats.inc_stat ("solve_k, k="^k.ToString())
+    | Some (k, _) -> Stats.inc_stat ("solve_k, k=" + k.ToString())
     | None -> Stats.inc_stat "solve_k, None"
     solver.Pop()
     solver.Dispose()

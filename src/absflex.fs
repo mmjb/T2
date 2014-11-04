@@ -553,7 +553,7 @@ and _fslex_token  _fslex_state lexbuf =
 # 113 "absflex.mll"
                                               
                                          begin
-                                           lexerror ("Illegal Character '" ^ 
+                                           lexerror ("Illegal Character '" + 
                                                      (System.Text.Encoding.Default.GetString(lexbuf.Lexeme))) lexbuf;
                                            token lexbuf
                                          end 

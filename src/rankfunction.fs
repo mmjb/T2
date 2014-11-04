@@ -562,8 +562,8 @@ let synthesis_lex_scc_trans_unaffected
         let (all_transitions_weakly_decreasing, decreasing_and_bounded_var_for_transition, _) = build_scc_constraints pars scc_rels mu false (get_simplified_linterm_cache scc_rels)
 
         //Now enforce that the new relation is strictly oriented and feed everything to the SMT solver:
-        let extra_pre_var : Var.var = Var.var (Formula.const_var bigint.One ^ "^0")
-        let extra_post_var : Var.var = Var.var (Formula.const_var bigint.One ^ "^post")
+        let extra_pre_var : Var.var = Var.var (Formula.const_var bigint.One + "^0")
+        let extra_post_var : Var.var = Var.var (Formula.const_var bigint.One + "^post")
         let rel_to_add' = Programs.add_const1_var_to_relation extra_pre_var extra_post_var rel_to_add
         let linterm_for_rel_to_add' = rel_to_add' |> Relation.relation_to_linear_terms |> SparseLinear.simplify_as_inequalities
         let (decreasing_var, decrease_constraints) = generate_weakly_decreasing_constraints_for_rel cp rel_to_add' linterm_for_rel_to_add' cp 0 mu

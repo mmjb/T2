@@ -67,7 +67,7 @@ type Bound with
     member b.int_value =
         match b with
             | C(c) -> c
-            | _ -> Utils.dieWith ("Trying to get int value of " ^ b.ToString())
+            | _ -> Utils.dieWith ("Trying to get int value of " + b.ToString())
 
 [<StructuredFormatDisplayAttribute("Intervals({pp})")>]
 type Intervals =

@@ -261,8 +261,8 @@ let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * (in
         |> Set.map (fun (trans_idx, (k, cmds, k')) -> (trans_idx, k, path_to_relation [(k, cmds |> List.map Programs.const_subst, k')] scc_vars, k'))
 
     //Add an extra constant variable to get affine interpretations:
-    let extra_pre_var : Var.var = Var.var (Formula.const_var bigint.One ^ "^0")
-    let extra_post_var : Var.var = Var.var (Formula.const_var bigint.One ^ "^post")
+    let extra_pre_var : Var.var = Var.var (Formula.const_var bigint.One + "^0")
+    let extra_post_var : Var.var = Var.var (Formula.const_var bigint.One + "^post")
     let affine_scc_rels =
            scc_rels
         |> Set.map (fun (idx, k, rel, k') -> (idx, k, Programs.add_const1_var_to_relation extra_pre_var extra_post_var rel, k'))

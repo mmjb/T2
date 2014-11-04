@@ -112,7 +112,7 @@ rule token = parse
   | eof                        { EOF }
   | _                        { 
                           begin
-                            lexerror ("Illegal Character '" ^ 
+                            lexerror ("Illegal Character '" + 
                                       (System.Text.Encoding.Default.GetString(lexbuf.Lexeme))) lexbuf;
                             token lexbuf
                           end }

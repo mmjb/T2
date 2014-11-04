@@ -58,15 +58,6 @@ let number_of_invars = ref 1
 open SparseLinear
 open Utils
 
-// this should not be here (see also in symex.fs)
-let unprime_var (v : string) =
-    let i = v.LastIndexOf "^"
-    if i < 0 then
-        dieWith ("Unpriming non-primed var " ^ v)
-        v
-    else
-        v.[0 .. (i-1)]
-
 let check_interpolant fs intps =
     let mutable prev = List.head fs
     for f, intp in List.zip fs (intps@[Formula.falsec]) do
@@ -198,7 +189,7 @@ let synthesis_base_with_entailment (pars : Parameters.parameters) fs entail_dist
     assert (fs <> [])
 
     // unprime the invar i
-    let unprime i = [for (var,term) in Map.toList i -> (if var = ONE then ONE else unprime_var var), term] |> Map.ofList
+    let unprime i = [for (var,term) in Map.toList i -> (if var = ONE then ONE else Var.unprime_var var), term] |> Map.ofList
 
     // recursivly try to synthesise by adding more invariants
     let rec synthesis_with_invars n phis intpss v_intps w_intps =

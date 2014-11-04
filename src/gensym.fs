@@ -36,7 +36,7 @@ open Utils
 
 let n = ref 0l
 let fresh_num() = let k = !n in n := k+1l; k
-let fresh_var() = let k = fresh_num() in "__" ^ string(k) ^ "_gensym__"
+let fresh_var() = let k = fresh_num() in "__" + string(k) + "_gensym__"
 
 //
 // We memoize gensym-based functions, thus giving us mappings that last the

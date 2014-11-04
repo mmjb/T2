@@ -218,13 +218,13 @@ let db (pars : Parameters.parameters) abs =
         let pp_psi_nl abs v =
             let mutable st = "\\n\\n"
             for s in abs.psi.[v] do
-                st <- st ^ (sprintf "%s\\n" (Formula.pp s))
+                st <- st + (sprintf "%s\\n" (Formula.pp s))
             st
         let vertex_list = Set.map (fun v -> sprintf "%d [label=\"%d (node %d): %s\"]\n" v (abs_node_to_program_loc abs v) v (pp_psi_nl abs v)) !abs.V
-        let vertices = Set.fold (fun x s -> x ^ s) "" vertex_list
-        //let edges = abs.E.Fold (fun s (x, y) -> s ^ (sprintf "%d -> %d [label=\"%s\"]\n" x y (Programs.commands2pp (edge_map abs x y)))) ""
-        let edges = abs.E.Fold (fun s (x, y) -> s ^ (sprintf "%d -> %d\n" x y)) ""
-        let covering = Map.fold (fun s x y -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" x y) ^ s) "" !abs.covering
+        let vertices = Set.fold (fun x s -> x + s) "" vertex_list
+        //let edges = abs.E.Fold (fun s (x, y) -> s + (sprintf "%d -> %d [label=\"%s\"]\n" x y (Programs.commands2pp (edge_map abs x y)))) ""
+        let edges = abs.E.Fold (fun s (x, y) -> s + (sprintf "%d -> %d\n" x y)) ""
+        let covering = Map.fold (fun s x y -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" x y) + s) "" !abs.covering
         sprintf "\ndigraph program {\n%s\n%s\n\n%s}" vertices edges covering
 
     let write_to_fresh_file (s : string) =

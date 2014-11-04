@@ -46,7 +46,7 @@ let print_dot_program p (fname : string) =
    fprintf h "digraph program {\nnode [shape=circle];\n" ;
    let nodes = ref Set.empty
    let commands2pp b =
-       let f x y = x ^ command2pp y ^ "\\l" // "\l" is a "left-aligned line-break"...
+       let f x y = x + command2pp y + "\\l" // "\l" is a "left-aligned line-break"...
        let true_assume = assume Formula.truec
        b |> List.filter (fun c -> c <> true_assume)
          |> List.fold f ""
@@ -98,7 +98,7 @@ let print_c_program_goto p (fname : string) =
     let var_map = ref Map.empty;
     let i = ref 1
     for v in vars do
-        let new_v = "v" ^ (!i).ToString()
+        let new_v = "v" + (!i).ToString()
         var_map := Map.add v new_v !var_map
         i := !i + 1
         fprintfn out_channel "int %s = nondet();" new_v
@@ -165,7 +165,7 @@ let print_c_program_pc_loop p (fname : string) =
     let var_map = ref Map.empty;
     let i = ref 1
     for v in vars do
-        let new_v = "v" ^ (!i).ToString()
+        let new_v = "v" + (!i).ToString()
         var_map := Map.add v new_v !var_map
         i := !i + 1
         fprintfn out_channel "int %s = nondet();" new_v
@@ -290,7 +290,7 @@ let add_java_nondet_declaration java_nondet_style out_channel =
     fprintfn out_channel "  public static boolean nondet_bool() { return (nondet() %% 2) == 0; }"
 
 let print_java_program_goto p java_nondet_style class_name path =
-    let out_channel = new System.IO.StreamWriter(path ^ "/" ^ class_name ^ ".java")
+    let out_channel = new System.IO.StreamWriter(path + "/" + class_name + ".java")
     fprintfn out_channel "public class %s {" class_name
 
     add_java_nondet_declaration java_nondet_style out_channel
@@ -300,7 +300,7 @@ let print_java_program_goto p java_nondet_style class_name path =
     let var_map = ref Map.empty;
     let i = ref 1
     for v in vars do
-        let new_v = "v" ^ (!i).ToString()
+        let new_v = "v" + (!i).ToString()
         var_map := Map.add v new_v !var_map
         i := !i + 1
         fprintfn out_channel "  public static int %s;" new_v
@@ -375,7 +375,7 @@ let print_java_program_goto p java_nondet_style class_name path =
     ()
 
 let print_java_program_pc_loop p java_nondet_style class_name path =
-    let out_channel = new System.IO.StreamWriter(path ^ "/" ^ class_name ^ ".java")
+    let out_channel = new System.IO.StreamWriter(path + "/" + class_name + ".java")
     fprintfn out_channel "public class %s {" class_name
 
     add_java_nondet_declaration java_nondet_style out_channel
@@ -387,7 +387,7 @@ let print_java_program_pc_loop p java_nondet_style class_name path =
     let var_map = ref Map.empty;
     let mutable i = 0
     for v in vars do
-        let new_v = "v" ^ (i+1).ToString()
+        let new_v = "v" + (i+1).ToString()
         var_map := Map.add v new_v !var_map
         i <- i + 1
         fprintfn out_channel "    int %s = args[%d].length() - args[%d].length();" new_v (2*i) (2*i + 1)
@@ -472,7 +472,7 @@ let print_smtpushdown p (fname : string) =
     let post_vars_string = post_vars |> Set.map (sprintf "(%s Int)") |> String.concat " "
     let all_vars = Set.union pre_vars post_vars
 
-    let rec get_unused v used = if Set.contains v used then get_unused ("_" ^ v) used else v
+    let rec get_unused v used = if Set.contains v used then get_unused ("_" + v) used else v
     let pc_pre_var = get_unused "pc^0" all_vars
     let pc_post_var = get_unused "pc^post" all_vars
 

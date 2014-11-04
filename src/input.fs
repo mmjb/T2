@@ -106,7 +106,7 @@ let simplify_chains blocks dont_chain =
     let cleaned_result = ref []
     let i = ref 0
     let rec get_new_node nodes =
-        let name = "tmp_" ^ (!i).ToString()
+        let name = "tmp_" + (!i).ToString()
         i := !i + 1
         if not (Set.contains name !nodes) then
            nodes := Set.add name !nodes

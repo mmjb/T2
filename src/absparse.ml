@@ -41,7 +41,7 @@ let incomplete_abstraction = ref false
 
 let normalize_var (v : string) =
   if v.StartsWith Formula.instrumentation_prefix then
-    Var.var ("_" ^ v)
+    Var.var ("_" + v)
   else
     Var.var v
 

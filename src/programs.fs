@@ -96,12 +96,12 @@ let pos2pp pos = match pos with
                  | Some(k,file) -> sprintf "%s:%d" file k
 
 let command2pp c = match c with
-                   | Assign(None,v,e) ->   Var.pp v + " := " + e.pp ^ ";"
+                   | Assign(None,v,e) ->   Var.pp v + " := " + e.pp + ";"
                    | Assume(None,e) ->    "assume(" + Formula.pp e + ");"
                    | Assign(p,v,e) ->   Var.pp v + " := " + e.pp + "; // at " + pos2pp p
                    | Assume(p,e) ->    "assume(" + Formula.pp e + "); // at " + pos2pp p
 
-let commands2pp b = (List.fold (fun x y -> x ^ "    " ^ command2pp y ^ "\n") "{\n" b) ^ "}"
+let commands2pp b = (List.fold (fun x y -> x + "    " + command2pp y + "\n") "{\n" b) + "}"
 
 ///
 /// Return free variables in a sequence of commands

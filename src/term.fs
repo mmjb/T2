@@ -48,27 +48,27 @@ type term =
         // To protect itself, term encloses itself in braces, so we get -(t1*t2).
 
         let protect strength force s =
-            if strength >= force then s else "(" ^ s ^ ")"
+            if strength >= force then s else "(" + s + ")"
 
         let rec term2pp' force e =
             match e with
             | Nondet -> "nondet()"
             | Const(i) -> string(i)
             | Var(v) -> Var.pp v
-            | Neg(e) -> "-" ^ term2pp' 3 e
+            | Neg(e) -> "-" + term2pp' 3 e
             | Add(Const(c1), e2) when c1 = bigint.Zero ->
                 protect 1 force (term2pp' 1 e2)
             | Add(e1, Const(c2)) when c2 = bigint.Zero ->
                 protect 1 force (term2pp' 1 e1)
             | Add(e1, Mul(Const(c), e22)) when c = bigint.MinusOne ->
-                protect 1 force (term2pp' 1 e1 ^ "-" ^ term2pp' 2 e22)
+                protect 1 force (term2pp' 1 e1 + "-" + term2pp' 2 e22)
             | Add(e1, Mul(Const(c), e22)) when c < bigint.MinusOne ->
-                protect 1 force (term2pp' 1 e1 ^ "-" ^ term2pp' 2 (Mul(Const(-c), e22)))
-            | Add(e1,e2) -> protect 1 force (term2pp' 1 e1 ^ "+" ^ term2pp' 1 e2)
-            | Sub(e1,e2) -> protect 1 force (term2pp' 1 e1 ^ "-" ^ term2pp' 2 e2) // force on second arg is 2 because we want to get a-(b+c) instead of a-b+c
-            | Mul(e1,e2) when e1 = Const(bigint.MinusOne) -> protect 2 force ("-" ^ term2pp' 2 e2)
+                protect 1 force (term2pp' 1 e1 + "-" + term2pp' 2 (Mul(Const(-c), e22)))
+            | Add(e1,e2) -> protect 1 force (term2pp' 1 e1 + "+" + term2pp' 1 e2)
+            | Sub(e1,e2) -> protect 1 force (term2pp' 1 e1 + "-" + term2pp' 2 e2) // force on second arg is 2 because we want to get a-(b+c) instead of a-b+c
+            | Mul(e1,e2) when e1 = Const(bigint.MinusOne) -> protect 2 force ("-" + term2pp' 2 e2)
             | Mul(e1,e2) when e1 = Const(bigint.One) -> protect 2 force (term2pp' 2 e2)
-            | Mul(e1,e2) -> protect 2 force (term2pp' 2 e1 ^ "*" ^ term2pp' 2 e2)
+            | Mul(e1,e2) -> protect 2 force (term2pp' 2 e1 + "*" + term2pp' 2 e2)
 
         term2pp' 0 self
 

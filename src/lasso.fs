@@ -116,7 +116,7 @@ let check_lex_rankfunction_valid (lex_order:Relation.relation list) (rf_list:ter
     //We need to fix it to 1 -- otherwise z3 will do weird stuff like setting it to 14.
     let const_1_var = Formula.const_var bigint.One
     let const_1_prevar = Var.prime_var const_1_var 0
-    let const_1_postvar = Var.var (const_1_var ^ "^post")
+    let const_1_postvar = Var.var (const_1_var + "^post")
     let const_formula =
         Formula.And(
             Formula.Eq(Term.Var(const_1_var), Term.constant 1),
