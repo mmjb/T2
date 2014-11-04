@@ -155,12 +155,15 @@ Implementation:
     Central mechanism for controlling logging.
   * utils.fs, gensym.fs:  
     Helper functions, and local extensions of existing F# data structures.
-  * absflex.mll, absparse.mly, parseError.fs:
+  * absflex.fsl, absparse.fsy, parseError.fs:
     F# Lexer/Yacc files for parsing T2 files.
     After modifying the lexer or parser, the corresponding generated files
-    (absflex.fs, absparse.ml) need to be regenerated using the fslex and fsyacc.
+    (absflex.fs, absparse.fs) need to be regenerated using fslex and fsyacc.
     These helper tools are available as a separate package on
     https://github.com/fsprojects/FsLexYacc
+    The needed calls are
+     $ fslex.exe absflex.fsl
+     $ fsyacc.exe --module Absparse absparse.fsy
   * z.fs:
     F# functions connecting to the Z3 decision procedure.
 
