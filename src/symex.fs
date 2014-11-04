@@ -191,7 +191,7 @@ let path_to_relation path vars =
 
     Relation.make aggregate_formula (prevars @ copy_prevars) (postvars @ copy_postvars)
 
-let find_path_interpolant_old try_ignore_beginning distance invar_formulae pi initial final =
+let find_path_interpolant_old (pars : Parameters.parameters) try_ignore_beginning distance invar_formulae pi initial final =
     let path_formulae = [for (_, fs, _) in pi -> Formula.conj fs]
     let final_formula = Formula.Not final
 
@@ -208,7 +208,7 @@ let find_path_interpolant_old try_ignore_beginning distance invar_formulae pi in
             | [] -> []
             | h::t ->
                 let path_interpolant fs =
-                    match InterpolantSequence.synthesis try_ignore_beginning distance invar_formulae fs with
+                    match InterpolantSequence.synthesis pars try_ignore_beginning distance invar_formulae fs with
                     | Some(interpolants) -> Some(List.map (Formula.alpha Var.unprime_var) interpolants)
                     | None -> None
                 match path_interpolant h with
@@ -229,21 +229,21 @@ let find_path_interpolant_old try_ignore_beginning distance invar_formulae pi in
                 Formula.conj [for intps in dnf_interpolants -> List.nth intps.Value i]
         ]
 
-let find_path_interpolant pi initial final =
+let find_path_interpolant (pars : Parameters.parameters) pi initial final =
     let path_formulae = [for (_, fs, _) in pi -> Formula.conj fs]
     let fs = initial::path_formulae@[Formula.negate final]
 
-    match InterpolantSequence.synthesis false 0 [] fs with
+    match InterpolantSequence.synthesis pars false 0 [] fs with
     | Some (intps) -> Some(List.map (Formula.alpha Var.unprime_var) intps)
     | None -> None
 
 // find_unsat_path_interpolant is the same as 'find_path_interpolant pi Formula.truec Formula.falsec'
 // without the first and last interpolants (Formula.truec and Formula.falsec respectively).
 // makes some heuristics work better
-let find_unsat_path_interpolant pi =
+let find_unsat_path_interpolant (pars : Parameters.parameters) pi =
     let fs = [for (_, fs, _) in pi -> Formula.conj fs]
 
-    match InterpolantSequence.synthesis true 0 [] fs with
+    match InterpolantSequence.synthesis pars true 0 [] fs with
     | Some (intps) -> Some(List.map (Formula.alpha Var.unprime_var) intps)
     | None -> None
 
@@ -268,12 +268,12 @@ let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * (in
         |> Set.map (fun (idx, k, rel, k') -> (idx, k, Programs.add_const1_var_to_relation extra_pre_var extra_post_var rel, k'))
     (scc_vars.Add (Var.unprime_var extra_pre_var), scc_transitions, affine_scc_rels)
 
-let get_scc_rels_for_lex_rf_synth_from_program (p:Programs.Program) (scc_nodes:Set<int>) (cp:int) =
+let get_scc_rels_for_lex_rf_synth_from_program (pars : Parameters.parameters) (p:Programs.Program) (scc_nodes:Set<int>) (cp:int) =
     let scc_transitions =
            !p.active
         |> Set.map (fun trans_idx -> (Set.singleton trans_idx, p.transitions.[trans_idx]))
         |> Set.filter (fun (_, (k, _, k')) -> scc_nodes.Contains k && scc_nodes.Contains k')
-        |> Programs.filter_out_copied_transitions cp
+        |> Programs.filter_out_copied_transitions pars cp
         |> Programs.chain_transitions (Set.remove cp scc_nodes)
 
     get_scc_rels_for_lex_rf_synth_from_trans scc_transitions

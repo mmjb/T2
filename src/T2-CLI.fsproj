@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Common Property Group -->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{587b0e56-8af0-4849-9b1d-7aef2eb5cc5b}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>
+    </RootNamespace>
+    <AssemblyName>T2</AssemblyName>
+    <Name>T2-CLI</Name>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+  </PropertyGroup>
+  <!-- Configuration Debug -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <NoWarn>62</NoWarn>
+    <DebugSymbols>True</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <StartWorkingDirectory>C:\Users\mabrocks\Source\Repos\T22\test\</StartWorkingDirectory>
+    <StartArguments>-tests</StartArguments>
+    <StartAction>Project</StartAction>
+    <StartProgram>Z:\src\T2\bin\Debug\T2.exe</StartProgram>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Tailcalls>false</Tailcalls>
+  </PropertyGroup>
+  <!-- Configuration Release -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <NoWarn>62</NoWarn>
+    <DebugSymbols>False</DebugSymbols>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <!-- References -->
+  <!-- Files -->
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">10</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup>
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="$(ProjectDir)/libz3.dll" DestinationFolder="$(TargetDir)" Condition=" '$(OS)' != 'Unix'" />
+    <Copy SourceFiles="$(ProjectDir)/libz3.so" DestinationFolder="$(TargetDir)" Condition=" '$(OS)' == 'Unix'" />
+  </Target>
+  <ItemGroup>
+    <Compile Include="arguments.fs" />
+    <Compile Include="programTests.fs" />
+    <Compile Include="main.fs" />
+    <None Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.PowerPack">
+      <HintPath>packages\FSPowerPack.Core.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="T2-Library.fsproj">
+      <Name>T2-Library</Name>
+      <Project>{5f69e273-595d-4a27-816e-cec1bd3c74fc}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+	     Other similar extension points exist, see Microsoft.Common.targets.
+	<Target Name='BeforeBuild'>
+	</Target>
+	<Target Name='AfterBuild'>
+	</Target>
+	-->
+</Project>

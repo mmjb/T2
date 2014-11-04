@@ -221,10 +221,10 @@ let print_c_program_pc_loop p (fname : string) =
     printf "Created %s\n" fname
     ()
 
-let print_c_program p fname =
-    match !Arguments.imperative_style with
-        | Arguments.Goto -> print_c_program_goto p fname
-        | Arguments.Loop -> print_c_program_pc_loop p fname
+let print_c_program p imperative_style fname =
+    match imperative_style with
+        | Parameters.Goto -> print_c_program_goto p fname
+        | Parameters.Loop -> print_c_program_pc_loop p fname
 
 let print_t2_program p (fname : string) =
     let out_channel = new System.IO.StreamWriter(fname)
@@ -274,12 +274,12 @@ let print_clauses p (fname : string) =
 
     out_channel.Dispose ()
 
-let add_java_nondet_declaration out_channel =
+let add_java_nondet_declaration java_nondet_style out_channel =
     fprintfn out_channel "  public static int nondet() {"
-    match !Arguments.java_nondet_style with
-    | Arguments.Aprove ->
+    match java_nondet_style with
+    | Parameters.Aprove ->
         fprintfn out_channel "    return (new Object()).hashCode();"
-    | Arguments.Julia ->
+    | Parameters.Julia ->
         fprintfn out_channel "    int res = (int) System.currentTimeMillis();"
         fprintfn out_channel "    int sign = (int) System.currentTimeMillis();"
         fprintfn out_channel "    if (sign %% 2 == 0) {"
@@ -289,11 +289,11 @@ let add_java_nondet_declaration out_channel =
     fprintfn out_channel "  }"
     fprintfn out_channel "  public static boolean nondet_bool() { return (nondet() %% 2) == 0; }"
 
-let print_java_program_goto p class_name path =
+let print_java_program_goto p java_nondet_style class_name path =
     let out_channel = new System.IO.StreamWriter(path ^ "/" ^ class_name ^ ".java")
     fprintfn out_channel "public class %s {" class_name
 
-    add_java_nondet_declaration out_channel
+    add_java_nondet_declaration java_nondet_style out_channel
 
     //sanitize var names, declare:
     let vars = variables p
@@ -374,11 +374,11 @@ let print_java_program_goto p class_name path =
     printf "Created %s\n" class_name
     ()
 
-let print_java_program_pc_loop p class_name path =
+let print_java_program_pc_loop p java_nondet_style class_name path =
     let out_channel = new System.IO.StreamWriter(path ^ "/" ^ class_name ^ ".java")
     fprintfn out_channel "public class %s {" class_name
 
-    add_java_nondet_declaration out_channel
+    add_java_nondet_declaration java_nondet_style out_channel
 
     fprintfn out_channel "  public static void main(String[] args) {"
 
@@ -449,10 +449,10 @@ let print_java_program_pc_loop p class_name path =
     printf "Created %s\n" class_name
     ()
 
-let print_java_program p class_name path =
-    match !Arguments.imperative_style with
-        | Arguments.Goto -> print_java_program_goto p class_name path
-        | Arguments.Loop -> print_java_program_pc_loop p class_name path
+let print_java_program p imperative_style class_name path =
+    match imperative_style with
+        | Parameters.Goto -> print_java_program_goto p class_name path
+        | Parameters.Loop -> print_java_program_pc_loop p class_name path
 
 let print_smtpushdown p (fname : string) =
     let out_channel = new System.IO.StreamWriter(fname)

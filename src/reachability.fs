@@ -213,7 +213,7 @@ let check_not_removed abs x =
              assert(false);
 
 /// dump abstraction graph to file for debugging
-let db abs =
+let db (pars : Parameters.parameters) abs =
     let dot_abs_state abs =
         let pp_psi_nl abs v =
             let mutable st = "\\n\\n"
@@ -235,13 +235,13 @@ let db abs =
             n <- n+1
             filename <- sprintf "impact%03d.dot" n
 
-        log filename
+        Log.log pars <| sprintf "Reachability graph dumped to file %s" filename
 
         let f = System.IO.File.CreateText filename
         f.Write s
         f.Close()
 
-    if !Arguments.dottify_reachability  then
+    if pars.dottify_reachability  then
         dot_abs_state abs |> write_to_fresh_file
         ()
 
@@ -449,14 +449,14 @@ let make_node abs expandedNode commandsOnEdge newNodeLoc =
     newNode
 
 /// Expand the graph for DFS search
-let expand abs v =
+let expand (pars : Parameters.parameters) abs v =
     assert (leaf abs v)
-    db abs
+    db pars abs
     check_not_removed abs v
 
     inc_stat "expand vertex"
-    if Log.do_logging() then
-        sprintf "Expanding leaf %d (loc %d)" v abs.abs_node_to_program_loc.[v] |> log
+    if pars.print_log then
+        Log.log pars <| sprintf "Expanding leaf %d (loc %d)" v abs.abs_node_to_program_loc.[v]
 
     if not (is_covered abs v) then
         remove_leaf abs v
@@ -477,9 +477,9 @@ let rec path_to_locs pi =
 
 /// Try to cover v with w.  That is, v entails w, where v is later in the execution and the cover
 /// represents the induction check
-let cover abs v w =
+let cover (pars : Parameters.parameters) abs v w =
     assert (abs_node_to_program_loc abs v = abs_node_to_program_loc abs w)
-    db abs
+    db pars abs
     if entails_psi abs v w then
         rm_from_covering abs (fun (_, y) -> sq_eq abs v y)
         add_covering abs v w
@@ -489,8 +489,8 @@ let cover abs v w =
 
 /// If cover doesnt work, we can try to force it to work by (in a sense) merging paths
 /// and finding necessary interpolants along the way
-let force_cover abs v w =
-    db abs
+let force_cover (pars : Parameters.parameters) abs v w =
+    db pars abs
 
     check_not_removed abs v
     check_not_removed abs w
@@ -534,7 +534,8 @@ let force_cover abs v w =
 
     let do_interpolants initial formulae final x path =
         let find_path_interpolant =
-            if x = w || not (sq abs w v) then (Symex.find_path_interpolant_old (not !Arguments.fc_unsat_core) 0 [])
+            if x = w || not (sq abs w v) then 
+                Symex.find_path_interpolant_old pars (not pars.fc_unsat_core) 0 []
             else
                 let (initial, formulae, _, var_map) = get_formulae x path
                 let distance =
@@ -552,7 +553,7 @@ let force_cover abs v w =
                     let var v p = Term.var (Var.prime_var v p)
                     let gen_dummy_assign (v,p) = Formula.Eq(var v p, zero)
                     List.map gen_dummy_assign (Map.toList var_map) |> Formula.conj
-                (Symex.find_path_interpolant_old false distance ((initial::formulae)@[final; Formula.falsec]))
+                Symex.find_path_interpolant_old pars false distance ((initial::formulae)@[final; Formula.falsec])
 
         match find_path_interpolant formulae (Formula.conj initial) final with
         | Some(A) ->
@@ -563,11 +564,11 @@ let force_cover abs v w =
                     rm_from_covering abs (fun (x,y) -> y=loc && not (entails_psi abs x loc))
             List.zip (path_to_locs formulae) A |> List.iter update
 
-            let covered = cover abs v w
+            let covered = cover pars abs v w
             assert(covered)
             true
         | None ->
-            log "No dice (Expensive!)"
+            Log.log pars <| "Failed to find path interpolant!"
             false
 
     let try_unsat_get_formulae x path =
@@ -629,11 +630,11 @@ let force_cover abs v w =
 
     let result =
         let try_from_x =
-            if !Arguments.fc_unsat_core then try_unsat_core_get_formulae else try_unsat_get_formulae
+            if pars.fc_unsat_core then try_unsat_core_get_formulae else try_unsat_get_formulae
 
         let nearest_path = find_path_from abs x_nearest v
 
-        if !Arguments.fc_look_back && x_nearest <> 0 then
+        if pars.fc_look_back && x_nearest <> 0 then
             let root_path = (find_path_from abs 0 x_nearest)@nearest_path
 
             match try_from_x 0 root_path with
@@ -653,7 +654,7 @@ let force_cover abs v w =
     result
 
 /// Apply force_cover procedure as appropriate to the nodes in the graph.
-let try_force_cover abs v =
+let try_force_cover (pars : Parameters.parameters) abs v =
     check_not_removed abs v
 
     if not (dfs_visited abs v) then false
@@ -665,7 +666,7 @@ let try_force_cover abs v =
         | [] -> false, (List.rev failed_candidates), changed
         | w::t ->
             check_not_removed abs w
-            if cover abs v w || force_cover abs v w then (true, (List.rev failed_candidates)@candidates, changed)
+            if cover pars abs v w || force_cover pars abs v w then (true, (List.rev failed_candidates)@candidates, changed)
             else
                 if sq abs w v then
                     // because w is ancestor of v, it is possible we failed but when invar(w) is refined we will succeed
@@ -677,41 +678,41 @@ let try_force_cover abs v =
     let covered, candidates, changed = try_force_cover_candidates (get_force_cover_candidates abs v) [] false
 
     // most of the times the candidates do not change so we write back only when needed (i.e. when 'changed' is true)
-    if changed && !Arguments.fc_remove_on_fail then abs.fc_candidates.[v] <- Some candidates
+    if changed && pars.fc_remove_on_fail then abs.fc_candidates.[v] <- Some candidates
 
     covered
 
 /// This procedure attempts to find a cover for v.
-let close abs v =
-    db abs
+let close (pars : Parameters.parameters) abs v =
+    db pars abs
     check_not_removed abs v
     assert (dfs_visited abs v)
 
     if is_covered abs v then
         true
     else
-        try_force_cover abs v
+        try_force_cover pars abs v
 
 /// Try to find coverings on all of the nodes above v
-let close_all_ancestors abs v =
+let close_all_ancestors (pars : Parameters.parameters) abs v =
     check_not_removed abs v
     let l = ancestors abs v |> List.rev |> ref
     let d = ref false
     while !l<>[] && not !d do
-        d := close abs (List.head !l)
+        d := close pars abs (List.head !l)
         l := List.tail !l
     done
 
 /// If an error path was spurious, refine abstraction and return None.
 /// Otherwise, return true (almost) error path.
-let refine abs v =
-    db abs
+let refine (pars : Parameters.parameters) abs v =
+    db pars abs
 
     assert (abs_node_to_program_loc abs v = abs.loc_err)
     check_not_removed abs v
 
-    if Log.do_logging() then
-        sprintf "Refining %d (loc %d)..." v abs.abs_node_to_program_loc.[v] |> log
+    if pars.print_log then
+        Log.log pars <| sprintf "Refining %d (loc %d)..." v abs.abs_node_to_program_loc.[v]
 
     if Formula.unsat (psi abs v) then
         // In this case the error location is just not satisfible.
@@ -723,7 +724,7 @@ let refine abs v =
         let formulae = pi' |> Symex.path_to_formulae
 
         // Try to find interpolants (this may fail if we cannot find an interpolant for a true error)
-        match Symex.find_unsat_path_interpolant formulae with
+        match Symex.find_unsat_path_interpolant pars formulae with
         | None ->
             let translate (k1, cmd, k2) = (abs_node_to_program_loc abs k1, cmd, abs_node_to_program_loc abs k2)
             Some(List.map translate pi,pi)
@@ -737,8 +738,8 @@ let refine abs v =
             for loc, intp in List.zip (path_to_locs formulae) interpolants do
                 check_not_removed abs loc
                 if not (entails1_psi abs loc intp) then
-                    if Log.do_logging () then
-                        log <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs.abs_node_to_program_loc.[loc]
+                    if pars.print_log then
+                        Log.log pars <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs.abs_node_to_program_loc.[loc]
                     conjoin_with_psi abs loc intp
                     rm_from_covering abs (fun (x,y) -> y=loc && not (entails_psi abs x loc))
 
@@ -760,8 +761,8 @@ let refine abs v =
 /// a ranking function even with the spurious approximation cmd1;cmd2';cmd3.
 /// </remarks>
 ///
-let dfs abs start =
-    db abs
+let dfs (pars : Parameters.parameters) abs start =
+    db pars abs
     // Start the ball rolling.  The priority doesn't matter, since we're just going
     // to pop it below.
     abs.stack := singleton_priostack 0 start
@@ -774,11 +775,11 @@ let dfs abs start =
         // The call to dfs_add gives v its DFS ordering number.
         dfs_add abs v
 
-        if not (close abs v) then
+        if not (close pars abs v) then
             // v isn't covered as a result of closing it, so we need to
             // refine it if it's an error location or expand it otherwise.
             if abs_node_to_program_loc abs v = abs.loc_err then
-                match refine abs v with
+                match refine pars abs v with
                 | Some(pi, abs_pi) ->
                     // This is a real error, and the path pi witnesses it.
                     // Due to incrementality we need to add v back as a leaf, as we may be back here.
@@ -807,7 +808,7 @@ let dfs abs start =
                             let abstracted_disjunction = Map.find v abs.abstracted_disjunctions
                             match abstracted_disjunction with
                             | (first_disjunct::disjunctions) ->
-                                Log.log <| sprintf "Lazy disjunction expansion for %s" v
+                                Log.log pars <| sprintf "Lazy disjunction expansion for %s" v
                                 //Replace existing edge (with abstract label) by the first disjunct
                                 abs.abs_edge_to_program_commands.[(k,k')] <- [first_disjunct]
                                 //Add new edges for the other disjuncts
@@ -819,10 +820,10 @@ let dfs abs start =
                         ret := Some (pi, disjunctive_refinements)
                 | None ->
                     // In this case we haven't hit an error node (yet).
-                    ignore (close abs v)
-                    close_all_ancestors abs v
+                    ignore (close pars abs v)
+                    close_all_ancestors pars abs v
             else
-                let children = expand abs v
+                let children = expand pars abs v
                 push_priostack_abs_many abs children
 
     !ret
@@ -844,12 +845,12 @@ let pick_vertex abs =
     else
         die()
 
-let unwind abs =
-    db abs
+let unwind (pars : Parameters.parameters) abs =
+    db pars abs
     let v = pick_vertex abs
-    sprintf "Unwinding node %d (loc %d)" v abs.abs_node_to_program_loc.[v] |> log
-    close_all_ancestors abs v
-    dfs abs v
+    Log.log pars <| sprintf "Unwinding node %d (loc %d)" v abs.abs_node_to_program_loc.[v]
+    close_all_ancestors pars abs v
+    dfs pars abs v
 
 //
 // Sanity checks
@@ -863,11 +864,11 @@ let sanity_check abs =
         printf "BIG PROBLEM 2x!\n"
 
 /// Return path to loc_err or None if it's unreachable
-let reachable abs =
-    db abs
+let reachable (pars : Parameters.parameters) abs =
+    db pars abs
     let path = ref None
     while Set.exists (not_covered abs) !abs.leaves && (!path).IsNone do
-        match unwind abs with
+        match unwind pars abs with
         | Some(pi, disjunction_refinements) ->
                 let (_, _, l2) = List.last pi
                 assert (l2 = abs.loc_err)
@@ -878,10 +879,10 @@ let reachable abs =
     done
 
     // Check that we we've constructed a consistent proof graph
-    if !Arguments.sanity_checking then
+    if pars.sanity_checking then
         sanity_check abs
 
-    db abs
+    db pars abs
     !path
 
 /// For incrementality, we sometimes need to delete a subtree within the proof graph
@@ -907,8 +908,10 @@ let init init_loc error_loc transition prio abstracted_disjunctions =
     abs
 
 /// Prove that location err is unreachable in p
-let prover p err =
-    Utils.timeout !Arguments.timeout
+let prover (pars : Parameters.parameters) p err =
+    Utils.timeout pars.timeout
+
+    assert (not pars.lazy_disj && not pars.abstract_disj); //Overapproximations are very uncool for reachability
 
     // Create new initial location with transition assume(_const_100 > _const_32) for all
     // abstracted const variables.
@@ -919,18 +922,18 @@ let prover p err =
     let transition = Programs.transitions_from p
     let abs = init !p.initial err transition None !p.abstracted_disjunctions
 
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p "input.dot"
 
     // Try to disprove/prove the error location in abs to be unreachable
-    let r = reachable abs
+    let r = reachable pars abs
 
     // If the flag is set, produce a counterexample file
-    if !Arguments.safety_counterexample && r.IsSome then
+    if pars.safety_counterexample && r.IsSome then
         let stem = Some (List.map (fun (x,y,z) -> (x,[y],z)) (fst r.Value))
         let cex = Counterexample.make stem None
-        Counterexample.print_defect [cex] "defect.tt"
-        Counterexample.print_program [cex] "defect.t2"
+        Counterexample.print_defect pars [cex] "defect.tt"
+        Counterexample.print_program pars [cex] "defect.t2"
         Utils.run_clear()
 
     Utils.reset_timeout()

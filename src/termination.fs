@@ -77,23 +77,23 @@ let make_prio_map (p: Programs.Program) (error_loc: int) =
     !res
 
 /// Tries to remove as many transitions as possible from a SCC. Returns a list of used rank functions/bounds.
-let simplify_scc p (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all_cutpoints: int list) cp scc_nodes =
-    let (scc_vars, scc_trans, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program p scc_nodes cp
+let simplify_scc (pars : Parameters.parameters) p (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all_cutpoints: int list) cp scc_nodes =
+    let (scc_vars, scc_trans, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program pars p scc_nodes cp
     let cleaned_scc_rels = ref scc_rels
 
-    if !Arguments.print_debug then
-        Log.debug <| sprintf "CP %A has scc nodes %A, vars %A" cp scc_nodes scc_vars
-        Log.debug <| sprintf "SCC transitions: "
-        Log.debug <| (scc_trans |> Seq.map (fun t -> sprintf "  %A" t) |> String.concat "\n")
+    if pars.print_debug then
+        Log.debug pars <| sprintf "CP %A has scc nodes %A, vars %A" cp scc_nodes scc_vars
+        Log.debug pars <| sprintf "SCC transitions: "
+        Log.debug pars <| (scc_trans |> Seq.map (fun t -> sprintf "  %A" t) |> String.concat "\n")
 
-    match Rankfunction.synth_maximal_lex_rf scc_rels (Rankfunction.get_simplified_linterm_cache scc_rels) with
+    match Rankfunction.synth_maximal_lex_rf pars scc_rels (Rankfunction.get_simplified_linterm_cache scc_rels) with
     | None -> None
     | Some (rfs, trans_to_remove') ->
         let trans_to_remove = Seq.concat trans_to_remove' |> Set.ofSeq
         for trans_idx in trans_to_remove do
-            if !Arguments.print_debug then
+            if pars.print_debug then
                 let (k,_,k') = p.transitions.[trans_idx]
-                Log.debug <| sprintf "Removing trans %i->%i" k k'
+                Log.debug pars <| sprintf "Removing trans %i->%i" k k'
             Programs.remove_transition p trans_idx
             cleaned_scc_rels := Set.filter (fun (i, _, _, _) -> not <| Set.contains i trans_to_remove') !cleaned_scc_rels
         if (!cleaned_scc_rels).IsEmpty then
@@ -102,12 +102,12 @@ let simplify_scc p (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all
                 Programs.remove_transition p cp_checker_trans
         Some (rfs, trans_to_remove)
 
-let do_interval_AI_on_program (p:Programs.Program) =
+let do_interval_AI_on_program (pars : Parameters.parameters) (p:Programs.Program) =
     let pp_to_interval =
         Analysis.program_absint
             !p.initial
-            (match !Arguments.ai_domain with | Arguments.Box -> IntervalIntDom.Intervals.create :> IIntAbsDom.IIntAbsDom 
-                                             | Arguments.Octagon -> Octagon2.Oct.create :> IIntAbsDom.IIntAbsDom)
+            (match pars.ai_domain with | Parameters.Box -> IntervalIntDom.Intervals.create :> IIntAbsDom.IIntAbsDom 
+                                       | Parameters.Octagon -> Octagon2.Oct.create :> IIntAbsDom.IIntAbsDom)
             (p.transitions |> Seq.map (fun (k,c,k') -> (k, (k,c,k'))))
             id
 
@@ -135,7 +135,7 @@ let do_interval_AI_on_program (p:Programs.Program) =
 
     let scc_to_scc_vars = !scc_to_scc_trans |> Map.map (fun _ ts -> [ for (_,c,_) in ts do yield c ] |> Seq.concat |> Programs.freevars)
     *)
-    if !Arguments.do_ai_threshold > (!p.active).Count then
+    if pars.do_ai_threshold > (!p.active).Count then
         for n in !p.active do
             let (k,c,k') = p.transitions.[n]
             if pp_to_interval.ContainsKey k then
@@ -547,43 +547,43 @@ let insertForRerun recurSet propagate existential f final_loc (p : Programs.Prog
     instrument fPreCond preCond cutp err_node end_sub_node !stren
 
 
-let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) precondMap propagate (fairness_constraint : (Formula.formula * Formula.formula) option) existential findPreconds next =
-    Utils.timeout !Arguments.timeout
+let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) precondMap propagate (fairness_constraint : (Formula.formula * Formula.formula) option) existential findPreconds next =
+    Utils.timeout pars.timeout
 
     //Maybe let's do some AI first:
-    if !Arguments.do_ai_threshold > (!p.active).Count then
-        Log.log <| sprintf "Performing Interval-AI ... "
-        Arguments.did_ai_first := true
-        do_interval_AI_on_program p
-        Log.log <| sprintf "done."
+    if pars.do_ai_threshold > (!p.active).Count then
+        Log.log pars <| sprintf "Performing Interval-AI ... "
+        pars.did_ai_first <- true
+        do_interval_AI_on_program pars p
+        Log.log pars <| sprintf "done."
     else
-        Arguments.did_ai_first := false
+        pars.did_ai_first <- false
 
     ///bottomUp: propertyMap represents a map from subformulas to a list the
     ///second being an array of locations/pre-conditions pairs.
     let propertyMap = MultiDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
-    let (p_instrumented, final_loc, error_loc, cp_rf, loc_to_loopduploc) = Instrumentation.mergeProgramAndProperty p f termination_only precondMap fairness_constraint findPreconds next
+    let (p_instrumented, final_loc, error_loc, cp_rf, loc_to_loopduploc) = Instrumentation.mergeProgramAndProperty pars p f termination_only precondMap fairness_constraint findPreconds next
     let cps_checked_for_term = Seq.toList cp_rf.Keys
 
     let scc_simplification_rfs = ref []
     let (p_loops, _) = Programs.find_loops p
     let (_, p_instrumented_sccs) = Programs.find_loops p_instrumented
-    if termination_only && !Arguments.lex_term_proof_first then
+    if termination_only && pars.lex_term_proof_first then
         //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
         let seen_sccs = ref Set.empty
         for scc in (Map.filter (fun cp _ -> List.contains cp cps_checked_for_term) p_instrumented_sccs) do
             let (cp, scc_nodes) = (scc.Key, scc.Value)
             if not(Set.contains scc_nodes !seen_sccs) then
                 seen_sccs := Set.add scc_nodes !seen_sccs
-                match simplify_scc p_instrumented cp_rf cps_checked_for_term cp scc_nodes with
+                match simplify_scc pars p_instrumented cp_rf cps_checked_for_term cp scc_nodes with
                 | Some (rfs, removed_transitions) -> 
                     scc_simplification_rfs := (rfs, removed_transitions)::(!scc_simplification_rfs)
                 | None ->
                     ()
-        if Log.do_logging () then
-            Log.log <| (List.map snd !scc_simplification_rfs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
+        if pars.print_log then
+            Log.log pars <| (List.map snd !scc_simplification_rfs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
 
-        if !Arguments.dottify_input_pgms then
+        if pars.dottify_input_pgms then
             Output.print_dot_program p_instrumented "input__instrumented_cleaned.dot"
 
     ///holds, for each cutpoint, a list of (the index of) the transitions that are lexicographic checkers
@@ -591,7 +591,7 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
     for entry in cp_rf do
         cp_rf_lex.Add(entry.Key,[entry.Value])
 
-    let lex_info = Instrumentation.init_lex_info cps_checked_for_term
+    let lex_info = Instrumentation.init_lex_info pars cps_checked_for_term
 
     //Filters out all transitions not starting in src_loc.
     let trans_fun (trs : (int * Programs.command list * int) []) (src_loc : int) =
@@ -621,15 +621,15 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
     let cex = ref (Counterexample.make None None)
     let visited_BU_cp = ref Map.empty
     let outputCexAsDefect cex =
-        if !Arguments.print_log then
-            Counterexample.print_defect [cex] "defect.tt"
-            Counterexample.print_program [cex] "defect.t2"
+        if pars.print_log then
+            Counterexample.print_defect pars [cex] "defect.tt"
+            Counterexample.print_program pars [cex] "defect.t2"
     let noteUnhandledCex cex =
         outputCexAsDefect cex
         unhandled_counterexample := Some cex        
 
     while not !finished && (!terminating).IsNone do
-        match Reachability.reachable graph with
+        match Reachability.reachable pars graph with
         | None ->
             if (propertyMap.[f]).IsEmpty && not(existential) then
                 p_loops.Keys |> Seq.iter (fun locs -> propertyMap.Add(f,(locs,Formula.truec)))
@@ -644,7 +644,7 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
             outputCexAsDefect !cex
 
             //Investigate counterexample. Hopefully returns a solution:
-            match Lasso.investigate_cex p_final p_instrumented_sccs graph pi !found_disj_rfs !found_lex_rfs lex_info with
+            match Lasso.investigate_cex pars p_final p_instrumented_sccs graph pi !found_disj_rfs !found_lex_rfs lex_info with
             | (None, _) ->
                 //We hit this case when the counterexample is not due to a cycle (i.e., we
                 //investigated the counterexample, but it wasn't a lasso at all, but just a
@@ -658,15 +658,15 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
 
             /////////// Disjunctive (transition invariant) argument:
             | (Some(Lasso.Disj_WF(cp, rf, bnd)),_) ->
-                Instrumentation.instrument_disj_RF cp rf bnd found_disj_rfs cp_rf p_final graph
+                Instrumentation.instrument_disj_RF pars cp rf bnd found_disj_rfs cp_rf p_final graph
 
             /////////// Lexicographic termination argument:
             | (Some(Lasso.Lex_WF(cp, decr_list, not_incr_list, bnd_list)),_) ->
-                Instrumentation.instrument_lex_RF cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final graph lex_info
+                Instrumentation.instrument_lex_RF pars cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final graph lex_info
 
             /////////// Lexicographic polyranking termination argument:
             | (Some(Lasso.Poly_WF(poly_checkers)),cp) ->
-                Instrumentation.instrument_poly_RF cp poly_checkers cp_rf_lex p_final graph
+                Instrumentation.instrument_poly_RF pars cp poly_checkers cp_rf_lex p_final graph
 
             /////////// Program simplification:
             | (Some(Lasso.Transition_Removal(trans_to_remove)), _) ->
@@ -679,17 +679,17 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
 
             /////////// Counterexample for which we couldn't find a program refinement:
             | (Some(Lasso.CEX(cex)), failure_cp) ->
-                Log.log <| sprintf "Could not find termination argument for counterexample on cutpoint %i" failure_cp
+                Log.log pars <| sprintf "Could not find termination argument for counterexample on cutpoint %i" failure_cp
                 // First option: This was due to our lazy treatment of disjunctions. Refine the problematic disjunctions, try again:
                 if List.length disj_refinements > 0 then
-                    Log.log <| sprintf "Refining abstracted %i disjunctions." (List.length disj_refinements)
+                    Log.log pars <| sprintf "Refining abstracted %i disjunctions." (List.length disj_refinements)
                     for disj_refinement in disj_refinements do
                         disj_refinement () //This changes the state of the underlying reachability graph
                 else
                     //If we're doing lexicographic method, try finding a recurrent set at this point (before trying anything else)
                     let attempting_lex = ((!lex_info.cp_attempt_lex).[failure_cp])
-                    if attempting_lex && !Arguments.prove_nonterm then
-                        match RecurrentSets.synthesize (if termination_only then cex.stem.Value else []) cex.cycle.Value termination_only with
+                    if attempting_lex && pars.prove_nonterm then
+                        match RecurrentSets.synthesize pars (if termination_only then cex.stem.Value else []) cex.cycle.Value termination_only with
                         | Some set -> 
                             terminating := Some false
                             recurrent_set := Some (failure_cp, set)
@@ -702,36 +702,36 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
                         //We might haven chosen the wrong order of lexicographic RFs. Try backtracking to another option:
                         let exist_past_lex = (Lasso.exist_past_lex_options failure_cp lex_info)
                         if attempting_lex && exist_past_lex then
-                            Log.log "Trying to backtrack to other order for lexicographic RF."
-                            let (decr_list,not_incr_list,bnd_list) = Instrumentation.switch_to_past_lex_RF lex_info failure_cp
-                            Instrumentation.instrument_lex_RF failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final graph lex_info
+                            Log.log pars "Trying to backtrack to other order for lexicographic RF."
+                            let (decr_list,not_incr_list,bnd_list) = Instrumentation.switch_to_past_lex_RF pars lex_info failure_cp
+                            Instrumentation.instrument_lex_RF pars failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final graph lex_info
                         else
                             //If we are trying lexicographic termination arguments, try switching to lexicographic polyranking arguments:
                             let already_polyrank = (!lex_info.cp_polyrank).[failure_cp]
-                            if !Arguments.polyrank && not(already_polyrank) && attempting_lex then
-                                Log.log "Switching to polyrank."
-                                Instrumentation.switch_to_polyrank lex_info failure_cp cp_rf_lex p_final graph
+                            if pars.polyrank && not(already_polyrank) && attempting_lex then
+                                Log.log pars "Switching to polyrank."
+                                Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_final graph
                             else
                                 //Try the "unrolling" technique
-                                if attempting_lex && !Arguments.unrolling && Instrumentation.can_unroll lex_info failure_cp then
-                                    Log.log "Trying the unrolling technique."
-                                    Instrumentation.do_unrolling lex_info failure_cp cp_rf_lex p_final graph termination_only
+                                if attempting_lex && pars.unrolling && Instrumentation.can_unroll pars lex_info failure_cp then
+                                    Log.log pars "Trying the unrolling technique."
+                                    Instrumentation.do_unrolling pars lex_info failure_cp cp_rf_lex p_final graph termination_only
                                 else
                                     //Try the "detect initial condition" technique
                                     let already_doing_init_cond = ((!lex_info.cp_init_cond).[failure_cp])
-                                    if !Arguments.init_cond && attempting_lex && not(already_doing_init_cond) && not(!Arguments.polyrank) then
-                                        Log.log "Trying initial condition detection."
-                                        Instrumentation.do_init_cond lex_info failure_cp p_final cp_rf_lex graph
+                                    if pars.init_cond && attempting_lex && not(already_doing_init_cond) && not(pars.polyrank) then
+                                        Log.log pars "Trying initial condition detection."
+                                        Instrumentation.do_init_cond pars lex_info failure_cp p_final cp_rf_lex graph
 
                                     // That's it, no tricks left. Return the counterexample and give up
                                     else
-                                        Log.log "Giving up."
+                                        Log.log pars "Giving up."
                                         noteUnhandledCex cex
                                         cex_found := true
 
                                         //If we are doing lexicographic proving, we already tried nonterm further up:
-                                        if not(attempting_lex) && (!terminating).IsNone && !Arguments.prove_nonterm && ((!unhandled_counterexample).IsSome) then
-                                            match RecurrentSets.synthesize (if termination_only then cex.stem.Value else []) cex.cycle.Value termination_only with
+                                        if not(attempting_lex) && (!terminating).IsNone && pars.prove_nonterm && ((!unhandled_counterexample).IsSome) then
+                                            match RecurrentSets.synthesize pars (if termination_only then cex.stem.Value else []) cex.cycle.Value termination_only with
                                             | Some set -> 
                                                 terminating := Some false
                                                 recurrent_set := Some (failure_cp, set)
@@ -863,7 +863,7 @@ let set_Rest (props : MultiDictionary<CTL.CTL_Formula, (int*Formula.formula)>) l
 /// The parameter propertyMap represents a list with the first element being the nested CTL property
 /// and the second being a seq of locations/pre-conditions pairs.
 /// Note that this map is mutated throughout the proof process.
-let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) nest_level propagate fairness_constraint (propertyMap : MultiDictionary<CTL.CTL_Formula, (int*Formula.formula)>)=
+let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) nest_level propagate fairness_constraint (propertyMap : MultiDictionary<CTL.CTL_Formula, (int*Formula.formula)>)=
     let ret_value = ref None
 
     //Recurse through the formula, try finding preconditions for each (loc, subformula) pair:
@@ -871,51 +871,51 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
     | CTL.EG e
     | CTL.EF e ->
         //First get subresults                 
-        bottomUp p e termination_only (nest_level + 1) false fairness_constraint propertyMap |> ignore
+        bottomUp pars p e termination_only (nest_level + 1) false fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
         if nest_level = 0 then
-            let ret = fst <| prover p f termination_only propertyMap false fairness_constraint true false false
+            let ret = fst <| prover pars p f termination_only propertyMap false fairness_constraint true false false
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data for the subproperty into our propertyMap
         //as disjunction (because we are proving existentials, these correspond to witnesses to the property)
         else           
             match e with
             | CTL.AX _ ->        
-                let props = snd <| prover p f termination_only propertyMap propagate fairness_constraint true true false             
+                let props = snd <| prover pars p f termination_only propertyMap propagate fairness_constraint true true false             
                 set_Rest props !p.locs f Formula.falsec 
                 propertyMap.AddMany(nested_X f (Some(f)) p 1 props fairness_constraint)
             | CTL.EX _ ->
-                let props = snd <| prover p f termination_only propertyMap propagate fairness_constraint true true false
+                let props = snd <| prover pars p f termination_only propertyMap propagate fairness_constraint true true false
                 set_Rest props !p.locs f Formula.falsec
                 propertyMap.AddMany(nested_X f (Some(f)) p 1 props fairness_constraint)
             | _ ->
-                let props = snd <| prover p f termination_only propertyMap propagate fairness_constraint true true false
+                let props = snd <| prover pars p f termination_only propertyMap propagate fairness_constraint true true false
                 let preCond_map = fold_by_loc Formula.Or props.[f]
                 preCond_map |> Seq.iter(fun x -> propertyMap.Add(f,(x.Key,x.Value)))
 
     | CTL.EX e ->
-        bottomUp p e termination_only (nest_level + 1) false fairness_constraint propertyMap |> ignore
+        bottomUp pars p e termination_only (nest_level + 1) false fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
         if nest_level = 0 then
-            let ret = fst <| prover p f termination_only propertyMap false fairness_constraint true false true
+            let ret = fst <| prover pars p f termination_only propertyMap false fairness_constraint true false true
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data into our propertyMap (as implicit conjunction)
         else                  
-            let Props = snd <| prover p (CTL.EF(e)) termination_only propertyMap propagate fairness_constraint true true true
+            let Props = snd <| prover pars p (CTL.EF(e)) termination_only propertyMap propagate fairness_constraint true true true
             set_Rest Props !p.locs (CTL.EF(e)) Formula.falsec
             let preCond_map = nested_X f (Some(CTL.EF(e))) p 1 Props fairness_constraint
             let x_formulae = fold_by_loc Formula.Or preCond_map.[f]
             x_formulae |> Seq.iter(fun x -> propertyMap.Add(f,(x.Key,x.Value)))
  
     | CTL.AX e ->
-        bottomUp p e termination_only (nest_level + 1) false fairness_constraint propertyMap |> ignore
+        bottomUp pars p e termination_only (nest_level + 1) false fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
         if nest_level = 0 then
-            let ret = fst <| prover p f termination_only propertyMap false fairness_constraint false false true
+            let ret = fst <| prover pars p f termination_only propertyMap false fairness_constraint false false true
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data into our propertyMap (as implicit conjunction)    
         else  
-            let Props = snd <| prover p (CTL.AG(e)) termination_only propertyMap propagate fairness_constraint false true true
+            let Props = snd <| prover pars p (CTL.AG(e)) termination_only propertyMap propagate fairness_constraint false true true
             set_Rest Props !p.locs (CTL.AG(e)) Formula.truec
             let preCond_map =  nested_X f (Some(CTL.AG(e))) p 2 Props fairness_constraint           
             let x_formulae = fold_by_loc Formula.And preCond_map.[f]
@@ -925,30 +925,30 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
     | CTL.AG e
     | CTL.AF e ->   
         //First get subresults
-        bottomUp p e termination_only (nest_level + 1) false fairness_constraint propertyMap |> ignore               
+        bottomUp pars p e termination_only (nest_level + 1) false fairness_constraint propertyMap |> ignore               
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
         if nest_level = 0 then
-            let ret = fst <| prover p f termination_only propertyMap false fairness_constraint false false false
+            let ret = fst <| prover pars p f termination_only propertyMap false fairness_constraint false false false
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data into our propertyMap (as implicit conjunction)
         else
             match e with
             | CTL.AX _ ->               
-                let Props = snd <| prover p f termination_only propertyMap propagate fairness_constraint false true false             
+                let Props = snd <| prover pars p f termination_only propertyMap propagate fairness_constraint false true false             
                 set_Rest Props !p.locs f Formula.truec 
                 propertyMap.AddMany(nested_X f (Some(f)) p 2 Props fairness_constraint)
             | CTL.EX _ ->
-                let Props = snd <| prover p f termination_only propertyMap propagate fairness_constraint false true false
+                let Props = snd <| prover pars p f termination_only propertyMap propagate fairness_constraint false true false
                 set_Rest Props !p.locs f Formula.truec
                 propertyMap.AddMany(nested_X f (Some(f)) p 2 Props fairness_constraint)
             | _ ->
-                let Props = snd <| prover p f termination_only propertyMap propagate fairness_constraint false true false
+                let Props = snd <| prover pars p f termination_only propertyMap propagate fairness_constraint false true false
                 propertyMap.AddMany(Props)
                                                                                                                                  
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
-        bottomUp p e1 termination_only (nest_level+1) (e2.isAtomic) fairness_constraint propertyMap |> ignore
-        bottomUp p e2 termination_only (nest_level+1) (e1.isAtomic) fairness_constraint propertyMap |> ignore
+        bottomUp pars p e1 termination_only (nest_level+1) (e2.isAtomic) fairness_constraint propertyMap |> ignore
+        bottomUp pars p e2 termination_only (nest_level+1) (e1.isAtomic) fairness_constraint propertyMap |> ignore
         //Propagate knowledge for non-atomic formulae
         if not(e1.isAtomic) && e2.isAtomic then
             propagate_nodes p e1 propertyMap
@@ -957,17 +957,17 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
   
         //If Operator is not nested within another temporal property, then check at the initial state
         if nest_level = 0 then
-            let ret = fst <| prover p f termination_only propertyMap false fairness_constraint false false false
+            let ret = fst <| prover pars p f termination_only propertyMap false fairness_constraint false false false
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data into our propertyMap (as implicit conjunction)
         else
-            let Props = snd <| prover p f termination_only propertyMap propagate fairness_constraint false true false
+            let Props = snd <| prover pars p f termination_only propertyMap propagate fairness_constraint false true false
             propertyMap.AddMany(Props)
     | CTL.CTL_And(e1,e2)                     
     | CTL.CTL_Or(e1,e2)  -> 
         //First get subresults for the subformulae
-        bottomUp p e1 termination_only (nest_level+1) (e2.isAtomic) fairness_constraint propertyMap |> ignore
-        bottomUp p e2 termination_only (nest_level+1) (e1.isAtomic) fairness_constraint propertyMap |> ignore
+        bottomUp pars p e1 termination_only (nest_level+1) (e2.isAtomic) fairness_constraint propertyMap |> ignore
+        bottomUp pars p e2 termination_only (nest_level+1) (e1.isAtomic) fairness_constraint propertyMap |> ignore
 
         //Propagate knowledge for non-atomic formulae
         if not(e1.isAtomic) && e2.isAtomic then
@@ -997,7 +997,7 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
                | _ -> failwith "Failure when doing &&/||"
         //If Operator is not nested within another temporal property, then check at the initial state
         if nest_level = 0 then
-           let ret = fst <| prover p f termination_only propertyMap false fairness_constraint false false false
+           let ret = fst <| prover pars p f termination_only propertyMap false fairness_constraint false false false
            ret_value := ret
  
 
@@ -1081,8 +1081,8 @@ let rec nTerm f =
     | CTL.AW(e1,e2) -> CTL.AW(nTerm e1, (CTL.CTL_Or(nTerm e2,CTL.Atom(Formula.Eq(Term.Var(Formula.fair_term_var),Term.Const(bigint.One))))))
     | CTL.EU _ -> raise (new System.NotImplementedException "EU constraints not yet implemented")
     
-let bottomUpProver (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) (fairness_constraint : (Formula.formula * Formula.formula) option) =
-    Utils.timeout !Arguments.timeout
+let bottomUpProver (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) (fairness_constraint : (Formula.formula * Formula.formula) option) =
+    Utils.timeout pars.timeout
 
     //Under CTL semantics, it is assumed that all paths are infinite. We thus add infinite loops to any terminating paths unless we are explicitly proving termination.
     //For example, we would be proving AF x instead of AF x || termination, which is what is proved if the path is not infinite.
@@ -1107,7 +1107,7 @@ let bottomUpProver (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bo
     let propertyMap = MultiDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
     let ret_value = 
         try
-            bottomUp p f termination_only 0 false fairness_constraint propertyMap
+            bottomUp pars p f termination_only 0 false fairness_constraint propertyMap
         with
         | :? System.ArgumentException as ex -> 
             printfn "Exception! %s " (ex.Message)

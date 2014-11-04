@@ -30,70 +30,68 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-if !Arguments.print_log then
-    printf "T2 program prover/analysis tool.\n"
-
 Stats.start_time "T2"
+printfn "T2 program prover/analysis tool."
 
 // Perform the arguments parsing
-ArgParser.Parse Arguments.args
+let (t2_input_file, runMode, parameters, fairness_constraint_string, output_type, output_file, imperative_style, java_nondet_style) = Arguments.parseArguments
 
-if (!Arguments.mode).IsNone then
-    eprintfn "No valid action option (-tests, -termination, -safety, -CTL, -output_as) given"
-    exit 3
-
-let mode = (!Arguments.mode).Value
 //only run the tests, if this is wanted:
-if mode = Arguments.Test then
-    ProgramTests.register_tests()
-    Arguments.create_defect_files := false
-    Test.run_tests()
+if runMode = Arguments.Test then
+    ProgramTests.register_tests parameters
+    parameters.create_defect_files <- false
+    Test.run_tests parameters.timeout
     exit 0;
 
-if !Arguments.t2_input_file = "" then
+if t2_input_file = "" then
     eprintfn "You have to specify an input file for T2 with '-input_t2 foo.t2'."
     exit 3
 
 let protectLocations =
-    match mode with
+    match runMode with
         | Arguments.CTL _
         | Arguments.Safety _ -> true
         | _ -> false
 
+//Turn off tricks that don't always work for sepcific cases (this influences the input, thus we do it now) in the program representation that change the input program when just outputting
+match runMode with
+    | Arguments.Output ->
+        parameters.abstract_disj <- false
+        parameters.lazy_disj <- false
+        parameters.elim_constants <- false
+    | Arguments.Safety _ ->
+        parameters.abstract_disj <- false
+        parameters.lazy_disj <- false
+    | _ -> ()
+
 let (p, loc) =
     try
-        Input.load_t2 protectLocations !Arguments.t2_input_file
+        Input.load_t2 parameters protectLocations t2_input_file
     with ParseError.Error ->
-        eprintfn "Could not parse input file '%s'" !Arguments.t2_input_file
+        eprintfn "Could not parse input file '%s'" t2_input_file
         exit 3
 
-match mode with
+match runMode with
     | Arguments.Test -> () //Handled above, so this is never reached...
     | Arguments.Output ->
-        let out_file = !Arguments.output_file
-
-        //Turn off tricks in the program representation that change the input program
-        Arguments.abstract_disj := false
-        Arguments.lazy_disj := false
-        Arguments.elim_constants := false
-        match (!Arguments.output_type).Value with
-        | Arguments.Dot ->
-          Output.print_dot_program p out_file
-          printfn "Printing dot to %s completed" out_file
-        | Arguments.Java ->
-          let java_class = System.IO.Path.GetFileNameWithoutExtension out_file
-          let directory = System.IO.Path.GetDirectoryName out_file
-          Output.print_java_program p java_class directory
-          printfn "Printing Java program to %s completed" out_file
-        | Arguments.C ->
-          Output.print_c_program p out_file
-          printfn "Printing C program to %s completed" out_file
-        | Arguments.HSF ->
-          Output.print_clauses p out_file
-          printfn "Printing clauses to %s completed" out_file
-        | Arguments.SMTPushdown ->
-          Output.print_smtpushdown p out_file
-          printfn "Printing SMTLIB Pushdown Automaton to %s completed" out_file
+        match output_type.Value with
+        | Parameters.Dot ->
+          Output.print_dot_program p output_file
+          printfn "Printing dot to %s completed" output_file
+        | Parameters.Java ->
+          let java_class = System.IO.Path.GetFileNameWithoutExtension output_file
+          let directory = System.IO.Path.GetDirectoryName output_file
+          Output.print_java_program p imperative_style java_nondet_style java_class directory
+          printfn "Printing Java program to %s completed" output_file
+        | Parameters.C ->
+          Output.print_c_program p imperative_style output_file
+          printfn "Printing C program to %s completed" output_file
+        | Parameters.HSF ->
+          Output.print_clauses p output_file
+          printfn "Printing clauses to %s completed" output_file
+        | Parameters.SMTPushdown ->
+          Output.print_smtpushdown p output_file
+          printfn "Printing SMTLIB Pushdown Automaton to %s completed" output_file
     | Arguments.Safety inputLoc ->
         let loc =
             match Map.tryFind (sprintf "loc_%d" inputLoc) !p.labels with
@@ -101,33 +99,33 @@ match mode with
               eprintfn "Could not find location %d in program" inputLoc
               exit 3
             | Some loc -> loc
-        match Reachability.prover p loc with
+        match Reachability.prover parameters p loc with
         | None -> printfn "Safety proof succeeded"
         | Some _ -> printfn "Safety proof failed"
         
     | Arguments.Termination
     | Arguments.CTL _ ->
         let fairness_constraint =
-            if !Arguments.fairness_constraint_string <> "" then
-                let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes !Arguments.fairness_constraint_string)
+            if fairness_constraint_string <> "" then
+                let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes fairness_constraint_string)
                 Some (Absparse.Fairness_constraint Absflex.token lexbuf)
             else
                 None
 
-        match mode with 
+        match runMode with 
         | Arguments.Termination ->
             let formula = CTL.AF(CTL.Atom(Formula.falsec))
-            match Termination.bottomUpProver p formula true fairness_constraint with
+            match Termination.bottomUpProver parameters p formula true fairness_constraint with
             | Some (true, proof_printer) -> 
                 printfn "Termination proof succeeded"
-                if !Arguments.print_proof then proof_printer ()
+                if parameters.print_proof then proof_printer ()
             | Some (false, proof_printer) -> 
                 printfn "Nontermination proof succeeded"
-                if !Arguments.print_proof then proof_printer ()
+                if parameters.print_proof then proof_printer ()
             | None -> printfn "Termination/nontermination proof failed"
         | Arguments.CTL formulaString ->
             let formula = CTL_Parser.parse_CTL formulaString
-            match Termination.bottomUpProver p formula false fairness_constraint with
+            match Termination.bottomUpProver parameters p formula false fairness_constraint with
             | Some (true, _) -> printfn "Temporal proof succeeded"
             | Some (false, _) -> printfn "Temporal proof failed"
             | None -> printfn "Temporal proof failed"
@@ -136,7 +134,7 @@ match mode with
 Stats.end_time "T2"
 
 // Print stats/times and exit
-if !Arguments.print_stats then
+if parameters.print_stats then
     Stats.print_times ()
     Stats.print_stats ()
 

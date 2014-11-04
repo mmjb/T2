@@ -42,8 +42,8 @@ open Utils
 /// Return disjunction of conjunctions, characterizing state before <cycle>,
 /// after one iteration of <cycle>, after two iterations of <cycle> etc.
 ///
-let recurrent_state vars stem cycle count =
-    Log.log <| sprintf "Nontermination: Checking for state repetition after %i iterations" count
+let recurrent_state (pars : Parameters.parameters) vars stem cycle count =
+    Log.log pars <| sprintf "Nontermination: Checking for state repetition after %i iterations" count
     let formulae = ref []
     let var_maps = ref []
     let var_map = ref Map.empty
@@ -127,8 +127,8 @@ let separate_conditions_and_assignments prevars conjuncts =
         
     (!constraints, !assignments)
 
-let recurrent_set_from_path_conditions stem cycle =
-    Log.log <| sprintf "Nontermination: Checking for recurrent set constructed from constraints on counterexample cycle."
+let recurrent_set_from_path_conditions (pars : Parameters.parameters) stem cycle =
+    Log.log pars <| sprintf "Nontermination: Checking for recurrent set constructed from constraints on counterexample cycle."
 
     //Get formula representation of the cycle, and a map of used variables / prime indices
     let cycle_formulas, varMap = path_to_transitions_and_var_map cycle Map.empty
@@ -213,7 +213,7 @@ let recurrent_set_from_path_conditions stem cycle =
 /// Optimistically calling this "synthesize" assuming that someday it will be
 /// based on some smart technology
 ///
-let synthesize stem cycle (tryOneElementSets:bool) =
+let synthesize (pars : Parameters.parameters) stem cycle (tryOneElementSets:bool) =
     let result = ref None
 
     let clean_commands cmds =
@@ -227,12 +227,12 @@ let synthesize stem cycle (tryOneElementSets:bool) =
     if tryOneElementSets then
         for i in 1..2 do
             if (!result).IsNone then
-                result := recurrent_state vars stem cycle i
+                result := recurrent_state pars vars stem cycle i
 
                 if (!result).IsSome then
                     Stats.inc_stat (sprintf "recurrent set of %d elements" i)
 
     if (!result).IsNone then
-        result := recurrent_set_from_path_conditions stem cycle
+        result := recurrent_set_from_path_conditions pars stem cycle
 
     !result

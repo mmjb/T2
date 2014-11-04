@@ -127,7 +127,7 @@ let simplify_chains blocks dont_chain =
 ///
 /// Load a program in T2 format
 ///
-let load_t2 avoid_chaining filename =
+let load_t2 (pars : Parameters.parameters) avoid_chaining filename =
     Absparse.annotate := true
     let (start,cp,blocks,_,incomplete_abstraction) = parse filename
     let make_label loc = 
@@ -163,6 +163,6 @@ let load_t2 avoid_chaining filename =
             blocks
         else
             simplify_chains blocks (Set.singleton (make_label start))
-    let p = Programs.make avoid_chaining (make_label start) blocks incomplete_abstraction
+    let p = Programs.make pars avoid_chaining (make_label start) blocks incomplete_abstraction
     let cp' = Programs.map p (make_label cp)
     (p,cp')

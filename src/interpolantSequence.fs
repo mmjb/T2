@@ -91,7 +91,7 @@ let print_interpolant fs intps =
 /// Return (common constraints, constraints for non-strict case, interpolants, heuristics constraints).
 /// Interpolants should be understood as intp<=0.
 /// try_ignore_beginning: if true, the heuristics constraints will be a list of constraints enforcing the first lambdas to 0 (i.e. ignore the first nodes on the path)
-let gen_system try_ignore_beginning remove_uncommon_vars (S: LinearTerm list list) =
+let gen_system (pars : Parameters.parameters) try_ignore_beginning remove_uncommon_vars (S: LinearTerm list list) =
 
     // simplify each element in S
     let S = List.map simplify_as_inequalities S
@@ -144,7 +144,7 @@ let gen_system try_ignore_beginning remove_uncommon_vars (S: LinearTerm list lis
     // we try to ignore the last few constraints (but not the very last)
     let intps_heuristics =
         if try_ignore_beginning then
-            if !Arguments.seq_interpolation_ignore_last_constr then
+            if pars.seq_interpolation_ignore_last_constr then
                 // from the end (but not last)
                 let rev_lambdas =
                     if !all_implications then List.rev lambdas |> List.tail
@@ -180,10 +180,10 @@ let get_intps_model m intps =
 ///
 /// Compute path interpolants.
 ///
-let synthesis_base try_ignore_beginning fs =
+let synthesis_base (pars : Parameters.parameters) try_ignore_beginning fs =
     assert (fs <> [])
 
-    let (phi, case1, intps, intps_heuristics) = gen_system try_ignore_beginning false fs
+    let (phi, case1, intps, intps_heuristics) = gen_system pars try_ignore_beginning false fs
 
     match Z.solve ((Z.conj2 phi case1) :: intps_heuristics) with
     | None ->
@@ -194,7 +194,7 @@ let synthesis_base try_ignore_beginning fs =
 /// try to find interpolant such that v |= w, where v is the last interpolant and w is 'entail_distance' from last
 /// if one inequality interpolation does not work we try to add invariants to support it
 ///
-let synthesis_base_with_entailment fs entail_distance invar_fs =
+let synthesis_base_with_entailment (pars : Parameters.parameters) fs entail_distance invar_fs =
     assert (fs <> [])
 
     // unprime the invar i
@@ -248,7 +248,7 @@ let synthesis_base_with_entailment fs entail_distance invar_fs =
         let solution = try Z.solve [Z.conj (entails::phis)] with :? System.TimeoutException as e -> if e.Message = "z3 timeout" then None else reraise ()
         match solution with
         | None ->
-            let (new_phi, new_case1, new_intps, _) = gen_system false true invar_fs
+            let (new_phi, new_case1, new_intps, _) = gen_system pars false true invar_fs
             let new_intps = List.all_but_last new_intps
 
             let phis = (Z.conj2 new_phi new_case1)::phis
@@ -284,7 +284,7 @@ let synthesis_base_with_entailment fs entail_distance invar_fs =
             finally m.Dispose()
 
     // we initiate the recursion with the real interpolation constraints
-    let (phi, case1, intps, _) = gen_system false true fs
+    let (phi, case1, intps, _) = gen_system pars false true fs
     let v_intp =
         assert ((intps.Length - 1) >= 0)
         unprime (List.last intps)
@@ -293,7 +293,7 @@ let synthesis_base_with_entailment fs entail_distance invar_fs =
         unprime intps.[intps.Length - entail_distance - 1]
     synthesis_with_invars (!number_of_invars + 1) [Z.conj2 phi case1] [intps] [v_intp] [w_intp]
 
-let path_synthesis try_ignore_beginning entail_distance invar_fs fs =
+let path_synthesis (pars : Parameters.parameters) try_ignore_beginning entail_distance invar_fs fs =
     assert (fs <> [])
     Z.clear() // speed things up
 
@@ -301,21 +301,21 @@ let path_synthesis try_ignore_beginning entail_distance invar_fs fs =
     let invar_ltfs = List.map formula_to_linear_terms invar_fs
 
     let result =
-        if entail_distance = 0 then synthesis_base try_ignore_beginning ltfs
-        else synthesis_base_with_entailment ltfs entail_distance invar_ltfs
+        if entail_distance = 0 then synthesis_base pars try_ignore_beginning ltfs
+        else synthesis_base_with_entailment pars ltfs entail_distance invar_ltfs
 
-    if !Arguments.print_interpolants && result.IsSome then print_interpolant fs result.Value
-    if !Arguments.check_interpolants && result.IsSome then check_interpolant fs result.Value
+    if pars.print_interpolants && result.IsSome then print_interpolant fs result.Value
+    if pars.check_interpolants && result.IsSome then check_interpolant fs result.Value
 
     result
 
 ///
 /// Compute path interpolants
 ///
-let synthesis try_ignore_beginning entail_distance invar_fs fs =
+let synthesis (pars : Parameters.parameters) try_ignore_beginning entail_distance invar_fs fs =
     //Printf.printf "Looking for interpolant for path: \n%s\n" (Formula.pp_list fs)
 
-    match path_synthesis try_ignore_beginning entail_distance invar_fs fs with
+    match path_synthesis pars try_ignore_beginning entail_distance invar_fs fs with
     | Some intps ->
         Some intps
     | None ->

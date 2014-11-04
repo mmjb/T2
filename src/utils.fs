@@ -135,11 +135,6 @@ let true_string (b : string) =
     | _ -> failwith "Couldn't parse Boolean option parameter"
 
 ///
-/// Parse boolean-like command line options
-///
-let bool_option v = ArgType.String (fun s -> v := true_string s)
-
-///
 /// Uses .NET tricks to find out the location from which dieWith has been called.
 ///
 let inline dieWith s =

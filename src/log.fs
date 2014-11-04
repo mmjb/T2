@@ -32,31 +32,12 @@
 
 module Log
 
-///
-/// Time when T2 execution began
-///
-let start_time = ref System.DateTime.Now
+let log (pars : Parameters.parameters) s = 
+    if pars.print_log then
+        let diff = System.DateTime.Now.Subtract(pars.start_time)
+        printf "%d:%d:%d %s\n" diff.Minutes diff.Seconds diff.Milliseconds s
+        System.Console.Out.Flush ()
 
-///
-/// Return true if logging is turned on
-///
-
-let do_logging () = !Arguments.print_log
-let do_debugging () = !Arguments.print_debug
-
-///
-/// "log s" records message s to the log
-///
-let previous_time = ref System.DateTime.Now
-
-let log s = if do_logging() then
-                //printf "%A: %s\n" System.DateTime.Now s
-                let now = System.DateTime.Now
-                let diff = now.Subtract(!previous_time)
-                //previous_time := now
-                printf "%d:%d:%d %s\n" diff.Minutes diff.Seconds diff.Milliseconds s
-
-//                printf "%s\n" s
-                System.Console.Out.Flush ()
-
-let debug s = if do_debugging() then log ("DEBUG: " ^ s) else ()
+let debug (pars : Parameters.parameters) s = 
+    if pars.print_debug then 
+        log pars ("DEBUG: " + s)

@@ -95,12 +95,12 @@ type LexicographicInfo =
     }
 
 //initialises lex_info
-let init_lex_info (cutpoints:int list) =
+let init_lex_info (pars : Parameters.parameters) (cutpoints:int list) =
 
     {
         partial_orders= ref ([for cp in cutpoints -> (cp,[])] |> Map.ofList)
         past_lex_options = ref ([for cp in cutpoints -> (cp,[])] |> Map.ofList)
-        cp_attempt_lex = ref ([for cp in cutpoints -> (cp,!Arguments.lexicographic)] |> Map.ofList)
+        cp_attempt_lex = ref ([for cp in cutpoints -> (cp,pars.lexicographic)] |> Map.ofList)
 
         cp_init_cond = ref ([for cp in cutpoints -> (cp,false)] |> Map.ofList)
         cp_rf_init_cond = ref Map.empty
@@ -143,7 +143,7 @@ let contains_copied_gets_1 cp (cmds:Programs.command list)=
     !found
 
 //Instruments a RF to p_final (when we're doing the disjunctive method).
-let instrument_disj_RF cp rf bnd (found_disj_rfs : Map<int, (formula * formula) list> ref) (cp_rf:Dictionary<int,int>) (p_final:Programs.Program) graph =
+let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs : Map<int, (formula * formula) list> ref) (cp_rf:Dictionary<int,int>) (p_final:Programs.Program) graph =
     let old_rfs_for_cp = (!found_disj_rfs).FindWithDefault cp []
     found_disj_rfs := !found_disj_rfs |> Map.remove cp |> Map.add cp ((rf, bnd)::old_rfs_for_cp)
 
@@ -173,15 +173,15 @@ let instrument_disj_RF cp rf bnd (found_disj_rfs : Map<int, (formula * formula) 
     Programs.plain_add_transition p_final new_node [Programs.assume (Formula.Not(bnd))] k
     cp_rf.[cp] <- (cnt)
 
-    Log.log <| sprintf "Instrumented in disjunctive RF between %i and %i" new_node k
+    Log.log pars <| sprintf "Instrumented in disjunctive RF between %i and %i" new_node k
     
     //Now reset the reachability graph and remove every (incomplete) unwinding that has passed behind (l), as we changed the program there:
     Reachability.reset graph l
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_disjunctive_rf.dot"
 
 ///Takes in the indexes of the transitions that are lexicographic checkers, deletes them, and returns start and end node of the old check transition (so that you can stuff new checkers in there)
-let delete_lex_checkers (lex_checkers:int list) (p:Programs.Program) =
+let delete_lex_checkers (pars : Parameters.parameters) (lex_checkers:int list) (p:Programs.Program) =
     let (first_check_node,_,_) = p.transitions.[List.head lex_checkers]
     let (_,_,last_check_node) = p.transitions.[List.last lex_checkers]
 
@@ -192,9 +192,9 @@ let delete_lex_checkers (lex_checkers:int list) (p:Programs.Program) =
     (first_check_node, last_check_node)
 
 ///Replaces a list of old lexicographic checkers by a new list
-let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_checker_formulas: int -> formula list) =
+let replace_lex_rf_checkers (pars : Parameters.parameters) p old_checker_trans_ids number_of_checkers (ith_checker_formulas: int -> formula list) =
     //remove old lex checkers for this counter
-    let (k,k') = delete_lex_checkers old_checker_trans_ids p
+    let (k,k') = delete_lex_checkers pars old_checker_trans_ids p
 
     //Now we insert new lexicographic RF checkers from k to k'
     let new_nodes = k::[for _ in 1..(number_of_checkers-1) -> Programs.new_node p]@[k']
@@ -207,7 +207,7 @@ let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_chec
     (k, !new_checker_trans_ids)
 
 //Instruments a lexicographic RF to p_final
-let instrument_lex_RF cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph lex_info =
+let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph lex_info =
     let doing_init_cond = (!lex_info.cp_init_cond).[cp]
 
     //Standard lexicographic RFs:
@@ -219,7 +219,7 @@ let instrument_lex_RF cp (decr_list : Formula.formula list) (not_incr_list : For
         found_lex_rfs := !found_lex_rfs |> Map.remove cp |> Map.add cp (decr_list, not_incr_list, bnd_list)
         //This gives the formulas that should hold for the i-th step in the check:
         let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_trans_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
         cp_rf_lex.[cp] <- new_lex_checker_trans_ids
         Reachability.reset graph first_checker_node
 
@@ -233,32 +233,32 @@ let instrument_lex_RF cp (decr_list : Formula.formula list) (not_incr_list : For
         let old_checker_trans_ids = counters_to_checkers.[counter]
         //This gives the formulas that should hold for the i-th step in the check:
         let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_trans_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
         let new_counter_checkers_map = Map.add counter new_lex_checker_trans_ids counters_to_checkers
         lex_info.cp_rf_init_cond := Map.add cp new_counter_checkers_map !lex_info.cp_rf_init_cond
 
         Reachability.reset graph first_checker_node
 
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_lex_RF.dot"
 
 //Instruments a lexicographic polyranking function to p_final.
-let instrument_poly_RF cp (poly_checkers:Formula.formula list list) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph =
+let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.formula list list) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph =
     assert(cp_rf_lex.ContainsKey(cp))
 
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let old_checker_trans_ids = cp_rf_lex.[cp]
     let ith_trans_formula i = poly_checkers.[i-1]
-    let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
+    let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
     cp_rf_lex.[cp] <- new_lex_checker_trans_ids
 
     Reachability.reset graph first_checker_node
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_poly_lex_RF.dot"
 
 ///Fetches the past lex option at the head of the queue for failure_cp
-let switch_to_past_lex_RF lex_info failure_cp =
+let switch_to_past_lex_RF (pars : Parameters.parameters) lex_info failure_cp =
     //Take the lex RF at the head of the queue out
     let past_lex_options = (!lex_info.past_lex_options).[failure_cp]
     let new_lex_WF = past_lex_options.Head
@@ -266,17 +266,17 @@ let switch_to_past_lex_RF lex_info failure_cp =
 
     let ((decr_list, not_incr_list, bnd_list),new_partial_order) = new_lex_WF
     lex_info.partial_orders:= Map.add failure_cp new_partial_order !lex_info.partial_orders
-    Log.log <| sprintf "Reverting to a past lexicographic RF:\n %A\n with bounds:\n %A" decr_list bnd_list
+    Log.log pars <| sprintf "Reverting to a past lexicographic RF:\n %A\n with bounds:\n %A" decr_list bnd_list
     (decr_list,not_incr_list,bnd_list)
 
 ///Deletes the old lex checkers for failure_cp and get ready to start finding lex polyranking functions
-let switch_to_polyrank lex_info failure_cp (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph=
-    Log.log <| sprintf "Now looking for polyranking functions for cp %d" failure_cp
+let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph=
+    Log.log pars <| sprintf "Now looking for polyranking functions for cp %d" failure_cp
     lex_info.cp_polyrank:= Map.add failure_cp true !lex_info.cp_polyrank
 
     //remove old checkers at cutpoint
     let lex_checkers = cp_rf_lex.[failure_cp]
-    let (k,k') = delete_lex_checkers lex_checkers p_final
+    let (k,k') = delete_lex_checkers pars lex_checkers p_final
     let cnt = !p_final.transitions_cnt
     Programs.plain_add_transition p_final k [Programs.assume Formula.truec] k'
 
@@ -285,11 +285,11 @@ let switch_to_polyrank lex_info failure_cp (cp_rf_lex:System.Collections.Generic
     lex_info.partial_orders := Map.add failure_cp [] !lex_info.partial_orders
 
     Reachability.reset graph k
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_switch_to_polyrank.dot"
 
 ///Performs the transformation that detects the initial condition at cp and separates the checkers according to the initial condition
-let init_cond_trans (cp:int) (p:Programs.Program) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>)=
+let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>)=
 
     //make rho variable for cp
     let rho:var = Formula.init_cond_var cp
@@ -359,7 +359,7 @@ let init_cond_trans (cp:int) (p:Programs.Program) (cp_rf_lex:System.Collections.
         let index = entry.Key
         let counter = entry.Value
         let (_,cmds,_) = p.transitions.[index]
-        (sprintf "initial condition %d:\n %A\n" counter cmds) |> Log.log
+        (sprintf "initial condition %d:\n %A\n" counter cmds) |> Log.log pars
 
     //make new_node
     let new_node = Programs.new_node p
@@ -397,7 +397,7 @@ let init_cond_trans (cp:int) (p:Programs.Program) (cp_rf_lex:System.Collections.
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let lex_checkers = cp_rf_lex.[cp]
-    let (k,k') = delete_lex_checkers lex_checkers p
+    let (k,k') = delete_lex_checkers pars lex_checkers p
 
     let (counter_checker_map:Map<int,int list> ref) = ref Map.empty
 
@@ -421,12 +421,12 @@ let init_cond_trans (cp:int) (p:Programs.Program) (cp_rf_lex:System.Collections.
     !cp_rf_init_cond
 
 ///Switches to detecting initial condition for failure_cp
-let do_init_cond (lex_info:LexicographicInfo) failure_cp p_final cp_rf_lex graph =
+let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp p_final cp_rf_lex graph =
 
-    (sprintf "\nDetecting initial condition for cp %d" failure_cp) |> Log.log
+    (sprintf "\nDetecting initial condition for cp %d" failure_cp) |> Log.log pars
 
     //Performs the transformation that detects the initial condition at cp and separates the checkers according to the initial condition
-    let cp_rf_init_cond = init_cond_trans failure_cp p_final cp_rf_lex
+    let cp_rf_init_cond = init_cond_trans pars failure_cp p_final cp_rf_lex
 
     //Put the new info in lex_info
     lex_info.cp_init_cond := Map.add failure_cp true !lex_info.cp_init_cond
@@ -439,11 +439,11 @@ let do_init_cond (lex_info:LexicographicInfo) failure_cp p_final cp_rf_lex graph
     lex_info.past_lex_options:= Map.add failure_cp [] !lex_info.past_lex_options
 
     Reachability.reset graph !p_final.initial
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__init_cond.dot"
 
 ///Performs that transformation that counts how many times we've looped through cp, and only checks for more than some number of iterations
-let unrolling_trans (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p:Programs.Program) (termination_only:bool) =
+let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p:Programs.Program) (termination_only:bool) =
 
     //make iteration variable for cp
     let iters:var = Formula.iters_var cp
@@ -517,7 +517,7 @@ let unrolling_trans (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<in
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let lex_checkers = cp_rf_lex.[cp]
-    let (k,k') = delete_lex_checkers lex_checkers p
+    let (k,k') = delete_lex_checkers pars lex_checkers p
 
     //guard the checkers with assume(iters>=2)
     let new_node = Programs.new_node p
@@ -531,27 +531,27 @@ let unrolling_trans (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<in
     cnt1
 
 ///Return true if we can use unrolling technique:
-let can_unroll (lex_info:LexicographicInfo) failure_cp =
+let can_unroll (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp =
     let already_unrolling = (!lex_info.cp_unrolling).[failure_cp]
     if not(already_unrolling) then
         true
     else
         let current_iter = (!lex_info.cp_current_iter).[failure_cp]
-        current_iter < !Arguments.unrolling_limit
+        current_iter < pars.unrolling_limit
 
 //Unrolls failure_cp until we reach unrolling_limit. Returns true if we reached limit.
-let do_unrolling (lex_info:LexicographicInfo) failure_cp cp_rf_lex p_final graph termination_only =
+let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp cp_rf_lex p_final graph termination_only =
 
     let already_unrolling = ((!lex_info.cp_unrolling).[failure_cp])
 
     if not already_unrolling then //Start unrolling
 
-        (sprintf "\nUnrolling cp %d" failure_cp) |> Log.log
-        (sprintf "Start with iters >= 2") |> Log.log
+        (sprintf "\nUnrolling cp %d" failure_cp) |> Log.log pars
+        (sprintf "Start with iters >= 2") |> Log.log pars
 
         //Performs the transformation that counts how many iterations of cp's loop we've done
         //This returns the index of where the guard is
-        let guard_index = unrolling_trans failure_cp cp_rf_lex p_final termination_only
+        let guard_index = unrolling_trans pars failure_cp cp_rf_lex p_final termination_only
 
         //Put the new info in lex_info
         lex_info.cp_unrolling := Map.add failure_cp true !lex_info.cp_unrolling
@@ -560,18 +560,18 @@ let do_unrolling (lex_info:LexicographicInfo) failure_cp cp_rf_lex p_final graph
         lex_info.cp_iter_guard := Map.add failure_cp guard_index !lex_info.cp_iter_guard
 
         Reachability.reset graph !p_final.initial
-        if !Arguments.dottify_input_pgms then
+        if pars.dottify_input_pgms then
             Output.print_dot_program p_final "input_unrolling_002.dot"
 
     else //Else we're already unrolling
 
         let current_iter = (!lex_info.cp_current_iter).[failure_cp]
 
-        if current_iter<(!Arguments.unrolling_limit) then //Unroll some more
+        if current_iter<(pars.unrolling_limit) then //Unroll some more
 
             //remove lex checkers at cutpoint
             let lex_checkers = cp_rf_lex.[failure_cp]
-            let (j,j') = delete_lex_checkers lex_checkers p_final
+            let (j,j') = delete_lex_checkers pars lex_checkers p_final
             let cnt = !p_final.transitions_cnt
             Programs.plain_add_transition p_final j [] j'
             cp_rf_lex.[failure_cp] <- [cnt]
@@ -587,13 +587,13 @@ let do_unrolling (lex_info:LexicographicInfo) failure_cp cp_rf_lex p_final graph
             let new_cmds = [Programs.assume (Formula.Ge(Term.var(iters),Term.constant (current_iter+1)))]
             p_final.transitions.[guard_index] <- (k,new_cmds,k')
 
-            (sprintf "\nUnrolling cp %d" failure_cp) |> Log.log
-            (sprintf "iters >= %d" (current_iter+1)) |> Log.log
+            (sprintf "\nUnrolling cp %d" failure_cp) |> Log.log pars
+            (sprintf "iters >= %d" (current_iter+1)) |> Log.log pars
 
             //printfn "k:%d" k
 
             Reachability.reset graph k
-            if !Arguments.dottify_input_pgms then
+            if pars.dottify_input_pgms then
                 let filename = sprintf "input_unrolling_%03d.dot" (current_iter+1)
                 Output.print_dot_program p_final filename
 
@@ -842,7 +842,7 @@ let instrument_G p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Form
 
     (p_G, ret, final_loc, [], Map.empty)
 
-let instrument_F p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) isTerminationOnly (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) findPreconds isExistential =
+let instrument_F (pars : Parameters.parameters) p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) isTerminationOnly (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) findPreconds isExistential =
     let p_F = Programs.copy p
     let final_loc = Programs.new_node p_F
 
@@ -958,7 +958,7 @@ let instrument_F p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Form
 
             let trans_stays_in_scc = if node_to_scc_nodes.ContainsKey k then node_to_scc_nodes.[k].Contains k' else false
             //If we do the AI first, every transition has a new assume at the beginning. We only want that in the instr loop
-            let cmds_without_ai_res = if !Arguments.did_ai_first then List.tail cmds else cmds
+            let cmds_without_ai_res = if pars.did_ai_first then List.tail cmds else cmds
             let copied_k = get_copy_of_loopnode k
 
             if (p_loops.ContainsKey k) then //Source of the transition is a CP!
@@ -1037,7 +1037,7 @@ let instrument_F p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Form
                     //Add a copy of the transition starting in the node after we did the copying - but if we copied the loop out, we only need to do that for transitions in the loop.
                     if trans_stays_in_scc then
                         Programs.plain_add_transition p_F copying cmds_without_ai_res copied_k'
-                    if !Arguments.lexicographic then
+                    if pars.lexicographic then
                         //If we do lex rfs, also add one from the node in which we did not copy the variables (and don't, if we don't need it as above)
                         if trans_stays_in_scc then
                             if not(findPreconds) then
@@ -1238,12 +1238,12 @@ let bottomUp_EX p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formu
 
 let bottomUp_AG p formula propertyMap fairness_constraint =
     instrument_G p formula propertyMap fairness_constraint false
-let bottomUp_EG p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) isTerminationOnly fairness_constraint findPreconds =
+let bottomUp_EG (pars : Parameters.parameters) p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) isTerminationOnly fairness_constraint findPreconds =
     //is_false in EG is meant for the purpose of recurrent sets, so in this case we attempt to find termination only for AF
-    instrument_F p formula propertyMap isTerminationOnly fairness_constraint findPreconds true
+    instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds true
 
-let bottomUp_AF p formula propertyMap isTerminationOnly fairness_constraint findPreconds =
-    instrument_F p formula propertyMap isTerminationOnly fairness_constraint findPreconds false
+let bottomUp_AF (pars : Parameters.parameters) p formula propertyMap isTerminationOnly fairness_constraint findPreconds =
+    instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds false
 let bottomUp_EF p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) fairness_constraint =
     instrument_G p formula propertyMap fairness_constraint true
 
@@ -1264,9 +1264,9 @@ let instrument_Prop p_orig e =
 /// Returns the programs that encodes both input program and the checked property,
 /// the error location and a map from cutpoints to the first transition leading to
 /// the error location (this is where the rfs are later added in)
-let mergeProgramAndProperty p actl_prop is_false propertyMap (fairness_constraint : (Formula.formula * Formula.formula) option) findPreconds next =
+let mergeProgramAndProperty (pars : Parameters.parameters) p actl_prop (is_false : bool) propertyMap (fairness_constraint : (Formula.formula * Formula.formula) option) findPreconds next =
     Programs.remove_unreachable p
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p "input.dot"
 
     //Propechy variable old and new
@@ -1317,10 +1317,10 @@ let mergeProgramAndProperty p actl_prop is_false propertyMap (fairness_constrain
         | AW(e1,e2) -> bottomUp_AW p e1 e2 propertyMap fairness_constraint |> Either.IsNotAProp
         | AX e -> bottomUp_AX p e propertyMap fairness_constraint |> Either.IsNotAProp
         | EX e -> bottomUp_EX p e propertyMap fairness_constraint |> Either.IsNotAProp
-        | AF e -> bottomUp_AF p e propertyMap is_false fairness_constraint findPreconds |> Either.IsNotAProp
+        | AF e -> bottomUp_AF pars p e propertyMap is_false fairness_constraint findPreconds |> Either.IsNotAProp
         | EF e -> bottomUp_EF p e propertyMap fairness_constraint |> Either.IsNotAProp
         | AG e -> bottomUp_AG p e propertyMap fairness_constraint |> Either.IsNotAProp
-        | EG e -> bottomUp_EG p e propertyMap is_false fairness_constraint findPreconds |> Either.IsNotAProp
+        | EG e -> bottomUp_EG pars p e propertyMap is_false fairness_constraint findPreconds |> Either.IsNotAProp
         | EU _ -> raise (new System.NotImplementedException "EU constraints not yet implemented")
 
     //Returns error location, and modifies the program to include it
@@ -1365,7 +1365,7 @@ let mergeProgramAndProperty p actl_prop is_false propertyMap (fairness_constrain
     // Clean up program using live variable analysis (guard variables occurring in our properties, though)
 
     Programs.let_convert p_final (Analysis.liveness p_final (CTL_Formula.freevars actl_prop))
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p_final ("input__instrumented.dot")
 
     (p_final, final_loc, error_loc, cp_rf, loc_copy_pair)

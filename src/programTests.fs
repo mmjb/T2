@@ -33,18 +33,22 @@
 
 module ProgramTests
 
-let register_tests() =
+let register_tests (pars : Parameters.parameters) =
+    let safety_pars = { pars with abstract_disj = false; lazy_disj = false}
+    let term_pars = pars
+    let ctl_pars = pars
+
     // Utilities for the different types of tests -----------------------------
-    let t2_run_loc prover s =
+    let t2_run_loc parameters prover s =
         if System.IO.File.Exists s then
-            let (p,loc) = Input.load_t2 true s
+            let (p,loc) = Input.load_t2 parameters true s
             prover p loc
         else
             sprintf "Couldn't open file %s\n" s |> failwith
 
-    let t2_run_termination prover input_file expected_result =
+    let t2_run_termination parameters prover input_file expected_result =
         if System.IO.File.Exists input_file then
-            let (p, _) = Input.load_t2 false input_file
+            let (p, _) = Input.load_t2 parameters false input_file
             match prover p with
             | Some (result, _) when (Some result) = expected_result -> true //project away the proof
             | None when None = expected_result -> true
@@ -52,10 +56,10 @@ let register_tests() =
         else
             sprintf "Couldn't open file %s\n" input_file |> failwith
             
-    let t2_run_temporal prover input_file ctl_formula_string fairness_constraint expected_result =
+    let t2_run_temporal parameters prover input_file ctl_formula_string fairness_constraint expected_result =
         if System.IO.File.Exists input_file then
             let ctl_formula = CTL_Parser.parse_CTL ctl_formula_string
-            let (p, _) = Input.load_t2 true input_file
+            let (p, _) = Input.load_t2 parameters true input_file
             match prover p ctl_formula fairness_constraint with
             | Some (result, _) when (Some result) = expected_result -> true //project away the proof
             | None when None = expected_result -> true
@@ -64,45 +68,45 @@ let register_tests() =
             sprintf "Couldn't open file %s\n" input_file |> failwith
 
     let safety_prover p l =
-        match Reachability.prover p l with
+        match Reachability.prover safety_pars p l with
         | Some(_) -> false
         | None -> true
     let inline register_safety_test file =
-        Test.register_test true (fun () -> t2_run_loc safety_prover file)
+        Test.register_test true (fun () -> t2_run_loc safety_pars safety_prover file)
     let inline register_safety_testd file =
-        Test.register_testd true (fun () -> t2_run_loc safety_prover file)
+        Test.register_testd true (fun () -> t2_run_loc safety_pars safety_prover file)
     let inline register_unsafety_test file =
-        Test.register_test true (fun () -> t2_run_loc safety_prover file |> not)
+        Test.register_test true (fun () -> t2_run_loc safety_pars safety_prover file |> not)
     let inline register_unsafety_testd file =
-        Test.register_testd true (fun () -> t2_run_loc safety_prover file |> not)
+        Test.register_testd true (fun () -> t2_run_loc safety_pars safety_prover file |> not)
 
-    let termination_prover p = Termination.bottomUpProver p ((CTL.AF(CTL.Atom(Formula.falsec)))) true None
+    let termination_prover p = Termination.bottomUpProver term_pars p ((CTL.AF(CTL.Atom(Formula.falsec)))) true None
     let inline register_term_test file =
-        Test.register_test true (fun () -> t2_run_termination termination_prover file (Some true))
+        Test.register_test true (fun () -> t2_run_termination term_pars termination_prover file (Some true))
     let inline register_term_testd file =
-        Test.register_testd true (fun () -> t2_run_termination termination_prover file (Some true))
+        Test.register_testd true (fun () -> t2_run_termination term_pars termination_prover file (Some true))
     let inline register_nonterm_test file =
-        Test.register_test true (fun () -> t2_run_termination termination_prover file (Some false))
+        Test.register_test true (fun () -> t2_run_termination term_pars termination_prover file (Some false))
     let inline register_nonterm_testd file =
-        Test.register_testd true (fun () -> t2_run_termination termination_prover file (Some false))
+        Test.register_testd true (fun () -> t2_run_termination term_pars termination_prover file (Some false))
 
     let no_fair_const = (Formula.falsec,Formula.falsec)
     let parse_fairness_constraint (s : string) =
         let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes s)
         Some (Absparse.Fairness_constraint Absflex.token lexbuf)
-    let bottomUp_prover p actl_fmla fairness_constraint = Termination.bottomUpProver p actl_fmla false fairness_constraint
+    let bottomUp_prover p actl_fmla fairness_constraint = Termination.bottomUpProver ctl_pars p actl_fmla false fairness_constraint
     let inline register_CTL_SAT_test file property fairness_constraint =
-        Test.register_test true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint (Some true))
+        Test.register_test true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint (Some true))
     let inline register_CTL_SAT_testd file property fairness_constraint =
-        Test.register_testd true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint (Some true))
+        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint (Some true))
     let inline register_CTL_UNSAT_test file property fairness_constraint =
-        Test.register_test true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint (Some false))
+        Test.register_test true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint (Some false))
     let inline register_CTL_UNSAT_testd file property fairness_constraint =
-        Test.register_testd true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint (Some false))
+        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint (Some false))
     let inline register_CTL_FAIL_test file property fairness_constraint =
-        Test.register_test true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint None)
+        Test.register_test true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint None)
     let inline register_CTL_FAIL_testd file property fairness_constraint =
-        Test.register_testd true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint None)
+        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint None)
 
     // Small, manually crafted examples ---------------------------------------------------
     register_term_test "testsuite/small01.t2"
@@ -153,7 +157,7 @@ let register_tests() =
     register_term_test "testsuite/traverse_seg.t2"
     register_term_test "testsuite/traverse_seg2.t2"
     register_term_test "testsuite/traverse_twice.t2"
-    if !Arguments.lexicographic || !Arguments.lex_term_proof_first then
+    if pars.lexicographic || pars.lex_term_proof_first then
         register_term_test "testsuite/nested2.t2"
 
     //
@@ -221,7 +225,7 @@ let register_tests() =
     register_safety_test "testsuite/db.t2"
 
     //Abi's Polyranking examples. They will only pass if Arguments.polyrank and Arguments.lexicographic are on
-    if !Arguments.polyrank && !Arguments.lexicographic then
+    if pars.polyrank && pars.lexicographic then
         register_term_test "testsuite/polyrank1.t2"
         register_term_test "testsuite/polyrank2.t2"
         register_term_test "testsuite/polyrank3.t2"

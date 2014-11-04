@@ -472,7 +472,7 @@ let get_simplified_linterm_cache (rels : seq<'a * 'b * Relation.relation * 'c>) 
     |> Seq.map (fun (_, _, rel, _) -> (rel, rel |> Relation.relation_to_linear_terms |> SparseLinear.simplify_as_inequalities))
     |> Map.ofSeq
 
-let build_scc_constraints transitions mu add_bound_constraints (rel_to_simplified_linterm_cache : Map<Relation.relation, LinearTerm list>) =
+let build_scc_constraints (pars : Parameters.parameters) transitions mu add_bound_constraints (rel_to_simplified_linterm_cache : Map<Relation.relation, LinearTerm list>) =
     let decreasing_and_bounded_var_for_transition = ref Map.empty
     let bound_var_for_transition = ref Map.empty
     let decreasing_var_for_transition = ref Map.empty
@@ -497,7 +497,7 @@ let build_scc_constraints transitions mu add_bound_constraints (rel_to_simplifie
             ]
 
         let trans_decr_and_bounded_constraints =
-            if !Arguments.mcnp_style_bound_decr then
+            if pars.mcnp_style_bound_decr then
                 //Implement bounded/decreasing split from Lemma 31 in "SAT-Based Termination Analysis Using Monotonicity Constraints over the Integers" (TPLP)
                 let all_pp = transitions |> Seq.map (fun (_, k, _, k') -> [k; k']) |> List.concat |> Set.ofList
                 [
@@ -538,6 +538,7 @@ let build_scc_constraints transitions mu add_bound_constraints (rel_to_simplifie
 
 ///Try to find a lex rf such that all SCC transitions are unaffected and the cex is decreasing. Then find out what part of the SCC might be deleted.
 let synthesis_lex_scc_trans_unaffected
+    (pars : Parameters.parameters)
     (p:Programs.Program)
     (p_sccs: Map<int, Set<int>>)
     (rel_to_add:Relation.relation)
@@ -550,7 +551,7 @@ let synthesis_lex_scc_trans_unaffected
             synthesis_lex_no_opt rel_to_add partial_order cp linterm_for_relation
         else
         let (_, scc_nodes) = loops_containing_cp.Head
-        let (scc_vars, _, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program p scc_nodes cp
+        let (scc_vars, _, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program pars p scc_nodes cp
 
         //Now construct a set of ranking functions for all considered states such that everything's weakly oriented and we are strictly oriented:
         let cleaned_scc_nodes = [ for (_, k, _, k') in scc_rels do yield! [k; k'] ] |> Set.ofList
@@ -558,7 +559,7 @@ let synthesis_lex_scc_trans_unaffected
         let mu = construct_mu 0 cleaned_scc_nodes all_vars
 
         /// These constraints ensure that every transition is not increasing
-        let (all_transitions_weakly_decreasing, decreasing_and_bounded_var_for_transition, _) = build_scc_constraints scc_rels mu false (get_simplified_linterm_cache scc_rels)
+        let (all_transitions_weakly_decreasing, decreasing_and_bounded_var_for_transition, _) = build_scc_constraints pars scc_rels mu false (get_simplified_linterm_cache scc_rels)
 
         //Now enforce that the new relation is strictly oriented and feed everything to the SMT solver:
         let extra_pre_var : Var.var = Var.var (Formula.const_var bigint.One ^ "^0")
@@ -611,7 +612,7 @@ let synthesis_lex_scc_trans_unaffected
 /// Tries to find a lexicographic ranking function with rel_to_add inserted into partial_order.
 /// Returns None or a list of Lex_RF.
 /// Note partial_order will be empty initially
-let synthesis_lex (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (cp: int) (rel_to_add':Relation.relation) (partial_order': Relation.relation list) =
+let synthesis_lex (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (cp: int) (rel_to_add':Relation.relation) (partial_order': Relation.relation list) =
     let rel_to_add = Relation.standardise_postvars rel_to_add'
     let partial_order = List.map Relation.standardise_postvars partial_order'
 
@@ -626,14 +627,14 @@ let synthesis_lex (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (cp: int) (r
         |> Map.ofSeq
 
     let synth_res =
-        if !Arguments.lex_opt_fewer_rfs then
+        if pars.lex_opt_fewer_rfs then
             synthesis_lex_min_rfs rel_to_add partial_order cp linterm_for_relation
 
-        else if !Arguments.lex_opt_max_unaffect then
+        else if pars.lex_opt_max_unaffect then
             synthesis_lex_max_unaff rel_to_add partial_order cp linterm_for_relation
 
-        else if !Arguments.lex_opt_scc_unaffected then
-            synthesis_lex_scc_trans_unaffected p p_sccs rel_to_add partial_order cp linterm_for_relation
+        else if pars.lex_opt_scc_unaffected then
+            synthesis_lex_scc_trans_unaffected pars p p_sccs rel_to_add partial_order cp linterm_for_relation
 
         else
             synthesis_lex_no_opt rel_to_add partial_order cp linterm_for_relation
@@ -648,7 +649,7 @@ let synthesis_lex (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (cp: int) (r
 /// all others are unaffected (corresponding to the DepPair approach). 
 /// It returns a list of the used rank functions and bounds, and a set of transitions that were strictly
 /// oriented, allowing to remove them from the instrumented program copy.
-let rec synth_maximal_lex_rf (loop_transitions : seq<Set<int> * int * Relation.relation * int>) (rel_to_simplified_linterm_cache : Map<Relation.relation, LinearTerm list>) =
+let rec synth_maximal_lex_rf (pars : Parameters.parameters) (loop_transitions : seq<Set<int> * int * Relation.relation * int>) (rel_to_simplified_linterm_cache : Map<Relation.relation, LinearTerm list>) =
     /// points for which we need to generate a measurement
     let program_points = Set.ofSeq [ for (_, in_pc, _, out_pc) in loop_transitions do yield in_pc; yield out_pc ]
 
@@ -663,7 +664,7 @@ let rec synth_maximal_lex_rf (loop_transitions : seq<Set<int> * int * Relation.r
     let mu = construct_mu 0 (List.ofSeq program_points) all_prevars
 
     let (all_enriched_transitions_weakly_decreasing, trans_decreasing_and_bounded, bound_var_for_transition) =
-        build_scc_constraints loop_transitions mu true rel_to_simplified_linterm_cache
+        build_scc_constraints pars loop_transitions mu true rel_to_simplified_linterm_cache
 
     /// This enforces that at least one transition is strictly decreasing and bounded:
     let at_least_one_strictly_decreasing_and_bounded = (!trans_decreasing_and_bounded).Items |> Seq.map (fun (_, var) -> var) |> List.ofSeq
@@ -705,7 +706,7 @@ let rec synth_maximal_lex_rf (loop_transitions : seq<Set<int> * int * Relation.r
                 if Seq.isEmpty remaining_loop_transitions then
                     Some ([(rfs, bounds)], strictly_decreasing_and_bounded)
                 else
-                    match synth_maximal_lex_rf remaining_loop_transitions rel_to_simplified_linterm_cache with
+                    match synth_maximal_lex_rf pars remaining_loop_transitions rel_to_simplified_linterm_cache with
                         | None -> Some ([(rfs, bounds)], strictly_decreasing_and_bounded)
                         | Some (found_rfs, to_remove) -> Some ((rfs, bounds)::found_rfs, Set.union to_remove strictly_decreasing_and_bounded)
 

@@ -52,8 +52,8 @@ let pos2cex (pos:pos) =
 ///
 /// Print SDV defect tool input in "fname"
 ///
-let print_defect cexs fname =
-    if !Arguments.create_defect_files then
+let print_defect (pars : Parameters.parameters) cexs fname =
+    if pars.create_defect_files then
         printf "Creating defect file %s\n" fname
         let h = new System.IO.StreamWriter(fname)
         let cnt = ref 0
@@ -96,8 +96,8 @@ let print_defect cexs fname =
         fprintf h "Error Possibly non-terminating path found\n"
         h.Dispose()
 
-let print_program cexs fname =
-    if !Arguments.create_defect_files then
+let print_program (pars : Parameters.parameters) cexs fname =
+    if pars.create_defect_files then
         printf "Creating T2 program file %s\n" fname
         let h = new System.IO.StreamWriter(fname)
         let print_cmd cmd = fprintf h "%s\n" (Programs.command2pp cmd)

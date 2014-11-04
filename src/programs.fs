@@ -443,7 +443,7 @@ let rec add_transition_seqpar p n sp m =
             assert (n = m || last_loc <> m)
             plain_add_transition p last_loc (List.rev unsaved_commands) m
 
-let rec command_to_seqpar p cmd =
+let rec command_to_seqpar (pars : Parameters.parameters) p cmd =
 
     let skip_if_true cmd =
         match cmd with
@@ -457,8 +457,9 @@ let rec command_to_seqpar p cmd =
         let f = polyhedra_dnf f
         match f |> split_disjunction |> List.map split_conjunction with
         | [[f1]; [f2]] -> // disjunction of two atomic formulae
-            if !Arguments.lazy_disj then
-                log "Lazy disjunction"
+            if pars.lazy_disj then
+                Log.log pars <| sprintf "Abstracting disjunction '%s' away for now." (Formula.Or (f1, f2)).pp
+                log pars "Lazy disjunction"
                 let cmd1 = Assume (pos, f1)
                 let cmd2 = Assume (pos, f2)
                 let k = (!p.abstracted_disjunctions).Count
@@ -472,7 +473,7 @@ let rec command_to_seqpar p cmd =
                 // remove this edge and introduce two concrete edges)
                 Par [Atom cmd]
             else
-                Par [for f' in [f1; f2] -> command_to_seqpar p (Assume (pos, f'))]
+                Par [for f' in [f1; f2] -> command_to_seqpar pars p (Assume (pos, f'))]
         | [fs] -> // conjunction of atomic formulae
             Seq [
                 for f in fs do
@@ -482,7 +483,7 @@ let rec command_to_seqpar p cmd =
                             try
                                 Le (SparseLinear.term_as_linear t1, SparseLinear.term_as_linear t2)
                             with SparseLinear.Nonlinear _ ->
-                                sprintf "WARNING: Non-linear assumption %s\n" (command2pp cmd) |> Log.log
+                                sprintf "WARNING: Non-linear assumption %s\n" (command2pp cmd) |> Log.log pars
                                 p.incomplete_abstraction := true
                                 Formula.truec
 
@@ -491,12 +492,12 @@ let rec command_to_seqpar p cmd =
 
                     | _ -> dieWith "polyhedra_dnf returned something strange"
             ]
-        | x -> if !Arguments.abstract_disj then
-                   Log.log <| sprintf "WARNING: IGNORING ASSUME\n"
+        | x -> if pars.abstract_disj then
+                   Log.log pars <| sprintf "WARNING: IGNORING ASSUME\n"
                    Seq []
                else
-                   Log.log <| sprintf "WARNING: assume blowup = %d\n" x.Length
-                   Par [for f' in x -> Seq [for f'' in f' -> command_to_seqpar p (Assume (pos, f''))]]
+                   Log.log pars <| sprintf "WARNING: assume blowup = %d\n" x.Length
+                   Par [for f' in x -> Seq [for f'' in f' -> command_to_seqpar pars p (Assume (pos, f''))]]
 
     | Assign(_, _, Nondet) ->
         Atom cmd
@@ -505,36 +506,36 @@ let rec command_to_seqpar p cmd =
             try
                 Assign(pos, v, SparseLinear.term_as_linear tm)
             with SparseLinear.Nonlinear _ ->
-               sprintf "WARNING: Non-linear assignment %s\n" (command2pp cmd) |> Log.log
+               sprintf "WARNING: Non-linear assignment %s\n" (command2pp cmd) |> Log.log pars
                p.incomplete_abstraction := true
                Assign(pos, v, Term.Nondet)
         Atom c
 
-let add_transition_unmapped p n T m =
+let add_transition_unmapped (pars : Parameters.parameters) p n T m =
     let T =
-        if !Arguments.elim_constants then
+        if pars.elim_constants then
             let (T, consts) = commands_constants !bound_constants T
             p.constants := Set.union !p.constants consts
             T
         else
             T
-    let sp = T |> List.map (command_to_seqpar p) |> Seq
+    let sp = T |> List.map (command_to_seqpar pars p) |> Seq
 
     add_transition_seqpar p n sp m
 
 /// add transition n--T-->M with preprocessing
 /// (elim_constants; lazy_disj / split disjunctions)
-let add_transition p input_n T input_m =
+let add_transition (pars : Parameters.parameters) p input_n T input_m =
     let n = map p input_n
     let m = map p input_m
 
     if n <> m then
-        add_transition_unmapped p n T m
+        add_transition_unmapped pars p n T m
     else
         // split loop edge, because loop edges cause problems with compact_path
         let tmp = new_node p
-        add_transition_unmapped p n T tmp
-        add_transition_unmapped p tmp [] m
+        add_transition_unmapped pars p n T tmp
+        add_transition_unmapped pars p tmp [] m
 
 ///
 /// copy p returns a deep copy of program p
@@ -744,7 +745,7 @@ let make_isolation_map (loops : Map<int,Set<int>>) =
 //
 // APPROVED API
 //
-let make is_temporal init ts incomplete_abstraction =
+let make (pars : Parameters.parameters) is_temporal init ts incomplete_abstraction =
         let p = { initial = ref 0
                 ; node_cnt = ref 0
                 ; labels = ref Map.empty
@@ -760,7 +761,7 @@ let make is_temporal init ts incomplete_abstraction =
                 }
         let mutable init_is_target = false
         for x, cmds, y in ts do
-            add_transition p x cmds y
+            add_transition pars p x cmds y
             if y = init then
                 init_is_target <- true
         done
@@ -921,8 +922,8 @@ let chain_transitions nodes_to_consider transitions =
     in_trans.Values |> Seq.concat |> Set.ofSeq
 
 ///Returns all transitions reachable from cp that are not an artifact of the termination instrumentation, where copied is set
-let filter_out_copied_transitions cp scc_transitions =
-    if !Arguments.lexicographic then //if we didn't do lexicographic instrumentation, this optimization is unsound
+let filter_out_copied_transitions (pars : Parameters.parameters) cp scc_transitions =
+    if pars.lexicographic then //if we didn't do lexicographic instrumentation, this optimization is unsound
         let cleaned_scc_nodes = new System.Collections.Generic.HashSet<int>()
         let mutable found_new_node = ref (cleaned_scc_nodes.Add cp)
         while !found_new_node do
