@@ -56,23 +56,15 @@ type term =
             | Const(i) -> string(i)
             | Var(v) -> Var.pp v
             | Neg(e) -> "-" ^ term2pp' 3 e
-            | Add(e1,e2) ->
-                let larg = term2pp' 1 e1
-                let rarg = term2pp' 1 e2
-                if e1 = Const(bigint.Zero) then
-                    protect 1 force rarg
-                else if e2 = Const(bigint.Zero) then
-                    protect 1 force larg
-                else
-                    match e2 with
-                        | Mul(Const(c), e22) ->
-                            if c = bigint.MinusOne then
-                                protect 1 force (term2pp' 1 e1 ^ "-" ^ term2pp' 2 e22)
-                            else if c < bigint.Zero then
-                                protect 1 force (term2pp' 1 e1 ^ "-" ^ term2pp' 2 (Mul(Const(-c), e22)))
-                            else
-                                protect 1 force (term2pp' 1 e1 ^ "+" ^ term2pp' 1 e2)
-                        | _ -> protect 1 force (term2pp' 1 e1 ^ "+" ^ term2pp' 1 e2)
+            | Add(Const(c1), e2) when c1 = bigint.Zero ->
+                protect 1 force (term2pp' 1 e2)
+            | Add(e1, Const(c2)) when c2 = bigint.Zero ->
+                protect 1 force (term2pp' 1 e1)
+            | Add(e1, Mul(Const(c), e22)) when c = bigint.MinusOne ->
+                protect 1 force (term2pp' 1 e1 ^ "-" ^ term2pp' 2 e22)
+            | Add(e1, Mul(Const(c), e22)) when c < bigint.MinusOne ->
+                protect 1 force (term2pp' 1 e1 ^ "-" ^ term2pp' 2 (Mul(Const(-c), e22)))
+            | Add(e1,e2) -> protect 1 force (term2pp' 1 e1 ^ "+" ^ term2pp' 1 e2)
             | Sub(e1,e2) -> protect 1 force (term2pp' 1 e1 ^ "-" ^ term2pp' 2 e2) // force on second arg is 2 because we want to get a-(b+c) instead of a-b+c
             | Mul(e1,e2) when e1 = Const(bigint.MinusOne) -> protect 2 force ("-" ^ term2pp' 2 e2)
             | Mul(e1,e2) when e1 = Const(bigint.One) -> protect 2 force (term2pp' 2 e2)
