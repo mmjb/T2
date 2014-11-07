@@ -202,7 +202,7 @@ let parseArguments =
              )
            ; new ArgInfo( "-output_file"
              , ArgType.String (fun s -> output_file := s)
-             , "Choose output file name (default 'out', use in conjunction with -output_as)"
+             , sprintf "Choose output file name (default '%s', use in conjunction with -output_as)" !output_file
              )
            ; new ArgInfo( "-imperative_style"
              , ArgType.String (fun s ->
@@ -210,7 +210,7 @@ let parseArguments =
                                 | "loop" -> imperative_style := Parameters.Loop
                                 | "goto" -> imperative_style := Parameters.Goto
                                 | _ -> Utils.dieWith (sprintf "Do not know imperative program style '%s', use loop/goto." s))
-             , "Choose style of imperative program: 'loop' for while loop with switch over pc, 'goto' for explicit jumps."
+             , sprintf "Choose style of imperative program: 'loop' for while loop with switch over pc, 'goto' for explicit jumps. (default '%A')" !imperative_style
              )
            ; new ArgInfo( "-java_nondet_style"
              , ArgType.String (fun s ->
@@ -218,7 +218,7 @@ let parseArguments =
                                 | "aprove" -> java_nondet_style := Parameters.Aprove
                                 | "julia" -> java_nondet_style := Parameters.Julia
                                 | _ -> Utils.dieWith (sprintf "Do not know nondet style '%s', use aprove/julia." s))
-             , "Choose implementation of nondet() in Java output. Suported options are 'aprove' and 'julia'."
+             , sprintf "Choose implementation of nondet() in Java output. Supported options are 'aprove' and 'julia'. (default: '%A')" !java_nondet_style
              )
            ; new ArgInfo( "-tests"
              , ArgType.Unit (fun () -> setMode Test)
