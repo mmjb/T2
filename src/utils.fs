@@ -30,7 +30,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Utils
+module Microsoft.Research.T2.Utils
 
 type MultiDictionary<'Key,'Value when 'Key : equality>() =
      let dict = new System.Collections.Generic.Dictionary<'Key, 'Value list>()

@@ -35,7 +35,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Programs
+module Microsoft.Research.T2.Programs
 
 open Utils
 open Term

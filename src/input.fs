@@ -34,7 +34,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Input
+module Microsoft.Research.T2.Input
 
 ///
 /// Parse from a file, returning a program

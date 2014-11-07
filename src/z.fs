@@ -41,7 +41,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Z
+module Microsoft.Research.T2.Z
 
 open Microsoft.Z3
 open Microsoft.FSharp.Math

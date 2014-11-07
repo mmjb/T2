@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Instrumentation
+module Microsoft.Research.T2.Instrumentation
 open Utils
 open System.Collections.Generic
 open Formula

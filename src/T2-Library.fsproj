@@ -8,7 +8,7 @@
     <ProjectGuid>5f69e273-595d-4a27-816e-cec1bd3c74fc</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>T2_Library</RootNamespace>
-    <AssemblyName>T2_Library</AssemblyName>
+    <AssemblyName>Microsoft.Research.T2</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <Name>T2-Library</Name>
@@ -21,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\T2_Library.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Microsoft.Research.T2.XML</DocumentationFile>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

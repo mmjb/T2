@@ -43,7 +43,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Rankfunction
+module Microsoft.Research.T2.Rankfunction
 
 open Z
 open Utils

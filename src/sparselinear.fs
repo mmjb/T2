@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module SparseLinear
+module Microsoft.Research.T2.SparseLinear
 
 open Utils
 open Formula

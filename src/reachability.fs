@@ -47,7 +47,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Reachability
+module Microsoft.Research.T2.Reachability
 
 open Utils
 open Log

@@ -36,7 +36,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Termination
+module Microsoft.Research.T2.Termination
 open Utils
 
 let make_prio_map (p: Programs.Program) (error_loc: int) =

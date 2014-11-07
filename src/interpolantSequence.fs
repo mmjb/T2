@@ -42,7 +42,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module InterpolantSequence
+module Microsoft.Research.T2.InterpolantSequence
 
 /// all_implications: if set to true we generate constraints for all backwards implications.
 /// Otherwise see number_of_implications.

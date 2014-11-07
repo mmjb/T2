@@ -21,7 +21,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Absflex
+module Microsoft.Research.T2.Absflex
 
 open Absparse
 let lexerror msg lexbuf = (Printf.printf "Unimplemented %s" msg; failwith "error")

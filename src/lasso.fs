@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Lasso
+module Microsoft.Research.T2.Lasso
 
 open Utils
 open Log

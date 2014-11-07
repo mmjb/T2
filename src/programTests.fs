@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module ProgramTests
+module Microsoft.Research.T2.ProgramTests
 
 let register_tests (pars : Parameters.parameters) =
     let safety_pars = { pars with abstract_disj = false; lazy_disj = false}

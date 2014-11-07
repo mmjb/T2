@@ -20,7 +20,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module IntervalIntDom
+module Microsoft.Research.T2.IntervalIntDom
 
 open Utils
 open Term

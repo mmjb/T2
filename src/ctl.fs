@@ -20,7 +20,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module CTL
+module Microsoft.Research.T2.CTL
 
 
 [<StructuredFormatDisplayAttribute("{pp}")>]

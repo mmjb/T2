@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module RecurrentSets
+module Microsoft.Research.T2.RecurrentSets
 
 open SparseLinear
 open Symex

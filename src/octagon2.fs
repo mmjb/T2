@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Octagon2
+module Microsoft.Research.T2.Octagon2
 
 open IIntAbsDom
 open Var

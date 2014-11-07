@@ -30,7 +30,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Log
+module Microsoft.Research.T2.Log
 
 let log (pars : Parameters.parameters) s = 
     if pars.print_log then

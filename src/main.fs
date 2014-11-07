@@ -30,6 +30,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+module Microsoft.Research.T2.Main
+
 Stats.start_time "T2"
 printfn "T2 program prover/analysis tool."
 
