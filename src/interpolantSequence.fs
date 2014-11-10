@@ -64,7 +64,7 @@ let check_interpolant fs intps =
         assert (Formula.entails (Formula.conj [prev; f]) intp)
         prev <- intp
 
-let print_interpolant fs intps =
+let private print_interpolant fs intps =
     Printf.printf "-------------------\nInterpolants\n"
     let rec print_intps fs_x_intps prev_intp =
         match fs_x_intps with
@@ -82,7 +82,7 @@ let print_interpolant fs intps =
 /// Return (common constraints, constraints for non-strict case, interpolants, heuristics constraints).
 /// Interpolants should be understood as intp<=0.
 /// try_ignore_beginning: if true, the heuristics constraints will be a list of constraints enforcing the first lambdas to 0 (i.e. ignore the first nodes on the path)
-let gen_system (pars : Parameters.parameters) try_ignore_beginning remove_uncommon_vars (S: LinearTerm list list) =
+let private gen_system (pars : Parameters.parameters) try_ignore_beginning remove_uncommon_vars (S: LinearTerm list list) =
 
     // simplify each element in S
     let S = List.map simplify_as_inequalities S
@@ -164,14 +164,14 @@ let gen_system (pars : Parameters.parameters) try_ignore_beginning remove_uncomm
 
     Z.conj phi, Z.eq constant (Z.constantInt 1), accumulative_S_by_lambdas, intps_heuristics
 
-let get_intps_model m intps =
+let private get_intps_model m intps =
     let model intp = Map.map (fun _ coeff -> Z.get_model_int m coeff) intp
     List.map (model >> linear_term_to_formula) intps
 
 ///
 /// Compute path interpolants.
 ///
-let synthesis_base (pars : Parameters.parameters) try_ignore_beginning fs =
+let private synthesis_base (pars : Parameters.parameters) try_ignore_beginning fs =
     assert (fs <> [])
 
     let (phi, case1, intps, intps_heuristics) = gen_system pars try_ignore_beginning false fs
@@ -185,7 +185,7 @@ let synthesis_base (pars : Parameters.parameters) try_ignore_beginning fs =
 /// try to find interpolant such that v |= w, where v is the last interpolant and w is 'entail_distance' from last
 /// if one inequality interpolation does not work we try to add invariants to support it
 ///
-let synthesis_base_with_entailment (pars : Parameters.parameters) fs entail_distance invar_fs =
+let private synthesis_base_with_entailment (pars : Parameters.parameters) fs entail_distance invar_fs =
     assert (fs <> [])
 
     // unprime the invar i
@@ -284,7 +284,7 @@ let synthesis_base_with_entailment (pars : Parameters.parameters) fs entail_dist
         unprime intps.[intps.Length - entail_distance - 1]
     synthesis_with_invars (!number_of_invars + 1) [Z.conj2 phi case1] [intps] [v_intp] [w_intp]
 
-let path_synthesis (pars : Parameters.parameters) try_ignore_beginning entail_distance invar_fs fs =
+let private path_synthesis (pars : Parameters.parameters) try_ignore_beginning entail_distance invar_fs fs =
     assert (fs <> [])
     Z.clear() // speed things up
 
