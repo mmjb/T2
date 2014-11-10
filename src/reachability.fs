@@ -886,7 +886,7 @@ let reachable (pars : Parameters.parameters) abs =
     !path
 
 /// For incrementality, we sometimes need to delete a subtree within the proof graph
-let reset (pars : Parameters.parameters)  abs to_reset =
+let reset (pars : Parameters.parameters) abs to_reset =
     let to_reset = 
         if pars.iterative_reachability then
             to_reset

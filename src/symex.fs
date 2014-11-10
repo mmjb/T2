@@ -207,8 +207,9 @@ let find_path_interpolant_old (pars : Parameters.parameters) try_ignore_beginnin
             match dnf_paths with
             | [] -> []
             | h::t ->
+                let interpolationProcedure = if pars.seq_interpolation then InterpolantSequence.synthesis else (fun pars _ _ _ -> InterpolantSingle.synthesis pars)
                 let path_interpolant fs =
-                    match InterpolantSequence.synthesis pars try_ignore_beginning distance invar_formulae fs with
+                    match interpolationProcedure pars try_ignore_beginning distance invar_formulae fs with
                     | Some(interpolants) -> Some(List.map (Formula.alpha Var.unprime_var) interpolants)
                     | None -> None
                 match path_interpolant h with
@@ -233,7 +234,8 @@ let find_path_interpolant (pars : Parameters.parameters) pi initial final =
     let path_formulae = [for (_, fs, _) in pi -> Formula.conj fs]
     let fs = initial::path_formulae@[Formula.negate final]
 
-    match InterpolantSequence.synthesis pars false 0 [] fs with
+    let interpolationProcedure = if pars.seq_interpolation then InterpolantSequence.synthesis else (fun pars _ _ _ -> InterpolantSingle.synthesis pars)
+    match interpolationProcedure pars false 0 [] fs with
     | Some (intps) -> Some(List.map (Formula.alpha Var.unprime_var) intps)
     | None -> None
 
@@ -243,7 +245,8 @@ let find_path_interpolant (pars : Parameters.parameters) pi initial final =
 let find_unsat_path_interpolant (pars : Parameters.parameters) pi =
     let fs = [for (_, fs, _) in pi -> Formula.conj fs]
 
-    match InterpolantSequence.synthesis pars true 0 [] fs with
+    let interpolationProcedure = if pars.seq_interpolation then InterpolantSequence.synthesis else (fun pars _ _ _ -> InterpolantSingle.synthesis pars)
+    match interpolationProcedure pars true 0 [] fs with
     | Some (intps) -> Some(List.map (Formula.alpha Var.unprime_var) intps)
     | None -> None
 

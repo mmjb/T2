@@ -139,6 +139,9 @@ type parameters = {
     /// Try to ignore constraints from the beginning
     mutable seq_interpolation_ignore_last_constr : bool
 
+    /// Do efficient sequential interpolation (generating all interpolants for a path in one go) instead of standard interpolation
+    seq_interpolation : bool
+
     // ---------------------------- Counterexample things ----------------------------
     /// When testing we dont want to create a billion defect files, so we
     /// can shut this option off by setting create_defect_files to false
@@ -187,6 +190,7 @@ let defaultParameters =
         print_interpolants = false
         check_interpolants = true
         seq_interpolation_ignore_last_constr = true
+        seq_interpolation = true
 
         create_defect_files = true
     }

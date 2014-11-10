@@ -66,6 +66,7 @@
     <Compile Include="sparselinear.fs" />
     <Compile Include="relation.fs" />
     <Compile Include="interpolantSequence.fs" />
+    <Compile Include="interpolantSingle.fs" />
     <Compile Include="programs.fs" />
     <Compile Include="symex.fs" />
     <Compile Include="Output.fs" />
