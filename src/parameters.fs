@@ -127,6 +127,9 @@ type parameters = {
     /// Use UNSAT core to reduce interpolation constraints
     mutable fc_unsat_core : bool
 
+    /// Do iterative reachability proving, where only a part of the graph needs to be recomputed after changes:
+    iterative_reachability : bool
+
     // ---------------------------- Interpolation things ----------------------------
     /// Print interpolants found
     mutable print_interpolants : bool
@@ -179,6 +182,7 @@ let defaultParameters =
         fc_look_back = false
         fc_remove_on_fail = false
         fc_unsat_core = false
+        iterative_reachability = true
 
         print_interpolants = false
         check_interpolants = true

@@ -886,8 +886,13 @@ let reachable (pars : Parameters.parameters) abs =
     !path
 
 /// For incrementality, we sometimes need to delete a subtree within the proof graph
-let reset abs s =
-    let nodes = Set.filter (fun x -> abs_node_to_program_loc abs x = s) !abs.V |> ref
+let reset (pars : Parameters.parameters)  abs to_reset =
+    let to_reset = 
+        if pars.iterative_reachability then
+            to_reset
+        else
+            abs.loc_init
+    let nodes = Set.filter (fun x -> abs_node_to_program_loc abs x = to_reset) !abs.V |> ref
     while !nodes<>Set.empty do
         let t = Set.minElement !nodes
         nodes := Set.remove t !nodes

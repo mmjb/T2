@@ -176,7 +176,7 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
     Log.log pars <| sprintf "Instrumented in disjunctive RF between %i and %i" new_node k
     
     //Now reset the reachability graph and remove every (incomplete) unwinding that has passed behind (l), as we changed the program there:
-    Reachability.reset graph l
+    Reachability.reset pars graph l
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_disjunctive_rf.dot"
 
@@ -221,7 +221,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
         let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
         cp_rf_lex.[cp] <- new_lex_checker_trans_ids
-        Reachability.reset graph first_checker_node
+        Reachability.reset pars graph first_checker_node
 
     //We are instrumenting the Lex RF under a particular initial condition for the cp:
     else
@@ -237,7 +237,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         let new_counter_checkers_map = Map.add counter new_lex_checker_trans_ids counters_to_checkers
         lex_info.cp_rf_init_cond := Map.add cp new_counter_checkers_map !lex_info.cp_rf_init_cond
 
-        Reachability.reset graph first_checker_node
+        Reachability.reset pars graph first_checker_node
 
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_lex_RF.dot"
@@ -253,7 +253,7 @@ let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.
     let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
     cp_rf_lex.[cp] <- new_lex_checker_trans_ids
 
-    Reachability.reset graph first_checker_node
+    Reachability.reset pars graph first_checker_node
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_poly_lex_RF.dot"
 
@@ -284,7 +284,7 @@ let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf
     cp_rf_lex.[failure_cp]<-[cnt]
     lex_info.partial_orders := Map.add failure_cp [] !lex_info.partial_orders
 
-    Reachability.reset graph k
+    Reachability.reset pars graph k
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_switch_to_polyrank.dot"
 
@@ -438,7 +438,7 @@ let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
     lex_info.partial_orders_init_cond:= Map.add failure_cp new_partial_orders !lex_info.partial_orders_init_cond
     lex_info.past_lex_options:= Map.add failure_cp [] !lex_info.past_lex_options
 
-    Reachability.reset graph !p_final.initial
+    Reachability.reset pars graph !p_final.initial
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__init_cond.dot"
 
@@ -559,7 +559,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
         lex_info.past_lex_options := Map.add failure_cp [] !lex_info.past_lex_options
         lex_info.cp_iter_guard := Map.add failure_cp guard_index !lex_info.cp_iter_guard
 
-        Reachability.reset graph !p_final.initial
+        Reachability.reset pars graph !p_final.initial
         if pars.dottify_input_pgms then
             Output.print_dot_program p_final "input_unrolling_002.dot"
 
@@ -592,7 +592,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 
             //printfn "k:%d" k
 
-            Reachability.reset graph k
+            Reachability.reset pars graph k
             if pars.dottify_input_pgms then
                 let filename = sprintf "input_unrolling_%03d.dot" (current_iter+1)
                 Output.print_dot_program p_final filename
