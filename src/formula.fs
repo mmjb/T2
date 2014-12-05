@@ -66,6 +66,8 @@ type formula =
 
         pp' 0 self
 
+    override self.ToString () = self.pp
+
     member self.prefix_pp =
         match self with
         | Not(e)     -> sprintf "(not %s)" e.prefix_pp

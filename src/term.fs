@@ -72,6 +72,8 @@ type term =
 
         term2pp' 0 self
 
+    override self.ToString () = self.pp
+
     member self.prefix_pp =
         match self with
             | Nondet -> "nondet()"
