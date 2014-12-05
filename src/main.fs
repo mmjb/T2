@@ -128,8 +128,12 @@ match mode with
         | Arguments.CTL formulaString ->
             let formula = CTL_Parser.parse_CTL formulaString
             match Termination.bottomUpProver p formula false fairness_constraint with
-            | Some (true, _) -> printfn "Temporal proof succeeded"
-            | Some (false, _) -> printfn "Temporal proof failed"
+            | Some (true, proof_printer) ->
+                printfn "Temporal proof succeeded"
+                if !Arguments.print_proof then proof_printer ()
+            | Some (false, proof_printer) ->
+                printfn "Temporal proof failed"
+                if !Arguments.print_proof then proof_printer ()
             | None -> printfn "Temporal proof failed"
         | _ -> assert(false); //This cannot happen, but we need this fallthrough to avoid a warning.
 

@@ -204,15 +204,15 @@ let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs () =
 let output_nonterm_proof (cp, recurrent_set) () =
     printfn "Found this recurrent set for cutpoint %i: %A" cp recurrent_set
 
-let output_cex (cex, existential) () =
+let output_cex cex existential () =
     if existential then
-       printfn "Found existential witness: \n %A" cex 
+        printfn "Found existential witness: \n %A" cex
     else
         printfn "Found counterexample: \n %A" cex
 
-let output_nocex(existential) () = 
+let output_nocex existential () =
     if existential then
-       printfn "No existential witness found, property false!"
+        printfn "No existential witness found, property false!"
     else
         printfn "Property true!"
 
@@ -783,13 +783,13 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
                 None
         else
             if !cex_found && not(existential) then 
-                Some (false, output_cex(cex,existential))
+                Some (false, output_cex cex existential)
             else if !cex_found && existential then
-                Some (true, output_cex(cex,existential))
+                Some (true, output_cex cex existential)
             else if not(!cex_found) && not(existential) then
-                Some (true, output_nocex(existential))
+                Some (true, output_nocex existential)
             else 
-                Some (false, output_nocex(existential))
+                Some (false, output_nocex existential)
 
     (return_option, propertyMap)
 
@@ -1017,6 +1017,7 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
             !p.locs |> Set.iter(fun loc -> propertyMap.Add(f, (loc, a))) 
     | CTL.EU _ ->
         raise (new System.NotImplementedException "EU constraints not yet implemented")
+
     !ret_value
 
 let make_program_infinite (p : Programs.Program) =
@@ -1115,4 +1116,17 @@ let bottomUpProver (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bo
             None
 
     Utils.reset_timeout()
-    ret_value
+
+    //Fix up return value to also print something proof-like for CTL things:
+    if ret_value.IsSome && not(termination_only) then
+        let (propertyValidity, proof_printer) = ret_value.Value
+        let ext_proof_printer () =
+            proof_printer ()
+            printfn "Preconditions generated / checked during the proof:"
+            for (subFormula, preconditions) in propertyMap do
+                printfn " - Preconditions for subformula %s" subFormula.pp
+                for (loc, precondition) in preconditions |> List.sortBy fst do
+                    printfn "    at loc. %i%s: %s" loc (if Map.containsKey loc !p.nodeToLabels then " (label " ^ (!p.nodeToLabels).[loc] ^ ")" else "") precondition.pp
+        Some (propertyValidity, ext_proof_printer)
+    else
+        ret_value
