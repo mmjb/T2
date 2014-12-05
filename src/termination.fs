@@ -461,8 +461,9 @@ let insertForRerun recurSet propagate existential f final_loc (p : Programs.Prog
         else cutp
     let (fPreCond, preCond) =
         match recurSet with
-        |Some(_, r) ->
+        |Some(_, (r : Formula.formula)) ->
             //If we have a recurrent set:
+            Log.log <| sprintf "Extracting preconditions from recurrent set %s on cutpoint %i for rerun" (r.pp) cutp
             //Getting rid of useless instrumented variables
             let fPreCondNeg = Formula.split_conjunction r |> List.filter (fun f -> not(Formula.contains_instr_var f) && not(Formula.contains_fair_var f))
                                 |> Formula.conj
