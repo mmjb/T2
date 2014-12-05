@@ -32,66 +32,109 @@
 
 module Utils
 
-type MultiDictionary<'Key,'Value when 'Key : equality>() =
-     let dict = new System.Collections.Generic.Dictionary<'Key, 'Value list>()
-     member t.Add(key,value) =
-         if dict.ContainsKey key then
-             dict.[key] <- value :: dict.[key]
-         else
-             dict.[key] <- [value]
+type KeyValueAsPairEnumerator<'Key, 'Value> (backingEnumerator : System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<'Key, 'Value>>) =
+    interface System.Collections.Generic.IEnumerator<'Key * 'Value> with
+        member __.Current with get () = (backingEnumerator.Current.Key, backingEnumerator.Current.Value)
+    interface System.Collections.IEnumerator with
+        member __.MoveNext () = backingEnumerator.MoveNext ()
+        member __.Current with get() = backingEnumerator.Current |> box
+        member __.Reset () = backingEnumerator. Reset ()
+    interface System.IDisposable with
+        member __.Dispose () = backingEnumerator.Dispose ()
 
-     member t.Replace(key,value) =
-         dict.[key] <- [value]
+type ListDictionary<'Key, 'Value when 'Key : equality>() =
+    let backingDict = new System.Collections.Generic.Dictionary<'Key, 'Value list>()
 
-     member t.AddMany(kvs) = for (k,v) in kvs do t.Add(k,v)
-     member t.Item with get key = if dict.ContainsKey key then dict.[key] else []
-     member t.Bindings = seq { for KeyValue(k,vs) in dict do for v in vs do yield (k,v) }
-     // possibly "Remove", "ContainsKey", ...
-     // Implement 'iteration' for this collection. @dsyme says this is just how you do it....
-     interface System.Collections.Generic.IEnumerable<('Key * 'Value)> with member x.GetEnumerator() = x.Bindings.GetEnumerator()
-     interface System.Collections.IEnumerable with member x.GetEnumerator() = (x.Bindings :> System.Collections.IEnumerable).GetEnumerator()
+    ///// Accessing entries:
+    member __.Item
+       with get key       = if backingDict.ContainsKey key then backingDict.[key] else []
+       and  set key value = backingDict.[key] <- value
 
+    ///// Adding, removing and replacing single entries or full entry seqs:
+    member __.Add (key, value) =
+        if backingDict.ContainsKey key then
+            backingDict.[key] <- value :: backingDict.[key]
+        else
+            backingDict.[key] <- [value]
+    member self.AddMany keyValuePairs =
+        Seq.iter self.Add keyValuePairs
+    member self.Union (otherDict : ListDictionary<'Key, 'Value>) =
+        self.AddMany otherDict.Bindings
+    member __.Remove key =
+        backingDict.Remove key
+    member __.Replace key value =
+        backingDict.[key] <- [value]
+    member __.ReplaceList key valueList =
+        backingDict.[key] <- valueList
+
+    member __.ContainsKey key =
+       backingDict.ContainsKey key
+
+    ///// Functional basics:
+    member __.Map (f : 'Value list -> 'Value list) =
+        for key in backingDict.Keys do
+            backingDict.[key] <- f backingDict.[key]
+    member __.Iter (action : 'Key -> 'Value list -> Unit) =
+        backingDict |> Seq.iter (fun t -> action t.Key t.Value)
+    member __.Fold (folder : 'T -> 'Key -> 'Value list -> 'T) initialState =
+        backingDict |> Seq.fold (fun state t -> folder state t.Key t.Value) initialState
+
+    ///// Helpers to iterate over contents:
+    member __.Keys = backingDict.Keys
+    member __.Values = backingDict.Values
+    member __.Bindings = seq { for KeyValue(k,vs) in backingDict do for v in vs do yield (k,v) }
+    interface System.Collections.Generic.IEnumerable<'Key * ('Value list)> with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value list>(backingDict.GetEnumerator()) :> _
+    interface System.Collections.IEnumerable with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value list>(backingDict.GetEnumerator()) :> _
 
 type SetDictionary<'Key,'Value when 'Key : equality and 'Value : comparison>() =
-     let dict = new System.Collections.Generic.Dictionary<'Key, Set<'Value>>()
+    let backingDict = new System.Collections.Generic.Dictionary<'Key, Set<'Value>>()
 
-     member t.iter (action : 'Key -> Set<'Value> -> Unit) =
-        for KeyValue(k,vs) in dict do action k vs done
+    ///// Accessing entries:
+    member __.Item
+       with get key = if backingDict.ContainsKey key then backingDict.[key] else Set.empty
+       and  set key value = backingDict.[key] <- value
 
-     member t.Add(key,value) =
-         if dict.ContainsKey key then
-             dict.[key] <- Set.add value dict.[key]
-         else
-             dict.[key] <- Set.singleton value
+    ///// Adding, removing and replacing single entries or full entry seqs:
+    member __.Add (key, value) =
+        if backingDict.ContainsKey key then
+            backingDict.[key] <- Set.add value backingDict.[key]
+        else
+            backingDict.[key] <- Set.singleton value
+    member self.AddMany keyValuePairs =
+        Seq.iter self.Add keyValuePairs
+    member self.Union (otherDict : SetDictionary<'Key, 'Value>) =
+        self.AddMany otherDict.Bindings
+    member __.Remove key =
+        backingDict.Remove key
+    member __.RemoveKeyVal key value =
+        backingDict.[key] <- Set.remove value backingDict.[key]
+    member __.Replace key value =
+        backingDict.[key] <- Set.singleton value
+    member __.ReplaceSet key valueSet =
+        backingDict.[key] <- valueSet
 
-     member this.Remove key =
-         dict.Remove key
-     member this.RemoveKeyVal key value =
-         dict.[key] <- Set.remove value dict.[key]
+    member __.ContainsKey key =
+       backingDict.ContainsKey key
 
-     member t.Replace(key,value) =
-         dict.[key] <- Set.singleton value
-     member t.ReplaceSet(key,valueSet) =
-         dict.[key] <- valueSet
+    ///// Functional basics:
+    member __.Map (f : Set<'Value> -> Set<'Value>) =
+        for key in backingDict.Keys do
+            backingDict.[key] <- f backingDict.[key]
+    member __.Iter (action : 'Key -> Set<'Value> -> Unit) =
+        backingDict |> Seq.iter (fun t -> action t.Key t.Value)
+    member __.Fold (folder : 'T -> 'Key -> Set<'Value> -> 'T) initialState =
+        backingDict |> Seq.fold (fun state t -> folder state t.Key t.Value) initialState
 
-     member t.AddMany(kvs) = for (k,v) in kvs do t.Add(k,v)
-     member t.Item 
-        with get key = if dict.ContainsKey key then dict.[key] else Set.empty
-        and  set key value = dict.[key] <- value
-     member t.Bindings = seq { for KeyValue(k,vs) in dict do for v in vs do yield (k,v) }
-     member t.Keys = seq { for KeyValue(k,_) in dict do yield k }
-
-     member this.Fold folder state =
-        Seq.fold folder state this.Bindings
-
-     member this.ContainsKey key =
-        dict.ContainsKey key
-
-
-     // possibly "Remove", "ContainsKey", ...
-     // Implement 'iteration' for this collection. @dsyme says this is just how you do it....
-     interface System.Collections.Generic.IEnumerable<('Key * 'Value)> with member x.GetEnumerator() = x.Bindings.GetEnumerator()
-     interface System.Collections.IEnumerable with member x.GetEnumerator() = (x.Bindings :> System.Collections.IEnumerable).GetEnumerator()
+    ///// Helpers to iterate over contents:
+    member __.Keys = backingDict.Keys
+    member __.Values = backingDict.Values
+    member __.Bindings = seq { for KeyValue(k,vs) in backingDict do for v in vs do yield (k,v) }
+    interface System.Collections.Generic.IEnumerable<'Key * Set<'Value>> with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, Set<'Value>>(backingDict.GetEnumerator()) :> _
+    interface System.Collections.IEnumerable with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, Set<'Value>>(backingDict.GetEnumerator()) :> _
 
 type DefaultDictionary<'Key,'Value when 'Key : equality>(defaultVal : ('Key -> 'Value)) =
     let dict = new System.Collections.Generic.Dictionary<'Key, 'Value>()
