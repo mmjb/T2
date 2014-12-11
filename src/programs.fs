@@ -525,7 +525,7 @@ let add_transition_unmapped (pars : Parameters.parameters) p n T m =
 
 /// add transition n--T-->M with preprocessing
 /// (elim_constants; lazy_disj / split disjunctions)
-let add_transition (pars : Parameters.parameters) p input_n T input_m =
+let add_transition (pars : Parameters.parameters) p input_n (T : command list) input_m =
     let n = map p input_n
     let m = map p input_m
 
@@ -745,7 +745,7 @@ let make_isolation_map (loops : Map<int,Set<int>>) =
 //
 // APPROVED API
 //
-let make (pars : Parameters.parameters) is_temporal init ts incomplete_abstraction =
+let make (pars : Parameters.parameters) is_temporal init (ts : (string * command list * string) seq) incomplete_abstraction =
         let p = { initial = ref 0
                 ; node_cnt = ref 0
                 ; labels = ref Map.empty
@@ -760,7 +760,7 @@ let make (pars : Parameters.parameters) is_temporal init ts incomplete_abstracti
                 ; incomplete_abstraction = ref incomplete_abstraction
                 }
         let mutable init_is_target = false
-        for x, cmds, y in ts do
+        for (x, cmds, y) in ts do
             add_transition pars p x cmds y
             if y = init then
                 init_is_target <- true
