@@ -238,6 +238,7 @@ let print_t2_program p (fname : string) =
     for n in !p.active do
         let (k, cmds, k') = p.transitions.[n]
         print_transition k cmds k'
+    out_channel.Dispose()
 
 let print_clauses p (fname : string) =
     let out_channel = new System.IO.StreamWriter(fname)
