@@ -230,10 +230,10 @@ let print_t2_program p (fname : string) =
     let out_channel = new System.IO.StreamWriter(fname)
     fprintfn out_channel "START: %i;\n" !p.initial
 
-    let print_transition k cmds _ =
+    let print_transition k cmds k' =
         fprintfn out_channel "FROM: %i;" k
         cmds |> Seq.iter (fun c -> c |> command2pp |> fprintfn out_channel "%s")
-        fprintfn out_channel "TO: %i;\n" k
+        fprintfn out_channel "TO: %i;\n" k'
 
     for n in !p.active do
         let (k, cmds, k') = p.transitions.[n]
