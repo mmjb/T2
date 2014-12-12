@@ -38,9 +38,29 @@ open Programs
 /// Counterexample to safety property ---> cycle = None.
 /// Counterexample to liveness property ---> stem might be equal to None.
 ///
-type cex = { stem : (int * command list* int) list option
-           ; cycle : (int * command list *int) list option
-           }
+type cex =
+    { stem : (int * command list* int) list option
+    ; cycle : (int * command list *int) list option
+    }
+
+    override self.ToString () =
+        let stringWriter = new System.IO.StringWriter();
+        self.ToString stringWriter
+        stringWriter.ToString()
+
+    member self.ToString (outWriter : System.IO.TextWriter) =
+        let outputPath pi =
+            for ((k,cmds,k') : (int * Programs.command list * int)) in pi do
+                outWriter.WriteLine("FROM: {0:D};", k)
+                for cmd in cmds do
+                    outWriter.WriteLine("  {0}", Programs.command2pp cmd)
+                outWriter.WriteLine("TO: {0:D};", k')
+        if self.stem.IsSome then
+            outWriter.WriteLine("Stem of the counterexample:")
+            outputPath self.stem.Value
+        if self.cycle.IsSome then
+            outWriter.WriteLine("Cycle of the counterexample:")
+            outputPath self.cycle.Value
 
 let make stem cycle = { stem = stem ; cycle = cycle }
 

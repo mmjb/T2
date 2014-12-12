@@ -120,20 +120,20 @@ match runMode with
             match Termination.bottomUpProver parameters p formula true fairness_constraint with
             | Some (true, proof_printer) -> 
                 printfn "Termination proof succeeded"
-                if parameters.print_proof then proof_printer ()
+                if parameters.print_proof then proof_printer System.Console.Out
             | Some (false, proof_printer) -> 
                 printfn "Nontermination proof succeeded"
-                if parameters.print_proof then proof_printer ()
+                if parameters.print_proof then proof_printer System.Console.Out
             | None -> printfn "Termination/nontermination proof failed"
         | Arguments.CTL formulaString ->
             let formula = CTL_Parser.parse_CTL formulaString
             match Termination.bottomUpProver parameters p formula false fairness_constraint with
             | Some (true, proof_printer) ->
                 printfn "Temporal proof succeeded"
-                if parameters.print_proof then proof_printer ()
+                if parameters.print_proof then proof_printer System.Console.Out
             | Some (false, proof_printer) ->
                 printfn "Temporal proof failed"
-                if parameters.print_proof then proof_printer ()
+                if parameters.print_proof then proof_printer System.Console.Out
             | None -> printfn "Temporal proof failed"
         | _ -> assert(false); //This cannot happen, but we need this fallthrough to avoid a warning.
 

@@ -145,11 +145,11 @@ let do_interval_AI_on_program (pars : Parameters.parameters) (p:Programs.Program
                     let inv = pp_to_interval.[k].to_formula_filtered (fun v -> used_vars.Contains v)
                     p.transitions.[n] <- (k,(Programs.assume inv)::c,k')
 
-let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs () =
+let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs (outWriter : System.IO.TextWriter) =
     //Print out initial rank functions that we used to remove transitions before safety proofs:
     if not(List.isEmpty scc_simplification_rfs) then
         let print_one_simplification (rfs, removed_transitions) =
-            printfn " * Removed transitions %s using the following rank functions:" (removed_transitions |> Seq.map string |> String.concat ", ")
+            outWriter.WriteLine(" * Removed transitions {0} using the following rank functions:", (removed_transitions |> Seq.map string |> String.concat ", "))
             let print_one_scc_rf i (rf, bnds) =
                 let print_rf_per_loc (loc, loc_rf) =
                     loc_rf
@@ -162,16 +162,16 @@ let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs () =
                             else 
                                 Term.Mul(Term.Const(coeff), Term.Var(var)))
                     |> Seq.fold Term.add (Term.constant 0)
-                    |> (fun rf_term -> printfn "      RF for loc. %i: %s" loc rf_term.pp)
+                    |> (fun rf_term -> outWriter.WriteLine("      RF for loc. {0:D}: {1}", loc, rf_term.pp))
                 let print_bound_per_transs (transs, bnd) =
-                    printfn "      Bound for (chained) transitions %s: %A" (transs |> Seq.map string |> String.concat ", ") bnd
+                    outWriter.WriteLine("      Bound for (chained) transitions {0}: {1:D}", (transs |> Seq.map string |> String.concat ", "), bnd)
 
-                printfn "    - Rank function %i:" (i + 1)
+                outWriter.WriteLine("    - Rank function {0:D}:", (i + 1)) 
                 rf |> Map.toSeq |> Seq.iter print_rf_per_loc
                 bnds |> Map.toSeq |> Seq.iter print_bound_per_transs
             List.iteri print_one_scc_rf rfs
             ()
-        printfn "Initially, performed program simplifications using lexicographic rank functions:"
+        outWriter.WriteLine("Initially, performed program simplifications using lexicographic rank functions:")
         List.iter print_one_simplification scc_simplification_rfs
 
 
@@ -185,36 +185,37 @@ let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs () =
             match bound_formula with
             | Formula.Ge(_, bnd) -> bnd
             | _ -> dieWith "Could not retrieve bound for rank function from internal proof structure."
-        printfn "    - RF %s, bound %s" (rf.pp) (bound.pp)
+        outWriter.WriteLine("    - RF {0}, bound {1}", rf.pp, bound.pp)
 
     if not(Map.isEmpty found_lex_rfs) then
         let print_lex_rf (cp, (decr_list, _, bnd_list)) =
-            printfn " * For cutpoint %i, used the following rank functions/bounds (in descending priority order):" cp
+            outWriter.WriteLine(" * For cutpoint {0}, used the following rank functions/bounds (in descending priority order):", string cp)
             List.iter2 print_one_rf_bnd decr_list bnd_list
-        printfn "Used the following cutpoint-specific lexicographic rank functions:"
+        outWriter.WriteLine("Used the following cutpoint-specific lexicographic rank functions:")
         found_lex_rfs |> Map.toSeq |> Seq.iter print_lex_rf
 
     if not(Map.isEmpty found_disj_rfs) then
         let print_disj_rf (cp, rf_bnd_list) =
-            printfn " * For cutpoint %i, used the following rank functions/bounds:" cp
+            outWriter.WriteLine(" * For cutpoint {0}, used the following rank functions/bounds:", string cp)
             List.iter (fun (rf_formula, bnd_formula) -> print_one_rf_bnd rf_formula bnd_formula) rf_bnd_list
-        printfn "Used the following cutpoint-specific disjunctive rank functions:"
+        outWriter.WriteLine("Used the following cutpoint-specific disjunctive rank functions:")
         found_disj_rfs |> Map.toSeq |> Seq.iter print_disj_rf
 
-let output_nonterm_proof (cp, recurrent_set) () =
-    printfn "Found this recurrent set for cutpoint %i: %A" cp recurrent_set
+let output_nonterm_proof ((cp, recurrent_set) : int * Formula.formula) (outWriter : System.IO.TextWriter) =
+    outWriter.WriteLine("Found this recurrent set for cutpoint {0:D}: {1}", cp, recurrent_set.pp)
 
-let output_cex cex existential () =
+let output_cex (cex : Counterexample.cex) existential (outWriter : System.IO.TextWriter) =
     if existential then
-        printfn "Found existential witness: \n %A" cex
+        outWriter.WriteLine("Found existential witness:")
     else
-        printfn "Found counterexample: \n %A" cex
+        outWriter.WriteLine("Found counterexample:")
+    cex.ToString outWriter
 
-let output_nocex existential () =
+let output_nocex existential (outWriter : System.IO.TextWriter) =
     if existential then
-        printfn "No existential witness found, property false!"
+        outWriter.WriteLine("No existential witness found, property false!")
     else
-        printfn "Property true!"
+        outWriter.WriteLine("Property true!")
 
 //Generating precondition using Fourier-Motzkin
 let findPreCond_FM (cex : (int*Programs.command*int) list) =
@@ -783,9 +784,9 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
                 None
         else
             if !cex_found && not(existential) then 
-                Some (false, output_cex cex existential)
+                Some (false, output_cex !cex existential)
             else if !cex_found && existential then
-                Some (true, output_cex cex existential)
+                Some (true, output_cex !cex existential)
             else if not(!cex_found) && not(existential) then
                 Some (true, output_nocex existential)
             else 
@@ -1120,13 +1121,13 @@ let bottomUpProver (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
     //Fix up return value to also print something proof-like for CTL things:
     if ret_value.IsSome && not(termination_only) then
         let (propertyValidity, proof_printer) = ret_value.Value
-        let ext_proof_printer () =
-            proof_printer ()
-            printfn "Preconditions generated / checked during the proof:"
+        let ext_proof_printer (outWriter : System.IO.TextWriter) =
+            proof_printer outWriter
+            outWriter.WriteLine("Preconditions generated / checked during the proof:")
             for (subFormula, preconditions) in propertyMap do
-                printfn " - Preconditions for subformula %s" subFormula.pp
+                outWriter.WriteLine(" - Preconditions for subformula {0}:", subFormula.pp)
                 for (loc, precondition) in preconditions |> List.sortBy fst do
-                    printfn "    at loc. %i%s: %s" loc (if Map.containsKey loc !p.nodeToLabels then " (label " + (!p.nodeToLabels).[loc] + ")" else "") precondition.pp
+                    outWriter.WriteLine("    at loc. {0:D}{1}: {2}", loc, (if Map.containsKey loc !p.nodeToLabels then " (label " + (!p.nodeToLabels).[loc] + ")" else ""), precondition.pp)
         Some (propertyValidity, ext_proof_printer)
     else
         ret_value
