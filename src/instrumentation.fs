@@ -651,7 +651,7 @@ let generate_checker_instrumentation_nodes n p =
 // HK: Experimental Code : Bottom Up Temporal Property Verification of Infinite State Transition Systems//
 //******************************************************************************************************//
 
-let eliminate_redun (lst : (int*Formula.formula) list) : (int*Formula.formula) list =
+let eliminate_redun (lst : (int * Formula.formula) list) : (int*Formula.formula) list =
     let var_terms = System.Collections.Generic.Dictionary<Term.term, bigint>()
     let simplify (x, y) =
         let disjuncts = (Formula.polyhedra_dnf y |> Formula.split_disjunction)
@@ -744,7 +744,7 @@ let add_fairness_check_transititions p (fairness_constraint : ((Programs.command
         for n in fair_2 do
             Programs.plain_add_transition p fair_node n end_node_of_subproperty
 
-let instrument_X p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
+let instrument_X p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
     let p_X = Programs.copy p
     let final_loc = Programs.new_node p_X
     let p_X_copy = Programs.copy p_X
@@ -799,7 +799,7 @@ let instrument_X p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Form
 
     (p_X, ret, final_loc, [], Map.empty)
 
-let instrument_G p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
+let instrument_G p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
     let p_G = Programs.copy p
     let final_loc = Programs.new_node p_G
     let p_G_copy = Programs.copy p_G
@@ -842,7 +842,7 @@ let instrument_G p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Form
 
     (p_G, ret, final_loc, [], Map.empty)
 
-let instrument_F (pars : Parameters.parameters) p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) isTerminationOnly (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) findPreconds isExistential =
+let instrument_F (pars : Parameters.parameters) p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) findPreconds isExistential =
     let p_F = Programs.copy p
     let final_loc = Programs.new_node p_F
 
@@ -1111,7 +1111,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : MultiDi
     let loopnode_to_copiednode = loopnode_to_copiednode |> Seq.map (fun x -> (x.Key, x.Value)) |> Map.ofSeq
     (p_F, ret, final_loc, List.ofSeq(loop_var_cmmd), loopnode_to_copiednode)
 
-let instrument_AndOr p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) =
+let instrument_AndOr p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) =
     let p_AndOr = Programs.copy p
     let final_loc = Programs.new_node p_AndOr
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
@@ -1152,7 +1152,7 @@ let instrument_AndOr p formula (propertyMap : MultiDictionary<CTL_Formula, (int*
 
     (p_AndOr, ret, final_loc, [], Map.empty)
 
-let bottomUp_AW p formula1 formula2 (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) fairness_constraint =
+let bottomUp_AW p formula1 formula2 (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
     let p_AW = Programs.copy p
 
     if fairness_constraint <> None then
@@ -1231,20 +1231,20 @@ let bottomUp_AW p formula1 formula2 (propertyMap : MultiDictionary<CTL_Formula, 
                 node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
     (p_AW, ret, final_loc, [], Map.empty)
 
-let bottomUp_AX p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) fairness_constraint =
+let bottomUp_AX p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
     instrument_X p formula propertyMap fairness_constraint false
-let bottomUp_EX p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) fairness_constraint =
+let bottomUp_EX p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
     instrument_X p formula propertyMap fairness_constraint true
 
 let bottomUp_AG p formula propertyMap fairness_constraint =
     instrument_G p formula propertyMap fairness_constraint false
-let bottomUp_EG (pars : Parameters.parameters) p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) isTerminationOnly fairness_constraint findPreconds =
+let bottomUp_EG (pars : Parameters.parameters) p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly fairness_constraint findPreconds =
     //is_false in EG is meant for the purpose of recurrent sets, so in this case we attempt to find termination only for AF
     instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds true
 
 let bottomUp_AF (pars : Parameters.parameters) p formula propertyMap isTerminationOnly fairness_constraint findPreconds =
     instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds false
-let bottomUp_EF p formula (propertyMap : MultiDictionary<CTL_Formula, (int*Formula.formula)>) fairness_constraint =
+let bottomUp_EF p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
     instrument_G p formula propertyMap fairness_constraint true
 
 //Instrumentation of the proposition happens here because in the AF/AG case, I automatically incorporate it.

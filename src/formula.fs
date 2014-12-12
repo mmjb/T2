@@ -66,6 +66,8 @@ type formula =
 
         pp' 0 self
 
+    override self.ToString () = self.pp
+
     member self.prefix_pp =
         match self with
         | Not(e)     -> sprintf "(not %s)" e.prefix_pp
@@ -360,18 +362,12 @@ let is_disj_var (v:string) = v.StartsWith disj_prefix
 let fair_proph_var = Var.var instrumentation_prefix + "fair_proph"
 let fair_proph_old_var = Var.var instrumentation_prefix + "fair_proph_old"
 let fair_term_var  = Var.var instrumentation_prefix + "fair_TERM"
-let is_fair_var (v:string) = v.Contains fair_proph_var || v.Contains fair_proph_old_var
+let is_fair_var (v:string) =    v.StartsWith fair_proph_var 
+                             || v.StartsWith fair_proph_old_var
 
-let subcheck_return_var id = Var.var ("__RET_VAL_" + id)
-
-let is_length_var1 (v:string) = v.StartsWith "len_"
-let is_length_var2 (v:string) = v.StartsWith "a_"
-let is_length_var v = is_length_var1 v || is_length_var2 v
-
-let is_subcheck_return (v:string) = v.Contains "__RET_VAL_"
-let is_cntrl_var v = is_disj_var v || is_copied_var v
-
-let is_ret_var (v:string) = v.Equals "_RET"
+let subcheck_return_prefix = instrumentation_prefix + "RET_VAL_" 
+let subcheck_return_var id = Var.var subcheck_return_prefix + string(id)
+let is_subcheck_return (v:string) = v.StartsWith subcheck_return_prefix
 
 let is_instr_var (v:string) =  is_saved_var v
                             || is_copied_var v

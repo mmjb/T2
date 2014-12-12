@@ -597,7 +597,7 @@ let cfg_reach p =
         if Set.count oldReachable = Set.count newReachable then 
             false
         else
-            reachable.ReplaceSet(loc, newReachable)
+            reachable.ReplaceSet loc newReachable
             true
     let step () = List.map update locs |> List.exists id
     while step() do
