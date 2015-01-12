@@ -886,20 +886,37 @@ let reachable (pars : Parameters.parameters) abs =
 
 /// For incrementality, we sometimes need to delete a subtree within the proof graph
 let reset (pars : Parameters.parameters) abs to_reset =
-    let to_reset = 
-        if pars.iterative_reachability then
-            to_reset
-        else
-            abs.loc_init
-    let nodes = Set.filter (fun x -> abs_node_to_program_loc abs x = to_reset) !abs.V |> ref
-    while !nodes<>Set.empty do
-        let t = Set.minElement !nodes
-        nodes := Set.remove t !nodes
-        delete_tree abs t
-        add_leaf abs t
+    if pars.iterative_reachability then
+        let nodes_to_remove = Set.filter (fun x -> abs_node_to_program_loc abs x = to_reset) !abs.V
+        for t in nodes_to_remove do
+            if Set.contains t !abs.V then
+                delete_tree abs t
+                add_leaf abs t
+    else
+        //Get rid of _everything_
+        abs.V := Set.empty
+        abs.E.Clear()
+        abs.parent.Clear()
+        abs.psi.Clear()
+        abs.abs_node_to_program_loc.Clear()
+        abs.program_loc_to_abs_nodes.Clear()
+        abs.fc_candidates.Clear()
+        abs.leaves := Set.empty
+        abs.abs_edge_to_program_commands.Clear()
+        abs.cnt := 0
+        abs.covering := Map.empty
+        abs.dfs_map.Clear()
+        abs.dfs_cnt := 0
+        abs.stack := empty_priostack
+        abs.garbage := Set.empty
+        abs.dead := Set.empty
 
-        // The deleted tree might have made nodes disappear
-        nodes := Set.intersect !nodes !abs.V
+        //Start anew:
+        let newNode = new_vertex abs
+        add_V abs newNode
+        add_leaf abs newNode
+        abs.abs_node_to_program_loc.[newNode] <- abs.loc_init
+        abs.program_loc_to_abs_nodes.Add (abs.loc_init, newNode)
 
 /// Great an initial reachability Tree/Graph
 let init init_loc error_loc transition prio abstracted_disjunctions =
