@@ -47,13 +47,19 @@ type ListDictionary<'Key, 'Value when 'Key : equality>() =
 
     ///// Accessing entries:
     member __.Item
-       with get key       = if backingDict.ContainsKey key then backingDict.[key] else []
-       and  set key value = backingDict.[key] <- value
+        with get key       =
+            let mutable res = []
+            if backingDict.TryGetValue (key, &res) then
+                res
+            else
+                []
+        and  set key value = backingDict.[key] <- value
 
     ///// Adding, removing and replacing single entries or full entry seqs:
     member __.Add (key, value) =
-        if backingDict.ContainsKey key then
-            backingDict.[key] <- value :: backingDict.[key]
+        let mutable res = []
+        if backingDict.TryGetValue (key, &res) then
+            backingDict.[key] <- value :: res
         else
             backingDict.[key] <- [value]
     member self.AddMany keyValuePairs =
@@ -66,6 +72,8 @@ type ListDictionary<'Key, 'Value when 'Key : equality>() =
         backingDict.[key] <- [value]
     member __.ReplaceList key valueList =
         backingDict.[key] <- valueList
+    member __.Clear () =
+        backingDict.Clear()
 
     member __.ContainsKey key =
        backingDict.ContainsKey key
@@ -93,13 +101,19 @@ type SetDictionary<'Key,'Value when 'Key : equality and 'Value : comparison>() =
 
     ///// Accessing entries:
     member __.Item
-       with get key = if backingDict.ContainsKey key then backingDict.[key] else Set.empty
-       and  set key value = backingDict.[key] <- value
+        with get key       =
+            let mutable res = Set.empty
+            if backingDict.TryGetValue (key, &res) then
+                res
+            else
+                Set.empty
+        and  set key value = backingDict.[key] <- value
 
     ///// Adding, removing and replacing single entries or full entry seqs:
     member __.Add (key, value) =
-        if backingDict.ContainsKey key then
-            backingDict.[key] <- Set.add value backingDict.[key]
+        let mutable res = Set.empty
+        if backingDict.TryGetValue (key, &res) then
+            backingDict.[key] <- Set.add value res
         else
             backingDict.[key] <- Set.singleton value
     member self.AddMany keyValuePairs =
@@ -114,6 +128,8 @@ type SetDictionary<'Key,'Value when 'Key : equality and 'Value : comparison>() =
         backingDict.[key] <- Set.singleton value
     member __.ReplaceSet key valueSet =
         backingDict.[key] <- valueSet
+    member __.Clear () =
+        backingDict.Clear()
 
     member __.ContainsKey key =
        backingDict.ContainsKey key
@@ -137,19 +153,20 @@ type SetDictionary<'Key,'Value when 'Key : equality and 'Value : comparison>() =
         member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, Set<'Value>>(backingDict.GetEnumerator()) :> _
 
 type DefaultDictionary<'Key,'Value when 'Key : equality>(defaultVal : ('Key -> 'Value)) =
-    let dict = new System.Collections.Generic.Dictionary<'Key, 'Value>()
+    let backingDict = new System.Collections.Generic.Dictionary<'Key, 'Value>()
 
-    member this.ContainsKey key =
-        dict.ContainsKey key
-    
-    member this.Item 
-        with get key = 
-            if dict.ContainsKey key then 
-                dict.[key]
+    member __.ContainsKey key =
+        backingDict.ContainsKey key
+
+    member __.Item
+        with get key =
+            if backingDict.ContainsKey key then
+                backingDict.[key]
             else
                 defaultVal key
-        and  set key value = dict.[key] <- value
-
+        and  set key value = backingDict.[key] <- value
+    member __.Clear () =
+        backingDict.Clear()
 
 ///
 /// List of functions that should be called when T2 is ending some
