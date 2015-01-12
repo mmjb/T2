@@ -232,7 +232,16 @@ let parseArguments =
              , ArgType.Float (fun t -> pars.timeout <- t)
              , "Timeout for the overall proof"
              )
-           ;
+
+           ; new ArgInfo( "-seq_interpolation"
+             , ArgType.String (fun s -> pars.seq_interpolation <- Utils.true_string s) 
+             , "Use sequential interpolation"
+             )
+           ; new ArgInfo( "-iterative_reachability"
+             , ArgType.String (fun s -> pars.iterative_reachability <- Utils.true_string s) 
+             , "Use iterative reachability proving"
+             )
+
         ]
     
     ArgParser.Parse args
