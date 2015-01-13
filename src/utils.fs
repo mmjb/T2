@@ -311,6 +311,11 @@ type Set<'T when 'T : comparison> with
 type List<'T> with
     static member contains element list =
         List.exists ((=) element) list 
+
+type System.Collections.Generic.HashSet<'T> with
+    member self.RemoveAll vs =
+        Seq.iter (self.Remove >> ignore) vs
+
 //
 // Euclid's GCD algorithm
 //
