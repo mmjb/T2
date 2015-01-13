@@ -509,8 +509,8 @@ let force_cover (pars : Parameters.parameters) abs v w =
     let x_nearest =
         let v_ancestors = v :: (ancestors abs v) |> Set.ofList
         let w_ancestors = w :: (ancestors abs w) |> Set.ofList
-        let common = Set.intersect v_ancestors w_ancestors |> Set.toList
-        List.maxBy (dfs_map abs) common
+        let common = Set.intersect v_ancestors w_ancestors
+        Seq.maxBy (dfs_map abs) common
     assert (sq_eq abs x_nearest v && sq_eq abs x_nearest w)
 
     let psi_w =
