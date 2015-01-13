@@ -120,7 +120,7 @@ type Graph =
     ; program_loc_to_abs_nodes : SetDictionary<int,int>
 
     /// Induction coverings
-    ; covering : Map<int, int> ref
+    ; covering : System.Collections.Generic.Dictionary<int, int>
 
     /// Per-node list of candidates that we should search for when looking for a force cover
     ; fc_candidates : DefaultDictionary<int, int list option>
@@ -134,10 +134,10 @@ type Graph =
     ; stack : PrioStack ref
 
     /// Nodes that have been deemed as garbage but havent been GC'd yet.
-    ; garbage : Set<int> ref
+    ; garbage : System.Collections.Generic.HashSet<int>
 
     /// Nodes that were in the system but have now been dead and GC'd
-    ; dead : Set<int> ref
+    ; dead : System.Collections.Generic.HashSet<int>
     }
 
 let rec push_priostack_abs_many (abs:Graph) vs  =
@@ -162,14 +162,14 @@ let make_abs_pgm init_loc error_loc transition priority_opt abstracted_disjuncti
     ; leaves = new System.Collections.Generic.HashSet<int>()
     ; abs_edge_to_program_commands = new System.Collections.Generic.Dictionary<int * int, Programs.command list>()
     ; cnt = ref 0
-    ; covering = ref Map.empty
+    ; covering = new System.Collections.Generic.Dictionary<int,int>()
     ; dfs_map = DefaultDictionary<int, int>(fun _ -> -1)
     ; dfs_cnt = ref 0
     ; priority = defaultArg priority_opt Map.empty
     ; stack = ref empty_priostack
     ; abstracted_disjunctions = abstracted_disjunctions
-    ; garbage = ref Set.empty
-    ; dead = ref Set.empty
+    ; garbage = new System.Collections.Generic.HashSet<int>()
+    ; dead = new System.Collections.Generic.HashSet<int>()
     }
 
 let dfs_map abs x = abs.dfs_map.[x]
@@ -189,13 +189,17 @@ let leaf abs v = abs.leaves.Contains v
 let remove_leaf abs v = abs.leaves.Remove v
 let add_leaf abs v = abs.leaves.Add v |> ignore
 let rm_from_covering abs f =
-    let the_filter x y =
-        if not (f (x, y)) then true
-        else inc_stat "uncovered vertex"; false
-    abs.covering := Map.filter the_filter !abs.covering
+    let toRemove = ref []
+    abs.covering
+    |> Seq.iter
+        (fun kv ->
+            if f (kv.Key, kv.Value) then
+                inc_stat "uncovered vertex"
+                toRemove := kv.Key :: !toRemove
+        )
+    abs.covering.RemoveAll !toRemove
 
-let add_covering abs a b =
-    abs.covering := Map.add a b !abs.covering
+let add_covering abs a b = abs.covering.Add (a, b)
 
 let rec descendents abs t = [
     for c in abs.E.[t] do
@@ -206,7 +210,7 @@ let rec descendents abs t = [
 /// Sanity check to be used before using a node
 let check_not_removed abs x =
     if !gc_check then
-         if Set.contains x !abs.dead then
+         if abs.dead.Contains x then
              printf "CHECK_NOT_REMOVED FAILED"
              assert(false);
 
@@ -221,7 +225,7 @@ let db (pars : Parameters.parameters) abs =
         let vertex_list = Seq.map (fun v -> sprintf "%d [label=\"%d (node %d): %s\"]\n" v (abs_node_to_program_loc abs v) v (pp_psi_nl abs v)) abs.V
         let vertices = Seq.fold (fun x s -> x + s) "" vertex_list
         let edges = abs.E.Fold (fun res sourceLoc targetLocs -> Set.fold (fun res targetLoc -> sprintf "%s%d -> %d\n" res sourceLoc targetLoc) res targetLocs) ""
-        let covering = Map.fold (fun s x y -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" x y) + s) "" !abs.covering
+        let covering = Seq.fold (fun s (t : System.Collections.Generic.KeyValuePair<int,int>) -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" t.Key t.Value) + s) "" abs.covering
         sprintf "\ndigraph program {\n%s\n%s\n\n%s}" vertices edges covering
 
     let write_to_fresh_file (s : string) =
@@ -247,10 +251,10 @@ let db (pars : Parameters.parameters) abs =
 /// nodes.
 let delete_tree abs t =
     let desc = descendents abs t |> Set.ofList
-    abs.dead := Set.union !abs.dead desc
+    abs.dead.AddAll desc
 
     rm_from_covering abs (fun (x, y) -> desc.Contains x || desc.Contains y)
-    let edges_to_remove = abs.abs_edge_to_program_commands.Keys |> Seq.filter (fun (x, y) -> (desc.Contains x) || (desc.Contains y)) |> List.ofSeq //Otherwise, we run into a concurrent modification 
+    let edges_to_remove = abs.abs_edge_to_program_commands.Keys |> Seq.filter (fun (x, y) -> (desc.Contains x) || (desc.Contains y)) |> List.ofSeq //Otherwise, we run into a concurrent modification
     for edge_to_remove in edges_to_remove do
         abs.abs_edge_to_program_commands.Remove edge_to_remove |> ignore
     abs.V.RemoveAll desc
@@ -294,19 +298,19 @@ let delete_program_transition abs ((k, cmds, k') : (int * Programs.command list 
 /// condition is met.
 let gc abs =
     if !do_gc then
-        for v in !abs.garbage do
+        for v in abs.garbage do
             if abs.V.Contains v then
                 delete_tree abs v
-        abs.garbage := Set.empty
+        abs.garbage.Clear()
 
 let garbage_add abs v =
     if !do_gc then
-        abs.garbage := Set.add v !abs.garbage
+        abs.garbage.Add v |> ignore
 
 let garbage_check abs v =
     if !do_gc then
         if Formula.unsat (psi abs v) then
-            abs.garbage := Set.add v !abs.garbage
+            abs.garbage.Add v |> ignore
 
 /// Strengthen the invariant at a node.
 let conjoin_with_psi abs l psi =
@@ -363,7 +367,7 @@ let ancestors abs v =
 /// Returns true if the node is covered by an induction covering, or if its parent is.
 let rec is_covered abs v =
     check_not_removed abs v
-    if Map.containsKey v (!abs.covering) then
+    if abs.covering.ContainsKey v then
         true
     else if Formula.unsat (psi abs v) then
         true
@@ -400,7 +404,7 @@ let get_force_cover_candidates abs v =
             ] |> List.sortBy (dfs_map abs) |> List.rev
 
     // We're gc-ing here, as it's a little faster.
-    let cleaned = List.filter (fun x -> (!abs.dead).Contains x |> not) candidates
+    let cleaned = List.filter (fun x -> abs.dead.Contains x |> not) candidates
     abs.fc_candidates.[v] <- Some(cleaned)
     List.filter (not_covered abs) cleaned
 
@@ -858,10 +862,10 @@ let unwind (pars : Parameters.parameters) abs =
 //
 
 let sanity_check abs =
-    if Map.exists (fun x y -> entails_psi abs x y |> not) !abs.covering then
+    if Seq.exists (function KeyValue(x, y) -> entails_psi abs x y |> not) abs.covering then
         printf "BIG PROBLEM!\n"
 
-    if Map.exists (fun _ y -> ancestors abs y |> List.forall (fun a -> not (Map.containsKey a !abs.covering)) |> not) !abs.covering then
+    if Seq.exists (function KeyValue(_, y) -> ancestors abs y |> List.forall (fun a -> not (abs.covering.ContainsKey a)) |> not) abs.covering then
         printf "BIG PROBLEM 2x!\n"
 
 /// Return path to loc_err or None if it's unreachable
@@ -906,12 +910,12 @@ let reset (pars : Parameters.parameters) abs to_reset =
         abs.leaves.Clear()
         abs.abs_edge_to_program_commands.Clear()
         abs.cnt := 0
-        abs.covering := Map.empty
+        abs.covering.Clear()
         abs.dfs_map.Clear()
         abs.dfs_cnt := 0
         abs.stack := empty_priostack
-        abs.garbage := Set.empty
-        abs.dead := Set.empty
+        abs.garbage.Clear()
+        abs.dead.Clear()
 
         //Start anew:
         let newNode = new_vertex abs

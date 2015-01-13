@@ -315,6 +315,12 @@ type List<'T> with
 type System.Collections.Generic.HashSet<'T> with
     member self.RemoveAll vs =
         Seq.iter (self.Remove >> ignore) vs
+    member self.AddAll vs =
+        Seq.iter (self.Add >> ignore) vs
+
+type System.Collections.Generic.Dictionary<'TKey, 'TValue> with
+    member self.RemoveAll vs =
+        Seq.iter (self.Remove >> ignore) vs
 
 //
 // Euclid's GCD algorithm
