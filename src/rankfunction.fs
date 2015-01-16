@@ -592,7 +592,7 @@ let synthesis_lex_scc_trans_unaffected
                 if List.isEmpty trans_to_delete then
                     //Oh well. No transition could be shown to decrease and be bounded (but everything is weakly oriented):
                     let rfs = extract_rf_from_model mu.[0] m
-                    let rf = rfs.[cp] |> SparseLinear.linear_term_to_term
+                    let rf = rfs.[cp] |> SparseLinear.linear_term_to_term |> Term.subst (fun v -> if v = extra_pre_var then Term.constant 1 else Term.var v)
                     let bnd = Term.Const -(Z.get_model_int m bound_var)
                     m.Dispose()
 
