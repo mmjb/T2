@@ -19,19 +19,17 @@ also follow the Mono instructions provided below. In VS, the F# Power
 Pack is managed through NuGet in Visual Studio and does not need to be
 downloaded manually.
 
-Using Mono (for Linux, Unix and MacOS)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The precompiled binary will not work, as the z3 library is not provided.
-
+Using Mono (for Linux and MacOS)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To build T2, you first need to build the .NET bindings of z3 using mono.
-For this, get z3 sources for z3/unstable (4.3.2 is known to work) from 
+For this, get z3 sources for z3/unstable (4.3.2 is known to work) from
    http://z3.codeplex.com/
 
 To install needed .NET libraries, you will need NuGet, which you can
 obtain from http://nuget.org/nuget.exe.
 
 Let $NUGET be the path to your nuget.exe download, $Z3DIR be the directory
-with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by 
+with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by
 "export Z3DIR=/path/to/z3/") and follow these steps:
 
 (0) Install software needed for the build process:
@@ -40,19 +38,40 @@ with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by
      * mono for .NET 4.0
      * xbuild
      * fsharp
-    On a Debian (>> squeezy) or Ubuntu (>= 14.04 LTS) system, this can be
-    done by executing
+
+    On a Debian (>> squeezy) or Ubuntu (>= 14.04 LTS) system, this suffices:
       $ sudo apt-get install build-essential python mono-complete mono-xbuild fsharp
 
-(1) Build z3:
-      $ pushd "$Z3DIR" && ./configure && pushd "$Z3DIR/build" && make && popd && popd
+    On OS X, install the Mono MDK for Mac OS from
+       http://www.mono-project.com/download/
+    and install the XCode development tools (e.g., by executing "gcc" in
+    a Terminal -- if it's not there yet, OS X will offer to install XCode).
+
+(1) Build z3.
+    On Linux, this suffices:
+      $ pushd "$Z3DIR"
+      $ ./configure
+      $ pushd "$Z3DIR/build"
+      $ make
+      $ popd && popd
+
+    On OS X, you need to enforce a 32bit build (for compatibility with Mono):
+      $ pushd "$Z3DIR"
+      $ ./configure
+      $ pushd "$Z3DIR/build"
+      $ perl -i -pe 's/-D_AMD64_/-arch i386/; s/LINK_EXTRA_FLAGS=/$&-arch i386 /' config.mk
+      $ make
+      $ popd && popd
 
 (2) Build the .NET bindings for z3:
-      $ pushd "$Z3DIR/src/api/dotnet/" && xbuild Microsoft.Z3.csproj && popd
+      $ pushd "$Z3DIR/src/api/dotnet/"
+      $ echo -e '<configuration>\n <dllmap dll="libz3.dll" target="libz3.dylib" os="osx"/>\n <dllmap dll="libz3.so" target="libz3.dylib" os="linux"/>\n</configuration>\n' > Microsoft.Z3.config
+      $ xbuild Microsoft.Z3.csproj
+      $ popd
 
 (3) Update z3 and its .NET bindings in the T2 source tree:
       $ cp "$Z3DIR/src/api/dotnet/obj/Debug/Microsoft.Z3.dll" "$T2DIR/src/"
-      $ cp "$Z3DIR/build/libz3.so" "$T2DIR/src/"
+      $ cp "$Z3DIR/build/libz3.*" "$T2DIR/src/"
 
 (4) Get required packages via NuGet (may need to import certificates first):
       $ mozroots --import --sync
@@ -74,17 +93,17 @@ with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by
                                 ----------
 T2 is run from the command line, and the following command line arguments are
 used to define the proof goal:
- -input_t2 <string>: 
+ -input_t2 <string>:
     Path of the input file in T2 syntax. For examples, look at test/*.t2.
 
- -termination: 
+ -termination:
     Try to prove (non)termination.
 
- -safety <int>: 
+ -safety <int>:
     Try to prove non-reachability of location <int>.
 
- -ctl <CTL_Formula>: 
-    Try to prove that <CTL_Formula> holds for the program. 
+ -ctl <CTL_Formula>:
+    Try to prove that <CTL_Formula> holds for the program.
     The formula format is as follows:
       - Path and temporal quantifiers are enclosed in square brackets,
         e.g. [AG], [EF], and [AW].
@@ -95,17 +114,17 @@ used to define the proof goal:
 
  -fairness <Fairness_Condition>:
     Try to prove termination/a CTL formula under <Fairness_Condition>.
-    The format of <Fairness_Condition> is "(<P>, <Q>)", where a 
+    The format of <Fairness_Condition> is "(<P>, <Q>)", where a
     computation is unfair if an infinite number of states in it
     satisfy <P>, whereas <Q> is only satisfied finitely often.
     An example is "(P == 1, Q == 1)", and more examples can be
     found in programTests.fs.
 
 Commonly used options that modify T2 output behaviour:
- -timeout <int>: 
+ -timeout <int>:
     Set timeout (in seconds).
 
- -print_proof: 
+ -print_proof:
     Print an explanation of the result (for termination only).
 
  -log:
@@ -121,7 +140,7 @@ Typical calls of T2 on Windows, with output, look like this:
  Used the following cutpoint-specific lexicographic rank functions:
    * For cutpoint 7, used the following rank functions/bounds (in descending priority order):
      - RF x, bound 2
-            
+
  $ src/bin/Debug/T2.exe -input_t2 test/testsuite/heidy1.t2 -CTL "[AG] (x_1 >= y_1)"
  Temporal proof succeeded
 
@@ -148,12 +167,12 @@ Implementation:
   * main.fs:
     Top level file for T2 program prover.
   * programTests.fs, test/*:
-    The implementation of the T2 testsuite and oru example collection. 
+    The implementation of the T2 testsuite and oru example collection.
   * arguments.fs:
     Command-line arguments to the tool, and place where we store parameters.
   * log.fs:
     Central mechanism for controlling logging.
-  * utils.fs, gensym.fs:  
+  * utils.fs, gensym.fs:
     Helper functions, and local extensions of existing F# data structures.
   * absflex.fsl, absparse.fsy, parseError.fs:
     F# Lexer/Yacc files for parsing T2 files.
@@ -182,12 +201,12 @@ recursion/procedures (e.g. [10]), concurrency (e.g. [10]), and non-linear
 arithmetic (e.g. [16]) but these features are not implemented here in T2.
 
 Implementation:
- * programs.fs: 
+ * programs.fs:
    Simple representation for arithmetic, non-recursive programs.
  * counterexample.fs:
    Routines for dealing with counterexamples, which are sequences of program
    commands.
- * analysis.fs: 
+ * analysis.fs:
    Various standard compiler-level program analysis tools (e.g. live variable
    analysis).
  * var.fs:
@@ -203,7 +222,7 @@ Implementation:
    implemented on a sparse representation of terms based on a map from variables
    to corresponding coefficients. Often, this is confused with a linear
    inequation, where the term is meant to be smaller or equal to 0.
-   So for example, "2*x <= 4*y" is represented as a map m with m.[x] = 2, 
+   So for example, "2*x <= 4*y" is represented as a map m with m.[x] = 2,
    m.[y] = -4.
  * dominators.fs, scc.fs:
    Dominators computation using the technique from [33], strongly connected
@@ -215,18 +234,18 @@ Termination proving algorithm
 Here the tool implements the TERMINATOR-based approach to termination proving
 (e.g. [6,22,23]) with some modifications as described in [1] and [3]. For those
 not well versed in formal methods literature the best place to start might be
-by reading [6].  The idea of the technique is is to reduce the checking of 
-termination arguments to an incrementally evolving safety problem.  The 
-refinement of the current termination argument is performed on counterexamples 
-from the safety prover, which give rise to a form of lasso-counterexample.  
-T2 implements the optimizations/extensions/modifications from [1,3], which 
-modify the original technique to search for lexicographic termination 
-arguments as well as adapt techniques from the dependency-pairs approach to 
+by reading [6].  The idea of the technique is is to reduce the checking of
+termination arguments to an incrementally evolving safety problem.  The
+refinement of the current termination argument is performed on counterexamples
+from the safety prover, which give rise to a form of lasso-counterexample.
+T2 implements the optimizations/extensions/modifications from [1,3], which
+modify the original technique to search for lexicographic termination
+arguments as well as adapt techniques from the dependency-pairs approach to
 termination proving.
 
 Implementation:
  * termination.fs:
-   Contains the main termination proving loop in the function "prover", 
+   Contains the main termination proving loop in the function "prover",
    as described in the original refinement-based termination papers [6,22,23].
    It also incorporates the optimizations for lexicographic termination proofs
    in this setting, as described in [1,3].
@@ -235,7 +254,7 @@ Implementation:
    refine termination arguments, as discussed in [1,3,22,23].
  * instrumentation.fs:
    Provides the program modification procedures needed for refinement-based
-   termination analysis. 
+   termination analysis.
    The initial transformation is performed by "instrument_F" (F ~ finally),
    and subsequent modification steps (for changed termination arguments)
    are in the instrument_*_RF and switch_to_* functions.
@@ -246,13 +265,13 @@ Implementation:
    Rudimentary non-termination proving techniques based on [36], adapated to
    the lasso-setting.
 
- 
+
 Temporal Logic (CTL) proving algorithm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This version of T2 incorporates the branching-time logic verifier described
-in [34]. For those unfamiliar with temporal logic verification for 
-infinite-state systems, do refer to [7], where a technique that reduces 
+in [34]. For those unfamiliar with temporal logic verification for
+infinite-state systems, do refer to [7], where a technique that reduces
 temporal property verification to a program analysis problem is described.
 In this CTL model checker for infinite-state programs, we adapt the well-known
 bottom-up strategy for finite-state CTL model checking [35] to infinite-state
@@ -281,17 +300,17 @@ Implementation:
 Safety/reachability prover
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Here we use McMillan's "lazy abstraction with interpolation" technique to 
+Here we use McMillan's "lazy abstraction with interpolation" technique to
 prove safety (aka reachability).  In our primary application of proving
-termination the safety problems are encodings of the validity of termination 
-arguments.  Our version is incremental, as the termination proof search builds 
-a reachability problem and then, based on counterexamples found, refines the 
-reachability problem and re-checks it.  
+termination the safety problems are encodings of the validity of termination
+arguments.  Our version is incremental, as the termination proof search builds
+a reachability problem and then, based on counterexamples found, refines the
+reachability problem and re-checks it.
 
 Implementation:
- * reachability.fs: 
+ * reachability.fs:
    Interpolation-based safety/reachability prover following the strategy of [28].
- * priostack.fs:    
+ * priostack.fs:
    Priority stack implementation used in safety prover.
  * interpolantSequence.fs:
    Farkas Lemma-based interpolant synthesis via Farkas lemma using an extension
@@ -300,9 +319,9 @@ Implementation:
    Symbolic execution used in lazy abstraction procedure
 
 
-Abstract interpretation 
+Abstract interpretation
 ~~~~~~~~~~~~~~~~~~~~~~~
-We use several abstract interpretation techniques [31]. Of particular 
+We use several abstract interpretation techniques [31]. Of particular
 importance is the use of an Octagon-based [30] abstract interpreter during
 the analysis of lassos.
 
@@ -318,7 +337,7 @@ Implementation:
                                  ------
                                  People
                                  ------
-The following people have contributed to this version of T2: 
+The following people have contributed to this version of T2:
 
 * Josh Berdine (MSR Researcher)
 * Mary Boeker (12 week undergraduate intern, Queen Mary University of London)
@@ -348,7 +367,7 @@ The following people have contributed to this version of T2:
     Marc Brockschmidt, Byron Cook, Carsten Fuhs
     CAV 2013
 
-[2] Reasoning about nondeterminism in programs 
+[2] Reasoning about nondeterminism in programs
     Byron Cook and Eric Koskinen
     PLDI 2013
 
@@ -357,51 +376,51 @@ The following people have contributed to this version of T2:
     TACAS 2013
 
 [4] Temporal property verification as a program analysis task (extended version
-    Byron Cook, Eric Koskinen, Moshe Vardi 
+    Byron Cook, Eric Koskinen, Moshe Vardi
     Formal Methods in System Design (special issue from CAV), 2012
 
 [5] Proving termination of nonlinear command sequences
-    Domagoj Babic, Byron Cook, Alan J. Hu, Zvonimir Rakamaric 
+    Domagoj Babic, Byron Cook, Alan J. Hu, Zvonimir Rakamaric
     Formal Aspects of Computing (special issue from SEFM), 2012
 
 [6] Proving program termination (Review article)
-    Byron Cook, Andreas Podelski, Andrey Rybalchenko 
+    Byron Cook, Andreas Podelski, Andrey Rybalchenko
     Communications of the ACM, Volume 54 Issue 5, May 2011
 
 [7] Temporal property verification as a program analysis task
-    Byron Cook, Eric Koskinen, Moshe Vardi  
+    Byron Cook, Eric Koskinen, Moshe Vardi
     CAV 2011
 
 [8] SLAyer: Memory safety for systems-level code
-    Josh Berdine, Byron Cook, Samin Ishtiaq 
+    Josh Berdine, Byron Cook, Samin Ishtiaq
     CAV 2011
 
 [9] Making prophecies with decision predicates
-    Byron Cook and Eric Koskinen 
+    Byron Cook and Eric Koskinen
     POPL 2011
 
 [10] Summarization for termination: No return!
-     Byron Cook, Andreas Podelski, Andrey Rybalchenko 
+     Byron Cook, Andreas Podelski, Andrey Rybalchenko
      FMSD (2009) 35:369-387
 
 [11] Proving that non-blocking algorithms don't block
-     Alexey Gotsman, Byron Cook, Matthew Parkinson, and Viktor Vafeiadis 
+     Alexey Gotsman, Byron Cook, Matthew Parkinson, and Viktor Vafeiadis
      POPL 2009
 
-[12] Principles of program termination 
-     Byron Cook 
+[12] Principles of program termination
+     Byron Cook
      Notes from the 2008 Marktoberdorf summer school
 
 [13] Proving conditional termination
      Byron Cook et al
      CAV 2008
 
-[14] Ranking abstractions 
+[14] Ranking abstractions
      Aziem Chawdhary et al
      ESOP 2008
 
-[15] Proving thread termination 
-     Byron Cook, Andreas Podelski, and Andrey Rybalchenko 
+[15] Proving thread termination
+     Byron Cook, Andreas Podelski, and Andrey Rybalchenko
      PLDI 2007
 
 [16] Proving termination by divergence
@@ -409,14 +428,14 @@ The following people have contributed to this version of T2:
      SEFM 2007
 
 [17] Arithmetic strengthening for shape analysis
-     Stephen Magill, Josh Berdine, Edmund Clarke, and Byron Cook. 
+     Stephen Magill, Josh Berdine, Edmund Clarke, and Byron Cook.
      SAS 2007
 
-[18] Proving that programs eventually do something good 
+[18] Proving that programs eventually do something good
      Byron Cook et al
      POPL 2007
 
-[19] Variance analyses from invariance analyses 
+[19] Variance analyses from invariance analyses
      Josh Berdine et al
      POPL 2007
 
@@ -432,22 +451,22 @@ The following people have contributed to this version of T2:
      Byron Cook, Andreas Podelski, and Andrey Rybalchenko
      PLDI 2006
 
-[23] Abstraction refinement for termination 
-     Byron Cook, Andreas Podelski, Andrey Rybalchenko 
+[23] Abstraction refinement for termination
+     Byron Cook, Andreas Podelski, Andrey Rybalchenko
      SAS 2005
 
 [24] A Complete Method of Sythesis of Linear Ranking Functions
      Andreas Podelski, Andrey Rybalchenko
      VMCAI 2004
 
-[25] Multidimensional rankings, program termination, and complexity bounds 
-     of flowchart programs. 
-     Christophe Alias, Alain Darte, Paul Feautrier, and Laure Gonnord. 
+[25] Multidimensional rankings, program termination, and complexity bounds
+     of flowchart programs.
+     Christophe Alias, Alain Darte, Paul Feautrier, and Laure Gonnord.
      SAS 2010
 
 [26] Aaron Bradley, Zohar Manna, Henni Sipma
      The polyranking principle.
-     ICALP 2005 
+     ICALP 2005
 
 [27] Aaron Bradley, Zohar Manna, Henni Sipma
      Linear ranking with reachability
@@ -461,17 +480,17 @@ The following people have contributed to this version of T2:
      Andrey Rybalchenko, Viorica Sofronie-Stokkermans
      VMCAI 2007
 
-[30] The octagon abstract domain 
-     Antoine Mine 
+[30] The octagon abstract domain
+     Antoine Mine
      Higher-Order and Symbolic Computation 19(1): 31-100 (2006)
 
-[31] Abstract interpretation: A unified lattice model for static analysis of 
-     programs by construction or approximation of fixpoints 
-     Patrick Cousot, Radhia Cousot 
+[31] Abstract interpretation: A unified lattice model for static analysis of
+     programs by construction or approximation of fixpoints
+     Patrick Cousot, Radhia Cousot
      POPL 1977
 
-[32] Static determination of dynamic properties of programs 
-     Patrick Cousot, Radhia Cousot 
+[32] Static determination of dynamic properties of programs
+     Patrick Cousot, Radhia Cousot
      Int. Symp. on Programming, 1976
 
 [33] A fast algorithm for finding dominators in a flowgraph
@@ -479,7 +498,7 @@ The following people have contributed to this version of T2:
      TOPLAS 1 (1): 121–141, 1979
 
 [34] Faster Temporal Reasoning for Infinite-State Programs
-     Byron Cook, Heidy Khlaaf, and Nir Piterman. 
+     Byron Cook, Heidy Khlaaf, and Nir Piterman.
      FMCAD 2014. To Appear.
 
 [35] Design and synthesis of synchronization skeletons using branching time temporal logic
