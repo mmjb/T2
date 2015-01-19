@@ -70,7 +70,7 @@ with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by
       $ popd
 
 (3) Update z3 and its .NET bindings in the T2 source tree:
-      $ cp "$Z3DIR/src/api/dotnet/obj/Debug/Microsoft.Z3.dll" "$T2DIR/src/"
+      $ cp "$Z3DIR/src/api/dotnet/obj/Debug/Microsoft.Z3.*" "$T2DIR/src/"
       $ cp "$Z3DIR/build/libz3.*" "$T2DIR/src/"
 
 (4) Get required packages via NuGet (may need to import certificates first):
