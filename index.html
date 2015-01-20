@@ -1,0 +1,394 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>T2 by mmjb</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">T2</h1>
+        <p class="header">T2 Temporal Prover</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/mmjb/T2/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/mmjb/T2/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/mmjb/T2">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/mmjb">mmjb</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a id="t2-temporal-prover" class="anchor" href="#t2-temporal-prover" aria-hidden="true"><span class="octicon octicon-link"></span></a>T2 Temporal Prover</h1>
+
+<p>The T2 research project aims to build a high-performance automatic program
+verification tool for proving temporal properties of programs, such as safety,
+termination, or properties specified in the logic CTL.
+T2 replaces the original TERMINATOR project, which was started in 2005.
+See the authors named in the list of publications for an idea of who has
+contributed to T2 and TERMINATOR over the years.</p>
+
+<h2>
+<a id="building-t2" class="anchor" href="#building-t2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building T2</h2>
+
+<h3>
+<a id="windows" class="anchor" href="#windows" aria-hidden="true"><span class="octicon octicon-link"></span></a>Windows</h3>
+
+<p>To build T2, we recommend using Visual Studio (2013 or later), but you can
+also follow the Mono instructions provided below. In VS, the F# Power
+Pack is managed through NuGet in Visual Studio and does not need to be
+downloaded manually.</p>
+
+<h3>
+<a id="using-mono-for-linux-and-macos" class="anchor" href="#using-mono-for-linux-and-macos" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Mono (for Linux and MacOS)</h3>
+
+<p>To build T2, you first need to build the .NET bindings of z3 using Mono.
+For this, get thr z3 sources (4.3.2 is known to work) from
+   <a href="http://z3.codeplex.com/">http://z3.codeplex.com/</a></p>
+
+<p>To install needed .NET libraries, you will need NuGet, which you can
+obtain from <a href="http://nuget.org/nuget.exe">http://nuget.org/nuget.exe</a>.</p>
+
+<p>Let <code>$NUGET</code> be the path to your nuget.exe download, <code>$Z3DIR</code> be the directory
+with Z3 sources, <code>$T2DIR</code> be the T2 source directory (e.g., set them by
+<code>export Z3DIR=/path/to/z3/</code>) and follow these steps:</p>
+
+<ol>
+<li>
+<p>Install software needed for the build process:</p>
+
+<ul>
+<li><code>g++</code></li>
+<li><code>python</code></li>
+<li>Mono for .NET 4.0</li>
+<li><code>xbuild</code></li>
+<li><code>fsharp</code></li>
+</ul>
+
+<p>On a Debian (&gt;&gt; squeezy) or Ubuntu (&gt;= 14.04 LTS) system, this suffices:</p>
+
+<pre><code>  $ sudo apt-get install build-essential python mono-complete mono-xbuild fsharp
+</code></pre>
+
+<p>On OS X, install the Mono MDK for Mac OS from
+   <a href="http://www.mono-project.com/download/">http://www.mono-project.com/download/</a>
+and install the <code>XCode</code> development tools (e.g., by executing <code>gcc</code> in
+a Terminal -- if it's not there yet, Mac OS will offer to install <code>XCode</code>).</p>
+</li>
+<li>
+<p>Build z3.
+On Linux, this suffices:</p>
+
+<pre><code>  $ pushd "$Z3DIR"
+  $ ./configure
+  $ pushd "$Z3DIR/build"
+  $ make
+  $ popd &amp;&amp; popd
+</code></pre>
+
+<p>On OS X, you need to enforce a 32bit build (for compatibility with Mono):</p>
+
+<pre><code>  $ pushd "$Z3DIR"
+  $ ./configure
+  $ pushd "$Z3DIR/build"
+  $ perl -i -pe 's/-D_AMD64_/-arch i386/; s/LINK_EXTRA_FLAGS=/$&amp;-arch i386 /' config.mk
+  $ make
+  $ popd &amp;&amp; popd
+</code></pre>
+</li>
+<li>
+<p>Build the .NET bindings for z3:</p>
+
+<pre><code>  $ pushd "$Z3DIR/src/api/dotnet/"
+  $ echo -e '&lt;configuration&gt;\n &lt;dllmap dll="libz3.dll" target="libz3.dylib" os="osx"/&gt;\n &lt;dllmap dll="libz3.so" target="libz3.dylib" os="linux"/&gt;\n&lt;/configuration&gt;\n' &gt; Microsoft.Z3.config
+  $ xbuild Microsoft.Z3.csproj
+  $ popd
+</code></pre>
+</li>
+<li>
+<p>Update z3 and its .NET bindings in the T2 source tree:</p>
+
+<pre><code>  $ cp "$Z3DIR/src/api/dotnet/obj/Debug/Microsoft.Z3.*" "$T2DIR/src/"
+  $ cp "$Z3DIR/build/libz3.*" "$T2DIR/src/"
+</code></pre>
+</li>
+<li>
+<p>Get required packages via NuGet (may need to import certificates first):</p>
+
+<pre><code>  $ mozroots --import --sync
+  $ pushd "$T2DIR/src" &amp;&amp; mono $NUGET restore &amp;&amp; popd
+</code></pre>
+</li>
+<li>
+<p>Build T2, in Debug mode:</p>
+
+<pre><code>  $ pushd "$T2DIR/src" &amp;&amp; xbuild &amp;&amp; popd
+</code></pre>
+
+<p>In Release configuration:</p>
+
+<pre><code>  $ pushd "$T2DIR/src" &amp;&amp; xbuild /property:Configuration=Release &amp;&amp; popd
+</code></pre>
+</li>
+<li>
+<p>Run T2 as follows (replace <code>Debug</code> by <code>Release</code> for the release build)</p>
+
+<pre><code>  $ mono "$T2DIR/src/bin/Debug/T2.exe"
+</code></pre>
+
+<p>For example, to execute the testsuite:</p>
+
+<pre><code>  $ pushd "$T2DIR/test" &amp;&amp; mono "$T2DIR/src/bin/Debug/T2.exe" -tests
+</code></pre>
+</li>
+</ol>
+
+<h2>
+<a id="running-t2" class="anchor" href="#running-t2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running T2</h2>
+
+<p>T2 is run from the command line, and the following command line arguments are
+used to define the proof goal:</p>
+
+<ul>
+<li><p><code>-input_t2</code> <em>string</em>: 
+Path of the input file in T2 syntax. For examples, look at <code>test/*.t2</code>.</p></li>
+<li><p><code>-termination</code>:
+Try to prove (non)termination.</p></li>
+<li><p><code>-safety</code> <em>int</em>: 
+Try to prove non-reachability of location <em>int</em>.</p></li>
+<li>
+<p><code>-ctl</code> <em>CTL_Formula</em>: 
+Try to prove that <em>CTL_Formula</em> holds for the program. 
+The formula format is as follows:</p>
+
+<ul>
+<li>Path and temporal quantifiers are enclosed in square brackets,
+e.g. <code>[AG]</code>, <code>[EF]</code>, and <code>[AW]</code>.</li>
+<li>Subformulas following quantifiers have to be enclosed in
+parentheses, e.g. <code>[AG](x &gt; 0)</code> and <code>[EF]([AG](y &lt; x))</code>.
+For more CTL formula examples, see <code>programTests.fs</code>, or the parser
+definition in <code>absparse.mly</code>.</li>
+</ul>
+</li>
+<li><p><code>-fairness</code> <em>Fairness_Condition</em>:
+Try to prove termination/a CTL formula under <em>Fairness_Condition</em>.
+The format of <em>Fairness_Condition</em> is <code>(P, Q)</code>, where a 
+computation is unfair if an infinite number of states in it
+satisfy <code>P</code>, whereas <code>Q</code> is only satisfied finitely often.
+An example is <code>(P == 1, Q == 1)</code>, and more examples can be
+found in <code>programTests.fs</code>.</p></li>
+</ul>
+
+<p>Commonly used options that modify T2 output behaviour:</p>
+
+<ul>
+<li><p><code>-timeout</code> <em>int</em>
+Set timeout (in seconds).</p></li>
+<li><p><code>-print_proof</code>: 
+Print an explanation of the result.</p></li>
+<li><p><code>-log</code>:
+Turn on verbose logging. This will print a lot of output, and may
+be hard to understand for non-developers.</p></li>
+</ul>
+
+<p>Typical calls of T2 on Windows, with output, look like this:</p>
+
+<pre><code> $ src/bin/Debug/T2.exe -input_t2 test/testsuite/small02.t2 -safety 10000 -timeout 42
+ Safety proof succeeded
+</code></pre>
+
+<pre><code> $ src/bin/Debug/T2.exe -input_t2 test/testsuite/small01.t2 -termination -print_proof
+ Termination proof succeeded
+ Used the following cutpoint-specific lexicographic rank functions:
+   * For cutpoint 7, used the following rank functions/bounds (in descending priority order):
+     - RF x, bound 2
+</code></pre>
+
+<pre><code> $ src/bin/Debug/T2.exe -input_t2 test/testsuite/heidy1.t2 -CTL "[AG] (x_1 &gt;= y_1)"
+ Temporal proof succeeded
+</code></pre>
+
+<pre><code> $ src/bin/Debug/T2.exe -input_t2 test/bakery.t2 -CTL "[AG](NONCRITICAL &lt;= 0 || ([AF](CRITICAL &gt; 0)))" -fairness "(P == 1, Q == 1)"
+ Temporal proof succeeded
+</code></pre>
+
+<p>Note that T2 creates "defect" files when proofs fail and logging is enabled.
+A defect.tt file can be viewed with sdvdefect.exe (which comes with the SDV
+distribution).</p>
+
+<h2>
+<a id="publications" class="anchor" href="#publications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Publications</h2>
+
+<ul>
+<li>
+<em>Fairness for Infinite-State Systems</em>.
+Byron Cook, Heidy Khlaaf, Nir Piterman.
+TACAS'15.</li>
+<li>
+<em>Faster Temporal Reasoning for Infinite-State Programs</em>.
+Byron Cook, Heidy Khlaaf, Nir Piterman.
+FMCAD'14.</li>
+<li>
+<em>Better termination proving through cooperation</em>.
+Marc Brockschmidt, Byron Cook, Carsten Fuhs.
+CAV'13.</li>
+<li>
+<em>Reasoning about nondeterminism in programs</em>.
+Byron Cook and Eric Koskinen.
+PLDI'13.</li>
+<li>
+<em>Ramsey vs. lexicographic termination proving</em>.
+Byron Cook, Abigail See, and Florian Zuleger.
+TACAS'13.</li>
+<li>
+<em>Ranking function synthesis for bit-vector relations</em>.
+Byron Cook, Daniel Kroening, Philipp Rummer, Christoph Wintersteiger.
+Formal Methods in System Design, 2013.</li>
+<li>
+<em>Proving termination of nonlinear command sequences</em>.
+Domagoj Babic, Byron Cook, Alan J. Hu, Zvonimir Rakamaric .
+Formal Aspects of Computing (special issue from SEFM), 2013.</li>
+<li>
+<em>Temporal property verification as a program analysis task</em> (extended version).
+Byron Cook, Eric Koskinen, Moshe Vardi .
+Formal Methods in System Design (special issue from CAV), 2012.</li>
+<li>
+<em>Proving program termination</em> (Review article).
+Byron Cook, Andreas Podelski, Andrey Rybalchenko .
+Communications of the ACM, Volume 54 Issue 5, May 2011.</li>
+<li>
+<em>Temporal property verification as a program analysis task</em>.
+Byron Cook, Eric Koskinen, Moshe Vardi .
+CAV'11.</li>
+<li>
+<em>Making prophecies with decision predicates</em>.
+Byron Cook and Eric Koskinen .
+POPL'11.</li>
+<li>
+<em>Proving stabilization of biological systems</em>.
+Byron Cook, Jasmin Fisher, Elzbieta Krepska, Nir Piterman.
+VMCAI'11.</li>
+<li>
+<em>Ranking function synthesis for bit-vector relations</em>.
+Byron Cook, Daniel Kroening, Philipp Rummer, and Christoph Wintersteiger.
+TACAS'10.</li>
+<li>
+<em>Summarization for termination: No return!</em>.
+Byron Cook, Andreas Podelski, Andrey Rybalchenko .
+FMSD (2009) 35:369-387.</li>
+<li>
+<em>Proving that non-blocking algorithms don't block</em>.
+Alexey Gotsman, Byron Cook, Matthew Parkinson, and Viktor Vafeiadis .
+POPL'09.</li>
+<li>
+<em>Proving conditional termination</em>.
+Byron Cook, Sumit Gulwani, Tal Lev-Ami, Andrey Rybalchenko, and Mooly Sagiv .
+CAV'08.</li>
+<li>
+<em>Ranking abstractions</em> .
+Aziem Chawdhary, Byron Cook, Sumit Gulwani, Mooly Sagiv, and Hongseok Yang .
+ESOP'08.</li>
+<li>
+<em>Proving thread termination</em> .
+Byron Cook, Andreas Podelski, and Andrey Rybalchenko .
+PLDI'07.</li>
+<li>
+<em>Proving termination by divergence</em>.
+Domagoj Babic, Byron Cook, Alan Hu, Zvonimir Rakamaric.
+SEFM'07.</li>
+<li>
+<em>Arithmetic strengthening for shape analysis</em>.
+Stephen Magill, Josh Berdine, Edmund Clarke, and Byron Cook. .
+SAS'07.</li>
+<li>
+<em>Proving that programs eventually do something good</em> .
+Byron Cook, Alexey Gotsman, Andreas Podelski, Andrey Rybalchenko, and Moshe Vardi .
+POPL'07.</li>
+<li>
+<em>Variance analyses from invariance analyses</em> .
+Josh Berdine, Aziem Chawdhary, Byron Cook, Dino Distefano, and Peter O'Hearn .
+POPL'07.</li>
+<li>
+<em>Automatic termination proofs for programs with shape-shifting heaps</em>.
+Josh Berdine, Byron Cook, Dino Distefano, and Peter O'Hearn.
+CAV'06.</li>
+<li>
+<em>Terminator: Beyond safety</em> (short tool description paper).
+Byron Cook, Andreas Podelski, and Andrey Rybalchenko.
+CAV'06.</li>
+<li>
+<em>Termination proofs for systems code</em>.
+Byron Cook, Andreas Podelski, and Andrey Rybalchenko.
+PLDI'06.</li>
+<li>
+<em>Abstraction refinement for termination</em> .
+Byron Cook, Andreas Podelski, Andrey Rybalchenko .
+SAS'05.</li>
+</ul>
+
+<h2>
+<a id="press" class="anchor" href="#press" aria-hidden="true"><span class="octicon octicon-link"></span></a>Press</h2>
+
+<ul>
+<li>
+<a href="http://www.zdnet.com/why-the-blue-screen-of-death-no-longer-plagues-windows-users-7000021327/">Why the blue screen of death no longer plagues Windows users</a>
+ ZDNet
+ By Nick Heath
+ September, 2013</li>
+<li>
+<a href="http://www.simple-talk.com/opinion/geek-of-the-week/dr-byron-cook-geek-of-the-week/">Geek of the week</a>
+ Simple Talk
+ By Richard Morris
+ September, 2010</li>
+<li>
+<a href="http://www.wired.com/magazine/2009/11/st_goodsigns/">A Sign of the Times</a>
+ Wired
+ By Cameron Bird
+ December, 2009</li>
+<li>
+<a href="http://www.sciencemag.org/cgi/content/summary/325/5939/391">A Good Sign</a>
+ Science
+ By Angela Saini
+ July, 2009</li>
+<li>
+<a href="http://channel9.msdn.com/ShowPost.aspx?PostID=342240#342240">Inside Terminator</a>
+ <a href="http://channel9.msdn.com/">channel9.msdn.com</a> 
+ By Charles Torre 
+ September, 2007</li>
+<li>
+<a href="http://channel9.msdn.com/showpost.aspx?postid=324448">Using Proofs to Catch System Hangs Before They're Born</a>
+ <a href="http://channel9.msdn.com/">channel9.msdn.com</a> 
+ By Charles Torre 
+ July, 2007</li>
+<li>
+<a href="http://www.sciam.com/article.cfm?articleID=D3EBDC43-E7F2-99DF-3DF7AF0D38DBCA84&amp;amp;chanID=sa001">Send in the Terminator</a> 
+ By Gary Stix 
+ <a href="http://www.sciam.com/">Scientific American</a> 
+ December, 2006</li>
+<li>
+<a href="http://www.ft.com/cms/s/b1a89cfc-7a00-11db-8d70-0000779e2340,Authorised=false.html?_i_location=http%3A%2F%2Fwww.ft.com%2Fcms%2Fs%2Fb1a89cfc-7a00-11db-8d70-0000779e2340.html&amp;amp;_i_referer=">Testers aim to kill off dreaded blue screens</a>
+ By Mary Branscombe
+ <a href="http://www.ft.com/">Financial Times</a>
+ November, 2007</li>
+</ul>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
