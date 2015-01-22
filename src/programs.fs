@@ -660,11 +660,12 @@ let headers t xs = Dominators.headers t xs
 let cutpoints p =
     let cuts = ref Set.empty
     let marks = new System.Collections.Generic.Dictionary<int, bool>()
-
+    printfn "-----------------------------------------------------"
     let rec dfs_visit node =
         marks.Add(node, false) // false means in progress
-
+        if marks.ContainsKey(10) then for n in marks do printf"%A," n
         for _, node' in transitions_from p node do
+            let test = marks.TryGetValue(node')
             match marks.TryGetValue(node') with
             | false, _ -> dfs_visit node'
             | true, true -> ()

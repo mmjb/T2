@@ -105,7 +105,7 @@ let register_tests() =
         Test.register_testd true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint None)
 
     // Small, manually crafted examples ---------------------------------------------------
-    register_term_test "testsuite/small01.t2"
+    (*register_term_test "testsuite/small01.t2"
     register_safety_test "testsuite/small02.t2"
     register_safety_test "testsuite/small03.t2"
     register_safety_test "testsuite/small04.t2"
@@ -273,7 +273,7 @@ let register_tests() =
     register_CTL_SAT_test "pgarch-succeed.t2" "[AG]([EF](wakend == 1))" None
     register_CTL_SAT_test "e-pgarch-succeed.t2" "[EF]([EG](wakend == 0))" None
     register_CTL_SAT_test "e-pgarch-succeed.t2" "[EF]([AG](wakend == 0))" None
-
+    *)
     register_CTL_SAT_test "ppblock.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (parse_fairness_constraint "(IoCreateDevice == 1, status == 1)")
     
 
@@ -287,7 +287,7 @@ let register_tests() =
     //One with bug + Fairness.
     register_CTL_FAIL_test "ppblockbug.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (parse_fairness_constraint "(IoCreateDevice == 1, status == 1)")
 
-    register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
+    register_CTL_SAT_testd "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
     //One with bug + Fairness.
     register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
     //No Fairness constraint, should fail

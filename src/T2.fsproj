@@ -23,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <StartWorkingDirectory>C:\Users\mabrocks\Source\Repos\T22\test\</StartWorkingDirectory>
+    <StartWorkingDirectory>\\vmware-host\Shared Folders\Documents\Git\T2\test</StartWorkingDirectory>
     <StartArguments>-tests</StartArguments>
     <StartAction>Project</StartAction>
     <StartProgram>Z:\src\T2\bin\Debug\T2.exe</StartProgram>
