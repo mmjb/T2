@@ -557,13 +557,13 @@ let find_instrumented_loops (p_loops : Map<int, Set<int>>) p_instrumented (loc_t
     let cps_to_loops =
         seq {
             for (cp, sccs) in regions do
-                let loop = Programs.concat sccs
+                let loop = Set.unionMany sccs
                 yield cp, loop
         } |> Map.ofSeq
     let cps_to_sccs =
         seq {
             for (cp, sccs) in regions do
-                let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> Programs.concat
+                let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> Set.unionMany
                 yield cp, loop
         } |> Map.ofSeq
     
