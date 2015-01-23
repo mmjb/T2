@@ -141,7 +141,7 @@ type DefaultDictionary<'Key,'Value when 'Key : equality>(defaultVal : ('Key -> '
 
     member this.ContainsKey key =
         dict.ContainsKey key
-    
+
     member this.Item 
         with get key = 
             if dict.ContainsKey key then 
@@ -150,7 +150,17 @@ type DefaultDictionary<'Key,'Value when 'Key : equality>(defaultVal : ('Key -> '
                 defaultVal key
         and  set key value = dict.[key] <- value
 
+    member __.Iter (action : 'Key -> 'Value -> Unit) =
+        dict |> Seq.iter (fun t -> action t.Key t.Value)
 
+    member __.Keys = dict.Keys
+    member __.Values = dict.Values
+    member __.Bindings = seq { for KeyValue(k,vs) in dict do yield (k,vs) }
+  
+    interface System.Collections.Generic.IEnumerable<'Key * 'Value> with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value>(dict.GetEnumerator()) :> _
+    interface System.Collections.IEnumerable with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value>(dict.GetEnumerator()) :> _
 ///
 /// List of functions that should be called when T2 is ending some
 /// reasoning and moving to a new problem.  Caches, Gensym, etc can add reset functions

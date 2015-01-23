@@ -429,7 +429,6 @@ let insertForRerun recurSet propagate existential f final_loc (p : Programs.Prog
         let insert = ref (-1,-1)
         for l in !p_final.active do
             let (k,cmds,k') = p_final.transitions.[l]
-            printfn "CUTP IS %A" cutp
             if  (k = m && k' = m') || (cutp <> err_node && cutp <> -1 && k = end_sub_node && k' = final_loc) then
             //if (k = m && k' = m') then
                 if not(strengthen) then
@@ -548,6 +547,31 @@ let insertForRerun recurSet propagate existential f final_loc (p : Programs.Prog
 
     instrument fPreCond preCond cutp err_node end_sub_node !stren
 
+let find_instrumented_loops (p_loops : Map<int, Set<int>>) p_instrumented (loc_to_loopduploc: Map<int, int>) =
+    let (instrumented_loops, p_instrumented_sccs) = Programs.find_loops p_instrumented
+    let loc_to_loopduploc = loc_to_loopduploc |> Map.filter (fun x y -> p_loops.ContainsKey x)
+    let duplicated_nodes = loc_to_loopduploc |> Map.toList |> List.map(fun (x,y) -> y)
+    let to_add = Set.difference (Set.ofList duplicated_nodes) (Set.ofSeq instrumented_loops.Keys) 
+
+    let regions = Programs.isolated_regions_non_cp p_instrumented to_add
+    let cps_to_loops =
+        seq {
+            for (cp, sccs) in regions do
+                let loop = Programs.concat sccs
+                yield cp, loop
+        } |> Map.ofSeq
+    let cps_to_sccs =
+        seq {
+            for (cp, sccs) in regions do
+                let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> Programs.concat
+                yield cp, loop
+        } |> Map.ofSeq
+    
+    let cps_to_loops = Map.fold (fun acc key value -> Map.add key value acc) instrumented_loops cps_to_loops
+    let cps_to_sccs = Map.fold (fun acc key value -> Map.add key value acc) p_instrumented_sccs cps_to_sccs
+
+    (cps_to_loops,cps_to_sccs)
+
 
 let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) precondMap propagate (fairness_constraint : (Formula.formula * Formula.formula) option) existential findPreconds next =
     Utils.timeout !Arguments.timeout
@@ -569,7 +593,7 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
 
     let scc_simplification_rfs = ref []
     let (p_loops, _) = Programs.find_loops p
-    let (_, p_instrumented_sccs) = Programs.find_loops p_instrumented
+    let (_, p_instrumented_sccs) = find_instrumented_loops p_loops p_instrumented loc_to_loopduploc
     if termination_only && !Arguments.lex_term_proof_first then
         //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
         let seen_sccs = ref Set.empty
@@ -607,8 +631,8 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
     //BottomUp changes the instrumentation, so make a copy for that purpose here, as we do not want the pre-conditions to persist in other runs
     let p_final = Programs.copy p_instrumented
     let graph = Reachability.init !p_final.initial error_loc (trans_fun p_final.transitions) (Some (make_prio_map p_final error_loc)) !p_final.abstracted_disjunctions
-    let p_bu_sccs = snd <| Programs.find_loops p_final
-
+    //let p_bu_sccs = snd <| Programs.find_loops p_final
+    let p_bu_sccs = snd <| find_instrumented_loops p_loops p_instrumented loc_to_loopduploc
     ///////////////////////////////////////////////////////////////////////////
     /// Main safety loop, instrumenting in termination arguments when needed //
     ///////////////////////////////////////////////////////////////////////////
