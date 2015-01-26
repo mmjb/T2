@@ -663,7 +663,6 @@ let cutpoints p =
     let rec dfs_visit node =
         marks.Add(node, false) // false means in progress
         for _, node' in transitions_from p node do
-            let test = marks.TryGetValue(node')
             match marks.TryGetValue(node') with
             | false, _ -> dfs_visit node'
             | true, true -> ()
@@ -728,21 +727,18 @@ let isolated_regions_non_cp p nodes =
         yield node, sets
     ]
 
-let combine (xs:'a Set) (ys:'a Set) = [yield! xs; yield! ys] |> Seq.fold (fun (acc:'a Set) x -> acc.Add(x)) Set.empty
-let concat (xs:(Set<'a>) seq) = Seq.fold combine Set.empty xs
-
 let find_loops p =
     let regions = isolated_regions p
     let cps_to_loops =
         seq {
             for (cp, sccs) in regions do
-                let loop = concat sccs
+                let loop = Set.unionMany sccs
                 yield cp, loop
         } |> Map.ofSeq
     let cps_to_sccs =
         seq {
             for (cp, sccs) in regions do
-                let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> concat
+                let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> Set.unionMany
                 yield cp, loop
         } |> Map.ofSeq
     (cps_to_loops, cps_to_sccs)
