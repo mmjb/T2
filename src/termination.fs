@@ -597,23 +597,22 @@ let prover (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) prec
     let (p_loops, _) = Programs.find_loops p
     let (_, p_instrumented_sccs) = find_instrumented_loops p_loops p_instrumented loc_to_loopduploc
     let(_,connected_scc_cp) = Programs.find_loops p_instrumented
-    if fairness_constraint.IsNone then
     //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
-        let seen_sccs = ref Set.empty
-        for scc in (Map.filter (fun cp _ -> List.contains cp cps_checked_for_term) connected_scc_cp) do
-            let (cp, scc_nodes) = (scc.Key, scc.Value)
-            if not(Set.contains scc_nodes !seen_sccs) then
-                seen_sccs := Set.add scc_nodes !seen_sccs
-                match simplify_scc p_instrumented termination_only cp_rf cps_checked_for_term cp scc_nodes with
-                | Some (rfs, removed_transitions) -> 
-                    scc_simplification_rfs := (rfs, removed_transitions)::(!scc_simplification_rfs)
-                | None ->
-                    ()
-        if Log.do_logging () then
-            Log.log <| (List.map snd !scc_simplification_rfs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
+    let seen_sccs = ref Set.empty
+    for scc in (Map.filter (fun cp _ -> List.contains cp cps_checked_for_term) connected_scc_cp) do
+        let (cp, scc_nodes) = (scc.Key, scc.Value)
+        if not(Set.contains scc_nodes !seen_sccs) then
+            seen_sccs := Set.add scc_nodes !seen_sccs
+            match simplify_scc p_instrumented termination_only cp_rf cps_checked_for_term cp scc_nodes with
+            | Some (rfs, removed_transitions) -> 
+                scc_simplification_rfs := (rfs, removed_transitions)::(!scc_simplification_rfs)
+            | None ->
+                ()
+    if Log.do_logging () then
+        Log.log <| (List.map snd !scc_simplification_rfs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
 
-        if !Arguments.dottify_input_pgms then
-            Output.print_dot_program p_instrumented "input__instrumented_cleaned.dot"
+    if !Arguments.dottify_input_pgms then
+        Output.print_dot_program p_instrumented "input__instrumented_cleaned.dot"
 
     ///holds, for each cutpoint, a list of (the index of) the transitions that are lexicographic checkers
     let cp_rf_lex = new System.Collections.Generic.Dictionary<int, int list>()
