@@ -1158,3 +1158,223 @@ let bottomUpProver (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bo
         Some (propertyValidity, ext_proof_printer)
     else
         ret_value
+
+(*
+****************************************************************************************
+We are now going to prove CTLStar in combination with determinization reduction
+from LTL and CTL, and the precondition synthesis methodology. 
+1. Take in the control flow graph. 
+2. Parse the formula, if a state formula, run regular CTL Model Checker
+3. If a path formula, add A quantifier, and apply determinization procedure.
+    3.1 Find all non-deterministic points/branching points in the program
+    3.2 Use preophecy variable generation to break branching
+    3.3 Run CTL Model Checker on newly modified control flow graph
+*****************************************************************************************
+*)
+let convert_star_CTL (f:CTL.CTLStar_Formula) (e_sub1:CTL.CTL_Formula option) e_sub2 : CTL.CTL_Formula = 
+
+    let retrieve_formula e_sub = 
+        match e_sub with
+        |Some(a) -> a
+        |None -> failwith "Failure when converting CTL* to CTL"
+
+    let match_path_form (frm: CTL.Path_Formula) : CTL.CTL_Formula =
+        let e_sub1 = retrieve_formula e_sub1
+        match frm with
+        | CTL.Path_Formula.F e2-> CTL.AF e_sub1
+        | CTL.Path_Formula.G e2 -> CTL.AG e_sub1
+        | CTL.Path_Formula.X e2-> CTL.AX e_sub1
+        | CTL.Path_Formula.W (e2,e3) -> let e_sub2 = retrieve_formula e_sub2                                         
+                                        CTL.AW (e_sub1,e_sub2)
+        //The reason why U isn't included is because we currently only have support for AW and not AU
+        //Technicaly AU can be expressed in AW/AG, so U when verifying LTL can be written in terms of W/G. 
+    match f with        
+    | CTL.Path e->   match_path_form e                                  
+    | CTL.State e -> 
+                     match e with                     
+                     | CTL.A e1 -> match_path_form e1
+                     | CTL.E e1 -> let e_sub1 = retrieve_formula e_sub1
+                                   match e1 with
+                                   | CTL.Path_Formula.F e2-> CTL.EF e_sub1
+                                   | CTL.Path_Formula.G e2 -> CTL.EG e_sub1
+                                   | CTL.Path_Formula.X e2-> CTL.EX e_sub1
+                                   | CTL.Path_Formula.U (e2,e3) -> CTL.EU (e_sub1,retrieve_formula e_sub2)
+                     | CTL.And (e1,e2) -> CTL.CTL_And(retrieve_formula e_sub1 ,retrieve_formula e_sub2)
+                     | CTL.Or (e1,e2) ->  CTL.CTL_Or(retrieve_formula e_sub1 ,retrieve_formula e_sub2)
+                     | CTL.Atm a->  CTL.Atom a  
+
+let is_existential e = 
+    match e with
+    | CTL.E e1 -> true
+    | _ -> false
+
+//Now we must either universally or existentially quantify out the prophecy variables
+//from the preconditions.
+//For each location, apply quantifier elimination.
+//So make below a function that you can call, and also call it in other areas where you do this.
+let quantify_proph_var e new_F (propertyMap : ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>) =
+    let propertyMap_temp = ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
+    for n in (propertyMap.[new_F]) do 
+        let (loc,loc_form) = n
+        let loc_form = if (is_existential e) then loc_form else Formula.negate(loc_form)
+        let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> x.Contains "__proph_var_det")                    
+        let disj_fmla = ref Set.empty
+        let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf loc_form)
+        //When doing QE for universal versus existential
+        //\forall X.phi(X) === \neg \exists \neg phi(X)
+        for var in split_disj do
+            let ts = ref (var |> SparseLinear.formula_to_linear_terms)
+            for var in proph_var do
+                    ts := SparseLinear.eliminate_var var !ts
+                    ts := SparseLinear.simplify_as_inequalities !ts
+            disj_fmla := Set.add (List.map SparseLinear.linear_term_to_formula !ts |> Formula.conj) !disj_fmla                                      
+        disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
+        let strength_f = if (is_existential e) then Formula.disj !disj_fmla else Formula.negate(Formula.disj !disj_fmla)
+        propertyMap_temp.Add(new_F,(loc,strength_f))
+    
+    propertyMap_temp
+    
+let rec starBottomUp (p:Programs.Program) (p_dtmz:Programs.Program) nest_level propertyMap (f:CTL.CTLStar_Formula) (termination_only:bool) is_ltl  =
+    //You'll notice that the syntax for CTL* is disconnected from the original CTL implementation. Below however,
+    //I parse the CTL* syntax and call on the CTL implementation. The same thing is done for LTL with the "morally equivalent"
+    //property in CTL.
+    match f with        
+    | CTL.Path e->  
+                    is_ltl := true                       
+                    let(e_sub1,e_sub2) =
+                        match e with
+                        | CTL.Path_Formula.F e2 | CTL.Path_Formula.G e2  
+                        | CTL.Path_Formula.X e2-> (snd <|starBottomUp p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl, None)
+                        | CTL.Path_Formula.W (e2,e3) -> (snd <|starBottomUp p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl,
+                                                            snd <|starBottomUp p p_dtmz (nest_level - 1) propertyMap e3 termination_only is_ltl)                       
+                    //Call LTL to CTL formula conversaion
+                    let new_F : CTL.CTL_Formula = convert_star_CTL f e_sub1 e_sub2
+                    //Then call CTL bottom up on it with determinized program
+
+                    let ret_value = bottomUp p_dtmz new_F termination_only nest_level None propertyMap          
+                    (ret_value,Some(new_F))          
+                    //Return propertyMap                    
+    | CTL.State e ->                       
+                     match e with
+                     | CTL.A e1 
+                     | CTL.E e1 -> let (e_sub1,e_sub2) =
+                                       //We verify on the second nested formula, as e1 is considered part of the CTL formula
+                                       //such as AF AG, etc. 
+                                       match e1 with
+                                       | CTL.Path_Formula.F e2 | CTL.Path_Formula.G e2 
+                                       | CTL.Path_Formula.X e2 -> (snd<|starBottomUp p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl, None)
+                                       | CTL.Path_Formula.W (e2,e3) -> (snd<|starBottomUp p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl,
+                                                                            snd<|starBottomUp p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl)
+                                   let new_F = convert_star_CTL f e_sub1 e_sub2       
+                                   let ret_value = 
+                                        if (!is_ltl) then
+                                            is_ltl := false
+                                            let ret = bottomUp p_dtmz new_F termination_only nest_level None propertyMap
+                                            propertyMap.Remove(new_F)|> ignore
+                                            propertyMap.Union(quantify_proph_var e new_F propertyMap)
+                                            ret
+                                        else
+                                             bottomUp p new_F termination_only nest_level None propertyMap
+                                   (ret_value,Some(new_F))
+
+                     | CTL.And (e1,e2) 
+                     | CTL.Or (e1,e2) ->  let e_sub1 = snd<|starBottomUp p p_dtmz (nest_level - 1) propertyMap e1 termination_only is_ltl
+                                          let e_sub2 = snd <|starBottomUp p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl
+                                          let new_F = convert_star_CTL f e_sub1 e_sub2
+                                          let ret_value = 
+                                            if (!is_ltl) then
+                                                bottomUp p_dtmz new_F termination_only nest_level None propertyMap
+                                            else 
+                                                bottomUp p new_F termination_only nest_level None propertyMap
+                                          (ret_value,Some(new_F))
+                                          
+                     | CTL.Atm a-> let new_F = convert_star_CTL f None None
+                                   let ret_value = bottomUp p new_F termination_only nest_level None propertyMap
+                                   (ret_value,Some(new_F))
+                     
+
+let CTLStar_Prover (p:Programs.Program) (f:CTL.CTLStar_Formula) (termination_only:bool) =             
+    //Now collect all branching points, with the initial node being a and branching nodes being
+    //b and ~b. That is, we are looking for branching points such as a &&b
+    // and a && ~b. We then add prophecy variables to partially determinize the program, and carry
+    // both the original version and determinized so the former is used for CTL verification
+    // and the latter is used for LTL verification.
+    //Programs.print_dot_program p "input.dot"  
+    let (p_loops, p_sccs) = Programs.find_loops p
+    let p_det = Programs.copy p
+    let nodes_count = new System.Collections.Generic.Dictionary<int, int list>() 
+    for n in !p.active do 
+        let (k,c,k') = p.transitions.[n]
+        if nodes_count.ContainsKey k then
+            nodes_count.[k] <- k'::nodes_count.[k] 
+        else
+            nodes_count.Add(k,[k'])
+
+    //Now all nodes except with those with no branching points can be used to generate
+    //predicate synthesis to determinize the program. 
+    let pred_synth = new System.Collections.Generic.Dictionary<int, int list>()
+    nodes_count.Keys |> Seq.iter(fun x -> if nodes_count.[x].Length > 1 then 
+                                                     pred_synth.Add(x,nodes_count.[x]))
+
+    
+    //Map associating prophecy variables with branching node. It is a pair of sets, with the first pair
+    //representing a and b, and the second pair representing a and ~b. See comment below for why it is a set. 
+    let proph_map = ref Map.empty
+
+    //Only two branches are allowed from a single location. This will be followed with the exception
+    //of loops, where we will split the cases in terms of SCCS, that is, branches that leave the loop
+    //and branches that stay within the loop. Otherwise we must assert that there can only be two
+    //transitioning branches. T2 files can be re-written to accomodate this, as this restriction
+    //does not limit the expressiveness of the transition system.
+    for n in pred_synth.Keys do 
+        //Cannot be initial node, there can only be one transition from initial node.
+        assert (n <> !p_det.initial)
+        if p_loops.ContainsKey n then 
+            let node_sccs = Set.intersect (p_sccs.[n]) (Set.ofList nodes_count.[n])
+            let node_nonsccs = Set.difference (Set.ofList nodes_count.[n]) (p_sccs.[n])
+            proph_map := (!proph_map).Add(n,(node_sccs,node_nonsccs))
+        else 
+            assert(nodes_count.[n].Length = 2)
+            proph_map := (!proph_map).Add(n,(set [(nodes_count.[n]).[0]],set [(nodes_count.[n]).[1]]))
+        //Adding the prophecy variable for branching point n.
+        p_det.vars := Set.add ((Formula.proph_var_det) ^ n.ToString()) !p_det.vars
+    //Now we determinize the program using the prophecy predicates in proph_map 
+    for n in !p_det.active do 
+        let (k,c,k') = p_det.transitions.[n]  
+        if (!proph_map).ContainsKey k then
+            let (sccnode,outnode) = (!proph_map).[k]
+            let proph_var : Var.var = (Formula.proph_var_det) ^ k.ToString()
+            let same_loc = (Set.difference sccnode outnode).IsEmpty
+            if Set.contains k' sccnode then
+                let cmd = [Programs.assume (Formula.Gt(Term.Var(proph_var),Term.Const(bigint.Zero)));
+                            Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
+                p_det.transitions.[n] <- (k,c@cmd,k')
+                if same_loc then
+                    proph_map := (!proph_map).Remove(k)
+                    proph_map := (!proph_map).Add(k,(Set.empty,outnode))
+            else if Set.contains k' outnode then
+                let proph_node = Programs.new_node p_det
+                Programs.plain_add_transition p_det k (c@[Programs.assume (Formula.Eq(Term.Var(proph_var),Term.Const(bigint.Zero)))]) proph_node
+                Programs.plain_add_transition p_det proph_node [Programs.assign proph_var (Term.Nondet)] k'
+                Programs.remove_transition p_det n
+
+    //Programs.print_dot_program p_det "input__determinized.dot"      
+    
+    //Under CTL semantics, it is assumed that all paths are infinite. We thus add infinite loops to any terminating paths unless we are explicitly proving termination.
+    //For example, we would be proving AF x instead of AF x || termination, which is what is proved if the path is not infinite.
+    //All terminating states are marked by fair_term_var. This variable is then used by both AX/EX and later fairness, as an AX property holds if the next state is terminating, while an EX
+    //property does not.
+    //When proving Fair + CTL, we do not need to prove properties pertaining terminating paths, thus fair_term_var is utilized here as well.
+    if not(termination_only) then make_program_infinite p ; make_program_infinite p_det
+
+    let propertyMap = ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
+    let is_ltl = ref false           
+    let (ret_value,ctl_form) = 
+        try
+            starBottomUp p p_det -1 propertyMap f termination_only is_ltl
+        with
+        | :? System.ArgumentException as ex -> 
+            printfn "Exception! %s " (ex.Message)
+            (None,None)
+
+    ret_value

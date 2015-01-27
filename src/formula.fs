@@ -365,6 +365,8 @@ let fair_term_var  = Var.var instrumentation_prefix + "fair_TERM"
 let is_fair_var (v:string) =    v.StartsWith fair_proph_var 
                              || v.StartsWith fair_proph_old_var
 
+let proph_var_det = Var.var "__proph_var_det"
+
 let subcheck_return_prefix = instrumentation_prefix + "RET_VAL_" 
 let subcheck_return_var id = Var.var subcheck_return_prefix + string(id)
 let is_subcheck_return (v:string) = v.StartsWith subcheck_return_prefix

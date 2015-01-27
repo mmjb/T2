@@ -29,3 +29,7 @@ module CTL_Parser
 let parse_CTL (s : string) =
     let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes s)
     Absparse.CTL_formula Absflex.token lexbuf
+
+let parse_CTLStar (s : string) =
+    let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes s)
+    Absparse.CTLStar_formula Absflex.token lexbuf

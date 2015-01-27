@@ -75,6 +75,13 @@ rule token = parse
   | "AT"             { AT }
 
 
+  | "F"	 {F}
+  | "G"	 {G}
+  | "X"	 {X}
+  | "W"	 {W}
+  |	"U"	 {U}
+  | "A"	 {A}
+  | "E"  {E}
   | "[AF]"   {AF}
   | "[AG]"   {AG}
   | "[AW]"   {AW}

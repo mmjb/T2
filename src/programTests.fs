@@ -63,6 +63,17 @@ let register_tests() =
         else
             sprintf "Couldn't open file %s\n" input_file |> failwith
 
+    let t2_run_CTLStar prover input_file ctlstar_formula_string expected_result=
+        if System.IO.File.Exists input_file then
+            let ctlstar_formula = CTL_Parser.parse_CTLStar ctlstar_formula_string
+            let (p, _) = Input.load_t2 true input_file
+            match prover p ctlstar_formula with
+            | Some (result, _) when (Some result) = expected_result -> true //project away the proof
+            | None when None = expected_result -> true
+            | _ -> false 
+        else
+            sprintf "Couldn't open file %s\n" input_file |> failwith
+
     let safety_prover p l =
         match Reachability.prover p l with
         | Some(_) -> false
@@ -91,6 +102,7 @@ let register_tests() =
         let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes s)
         Some (Absparse.Fairness_constraint Absflex.token lexbuf)
     let bottomUp_prover p actl_fmla fairness_constraint = Termination.bottomUpProver p actl_fmla false fairness_constraint
+    let CTLStar_prover p ctls_fmla = Termination.CTLStar_Prover p ctls_fmla false
     let inline register_CTL_SAT_test file property fairness_constraint =
         Test.register_test true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint (Some true))
     let inline register_CTL_SAT_testd file property fairness_constraint =
@@ -103,6 +115,15 @@ let register_tests() =
         Test.register_test true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint None)
     let inline register_CTL_FAIL_testd file property fairness_constraint =
         Test.register_testd true (fun () -> t2_run_temporal bottomUp_prover file property fairness_constraint None)
+    //CTL*
+    let inline register_CTLStar_SAT_test file property =
+        Test.register_test true (fun () -> t2_run_CTLStar CTLStar_prover file property (Some true))    
+    let inline register_CTLStar_SAT_testd file property =
+        Test.register_testd true (fun () -> t2_run_CTLStar CTLStar_prover file property (Some true))    
+    let inline register_CTLStar_UNSAT_test file property =
+        Test.register_test true (fun () -> t2_run_CTLStar CTLStar_prover file property (Some false))
+    let inline register_CTLStar_UNSAT_testd file property =
+        Test.register_testd true (fun () -> t2_run_CTLStar CTLStar_prover file property (Some false))
 
     // Small, manually crafted examples ---------------------------------------------------
     register_term_test "testsuite/small01.t2"
