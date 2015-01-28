@@ -38,7 +38,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Var
+module Microsoft.Research.T2.Var
 
 open Utils
 
@@ -54,7 +54,7 @@ let pp = idx2str
 let unprime_var (v : string) =
     let i = v.LastIndexOf "^"
     if i < 0 then
-        dieWith ("Unpriming non-primed var " ^ v)
+        dieWith ("Unpriming non-primed var " + v)
         v
     else
         v.[0 .. (i-1)]
@@ -62,7 +62,7 @@ let unprime_var (v : string) =
 ///
 /// Encoding SSA using numbers after "^"
 ///
-let prime_var v (primes:int) = v ^ "^" ^ primes.ToString()
+let prime_var v (primes:int) = v + "^" + primes.ToString()
 
 
 ///
@@ -71,6 +71,6 @@ let prime_var v (primes:int) = v ^ "^" ^ primes.ToString()
 let get_prime_idx (v : string) =
     let i = v.LastIndexOf "^"
     if i < 0 then
-        dieWith ("Unpriming non-primed var " ^ v)
+        dieWith ("Unpriming non-primed var " + v)
     else
         int (v.[1 + i ..])

@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Lasso
+module Microsoft.Research.T2.Lasso
 
 open Utils
 open Log
@@ -116,7 +116,7 @@ let check_lex_rankfunction_valid (lex_order:Relation.relation list) (rf_list:ter
     //We need to fix it to 1 -- otherwise z3 will do weird stuff like setting it to 14.
     let const_1_var = Formula.const_var bigint.One
     let const_1_prevar = Var.prime_var const_1_var 0
-    let const_1_postvar = Var.var (const_1_var ^ "^post")
+    let const_1_postvar = Var.var (const_1_var + "^post")
     let const_formula =
         Formula.And(
             Formula.Eq(Term.Var(const_1_var), Term.constant 1),
@@ -138,7 +138,7 @@ let check_lex_rankfunction_valid (lex_order:Relation.relation list) (rf_list:ter
 
         assert(check |> Formula.unsat)
 
-let check_rankfunction_valid cycle rf bnd =
+let check_rankfunction_valid (pars : Parameters.parameters) cycle rf bnd =
     for v in Term.freevars rf do
         let v = Var.unprime_var v
         assert (not <| Formula.is_copied_var v)
@@ -161,7 +161,7 @@ let check_rankfunction_valid cycle rf bnd =
     let rf_not_decreases = Formula.Ge(postrf, rf)
     let rf_not_bounded = Formula.Lt(rf, bnd)
 
-    log "Checking rankfunction"
+    log pars "Checking rankfunction"
 
     //Formula.pp rf_not_decreases |> log
     assert(Formula.conj [Relation.formula cycle; rf_not_decreases] |> Formula.unsat)
@@ -275,25 +275,23 @@ let store_lex_options cp more_options lex_info =
     lex_info.past_lex_options := Map.add cp (more_options@options) !lex_info.past_lex_options
 
 ///Tries to find a Lex_WF or Program_Simplification
-let find_lex_RF (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle_rel m lex_info =
+let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle_rel m lex_info =
     let old_partial_order = Map.find cutpoint !lex_info.partial_orders
-    match Rankfunction.synthesis_lex p p_sccs cutpoint cycle_rel old_partial_order with
+    match Rankfunction.synthesis_lex pars p p_sccs cutpoint cycle_rel old_partial_order with
     | Some(Lexoptions(lexoptions)) ->
             //a function to turn a Lex_RF into a Lex_WF Refinement
             let process_lex_RF (lex_soln:Lex_RF) =
                 let head = (lex_soln = lexoptions.Head)
                 let (new_partial_order,rf_list,bnd_list) = List.unzip3 lex_soln
 
-                if head then
-                    if do_logging() then
-                        printfn "Lex RF candidate before simplifying:\n %A\n with bounds:\n %A at CP %d" rf_list bnd_list cutpoint
+                if head && pars.print_log then
+                    Log.log pars <| sprintf "Lex RF candidate before simplifying:\n %A\n with bounds:\n %A at CP %d" rf_list bnd_list cutpoint
 
                 let (simp_rf_list,simp_bnd_list)=simplify_lex_RF rf_list bnd_list
 
-                if head then
-                    if do_logging() then
-                        printfn "Lex RF candidate after simplifying:\n %A\n with bounds:\n %A at CP %d" simp_rf_list simp_bnd_list cutpoint
-                        printfn "Checking lexicographic RF..."
+                if head && pars.print_log then
+                    Log.log pars <| sprintf "Lex RF candidate after simplifying:\n %A\n with bounds:\n %A at CP %d" simp_rf_list simp_bnd_list cutpoint
+                    Log.log pars <| sprintf "Checking lexicographic RF..."
 
                 //note we check all the lex RFs at this point, not just the one we're going to instrument
                 check_lex_rankfunction_valid new_partial_order simp_rf_list simp_bnd_list
@@ -316,16 +314,16 @@ let find_lex_RF (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle
             Some(Lex_WF(cutpoint,decr_formulae,not_incr_formulae,bnd_formulae))
     | Some(Program_Simplification(toremove)) -> Some(Transition_Removal(toremove))
     | None ->
-            log "Couldn't find a lexicographic rank function"
+            log pars "Couldn't find a lexicographic rank function"
             None
 
 ///Tries to find a Lex_WF, when we're doing the init_cond improvement
-let find_lex_RF_init_cond (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle_rel m lex_info =
+let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle_rel m lex_info =
     let current_partial_orders = Map.find cutpoint !lex_info.partial_orders_init_cond
     let old_partial_order = Map.find !lex_info.current_counter current_partial_orders
     let counter = !lex_info.current_counter
 
-    match Rankfunction.synthesis_lex p p_sccs cutpoint cycle_rel old_partial_order with
+    match Rankfunction.synthesis_lex pars p p_sccs cutpoint cycle_rel old_partial_order with
     | Some(Lexoptions(lexoptions)) ->
             let lex_soln = List.head lexoptions
             let (new_partial_order,rf_list,bnd_list) = List.unzip3 lex_soln
@@ -333,13 +331,13 @@ let find_lex_RF_init_cond (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutp
             let new_current_partial_orders = Map.add counter new_partial_order current_partial_orders
             lex_info.partial_orders_init_cond := Map.add cutpoint new_current_partial_orders !lex_info.partial_orders_init_cond
 
-            if do_logging() then
-                printfn "Lex RF candidate before simplifying:\n %A\n with bounds:\n %A at CP %d" rf_list bnd_list cutpoint
+            if pars.print_log then
+                Log.log pars <| sprintf "Lex RF candidate before simplifying:\n %A\n with bounds:\n %A at CP %d" rf_list bnd_list cutpoint
 
             let (simp_rf_list,simp_bnd_list)=simplify_lex_RF rf_list bnd_list
 
-            if do_logging() then
-                printfn "Lex RF candidate after simplifying:\n %A\n with bounds:\n %A at CP %d" simp_rf_list simp_bnd_list cutpoint
+            if pars.print_log then
+                Log.log pars <| sprintf "Lex RF candidate after simplifying:\n %A\n with bounds:\n %A at CP %d" simp_rf_list simp_bnd_list cutpoint
 
             check_lex_rankfunction_valid new_partial_order simp_rf_list simp_bnd_list
 
@@ -348,7 +346,7 @@ let find_lex_RF_init_cond (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutp
             Some(Lex_WF(cutpoint,rf_formulae,not_incr_formulae,bnd_formulae))
     | Some(Program_Simplification(toremove)) -> Some(Transition_Removal(toremove))
     | None ->
-            log "Couldn't find a lexicographic rank function"
+            log pars "Couldn't find a lexicographic rank function"
             None
 
 //Make a dot file of the poly trees
@@ -430,29 +428,29 @@ let make_poly_checkers (trees:poly_tree list) m =
 /// counter to name the poly tree debug output dot files uniquely
 let tree_counter = ref 0
 
-let find_lex_poly_RF_with_fixed_depth cycle_rel old_partial_order polyrank_depth =
+let find_lex_poly_RF_with_fixed_depth (pars : Parameters.parameters) cycle_rel old_partial_order polyrank_depth =
     match Rankfunction.synthesis_poly_lex cycle_rel old_partial_order polyrank_depth with
     |Some polyoptions ->
-        log <| sprintf "Found lexicographic polyranking function of depth %d:" polyrank_depth
+        log pars <| sprintf "Found lexicographic polyranking function of depth %d:" polyrank_depth
         Some(polyoptions)
     |None->
-        log <| sprintf "Couldn't find a lexicographic polyranking function of depth %d." polyrank_depth
+        log pars <| sprintf "Couldn't find a lexicographic polyranking function of depth %d." polyrank_depth
         None
 
 ///Tries to find a Lex_Poly_RF
-let find_lex_poly_RF cutpoint cycle_rel m lex_info =
+let find_lex_poly_RF (pars : Parameters.parameters) cutpoint cycle_rel m lex_info =
     let old_partial_order = Map.find cutpoint !lex_info.partial_orders
     let polyrank_depth = ref 2
     let poly_found = ref None
-    while (!poly_found = None) && (!polyrank_depth <= !Arguments.polyrank_max_depth) do
-        poly_found := find_lex_poly_RF_with_fixed_depth cycle_rel old_partial_order !polyrank_depth
+    while (!poly_found = None) && (!polyrank_depth <= pars.polyrank_max_depth) do
+        poly_found := find_lex_poly_RF_with_fixed_depth pars cycle_rel old_partial_order !polyrank_depth
         if (!poly_found).IsNone then
-            if !polyrank_depth < !Arguments.polyrank_max_depth then
+            if !polyrank_depth < pars.polyrank_max_depth then
                 polyrank_depth := !polyrank_depth+1
-                log <| sprintf "Increasing depth of search to %d" !polyrank_depth
+                log pars <| sprintf "Increasing depth of search to %d" !polyrank_depth
             else
                 polyrank_depth := !polyrank_depth+1
-                log <| sprintf "Reached polyrank depth limit of %d" !Arguments.polyrank_max_depth
+                log pars <| sprintf "Reached polyrank depth limit of %d" pars.polyrank_max_depth
 
     ///Takes the list of poly_trees and returns the top level RF of each
     let top_level_rfs trees =
@@ -469,9 +467,9 @@ let find_lex_poly_RF cutpoint cycle_rel m lex_info =
         let poly_soln = polyoptions.Head
         let (new_partial_order,trees) = poly_soln
         assert (new_partial_order.Length = trees.Length)
-        log <| sprintf "top level RFs: %A" (top_level_rfs trees)
+        log pars <| sprintf "top level RFs: %A" (top_level_rfs trees)
 
-        if !Arguments.dottify_input_pgms then
+        if pars.dottify_input_pgms then
             dot_poly_trees trees (sprintf "input_poly_tree_%d.dot" !tree_counter)
             tree_counter:=!tree_counter+1
 
@@ -486,15 +484,15 @@ let find_lex_poly_RF cutpoint cycle_rel m lex_info =
         Some(Poly_WF(poly_checkers))
 
 ///Tries to find a WF for cycle_rel
-let find_disj_RF cutpoint cycle_rel m =
+let find_disj_RF (pars : Parameters.parameters) cutpoint cycle_rel m =
     match Rankfunction.synthesis cycle_rel with
         | Some(rf, bnd) ->
-                log <| sprintf "RF candidate: %A with bound %A at CP %d" rf bnd cutpoint
-                check_rankfunction_valid cycle_rel rf bnd
+                Log.log pars <| sprintf "RF candidate: %A with bound %A at CP %d" rf bnd cutpoint
+                check_rankfunction_valid pars cycle_rel rf bnd
                 let (rf_formula, bnd_formula) = rankfunction_to_argument rf bnd m
                 Some(Disj_WF(cutpoint, rf_formula, bnd_formula))
         | None ->
-                log "Couldn't find a rank function"
+                Log.log pars "Couldn't find a rank function"
                 None
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -502,7 +500,7 @@ let find_disj_RF cutpoint cycle_rel m =
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Return the appropriate type of Refinement or none
-let refine_cycle (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle cycle_rel m (lex_info:LexicographicInfo) =
+let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle cycle_rel m (lex_info:LexicographicInfo) =
     //are we finding lexicographic RFs for this cutpoint?
     let attempting_lex = Map.find cutpoint !lex_info.cp_attempt_lex
 
@@ -512,20 +510,20 @@ let refine_cycle (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycl
 
     let polyranking = Map.find cutpoint !lex_info.cp_polyrank
 
-    if do_logging() then
-        sprintf "Refining temporal argument for cycle:" |> log
-        cycle |> List.concatMap (fun (_, cs, _) -> cs) |> Programs.commands2pp |> log
+    if pars.print_log then
+        sprintf "Refining temporal argument for cycle:" |> log pars
+        cycle |> List.concatMap (fun (_, cs, _) -> cs) |> Programs.commands2pp |> log pars
 
     if attempting_lex then
         if not polyranking then
             if not init_cond then
-                find_lex_RF p p_sccs cutpoint cycle_rel m lex_info
+                find_lex_RF pars p p_sccs cutpoint cycle_rel m lex_info
             else
-                find_lex_RF_init_cond p p_sccs cutpoint cycle_rel m lex_info
+                find_lex_RF_init_cond pars p p_sccs cutpoint cycle_rel m lex_info
         else
-            find_lex_poly_RF cutpoint cycle_rel m lex_info
+            find_lex_poly_RF pars cutpoint cycle_rel m lex_info
     else
-        find_disj_RF cutpoint cycle_rel m
+        find_disj_RF pars cutpoint cycle_rel m
 
 let split_path_for_cp pi cp =
     let rec split_path_for_cp' pi cp stem_acc =
@@ -538,8 +536,8 @@ let split_path_for_cp pi cp =
         | [] -> dieWith "Could not split counterexample into stem/cycle"
     split_path_for_cp' pi cp []
 
-let investigate_cex_for_fixed_cp (p:Programs.Program) (p_sccs: Map<int, Set<int>>) reachGraph pi cp (lex_info:LexicographicInfo) =
-    Log.log <| sprintf "Investigating counterexample for cutpoint %d" cp
+let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) reachGraph pi cp (lex_info:LexicographicInfo) =
+    Log.log pars <| sprintf "Investigating counterexample for cutpoint %d" cp
 
     //This code is for initial condition detection. It works out which initial condition path pi_uncut belongs to
     if (!lex_info.cp_init_cond).[cp] then
@@ -549,7 +547,7 @@ let investigate_cex_for_fixed_cp (p:Programs.Program) (p_sccs: Map<int, Set<int>
             match cmd with
             | Programs.Assume(_,Formula.Eq(Term.Var(v),Term.Const(n))) when (v=rho) -> counter := int n
             | _ -> ()
-        Log.log <| sprintf "Initial condition counter of this counterexample: %d" !counter
+        Log.log pars <| sprintf "Initial condition counter of this counterexample: %d" !counter
         lex_info.current_counter := !counter
 
     let (stem_pre_clean, cycle_pre_clean) = split_path_for_cp pi cp
@@ -566,7 +564,7 @@ let investigate_cex_for_fixed_cp (p:Programs.Program) (p_sccs: Map<int, Set<int>
     let pi_commands = List.map (fun (_,x,_) -> x) pi
     let pi_vars_cleaned = pi_commands |> Programs.freevars |> Set.filter (fun v -> not <| (Formula.is_disj_var v || Formula.is_instr_var v))
 
-    if do_logging() then print_lasso stem cycle
+    if pars.print_log then print_lasso stem cycle
 
     //Add information about the used constants to the cycle
     let strengthened_cycle = (-1, Programs.consts_cmds cycle, -1)::cycle
@@ -577,22 +575,22 @@ let investigate_cex_for_fixed_cp (p:Programs.Program) (p_sccs: Map<int, Set<int>
     
     //Try to refine the termination argument:
     let ret = ref None
-    ret := refine_cycle p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
+    ret := refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
 
     // If we didn't find a rank function yet, try strengthening the cycle with a path invariant...
     if !ret = None then
         Stats.inc_stat "investigate with invariant"
-        log "Trying to find a path invariant..."
+        log pars "Trying to find a path invariant..."
 
         let invariant = path_invariant stem strengthened_cycle
         if Formula.unsat invariant then
             Utils.dieWith "UNSAT path invariant (this is probably due to the incompleteness of the interpolation procedure on integers)"
 
-        log <| sprintf "Using path invariant %A" invariant
+        log pars <| sprintf "Using path invariant %A" invariant
 
         let strengthened_cycle = (-1, [Programs.assume invariant], -1) :: strengthened_cycle
         let strengthened_cycle_rel = Symex.path_to_relation strengthened_cycle pi_vars_cleaned
-        ret := refine_cycle p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
+        ret := refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
         if (!ret).IsSome then
             Stats.inc_stat "investigate with invariant - success"
 
@@ -627,19 +625,19 @@ let find_failing_cp pi =
     |> (fun c -> match c with | Some (_, Programs.Assume (_, f), _) -> Some (extract_copied_cutpoint f).Value 
                               | _ -> None)
 
-let investigate_cex (p:Programs.Program) (p_sccs: Map<int, Set<int>>) reachGraph pi found_disj_rfs found_lex_rfs lex_info =
+let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) reachGraph pi found_disj_rfs found_lex_rfs lex_info =
     let failing_cutpoint = find_failing_cp pi
 
     match failing_cutpoint with
     | None -> (None, -1)
     | Some failing_cutpoint ->
-        if Log.do_debugging() then
-            Log.debug <| sprintf "Full counterexample we got:"
+        if pars.print_debug then
+            Log.debug pars <| sprintf "Full counterexample we got:"
             for (k, cmd, k') in pi do
-                Log.debug <| sprintf "  (%i, %A, %i)" k cmd k'
+                Log.debug pars <| sprintf "  (%i, %A, %i)" k cmd k'
 
         let program_refinement =
-            match investigate_cex_for_fixed_cp p p_sccs reachGraph pi failing_cutpoint lex_info with
+            match investigate_cex_for_fixed_cp pars p p_sccs reachGraph pi failing_cutpoint lex_info with
             | None -> None
             | Some(CEX(l)) -> Some(CEX(l))
             | Some(Disj_WF(cp,rf,bnd)) -> 
@@ -651,7 +649,7 @@ let investigate_cex (p:Programs.Program) (p_sccs: Map<int, Set<int>>) reachGraph
                 if not (approx_have_rf_already (cp,rf,bnd)) then
                     Some(Disj_WF(cp,rf,bnd))
                 else
-                    Log.log <| sprintf "New rank function %A with bound %A implied by older RFs." rf bnd
+                    Log.log pars <| sprintf "New rank function %A with bound %A implied by older RFs." rf bnd
                     None
             | Some(Lex_WF(cp,decr_list,not_incr_list,bnd_list)) ->
                 //Check if we already have a RF that implies this one:

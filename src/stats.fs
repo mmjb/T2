@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Stats
+module Microsoft.Research.T2.Stats
 
 ///
 /// Set of counters

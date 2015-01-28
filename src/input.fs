@@ -34,7 +34,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Input
+module Microsoft.Research.T2.Input
 
 ///
 /// Parse from a file, returning a program
@@ -60,19 +60,13 @@ let parse (filename : string) =
 /// no other edges from/to y.
 ///
 let simplify_chains blocks dont_chain =
-    let nodes' =
-        [for s, _, e in blocks do
-            yield s
-            yield e
-        ] |> Set.ofList
-    let nodes = ref nodes'
-
+    let nodes = Seq.collect (fun (s, _, e) -> [s ; e]) blocks |> Set.ofSeq |> ref
     let mutable incoming = [for n in !nodes -> (n, Set.empty)] |> Map.ofList
     let mutable outgoing = [for n in !nodes -> (n, Set.empty)] |> Map.ofList
 
-    for s, T, e in blocks do
-        incoming <- incoming.Add(e, incoming.[e].Add (s, T))
-        outgoing <- outgoing.Add(s, outgoing.[s].Add (T, e))
+    for (s, commands, e) in blocks do
+        incoming <- incoming.Add(e, incoming.[e].Add (s, commands))
+        outgoing <- outgoing.Add(s, outgoing.[s].Add (commands, e))
 
     let as_singleton set =
         (Set.toList set).Head
@@ -82,10 +76,10 @@ let simplify_chains blocks dont_chain =
             if Set.count incoming.[n] = 1 && Set.count outgoing.[n] = 1 then
                 let s, T1 = as_singleton incoming.[n]
                 let T2, e = as_singleton outgoing.[n]
-                let T = T1@T2
 
                 // don't do this for self-loops:
                 if (s <> n && e <> n) then
+                    let T = T1@T2
                     incoming <- incoming.Add(e, (incoming.[e].Remove(n, T2)).Add(s, T))
                     outgoing <- outgoing.Add(s, (outgoing.[s].Remove(T1, n)).Add(T, e))
 
@@ -99,21 +93,23 @@ let simplify_chains blocks dont_chain =
             for T, e in out do
                 yield s, T, e]
 
-    Stats.add_stat "simplify_chains - total" (List.length blocks)
+    Stats.add_stat "simplify_chains - total" (Seq.length blocks)
     Stats.add_stat "simplify_chains - eliminated" (List.length result)
 
     //Now get rid of self loops:
-    let cleaned_result = ref []
     let i = ref 0
-    let rec get_new_node nodes =
-        let name = "tmp_" ^ (!i).ToString()
-        i := !i + 1
-        if not (Set.contains name !nodes) then
-           nodes := Set.add name !nodes
-           name
-        else
-            get_new_node nodes
+    // Find a fresh label that we haven't seen so far
+    let get_new_node nodes =
+        let next_name () =
+            i := !i + 1
+            sprintf "tmp_%i" !i
+        let mutable name = next_name ()
+        while Set.contains name !nodes do
+            name <- next_name ()
+        nodes := Set.add name !nodes
+        name
 
+    let cleaned_result = ref []
     for e in result do
         let (k, l, k') = e
         if (k <> k') then
@@ -127,7 +123,7 @@ let simplify_chains blocks dont_chain =
 ///
 /// Load a program in T2 format
 ///
-let load_t2 avoid_chaining filename =
+let load_t2 (pars : Parameters.parameters) avoid_chaining filename =
     Absparse.annotate := true
     let (start,cp,blocks,_,incomplete_abstraction) = parse filename
     let make_label loc = 
@@ -136,7 +132,7 @@ let load_t2 avoid_chaining filename =
             sprintf "loc_%d" i
         | Absparse.NameLoc n ->
             n
-    let blocks = [for s, T, e in blocks -> (make_label s), T, (make_label e)]
+    let blocks = blocks |> List.map (fun (start, commands, target) -> (make_label start, commands, make_label target)) 
     let blocks =
         (*
             Merging block chains is not sound for AG proofs. Consider
@@ -163,6 +159,6 @@ let load_t2 avoid_chaining filename =
             blocks
         else
             simplify_chains blocks (Set.singleton (make_label start))
-    let p = Programs.make avoid_chaining (make_label start) blocks incomplete_abstraction
+    let p = Programs.make pars avoid_chaining (make_label start) (blocks |> Seq.ofList) incomplete_abstraction
     let cp' = Programs.map p (make_label cp)
     (p,cp')

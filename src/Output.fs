@@ -20,7 +20,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Output
+module Microsoft.Research.T2.Output
 
 open Utils
 open Programs
@@ -46,7 +46,7 @@ let print_dot_program p (fname : string) =
    fprintf h "digraph program {\nnode [shape=circle];\n" ;
    let nodes = ref Set.empty
    let commands2pp b =
-       let f x y = x ^ command2pp y ^ "\\l" // "\l" is a "left-aligned line-break"...
+       let f x y = x + command2pp y + "\\l" // "\l" is a "left-aligned line-break"...
        let true_assume = assume Formula.truec
        b |> List.filter (fun c -> c <> true_assume)
          |> List.fold f ""
@@ -98,7 +98,7 @@ let print_c_program_goto p (fname : string) =
     let var_map = ref Map.empty;
     let i = ref 1
     for v in vars do
-        let new_v = "v" ^ (!i).ToString()
+        let new_v = "v" + (!i).ToString()
         var_map := Map.add v new_v !var_map
         i := !i + 1
         fprintfn out_channel "int %s = nondet();" new_v
@@ -165,7 +165,7 @@ let print_c_program_pc_loop p (fname : string) =
     let var_map = ref Map.empty;
     let i = ref 1
     for v in vars do
-        let new_v = "v" ^ (!i).ToString()
+        let new_v = "v" + (!i).ToString()
         var_map := Map.add v new_v !var_map
         i := !i + 1
         fprintfn out_channel "int %s = nondet();" new_v
@@ -221,23 +221,24 @@ let print_c_program_pc_loop p (fname : string) =
     printf "Created %s\n" fname
     ()
 
-let print_c_program p fname =
-    match !Arguments.imperative_style with
-        | Arguments.Goto -> print_c_program_goto p fname
-        | Arguments.Loop -> print_c_program_pc_loop p fname
+let print_c_program p imperative_style fname =
+    match imperative_style with
+        | Parameters.Goto -> print_c_program_goto p fname
+        | Parameters.Loop -> print_c_program_pc_loop p fname
 
 let print_t2_program p (fname : string) =
     let out_channel = new System.IO.StreamWriter(fname)
     fprintfn out_channel "START: %i;\n" !p.initial
 
-    let print_transition k cmds _ =
+    let print_transition k cmds k' =
         fprintfn out_channel "FROM: %i;" k
         cmds |> Seq.iter (fun c -> c |> command2pp |> fprintfn out_channel "%s")
-        fprintfn out_channel "TO: %i;\n" k
+        fprintfn out_channel "TO: %i;\n" k'
 
     for n in !p.active do
         let (k, cmds, k') = p.transitions.[n]
         print_transition k cmds k'
+    out_channel.Dispose()
 
 let print_clauses p (fname : string) =
     let out_channel = new System.IO.StreamWriter(fname)
@@ -274,12 +275,12 @@ let print_clauses p (fname : string) =
 
     out_channel.Dispose ()
 
-let add_java_nondet_declaration out_channel =
+let add_java_nondet_declaration java_nondet_style out_channel =
     fprintfn out_channel "  public static int nondet() {"
-    match !Arguments.java_nondet_style with
-    | Arguments.Aprove ->
+    match java_nondet_style with
+    | Parameters.Aprove ->
         fprintfn out_channel "    return (new Object()).hashCode();"
-    | Arguments.Julia ->
+    | Parameters.Julia ->
         fprintfn out_channel "    int res = (int) System.currentTimeMillis();"
         fprintfn out_channel "    int sign = (int) System.currentTimeMillis();"
         fprintfn out_channel "    if (sign %% 2 == 0) {"
@@ -289,18 +290,18 @@ let add_java_nondet_declaration out_channel =
     fprintfn out_channel "  }"
     fprintfn out_channel "  public static boolean nondet_bool() { return (nondet() %% 2) == 0; }"
 
-let print_java_program_goto p class_name path =
-    let out_channel = new System.IO.StreamWriter(path ^ "/" ^ class_name ^ ".java")
+let print_java_program_goto p java_nondet_style class_name path =
+    let out_channel = new System.IO.StreamWriter(path + "/" + class_name + ".java")
     fprintfn out_channel "public class %s {" class_name
 
-    add_java_nondet_declaration out_channel
+    add_java_nondet_declaration java_nondet_style out_channel
 
     //sanitize var names, declare:
     let vars = variables p
     let var_map = ref Map.empty;
     let i = ref 1
     for v in vars do
-        let new_v = "v" ^ (!i).ToString()
+        let new_v = "v" + (!i).ToString()
         var_map := Map.add v new_v !var_map
         i := !i + 1
         fprintfn out_channel "  public static int %s;" new_v
@@ -374,11 +375,11 @@ let print_java_program_goto p class_name path =
     printf "Created %s\n" class_name
     ()
 
-let print_java_program_pc_loop p class_name path =
-    let out_channel = new System.IO.StreamWriter(path ^ "/" ^ class_name ^ ".java")
+let print_java_program_pc_loop p java_nondet_style class_name path =
+    let out_channel = new System.IO.StreamWriter(path + "/" + class_name + ".java")
     fprintfn out_channel "public class %s {" class_name
 
-    add_java_nondet_declaration out_channel
+    add_java_nondet_declaration java_nondet_style out_channel
 
     fprintfn out_channel "  public static void main(String[] args) {"
 
@@ -387,7 +388,7 @@ let print_java_program_pc_loop p class_name path =
     let var_map = ref Map.empty;
     let mutable i = 0
     for v in vars do
-        let new_v = "v" ^ (i+1).ToString()
+        let new_v = "v" + (i+1).ToString()
         var_map := Map.add v new_v !var_map
         i <- i + 1
         fprintfn out_channel "    int %s = args[%d].length() - args[%d].length();" new_v (2*i) (2*i + 1)
@@ -449,10 +450,10 @@ let print_java_program_pc_loop p class_name path =
     printf "Created %s\n" class_name
     ()
 
-let print_java_program p class_name path =
-    match !Arguments.imperative_style with
-        | Arguments.Goto -> print_java_program_goto p class_name path
-        | Arguments.Loop -> print_java_program_pc_loop p class_name path
+let print_java_program p imperative_style class_name path =
+    match imperative_style with
+        | Parameters.Goto -> print_java_program_goto p class_name path
+        | Parameters.Loop -> print_java_program_pc_loop p class_name path
 
 let print_smtpushdown p (fname : string) =
     let out_channel = new System.IO.StreamWriter(fname)
@@ -472,7 +473,7 @@ let print_smtpushdown p (fname : string) =
     let post_vars_string = post_vars |> Set.map (sprintf "(%s Int)") |> String.concat " "
     let all_vars = Set.union pre_vars post_vars
 
-    let rec get_unused v used = if Set.contains v used then get_unused ("_" ^ v) used else v
+    let rec get_unused v used = if Set.contains v used then get_unused ("_" + v) used else v
     let pc_pre_var = get_unused "pc^0" all_vars
     let pc_post_var = get_unused "pc^post" all_vars
 

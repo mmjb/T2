@@ -1,4 +1,4 @@
-# 1 "absflex.mll"
+# 1 "absflex.fsl"
  
 // Copyright (c) Microsoft Corporation
 //
@@ -22,7 +22,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Absflex
+module Microsoft.Research.T2.Absflex
 
 open Absparse
 let lexerror msg lexbuf = (Printf.printf "Unimplemented %s" msg; failwith "error")
@@ -297,33 +297,33 @@ and token  (lexbuf : Microsoft.FSharp.Text.Lexing.LexBuffer<_>) = _fslex_token  
 and _fslex_token  _fslex_state lexbuf =
   match _fslex_tables.Interpret(_fslex_state,lexbuf) with
   | 0 -> ( 
-# 38 "absflex.mll"
+# 38 "absflex.fsl"
                                          token lexbuf
 # 302 "absflex.fs"
           )
   | 1 -> ( 
-# 39 "absflex.mll"
+# 39 "absflex.fsl"
                                          ParseError.noteNewline lexbuf.EndPos.AbsoluteOffset;
                                          token lexbuf
                                        
 # 309 "absflex.fs"
           )
   | 2 -> ( 
-# 44 "absflex.mll"
+# 44 "absflex.fsl"
                                          ParseError.noteNewline lexbuf.EndPos.AbsoluteOffset;
                                          token lexbuf
                                         
 # 316 "absflex.fs"
           )
   | 3 -> ( 
-# 49 "absflex.mll"
+# 49 "absflex.fsl"
                        begin
                        failwith "error"
                      end 
 # 323 "absflex.fs"
           )
   | 4 -> ( 
-# 54 "absflex.mll"
+# 54 "absflex.fsl"
                                          begin
                                          ParseError.noteNewline lexbuf.EndPos.AbsoluteOffset;
                                          token lexbuf
@@ -331,7 +331,7 @@ and _fslex_token  _fslex_state lexbuf =
 # 331 "absflex.fs"
           )
   | 5 -> ( 
-# 60 "absflex.mll"
+# 60 "absflex.fsl"
                        
                        let str = System.Text.Encoding.Default.GetString(lexbuf.Lexeme)
                        (* get rid of first and last characters *)
@@ -340,220 +340,220 @@ and _fslex_token  _fslex_state lexbuf =
 # 340 "absflex.fs"
           )
   | 6 -> ( 
-# 66 "absflex.mll"
+# 66 "absflex.fsl"
                                                token lexbuf 
 # 345 "absflex.fs"
           )
   | 7 -> ( 
-# 68 "absflex.mll"
+# 68 "absflex.fsl"
                                        TO 
 # 350 "absflex.fs"
           )
   | 8 -> ( 
-# 69 "absflex.mll"
+# 69 "absflex.fsl"
                                         FROM 
 # 355 "absflex.fs"
           )
   | 9 -> ( 
-# 70 "absflex.mll"
+# 70 "absflex.fsl"
                                              CUTPOINT 
 # 360 "absflex.fs"
           )
   | 10 -> ( 
-# 71 "absflex.mll"
+# 71 "absflex.fsl"
                                            NONDET 
 # 365 "absflex.fs"
           )
   | 11 -> ( 
-# 72 "absflex.mll"
+# 72 "absflex.fsl"
                                            NONDET 
 # 370 "absflex.fs"
           )
   | 12 -> ( 
-# 73 "absflex.mll"
+# 73 "absflex.fsl"
                                            SHADOW 
 # 375 "absflex.fs"
           )
   | 13 -> ( 
-# 74 "absflex.mll"
+# 74 "absflex.fsl"
                                          START 
 # 380 "absflex.fs"
           )
   | 14 -> ( 
-# 75 "absflex.mll"
+# 75 "absflex.fsl"
                                       AT 
 # 385 "absflex.fs"
           )
   | 15 -> ( 
-# 78 "absflex.mll"
+# 78 "absflex.fsl"
                              AF
 # 390 "absflex.fs"
           )
   | 16 -> ( 
-# 79 "absflex.mll"
+# 79 "absflex.fsl"
                              AG
 # 395 "absflex.fs"
           )
   | 17 -> ( 
-# 80 "absflex.mll"
+# 80 "absflex.fsl"
                              AW
 # 400 "absflex.fs"
           )
   | 18 -> ( 
-# 81 "absflex.mll"
+# 81 "absflex.fsl"
                              AX
 # 405 "absflex.fs"
           )
   | 19 -> ( 
-# 82 "absflex.mll"
+# 82 "absflex.fsl"
                              EF
 # 410 "absflex.fs"
           )
   | 20 -> ( 
-# 83 "absflex.mll"
+# 83 "absflex.fsl"
                              EG
 # 415 "absflex.fs"
           )
   | 21 -> ( 
-# 84 "absflex.mll"
+# 84 "absflex.fsl"
                              EU
 # 420 "absflex.fs"
           )
   | 22 -> ( 
-# 85 "absflex.mll"
+# 85 "absflex.fsl"
                              EX
 # 425 "absflex.fs"
           )
   | 23 -> ( 
-# 88 "absflex.mll"
+# 88 "absflex.fsl"
                                          COMMA 
 # 430 "absflex.fs"
           )
   | 24 -> ( 
-# 89 "absflex.mll"
+# 89 "absflex.fsl"
                                                 LPAREN 
 # 435 "absflex.fs"
           )
   | 25 -> ( 
-# 90 "absflex.mll"
+# 90 "absflex.fsl"
                                                 RPAREN 
 # 440 "absflex.fs"
           )
   | 26 -> ( 
-# 91 "absflex.mll"
+# 91 "absflex.fsl"
                                                 PLUS 
 # 445 "absflex.fs"
           )
   | 27 -> ( 
-# 92 "absflex.mll"
+# 92 "absflex.fsl"
                                                 MINUS 
 # 450 "absflex.fs"
           )
   | 28 -> ( 
-# 93 "absflex.mll"
+# 93 "absflex.fsl"
                                                 STAR 
 # 455 "absflex.fs"
           )
   | 29 -> ( 
-# 94 "absflex.mll"
+# 94 "absflex.fsl"
                                          DIV  
 # 460 "absflex.fs"
           )
   | 30 -> ( 
-# 95 "absflex.mll"
+# 95 "absflex.fsl"
                                          NOT  
 # 465 "absflex.fs"
           )
   | 31 -> ( 
-# 96 "absflex.mll"
+# 96 "absflex.fsl"
                                          REM  
 # 470 "absflex.fs"
           )
   | 32 -> ( 
-# 97 "absflex.mll"
+# 97 "absflex.fsl"
                                          SEMICOLON  
 # 475 "absflex.fs"
           )
   | 33 -> ( 
-# 98 "absflex.mll"
+# 98 "absflex.fsl"
                                          COLON 
 # 480 "absflex.fs"
           )
   | 34 -> ( 
-# 99 "absflex.mll"
+# 99 "absflex.fsl"
                                                 LT 
 # 485 "absflex.fs"
           )
   | 35 -> ( 
-# 100 "absflex.mll"
+# 100 "absflex.fsl"
                                                 GT 
 # 490 "absflex.fs"
           )
   | 36 -> ( 
-# 101 "absflex.mll"
+# 101 "absflex.fsl"
                                          LE 
 # 495 "absflex.fs"
           )
   | 37 -> ( 
-# 102 "absflex.mll"
+# 102 "absflex.fsl"
                                          GE 
 # 500 "absflex.fs"
           )
   | 38 -> ( 
-# 103 "absflex.mll"
+# 103 "absflex.fsl"
                                          EQ 
 # 505 "absflex.fs"
           )
   | 39 -> ( 
-# 104 "absflex.mll"
+# 104 "absflex.fsl"
                                         EQ 
 # 510 "absflex.fs"
           )
   | 40 -> ( 
-# 105 "absflex.mll"
+# 105 "absflex.fsl"
                                          NE 
 # 515 "absflex.fs"
           )
   | 41 -> ( 
-# 106 "absflex.mll"
+# 106 "absflex.fsl"
                                          ASSIGN 
 # 520 "absflex.fs"
           )
   | 42 -> ( 
-# 107 "absflex.mll"
+# 107 "absflex.fsl"
                                          ASSUME 
 # 525 "absflex.fs"
           )
   | 43 -> ( 
-# 108 "absflex.mll"
+# 108 "absflex.fsl"
                                          AND_OP 
 # 530 "absflex.fs"
           )
   | 44 -> ( 
-# 109 "absflex.mll"
+# 109 "absflex.fsl"
                                          OR_OP 
 # 535 "absflex.fs"
           )
   | 45 -> ( 
-# 110 "absflex.mll"
+# 110 "absflex.fsl"
                                              Num(bigint.Parse (System.Text.Encoding.Default.GetString(lexbuf.Lexeme))) 
 # 540 "absflex.fs"
           )
   | 46 -> ( 
-# 111 "absflex.mll"
+# 111 "absflex.fsl"
                                                              Id    (System.Text.Encoding.Default.GetString(lexbuf.Lexeme)) 
 # 545 "absflex.fs"
           )
   | 47 -> ( 
-# 112 "absflex.mll"
+# 112 "absflex.fsl"
                                                 EOF 
 # 550 "absflex.fs"
           )
   | 48 -> ( 
-# 113 "absflex.mll"
+# 113 "absflex.fsl"
                                               
                                          begin
-                                           lexerror ("Illegal Character '" ^ 
+                                           lexerror ("Illegal Character '" + 
                                                      (System.Text.Encoding.Default.GetString(lexbuf.Lexeme))) lexbuf;
                                            token lexbuf
                                          end 
@@ -561,6 +561,6 @@ and _fslex_token  _fslex_state lexbuf =
           )
   | _ -> failwith "token"
 
-# 125 "absflex.mll"
+# 125 "absflex.fsl"
 
 # 3000000 "absflex.fs"

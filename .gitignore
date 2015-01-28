@@ -4,6 +4,6 @@ defect.t2
 defect.tt
 *.dot
 *~
-absparse.mli
+absparse.fsi
 *.suo
 src/packages

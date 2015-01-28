@@ -30,7 +30,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Analysis
+module Microsoft.Research.T2.Analysis
 
 open Term
 open Programs

@@ -20,7 +20,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module IntervalIntDom
+module Microsoft.Research.T2.IntervalIntDom
 
 open Utils
 open Term
@@ -67,7 +67,7 @@ type Bound with
     member b.int_value =
         match b with
             | C(c) -> c
-            | _ -> Utils.dieWith ("Trying to get int value of " ^ b.ToString())
+            | _ -> Utils.dieWith ("Trying to get int value of " + b.ToString())
 
 [<StructuredFormatDisplayAttribute("Intervals({pp})")>]
 type Intervals =

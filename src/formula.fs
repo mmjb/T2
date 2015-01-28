@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Formula
+module Microsoft.Research.T2.Formula
 
 open Utils
 open Term
@@ -50,19 +50,19 @@ type formula =
     member self.pp =
         // see comment to term2pp
         let protect strength force s =
-            if strength >= force then s else "(" ^ s ^ ")"
+            if strength >= force then s else "(" + s + ")"
 
         // using standard C precedence
         let rec pp' force e =
             match e with
-            | Not(e)     -> protect 3 force ("not " ^ pp' 3 e)
-            | And(e1,e2) -> protect 2 force  (pp' 2 e1 ^ " and " ^ pp' 2 e2)
-            | Or(e1,e2)  -> protect 1 force (pp' 1 e1 ^ " or " ^ pp' 1 e2)
-            | Eq(e1,e2)  -> e1.pp ^ " == " ^ e2.pp
-            | Lt(e1,e2)  -> e1.pp ^ " < " ^ e2.pp
-            | Le(e1,e2)  -> e1.pp ^ " <= " ^ e2.pp
-            | Ge(e1,e2)  -> e1.pp ^ " >= " ^ e2.pp
-            | Gt(e1,e2)  -> e1.pp ^ " > " ^ e2.pp
+            | Not(e)     -> protect 3 force ("not " + pp' 3 e)
+            | And(e1,e2) -> protect 2 force  (pp' 2 e1 + " and " + pp' 2 e2)
+            | Or(e1,e2)  -> protect 1 force (pp' 1 e1 + " or " + pp' 1 e2)
+            | Eq(e1,e2)  -> e1.pp + " == " + e2.pp
+            | Lt(e1,e2)  -> e1.pp + " < " + e2.pp
+            | Le(e1,e2)  -> e1.pp + " <= " + e2.pp
+            | Ge(e1,e2)  -> e1.pp + " >= " + e2.pp
+            | Gt(e1,e2)  -> e1.pp + " > " + e2.pp
 
         pp' 0 self
 
@@ -324,7 +324,7 @@ let unsat x = entails x falsec
 
 let instrumentation_prefix = "__"
 
-let const_prefix = instrumentation_prefix ^ "const_"
+let const_prefix = instrumentation_prefix + "const_"
 let const_var v =
     assert (v >= bigint.Zero)
     sprintf "%s%s" const_prefix (v.ToString())
@@ -333,29 +333,29 @@ let get_const_from_constvar (v : System.String) =
     let withoutPrefix = v.[const_prefix.Length ..]
     bigint.Parse withoutPrefix
 
-let copied_prefix = instrumentation_prefix ^ "copied_"
-let copy_var state = Var.var(copied_prefix ^ string(state))
+let copied_prefix = instrumentation_prefix + "copied_"
+let copy_var state = Var.var(copied_prefix + string(state))
 let is_copied_var (v:string) = v.StartsWith copied_prefix
 let copied_assume k = (Ge(Term.var (copy_var k), Term.constant 1))
 let not_copied_assume k = (Lt(Term.var (copy_var k), Term.constant 1))
 
-let snapshot_prefix = instrumentation_prefix ^ "snapshot_"
-let save_state_var v cp = Var.var(snapshot_prefix ^ string(cp) ^ "_" ^ v)
+let snapshot_prefix = instrumentation_prefix + "snapshot_"
+let save_state_var v cp = Var.var(snapshot_prefix + string(cp) + "_" + v)
 let is_saved_var (v:string) = v.StartsWith snapshot_prefix
-let is_saved_var_for_cp (v:string) cp = v.StartsWith (snapshot_prefix ^ string(cp) ^ "_")
+let is_saved_var_for_cp (v:string) cp = v.StartsWith (snapshot_prefix + string(cp) + "_")
 let extract_saved_var_name (v:string) = 
     let withoutPrefix = v.[snapshot_prefix.Length ..]
     withoutPrefix.[(withoutPrefix.IndexOf "_") + 1 ..]
 
-let init_cond_prefix = instrumentation_prefix ^ "init_cond_at_"
-let init_cond_var cp = Var.var init_cond_prefix ^ string(cp)
+let init_cond_prefix = instrumentation_prefix + "init_cond_at_"
+let init_cond_var cp = Var.var init_cond_prefix + string(cp)
 let is_init_cond_var (v:string) = v.StartsWith init_cond_prefix
 
-let iter_prefix = instrumentation_prefix ^ "iters_"
-let iters_var cp = Var.var iter_prefix ^ string(cp)
+let iter_prefix = instrumentation_prefix + "iters_"
+let iters_var cp = Var.var iter_prefix + string(cp)
 let is_iter_var (v:string) = v.StartsWith iter_prefix
 
-let disj_prefix = instrumentation_prefix ^ "disjvar_"
+let disj_prefix = instrumentation_prefix + "disjvar_"
 let disj_var v = sprintf "%s%d" disj_prefix v
 let is_disj_var (v:string) = v.StartsWith disj_prefix
 

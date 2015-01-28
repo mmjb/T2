@@ -47,7 +47,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module Reachability
+module Microsoft.Research.T2.Reachability
 
 open Utils
 open Log
@@ -95,7 +95,7 @@ type Graph =
     ; cnt : int ref
 
     /// Current nodes in the system
-    ; V : Set<int> ref
+    ; V : System.Collections.Generic.HashSet<int>
 
     /// Edge relation
     ; E : SetDictionary<int,int>
@@ -107,7 +107,7 @@ type Graph =
     ; psi : DefaultDictionary<int, Set<Formula.formula>>
 
     /// Current leaves in the execution tree
-    ; leaves : Set<int> ref
+    ; leaves : System.Collections.Generic.HashSet<int>
 
     /// Mapping from edges in the execution tree to the commands in the original program
     ; abs_edge_to_program_commands : System.Collections.Generic.Dictionary<int * int, Programs.command list>
@@ -120,7 +120,7 @@ type Graph =
     ; program_loc_to_abs_nodes : SetDictionary<int,int>
 
     /// Induction coverings
-    ; covering : Map<int, int> ref
+    ; covering : System.Collections.Generic.Dictionary<int, int>
 
     /// Per-node list of candidates that we should search for when looking for a force cover
     ; fc_candidates : DefaultDictionary<int, int list option>
@@ -134,10 +134,10 @@ type Graph =
     ; stack : PrioStack ref
 
     /// Nodes that have been deemed as garbage but havent been GC'd yet.
-    ; garbage : Set<int> ref
+    ; garbage : System.Collections.Generic.HashSet<int>
 
     /// Nodes that were in the system but have now been dead and GC'd
-    ; dead : Set<int> ref
+    ; dead : System.Collections.Generic.HashSet<int>
     }
 
 let rec push_priostack_abs_many (abs:Graph) vs  =
@@ -152,24 +152,24 @@ let make_abs_pgm init_loc error_loc transition priority_opt abstracted_disjuncti
       loc_err = error_loc
     ; loc_init = init_loc
     ; transition = transition
-    ; V = ref Set.empty
+    ; V = new System.Collections.Generic.HashSet<int>()
     ; E = new SetDictionary<int,int>()
     ; parent = new DefaultDictionary<int,int>(fun _ -> -1)
     ; psi = new DefaultDictionary<int,Set<Formula.formula>>(fun _ -> Set.empty)
     ; abs_node_to_program_loc = new DefaultDictionary<int,int>(fun _ -> -1)
     ; program_loc_to_abs_nodes = new SetDictionary<int,int>()
     ; fc_candidates = new DefaultDictionary<int,int list option>(fun _ -> None)
-    ; leaves = ref Set.empty
+    ; leaves = new System.Collections.Generic.HashSet<int>()
     ; abs_edge_to_program_commands = new System.Collections.Generic.Dictionary<int * int, Programs.command list>()
     ; cnt = ref 0
-    ; covering = ref Map.empty
+    ; covering = new System.Collections.Generic.Dictionary<int,int>()
     ; dfs_map = DefaultDictionary<int, int>(fun _ -> -1)
     ; dfs_cnt = ref 0
     ; priority = defaultArg priority_opt Map.empty
     ; stack = ref empty_priostack
     ; abstracted_disjunctions = abstracted_disjunctions
-    ; garbage = ref Set.empty
-    ; dead = ref Set.empty
+    ; garbage = new System.Collections.Generic.HashSet<int>()
+    ; dead = new System.Collections.Generic.HashSet<int>()
     }
 
 let dfs_map abs x = abs.dfs_map.[x]
@@ -179,25 +179,27 @@ let dfs_add abs x =
         incr abs.dfs_cnt
 let dfs_visited abs x = abs.dfs_map.ContainsKey(x)
 
-let psi abs v = abs.psi.[v] |> Set.toList |> Formula.conj
+let psi abs v = abs.psi.[v] |> Formula.conj
 let abs_node_to_program_loc abs v = abs.abs_node_to_program_loc.[v]
 let program_loc_to_abs_nodes abs v = abs.program_loc_to_abs_nodes.[v]
 let get_same_pc abs v = abs_node_to_program_loc abs v |> program_loc_to_abs_nodes abs
 let abs_edge_to_program_commands abs x y = abs.abs_edge_to_program_commands.[x,y]
 let parent abs v = if v=0 then None else Some(abs.parent.[v])
-let leaf abs v = Set.contains v !abs.leaves
-let remove_leaf abs v = abs.leaves := Set.remove v !abs.leaves
-let add_leaf abs v = abs.leaves := Set.add v !abs.leaves
+let leaf abs v = abs.leaves.Contains v
+let remove_leaf abs v = abs.leaves.Remove v
+let add_leaf abs v = abs.leaves.Add v |> ignore
 let rm_from_covering abs f =
-    let the_filter x y =
-        if not (f (x, y)) then true
-        else inc_stat "uncovered vertex"; false
-    abs.covering := Map.filter the_filter !abs.covering
+    let toRemove = ref []
+    abs.covering
+    |> Seq.iter
+        (fun kv ->
+            if f (kv.Key, kv.Value) then
+                inc_stat "uncovered vertex"
+                toRemove := kv.Key :: !toRemove
+        )
+    abs.covering.RemoveAll !toRemove
 
-let add_covering abs a b =
-    abs.covering := Map.add a b !abs.covering
-let rm_from_leaves abs f =
-    abs.leaves := Set.filter (f >> not) !abs.leaves
+let add_covering abs a b = abs.covering.Add (a, b)
 
 let rec descendents abs t = [
     for c in abs.E.[t] do
@@ -208,23 +210,22 @@ let rec descendents abs t = [
 /// Sanity check to be used before using a node
 let check_not_removed abs x =
     if !gc_check then
-         if Set.contains x !abs.dead then
+         if abs.dead.Contains x then
              printf "CHECK_NOT_REMOVED FAILED"
              assert(false);
 
 /// dump abstraction graph to file for debugging
-let db abs =
+let db (pars : Parameters.parameters) abs =
     let dot_abs_state abs =
         let pp_psi_nl abs v =
             let mutable st = "\\n\\n"
             for s in abs.psi.[v] do
-                st <- st ^ (sprintf "%s\\n" (Formula.pp s))
+                st <- st + (sprintf "%s\\n" (Formula.pp s))
             st
-        let vertex_list = Set.map (fun v -> sprintf "%d [label=\"%d (node %d): %s\"]\n" v (abs_node_to_program_loc abs v) v (pp_psi_nl abs v)) !abs.V
-        let vertices = Set.fold (fun x s -> x ^ s) "" vertex_list
-        //let edges = abs.E.Fold (fun s (x, y) -> s ^ (sprintf "%d -> %d [label=\"%s\"]\n" x y (Programs.commands2pp (edge_map abs x y)))) ""
-        let edges = abs.E.Fold (fun res sourceLoc targetLocs -> Set.fold (fun res targetLoc -> res ^ (sprintf "%d -> %d\n" sourceLoc targetLoc)) res targetLocs) ""
-        let covering = Map.fold (fun s x y -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" x y) ^ s) "" !abs.covering
+        let vertex_list = Seq.map (fun v -> sprintf "%d [label=\"%d (node %d): %s\"]\n" v (abs_node_to_program_loc abs v) v (pp_psi_nl abs v)) abs.V
+        let vertices = Seq.fold (fun x s -> x + s) "" vertex_list
+        let edges = abs.E.Fold (fun res sourceLoc targetLocs -> Set.fold (fun res targetLoc -> sprintf "%s%d -> %d\n" res sourceLoc targetLoc) res targetLocs) ""
+        let covering = Seq.fold (fun s (t : System.Collections.Generic.KeyValuePair<int,int>) -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" t.Key t.Value) + s) "" abs.covering
         sprintf "\ndigraph program {\n%s\n%s\n\n%s}" vertices edges covering
 
     let write_to_fresh_file (s : string) =
@@ -235,13 +236,13 @@ let db abs =
             n <- n+1
             filename <- sprintf "impact%03d.dot" n
 
-        log filename
+        Log.log pars <| sprintf "Reachability graph dumped to file %s" filename
 
         let f = System.IO.File.CreateText filename
         f.Write s
         f.Close()
 
-    if !Arguments.dottify_reachability  then
+    if pars.dottify_reachability  then
         dot_abs_state abs |> write_to_fresh_file
         ()
 
@@ -250,14 +251,14 @@ let db abs =
 /// nodes.
 let delete_tree abs t =
     let desc = descendents abs t |> Set.ofList
-    abs.dead := Set.union !abs.dead desc
+    abs.dead.AddAll desc
 
     rm_from_covering abs (fun (x, y) -> desc.Contains x || desc.Contains y)
-    let edges_to_remove = abs.abs_edge_to_program_commands.Keys |> Seq.filter (fun (x, y) -> (desc.Contains x) || (desc.Contains y)) |> List.ofSeq
+    let edges_to_remove = abs.abs_edge_to_program_commands.Keys |> Seq.filter (fun (x, y) -> (desc.Contains x) || (desc.Contains y)) |> List.ofSeq //Otherwise, we run into a concurrent modification
     for edge_to_remove in edges_to_remove do
         abs.abs_edge_to_program_commands.Remove edge_to_remove |> ignore
-    abs.V := Set.difference (!abs.V) desc
-    abs.leaves := Set.difference (!abs.leaves) desc
+    abs.V.RemoveAll desc
+    abs.leaves.RemoveAll desc
 
     for n in desc do
         abs.parent.[n] <- -1
@@ -269,7 +270,6 @@ let delete_tree abs t =
     // We're cleaning out abs.fc_candidates in the get_force_cover_candidates routine
     let keep x = not (Set.contains x desc)
     abs.stack := filter_priostack keep !abs.stack
-    abs.leaves := Set.difference !abs.leaves desc
 
     for d in (desc.Add t) do
         while abs.E.ContainsKey d do
@@ -298,19 +298,19 @@ let delete_program_transition abs ((k, cmds, k') : (int * Programs.command list 
 /// condition is met.
 let gc abs =
     if !do_gc then
-        for v in !abs.garbage do
-            if Set.contains v !abs.V then
+        for v in abs.garbage do
+            if abs.V.Contains v then
                 delete_tree abs v
-        abs.garbage := Set.empty
+        abs.garbage.Clear()
 
 let garbage_add abs v =
     if !do_gc then
-        abs.garbage := Set.add v !abs.garbage
+        abs.garbage.Add v |> ignore
 
 let garbage_check abs v =
     if !do_gc then
         if Formula.unsat (psi abs v) then
-            abs.garbage := Set.add v !abs.garbage
+            abs.garbage.Add v |> ignore
 
 /// Strengthen the invariant at a node.
 let conjoin_with_psi abs l psi =
@@ -319,7 +319,7 @@ let conjoin_with_psi abs l psi =
            xs
        else if Formula.is_false_formula n then
            Set.singleton n
-       else if Formula.unsat (n::Set.toList xs |> Formula.conj) then
+       else if Formula.unsat (Formula.conj (Seq.append [n] xs)) then
            Set.singleton Formula.falsec
        else
            let p x = Formula.entails n x |> not
@@ -330,7 +330,7 @@ let conjoin_with_psi abs l psi =
 
     garbage_check abs l
 
-let add_V abs w = abs.V := Set.add w !abs.V
+let add_V abs w = abs.V.Add w |> ignore
 let add_E abs v w = abs.E.Add (v, w); abs.parent.[w] <- v
 
 let new_vertex abs =
@@ -367,7 +367,7 @@ let ancestors abs v =
 /// Returns true if the node is covered by an induction covering, or if its parent is.
 let rec is_covered abs v =
     check_not_removed abs v
-    if Map.containsKey v (!abs.covering) then
+    if abs.covering.ContainsKey v then
         true
     else if Formula.unsat (psi abs v) then
         true
@@ -389,20 +389,22 @@ let get_force_cover_candidates abs v =
 
         // We look at nodes at the same location the original program
         | None ->
-            get_same_pc abs v
-            // We have to filter out nodes that are in in the DFS stack but haven't actually
-            // been visited yet
-            |> Set.filter (dfs_visited abs)
-            // We can only be covered by nodes less than us in the DFS order
-            // (otherwise we could great circular/unsound induction arguments)
-            |> Set.filter (fun w -> dfs_map abs w < dfs_v)
-            // We don't want our children, obviously
-            |> Set.filter (fun w -> not (sq_eq abs v w))
+            [
+                for v' in get_same_pc abs v do
+                    // We have to filter out nodes that are in in the DFS stack but haven't actually
+                    // been visited yet
+                    if dfs_visited abs v' then
+                    // We can only be covered by nodes less than us in the DFS order
+                    // (otherwise we could great circular/unsound induction arguments)
+                        if dfs_map abs v' < dfs_v then
+                            // We don't want our children, obviously
+                            if not (sq_eq abs v v') then
+                                yield v'
             // Sort in reverse dfs-search order
-            |> Set.toList |> List.sortBy (dfs_map abs) |> List.rev
+            ] |> List.sortBy (dfs_map abs) |> List.rev
 
     // We're gc-ing here, as it's a little faster.
-    let cleaned = List.filter (fun x -> (!abs.dead).Contains x |> not) candidates
+    let cleaned = List.filter (fun x -> abs.dead.Contains x |> not) candidates
     abs.fc_candidates.[v] <- Some(cleaned)
     List.filter (not_covered abs) cleaned
 
@@ -449,17 +451,17 @@ let make_node abs expandedNode commandsOnEdge newNodeLoc =
     newNode
 
 /// Expand the graph for DFS search
-let expand abs v =
+let expand (pars : Parameters.parameters) abs v =
     assert (leaf abs v)
-    db abs
+    db pars abs
     check_not_removed abs v
 
     inc_stat "expand vertex"
-    if Log.do_logging() then
-        sprintf "Expanding leaf %d (loc %d)" v abs.abs_node_to_program_loc.[v] |> log
+    if pars.print_log then
+        Log.log pars <| sprintf "Expanding leaf %d (loc %d)" v abs.abs_node_to_program_loc.[v]
 
     if not (is_covered abs v) then
-        remove_leaf abs v
+        remove_leaf abs v |> ignore
         [for (T, m) in abs.transition (abs_node_to_program_loc abs v) do
             let to_add = ref true
             let psi = psi abs v
@@ -477,9 +479,9 @@ let rec path_to_locs pi =
 
 /// Try to cover v with w.  That is, v entails w, where v is later in the execution and the cover
 /// represents the induction check
-let cover abs v w =
+let cover (pars : Parameters.parameters) abs v w =
     assert (abs_node_to_program_loc abs v = abs_node_to_program_loc abs w)
-    db abs
+    db pars abs
     if entails_psi abs v w then
         rm_from_covering abs (fun (_, y) -> sq_eq abs v y)
         add_covering abs v w
@@ -489,8 +491,8 @@ let cover abs v w =
 
 /// If cover doesnt work, we can try to force it to work by (in a sense) merging paths
 /// and finding necessary interpolants along the way
-let force_cover abs v w =
-    db abs
+let force_cover (pars : Parameters.parameters) abs v w =
+    db pars abs
 
     check_not_removed abs v
     check_not_removed abs w
@@ -507,8 +509,8 @@ let force_cover abs v w =
     let x_nearest =
         let v_ancestors = v :: (ancestors abs v) |> Set.ofList
         let w_ancestors = w :: (ancestors abs w) |> Set.ofList
-        let common = Set.intersect v_ancestors w_ancestors |> Set.toList
-        List.maxBy (dfs_map abs) common
+        let common = Set.intersect v_ancestors w_ancestors
+        Seq.maxBy (dfs_map abs) common
     assert (sq_eq abs x_nearest v && sq_eq abs x_nearest w)
 
     let psi_w =
@@ -534,7 +536,8 @@ let force_cover abs v w =
 
     let do_interpolants initial formulae final x path =
         let find_path_interpolant =
-            if x = w || not (sq abs w v) then (Symex.find_path_interpolant_old (not !Arguments.fc_unsat_core) 0 [])
+            if x = w || not (sq abs w v) then 
+                Symex.find_path_interpolant_old pars (not pars.fc_unsat_core) 0 []
             else
                 let (initial, formulae, _, var_map) = get_formulae x path
                 let distance =
@@ -552,7 +555,7 @@ let force_cover abs v w =
                     let var v p = Term.var (Var.prime_var v p)
                     let gen_dummy_assign (v,p) = Formula.Eq(var v p, zero)
                     List.map gen_dummy_assign (Map.toList var_map) |> Formula.conj
-                (Symex.find_path_interpolant_old false distance ((initial::formulae)@[final; Formula.falsec]))
+                Symex.find_path_interpolant_old pars false distance ((initial::formulae)@[final; Formula.falsec])
 
         match find_path_interpolant formulae (Formula.conj initial) final with
         | Some(A) ->
@@ -563,11 +566,11 @@ let force_cover abs v w =
                     rm_from_covering abs (fun (x,y) -> y=loc && not (entails_psi abs x loc))
             List.zip (path_to_locs formulae) A |> List.iter update
 
-            let covered = cover abs v w
+            let covered = cover pars abs v w
             assert(covered)
             true
         | None ->
-            log "No dice (Expensive!)"
+            Log.log pars <| "Failed to find path interpolant!"
             false
 
     let try_unsat_get_formulae x path =
@@ -629,11 +632,11 @@ let force_cover abs v w =
 
     let result =
         let try_from_x =
-            if !Arguments.fc_unsat_core then try_unsat_core_get_formulae else try_unsat_get_formulae
+            if pars.fc_unsat_core then try_unsat_core_get_formulae else try_unsat_get_formulae
 
         let nearest_path = find_path_from abs x_nearest v
 
-        if !Arguments.fc_look_back && x_nearest <> 0 then
+        if pars.fc_look_back && x_nearest <> 0 then
             let root_path = (find_path_from abs 0 x_nearest)@nearest_path
 
             match try_from_x 0 root_path with
@@ -653,7 +656,7 @@ let force_cover abs v w =
     result
 
 /// Apply force_cover procedure as appropriate to the nodes in the graph.
-let try_force_cover abs v =
+let try_force_cover (pars : Parameters.parameters) abs v =
     check_not_removed abs v
 
     if not (dfs_visited abs v) then false
@@ -665,7 +668,7 @@ let try_force_cover abs v =
         | [] -> false, (List.rev failed_candidates), changed
         | w::t ->
             check_not_removed abs w
-            if cover abs v w || force_cover abs v w then (true, (List.rev failed_candidates)@candidates, changed)
+            if cover pars abs v w || force_cover pars abs v w then (true, (List.rev failed_candidates)@candidates, changed)
             else
                 if sq abs w v then
                     // because w is ancestor of v, it is possible we failed but when invar(w) is refined we will succeed
@@ -677,41 +680,41 @@ let try_force_cover abs v =
     let covered, candidates, changed = try_force_cover_candidates (get_force_cover_candidates abs v) [] false
 
     // most of the times the candidates do not change so we write back only when needed (i.e. when 'changed' is true)
-    if changed && !Arguments.fc_remove_on_fail then abs.fc_candidates.[v] <- Some candidates
+    if changed && pars.fc_remove_on_fail then abs.fc_candidates.[v] <- Some candidates
 
     covered
 
 /// This procedure attempts to find a cover for v.
-let close abs v =
-    db abs
+let close (pars : Parameters.parameters) abs v =
+    db pars abs
     check_not_removed abs v
     assert (dfs_visited abs v)
 
     if is_covered abs v then
         true
     else
-        try_force_cover abs v
+        try_force_cover pars abs v
 
 /// Try to find coverings on all of the nodes above v
-let close_all_ancestors abs v =
+let close_all_ancestors (pars : Parameters.parameters) abs v =
     check_not_removed abs v
     let l = ancestors abs v |> List.rev |> ref
     let d = ref false
     while !l<>[] && not !d do
-        d := close abs (List.head !l)
+        d := close pars abs (List.head !l)
         l := List.tail !l
     done
 
 /// If an error path was spurious, refine abstraction and return None.
 /// Otherwise, return true (almost) error path.
-let refine abs v =
-    db abs
+let refine (pars : Parameters.parameters) abs v =
+    db pars abs
 
     assert (abs_node_to_program_loc abs v = abs.loc_err)
     check_not_removed abs v
 
-    if Log.do_logging() then
-        sprintf "Refining %d (loc %d)..." v abs.abs_node_to_program_loc.[v] |> log
+    if pars.print_log then
+        Log.log pars <| sprintf "Refining %d (loc %d)..." v abs.abs_node_to_program_loc.[v]
 
     if Formula.unsat (psi abs v) then
         // In this case the error location is just not satisfible.
@@ -723,7 +726,7 @@ let refine abs v =
         let formulae = pi' |> Symex.path_to_formulae
 
         // Try to find interpolants (this may fail if we cannot find an interpolant for a true error)
-        match Symex.find_unsat_path_interpolant formulae with
+        match Symex.find_unsat_path_interpolant pars formulae with
         | None ->
             let translate (k1, cmd, k2) = (abs_node_to_program_loc abs k1, cmd, abs_node_to_program_loc abs k2)
             Some(List.map translate pi,pi)
@@ -737,8 +740,8 @@ let refine abs v =
             for loc, intp in List.zip (path_to_locs formulae) interpolants do
                 check_not_removed abs loc
                 if not (entails1_psi abs loc intp) then
-                    if Log.do_logging () then
-                        log <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs.abs_node_to_program_loc.[loc]
+                    if pars.print_log then
+                        Log.log pars <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs.abs_node_to_program_loc.[loc]
                     conjoin_with_psi abs loc intp
                     rm_from_covering abs (fun (x,y) -> y=loc && not (entails_psi abs x loc))
 
@@ -760,8 +763,8 @@ let refine abs v =
 /// a ranking function even with the spurious approximation cmd1;cmd2';cmd3.
 /// </remarks>
 ///
-let dfs abs start =
-    db abs
+let dfs (pars : Parameters.parameters) abs start =
+    db pars abs
     // Start the ball rolling.  The priority doesn't matter, since we're just going
     // to pop it below.
     abs.stack := singleton_priostack 0 start
@@ -774,11 +777,11 @@ let dfs abs start =
         // The call to dfs_add gives v its DFS ordering number.
         dfs_add abs v
 
-        if not (close abs v) then
+        if not (close pars abs v) then
             // v isn't covered as a result of closing it, so we need to
             // refine it if it's an error location or expand it otherwise.
             if abs_node_to_program_loc abs v = abs.loc_err then
-                match refine abs v with
+                match refine pars abs v with
                 | Some(pi, abs_pi) ->
                     // This is a real error, and the path pi witnesses it.
                     // Due to incrementality we need to add v back as a leaf, as we may be back here.
@@ -807,7 +810,7 @@ let dfs abs start =
                             let abstracted_disjunction = Map.find v abs.abstracted_disjunctions
                             match abstracted_disjunction with
                             | (first_disjunct::disjunctions) ->
-                                Log.log <| sprintf "Lazy disjunction expansion for %s" v
+                                Log.log pars <| sprintf "Lazy disjunction expansion for %s" v
                                 //Replace existing edge (with abstract label) by the first disjunct
                                 abs.abs_edge_to_program_commands.[(k,k')] <- [first_disjunct]
                                 //Add new edges for the other disjuncts
@@ -819,10 +822,10 @@ let dfs abs start =
                         ret := Some (pi, disjunctive_refinements)
                 | None ->
                     // In this case we haven't hit an error node (yet).
-                    ignore (close abs v)
-                    close_all_ancestors abs v
+                    ignore (close pars abs v)
+                    close_all_ancestors pars abs v
             else
-                let children = expand abs v
+                let children = expand pars abs v
                 push_priostack_abs_many abs children
 
     !ret
@@ -831,43 +834,46 @@ let dfs abs start =
 ///   a) preferably corresponds to error loc
 ///   b) is earliest in dfs order
 let pick_vertex abs =
-    let error_nodes, other_nodes =
-        !abs.leaves
-        |> Seq.filter (not_covered abs)
-        |> Seq.toList
-        |> List.partition (fun v -> abs_node_to_program_loc abs v = abs.loc_err)
+    let errorNodes = ref []
+    let otherNodes = ref []
+    for v in abs.leaves do
+        if not_covered abs v then
+            if abs_node_to_program_loc abs v = abs.loc_err then
+                errorNodes := v :: !errorNodes
+            else
+                otherNodes := v :: !otherNodes
 
-    if not error_nodes.IsEmpty then
-        List.minBy (dfs_map abs) error_nodes
-    elif not other_nodes.IsEmpty then
-        List.minBy (dfs_map abs) other_nodes
+    if not (List.isEmpty !errorNodes) then
+        List.minBy (dfs_map abs) !errorNodes
+    elif not (List.isEmpty !otherNodes) then
+        List.minBy (dfs_map abs) !otherNodes
     else
         die()
 
-let unwind abs =
-    db abs
+let unwind (pars : Parameters.parameters) abs =
+    db pars abs
     let v = pick_vertex abs
-    sprintf "Unwinding node %d (loc %d)" v abs.abs_node_to_program_loc.[v] |> log
-    close_all_ancestors abs v
-    dfs abs v
+    Log.log pars <| sprintf "Unwinding node %d (loc %d)" v abs.abs_node_to_program_loc.[v]
+    close_all_ancestors pars abs v
+    dfs pars abs v
 
 //
 // Sanity checks
 //
 
 let sanity_check abs =
-    if Map.exists (fun x y -> entails_psi abs x y |> not) !abs.covering then
+    if Seq.exists (function KeyValue(x, y) -> entails_psi abs x y |> not) abs.covering then
         printf "BIG PROBLEM!\n"
 
-    if Map.exists (fun _ y -> ancestors abs y |> List.forall (fun a -> not (Map.containsKey a !abs.covering)) |> not) !abs.covering then
+    if Seq.exists (function KeyValue(_, y) -> ancestors abs y |> List.forall (fun a -> not (abs.covering.ContainsKey a)) |> not) abs.covering then
         printf "BIG PROBLEM 2x!\n"
 
 /// Return path to loc_err or None if it's unreachable
-let reachable abs =
-    db abs
+let reachable (pars : Parameters.parameters) abs =
+    db pars abs
     let path = ref None
-    while Set.exists (not_covered abs) !abs.leaves && (!path).IsNone do
-        match unwind abs with
+    while Seq.exists (not_covered abs) abs.leaves && (!path).IsNone do
+        match unwind pars abs with
         | Some(pi, disjunction_refinements) ->
                 let (_, _, l2) = List.last pi
                 assert (l2 = abs.loc_err)
@@ -878,23 +884,45 @@ let reachable abs =
     done
 
     // Check that we we've constructed a consistent proof graph
-    if !Arguments.sanity_checking then
+    if pars.sanity_checking then
         sanity_check abs
 
-    db abs
+    db pars abs
     !path
 
 /// For incrementality, we sometimes need to delete a subtree within the proof graph
-let reset abs s =
-    let nodes = Set.filter (fun x -> abs_node_to_program_loc abs x = s) !abs.V |> ref
-    while !nodes<>Set.empty do
-        let t = Set.minElement !nodes
-        nodes := Set.remove t !nodes
-        delete_tree abs t
-        add_leaf abs t
+let reset (pars : Parameters.parameters) abs to_reset =
+    if pars.iterative_reachability then
+        let nodes_to_remove = Seq.filter (fun x -> abs_node_to_program_loc abs x = to_reset) abs.V |> List.ofSeq
+        for t in nodes_to_remove do
+            if abs.V.Contains t then
+                delete_tree abs t
+                add_leaf abs t
+    else
+        //Get rid of _everything_
+        abs.V.Clear()
+        abs.E.Clear()
+        abs.parent.Clear()
+        abs.psi.Clear()
+        abs.abs_node_to_program_loc.Clear()
+        abs.program_loc_to_abs_nodes.Clear()
+        abs.fc_candidates.Clear()
+        abs.leaves.Clear()
+        abs.abs_edge_to_program_commands.Clear()
+        abs.cnt := 0
+        abs.covering.Clear()
+        abs.dfs_map.Clear()
+        abs.dfs_cnt := 0
+        abs.stack := empty_priostack
+        abs.garbage.Clear()
+        abs.dead.Clear()
 
-        // The deleted tree might have made nodes disappear
-        nodes := Set.intersect !nodes !abs.V
+        //Start anew:
+        let newNode = new_vertex abs
+        add_V abs newNode
+        add_leaf abs newNode
+        abs.abs_node_to_program_loc.[newNode] <- abs.loc_init
+        abs.program_loc_to_abs_nodes.Add (abs.loc_init, newNode)
 
 /// Great an initial reachability Tree/Graph
 let init init_loc error_loc transition prio abstracted_disjunctions =
@@ -907,8 +935,10 @@ let init init_loc error_loc transition prio abstracted_disjunctions =
     abs
 
 /// Prove that location err is unreachable in p
-let prover p err =
-    Utils.timeout !Arguments.timeout
+let prover (pars : Parameters.parameters) p err =
+    Utils.timeout pars.timeout
+
+    assert (not pars.lazy_disj && not pars.abstract_disj); //Overapproximations are very uncool for reachability
 
     // Create new initial location with transition assume(_const_100 > _const_32) for all
     // abstracted const variables.
@@ -919,18 +949,18 @@ let prover p err =
     let transition = Programs.transitions_from p
     let abs = init !p.initial err transition None !p.abstracted_disjunctions
 
-    if !Arguments.dottify_input_pgms then
+    if pars.dottify_input_pgms then
         Output.print_dot_program p "input.dot"
 
     // Try to disprove/prove the error location in abs to be unreachable
-    let r = reachable abs
+    let r = reachable pars abs
 
     // If the flag is set, produce a counterexample file
-    if !Arguments.safety_counterexample && r.IsSome then
+    if pars.safety_counterexample && r.IsSome then
         let stem = Some (List.map (fun (x,y,z) -> (x,[y],z)) (fst r.Value))
         let cex = Counterexample.make stem None
-        Counterexample.print_defect [cex] "defect.tt"
-        Counterexample.print_program [cex] "defect.t2"
+        Counterexample.print_defect pars [cex] "defect.tt"
+        Counterexample.print_program pars [cex] "defect.t2"
         Utils.run_clear()
 
     Utils.reset_timeout()

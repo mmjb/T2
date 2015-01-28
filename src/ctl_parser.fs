@@ -22,7 +22,7 @@
 
 // This is not in ctl.fs because absparse depends on ctl.fs, and we depend
 // on absparse.
-module CTL_Parser
+module Microsoft.Research.T2.CTL_Parser
 
 //Note on how to write CTL properties. Essentially, everything needs ( ) around it. See either examples in programTests.fs
 //on how this was done, or look at absparse.mly

@@ -31,7 +31,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-module PrioStack
+module Microsoft.Research.T2.PrioStack
 
 open Utils
 

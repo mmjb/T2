@@ -30,7 +30,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Counterexample
+module Microsoft.Research.T2.Counterexample
 
 open Programs
 
@@ -38,9 +38,29 @@ open Programs
 /// Counterexample to safety property ---> cycle = None.
 /// Counterexample to liveness property ---> stem might be equal to None.
 ///
-type cex = { stem : (int * command list* int) list option
-           ; cycle : (int * command list *int) list option
-           }
+type cex =
+    { stem : (int * command list* int) list option
+    ; cycle : (int * command list *int) list option
+    }
+
+    override self.ToString () =
+        let stringWriter = new System.IO.StringWriter();
+        self.ToString stringWriter
+        stringWriter.ToString()
+
+    member self.ToString (outWriter : System.IO.TextWriter) =
+        let outputPath pi =
+            for ((k,cmds,k') : (int * Programs.command list * int)) in pi do
+                outWriter.WriteLine("FROM: {0:D};", k)
+                for cmd in cmds do
+                    outWriter.WriteLine("  {0}", Programs.command2pp cmd)
+                outWriter.WriteLine("TO: {0:D};", k')
+        if self.stem.IsSome then
+            outWriter.WriteLine("Stem of the counterexample:")
+            outputPath self.stem.Value
+        if self.cycle.IsSome then
+            outWriter.WriteLine("Cycle of the counterexample:")
+            outputPath self.cycle.Value
 
 let make stem cycle = { stem = stem ; cycle = cycle }
 
@@ -52,8 +72,8 @@ let pos2cex (pos:pos) =
 ///
 /// Print SDV defect tool input in "fname"
 ///
-let print_defect cexs fname =
-    if !Arguments.create_defect_files then
+let print_defect (pars : Parameters.parameters) cexs fname =
+    if pars.create_defect_files then
         printf "Creating defect file %s\n" fname
         let h = new System.IO.StreamWriter(fname)
         let cnt = ref 0
@@ -96,8 +116,8 @@ let print_defect cexs fname =
         fprintf h "Error Possibly non-terminating path found\n"
         h.Dispose()
 
-let print_program cexs fname =
-    if !Arguments.create_defect_files then
+let print_program (pars : Parameters.parameters) cexs fname =
+    if pars.create_defect_files then
         printf "Creating T2 program file %s\n" fname
         let h = new System.IO.StreamWriter(fname)
         let print_cmd cmd = fprintf h "%s\n" (Programs.command2pp cmd)

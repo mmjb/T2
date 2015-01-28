@@ -40,7 +40,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-module Test
+module Microsoft.Research.T2.Test
 
 //
 // List of all unit tests across T2
@@ -55,12 +55,12 @@ let tests = ref ([] : (bool * (unit -> bool) * (string * int)) list)
 let found_debug = ref false
 
 ///
-/// run_tests () should be called once register_test has been called on all
+/// run_tests should be called once register_test has been called on all
 /// of the desired unit tests
 ///
-let run_tests () =
+let run_tests timeout  =
     printf "Running tests--------------------------------------------\n"
-    printf "Using timeout of %.2f s\n" (!Arguments.timeout)
+    printf "Using timeout of %.2f s\n" timeout
 
     let num = List.length !tests
     let failed = ref []
@@ -129,7 +129,6 @@ let run_tests () =
 ///
 let register_testd s f =
     printf "Debugging.............\n"
-    Arguments.print_log := true
     found_debug := true
     let r = f()
     printf "Expected: %b, Found: %b\n" s r
