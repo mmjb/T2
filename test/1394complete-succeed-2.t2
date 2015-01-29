@@ -1,0 +1,301 @@
+START: 0;
+
+FROM: 0;
+keA := 0;
+keR := 0;
+ioR := 0;
+phi_nSUC_ret := 0;
+phi_io_compl := 0;
+TO: 1;
+
+FROM: 1;
+keA := 1;
+TO: 2;
+
+FROM: 2;
+keA := 0;
+TO: 10;
+
+///////////////
+FROM: 10;
+assume(k1 <= 0);
+TO: 11;
+
+FROM: 10;
+assume(k1 > 0);
+TO: 12;
+
+FROM: 12;
+CromData := nondet();
+k1 := k1 - 1;
+TO: 13;
+
+FROM: 13;
+assume(CromData > 0);
+TO: 14;
+
+FROM: 13;
+assume(CromData <= 0);
+TO: 16;
+
+FROM: 14;
+assume(__rho_4_>0);
+TO: 15;
+
+FROM: 14;
+assume(__rho_4_<=0);
+TO: 15;
+
+FROM: 15;
+assume(__rho_5_>0);
+TO: 16;
+
+FROM: 15;
+assume(__rho_5_<=0);
+TO: 16;
+
+FROM: 16;
+assume(0 <= 0);
+TO: 10;
+
+FROM: 11;
+keR := 1;
+TO: 17;
+
+FROM: 17;
+keR := 0;
+TO: 18;
+
+FROM: 18;
+keA := 1;
+TO: 51;
+
+FROM: 51;
+keA := 0;
+TO: 49;
+
+///////////
+FROM: 49;
+assume(0 <= 0);
+TO: 4;
+
+FROM: 4;
+assume(k2 <= 0);
+TO: 5;
+
+FROM: 4;
+assume(k2 > 0);
+TO: 6;
+
+FROM: 6;
+k2 := k2 - 1;
+AsyncAddressData := nondet();
+TO: 55;
+
+FROM: 55;
+assume(__rho_7_0 > 0);
+TO: 7;
+
+FROM: 55;
+assume(__rho_7_0 <= 0);
+TO: 7;
+
+FROM: 7;
+assume(__rho_8_0 > 0);
+TO: 8;
+
+FROM: 7;
+assume(__rho_8_0 <= 0);
+TO: 8;
+
+FROM: 8;
+assume(__rho_9_0 > 0);
+TO: 9;
+
+FROM: 8;
+assume(__rho_9_0 <= 0);
+TO: 9;
+
+FROM: 9;
+assume(0 <= 0);
+TO: 49;
+
+FROM: 5;
+keR := 1;
+TO: 20;
+
+FROM: 20;
+keR := 0;
+TO: 21;
+
+/////////////
+FROM: 21;
+assume(0 <= 0);
+keA := 1;
+TO: 22;
+
+FROM: 22;
+keA := 0;
+k3 := nondet();
+TO: 23;
+
+FROM: 23;
+assume(k3 > 0);
+IsochDetachData := nondet();
+i := nondet();
+k3 := k3 - 1;
+keR := 1;
+TO: 24;
+
+FROM: 24;
+keR := 0;
+TO: 21;
+
+FROM: 23;
+assume(k3 <= 0);
+keR := 1;
+TO: 26;
+
+FROM: 26;
+keR := 0;
+TO: 25;
+
+FROM: 25;
+k4 := nondet();
+TO: 28;
+
+
+////////////////////////
+FROM: 28;
+keA := 1;
+TO: 29;
+
+FROM: 29;
+keA := 0;
+TO: 27;
+
+FROM: 27;
+assume(0 <= 0);
+TO: 30;
+
+FROM: 30;
+assume(k4 > 0);
+TO: 31;
+
+FROM: 30;
+assume(k4 <= 0);
+TO: 32;
+
+FROM: 31;
+k4 := k4 - 1;
+keR := 1;
+TO: 33;
+
+FROM: 33;
+keR := 0;
+TO: 34;
+
+FROM: 34;
+assume(IsochResourceData>0);
+TO: 35;
+
+FROM: 34;
+assume(IsochResourceData<=0);
+TO: 50;
+
+FROM: 35;
+ResourceIrp := nondet();
+StackSize := nondet();
+__rho_99_ := nondet();
+ResourceIrp := __rho_99_;
+TO: 37;
+
+FROM: 37;
+assume(ResourceIrp > 0);
+TO: 38;
+
+FROM: 37;
+assume(ResourceIrp <= 0);
+TO: 62;
+
+FROM: 62;
+assume(ResourceIrp == 0);
+TO: 50;
+
+FROM: 62;
+assume(ResourceIrp < 0);
+TO: 38;
+
+FROM: 38;
+pIrb := nondet();
+TO: 39;
+
+FROM: 39;
+assume(pIrb<=0);
+TO: 50;
+
+FROM: 39;
+assume(pIrb>0);
+ntStatus := nondet();
+TO: 50;
+
+FROM: 50;
+assume(0 <= 0);
+TO: 27;
+
+FROM: 32;
+keR := 1;
+TO: 60;
+
+FROM: 60;
+keR := 0;
+TO: 61;
+
+
+FROM: 61;
+keA := 1;
+TO: 40;
+
+FROM: 40;
+keA := 0;
+TO: 42;
+
+FROM: 42;
+k5 := nondet();
+TO: 43;
+
+////////////////////////
+FROM: 43;
+assume(0 <= 0);
+TO: 44;
+
+FROM: 44;
+assume(k5 > 0);
+prevCancel := 0;
+BusResetIrp := nondet();
+k5 := k5 - 1 ;
+phi_io_compl := 1;
+TO: 43;
+
+FROM: 44;
+assume(k5 <= 0);
+TO: 46;
+
+FROM: 46;
+keR := 1;
+TO: 47;
+
+FROM: 47;
+assume(ntStatus <= 0);
+phi_nSUC_ret := 1;
+TO: 48;
+
+FROM: 47;
+assume(ntStatus > 0);
+TO: 48;
+
+FROM: 48;
+assume(0<=0);
+TO: 48;
+
+

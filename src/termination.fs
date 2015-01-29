@@ -898,10 +898,11 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
     match f with        
     | CTL.EG e
     | CTL.EF e ->
-        //First get subresults                 
-        bottomUp p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
+        //First get subresults
+        if nest_level >= 0 then                 
+            bottomUp p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
-        if nest_level = 0 then
+        if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover p f termination_only propertyMap fairness_constraint true false false
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data for the subproperty into our propertyMap
@@ -922,9 +923,10 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
                 preCond_map |> Seq.iter(fun x -> propertyMap.Add(f,(x.Key,x.Value)))
 
     | CTL.EX e ->
-        bottomUp p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
+        if nest_level >= 0 then
+            bottomUp p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
-        if nest_level = 0 then
+        if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover p f termination_only propertyMap fairness_constraint true false true
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data into our propertyMap (as implicit conjunction)
@@ -936,9 +938,10 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
             x_formulae |> Seq.iter(fun x -> propertyMap.Add(f,(x.Key,x.Value)))
  
     | CTL.AX e ->
-        bottomUp p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
+        if nest_level >= 0 then
+            bottomUp p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
-        if nest_level = 0 then
+        if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover p f termination_only propertyMap fairness_constraint false false true
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data into our propertyMap (as implicit conjunction)    
@@ -953,9 +956,10 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
     | CTL.AG e
     | CTL.AF e ->   
         //First get subresults
-        bottomUp p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore               
+        if nest_level >= 0 then
+            bottomUp p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore               
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
-        if nest_level = 0 then
+        if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover p f termination_only propertyMap fairness_constraint false false false
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data into our propertyMap (as implicit conjunction)
@@ -975,16 +979,17 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
                                                                                                                                  
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
-        bottomUp p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
-        bottomUp p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
-        //Propagate knowledge for non-atomic formulae
-        if not(e1.isAtomic) && e2.isAtomic then
-            propagate_nodes p e1 propertyMap
-        else if e1.isAtomic && not(e2.isAtomic) then
-            propagate_nodes p e2 propertyMap
+        if nest_level >= 0 then
+            bottomUp p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+            bottomUp p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+            //Propagate knowledge for non-atomic formulae
+            if not(e1.isAtomic) && e2.isAtomic then
+                propagate_nodes p e1 propertyMap
+            else if e1.isAtomic && not(e2.isAtomic) then
+                propagate_nodes p e2 propertyMap
   
         //If Operator is not nested within another temporal property, then check at the initial state
-        if nest_level = 0 then
+        if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover p f termination_only propertyMap fairness_constraint false false false
             ret_value := ret  
         //Otherwise, check the formula and push the inferred loc/precondition data into our propertyMap (as implicit conjunction)
@@ -994,8 +999,9 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
     | CTL.CTL_And(e1,e2)                     
     | CTL.CTL_Or(e1,e2)  -> 
         //First get subresults for the subformulae
-        bottomUp p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
-        bottomUp p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+        if nest_level >= 0 then 
+            bottomUp p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+            bottomUp p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
 
         //Propagate knowledge for non-atomic formulae
         if not(e1.isAtomic) && e2.isAtomic then
@@ -1008,26 +1014,25 @@ let rec bottomUp (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool
                 propagate_nodes p e2 propertyMap
 
         let preCond_map1 = match e1 with
-                           |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
-                           |CTL.CTL_Or _-> fold_by_loc Formula.Or propertyMap.[e1]
-                           |_ -> fold_by_loc Formula.And propertyMap.[e1]
+                            |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
+                            |CTL.CTL_Or _-> fold_by_loc Formula.Or propertyMap.[e1]
+                            |_ -> fold_by_loc Formula.And propertyMap.[e1]
         let preCond_map2 = match e2 with
-                           |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
-                           |CTL.CTL_Or _ ->fold_by_loc Formula.Or propertyMap.[e2]
-                           |_ -> fold_by_loc Formula.And propertyMap.[e2]  
+                            |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
+                            |CTL.CTL_Or _ ->fold_by_loc Formula.Or propertyMap.[e2]
+                            |_ -> fold_by_loc Formula.And propertyMap.[e2]  
 
         for entry in preCond_map1 do
-           if preCond_map2.ContainsKey entry.Key then
-               let precondTuple = (entry.Value, preCond_map2.[entry.Key])
-               match f with
-               | CTL.CTL_And _ -> propertyMap.Add (f, (entry.Key, (Formula.And precondTuple)))                       
-               | CTL.CTL_Or _ -> propertyMap.Add (f, (entry.Key, (Formula.Or precondTuple)))   
-               | _ -> failwith "Failure when doing &&/||"
+            if preCond_map2.ContainsKey entry.Key then
+                let precondTuple = (entry.Value, preCond_map2.[entry.Key])
+                match f with
+                | CTL.CTL_And _ -> propertyMap.Add (f, (entry.Key, (Formula.And precondTuple)))                       
+                | CTL.CTL_Or _ -> propertyMap.Add (f, (entry.Key, (Formula.Or precondTuple)))   
+                | _ -> failwith "Failure when doing &&/||"
         //If Operator is not nested within another temporal property, then check at the initial state
-        if nest_level = 0 then
+        if nest_level = 0 || nest_level = -1 then
            let ret = fst <| prover p f termination_only propertyMap fairness_constraint false false false
            ret_value := ret
- 
 
     | CTL.Atom a ->  
         //We've hit bottom, so now to prove the next outer temporal property
@@ -1365,8 +1370,7 @@ let CTLStar_Prover (p:Programs.Program) (f:CTL.CTLStar_Formula) (termination_onl
     //All terminating states are marked by fair_term_var. This variable is then used by both AX/EX and later fairness, as an AX property holds if the next state is terminating, while an EX
     //property does not.
     //When proving Fair + CTL, we do not need to prove properties pertaining terminating paths, thus fair_term_var is utilized here as well.
-    if not(termination_only) then make_program_infinite p ; make_program_infinite p_det
-
+    //if not(termination_only) then make_program_infinite p ; make_program_infinite p_det
     let propertyMap = ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
     let is_ltl = ref false           
     let (ret_value,ctl_form) = 
