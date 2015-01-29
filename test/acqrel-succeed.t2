@@ -1,8 +1,8 @@
 START: 0;
 
 FROM: 0;
-A := 0;
-R := 0;
+Ar := 0;
+Rr:= 0;
 dobreak := nondet();
 n := nondet();
 TO: 1;
@@ -12,11 +12,11 @@ assume(dobreak <= 0);
 TO: 6;
 
 FROM: 6;
-A := 1;
+Ar := 1;
 TO: 5;
 
 FROM: 5;
-A := 0;
+Ar := 0;
 TO: 2;
 
 FROM: 2;
@@ -26,11 +26,11 @@ TO: 2;
 
 FROM: 2;
 assume(n <= 0);
-R := 1;
+Rr:= 1;
 TO: 4;
 
 FROM: 4;
-R := 0;
+Rr:= 0;
 dobreak := nondet();
 TO: 1;
 
