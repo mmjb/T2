@@ -278,7 +278,11 @@ keR := 1;
 TO: 47;
 
 FROM: 47;
+keR := 0;
+TO: 48;
+
+FROM: 48;
 assume(0<=0);
-TO: 47;
+TO: 48;
 
 

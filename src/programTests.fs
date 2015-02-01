@@ -280,8 +280,8 @@ let register_tests (pars : Parameters.parameters) =
 
     register_CTL_SAT_test "1394-succeed.t2" "[AG](keA <= 0 || [AF](keR == 1))" None
     register_CTL_SAT_test "1394-succeed.t2" "[AG](keA <= 0 || [EF](keR == 1))" None
-    register_CTL_SAT_test "1394-succeed.t2" "[EF](keA <= 0 && [AG](keR == 0))" None
-    register_CTL_SAT_test "1394-succeed.t2" "[EF](keA <= 0 && [EG](keR == 0))" None
+    register_CTL_SAT_test "1394-succeed.t2" "[EF](keA > 0 && [AG](keR == 0))" None
+    register_CTL_SAT_test "1394-succeed.t2" "[EF](keA > 0 && [EG](keR == 0))" None
 
     register_CTL_SAT_test "1394complete-succeed.t2" "([EG](phi_io_compl <= 0)) && ([EG](phi_nSUC_ret <= 0))" None
     register_CTL_SAT_test "1394complete-succeed.t2" "[AG](phi_io_compl <= 0) || [AG](phi_nSUC_ret <= 0)" None
@@ -291,7 +291,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test "acqrel-succeed.t2" "[AG](Ar == 0 || [AF](Rr == 1)) " None
     register_CTL_SAT_test "acqrel-succeed.t2" "[AG](Ar == 0 || [EF](Rr == 1)) " None
     register_CTL_SAT_test "acqrel-succeed.t2" "[EF](Ar == 1 && [AG](Rr == 0)) " None
-    register_CTL_SAT_test "acqrel-succeed.t2" "[EF](Ar == 1 && [EG](Rr == 0)) " None
+    register_CTL_UNSAT_test "acqrel-succeed.t2" "[EF](Ar == 1 && [EG](Rr == 0)) " None
 
     register_CTL_SAT_test "pgarch-succeed.t2" "[AG]([AF](wakend == 1))" None
     register_CTL_SAT_test "pgarch-succeed.t2" "[AG]([EF](wakend == 1))" None
