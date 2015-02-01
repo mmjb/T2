@@ -129,7 +129,7 @@ let register_tests (pars : Parameters.parameters) =
         Test.register_testd true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some false))
 
     // Small, manually crafted examples ---------------------------------------------------
-    (*register_term_test "testsuite/small01.t2"
+    register_term_test "testsuite/small01.t2"
     register_safety_test "testsuite/small02.t2"
     register_safety_test "testsuite/small03.t2"
     register_safety_test "testsuite/small04.t2"
@@ -322,13 +322,13 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "smagilla-fail.t2" "c <= 5 && [AG](resp <= 5)" None
 
     register_CTL_UNSAT_test "smagilla-succeed.t2" "c <= 5 && [AG](resp <= 5)" None
-    register_CTL_SAT_test "smagilla-succeed.t2" "c <= 5 || [EF](resp > 5)" None*)
+    register_CTL_SAT_test "smagilla-succeed.t2" "c <= 5 || [EF](resp > 5)" None
     
     //CTL* Benchmarks. Files adapted from CTL benchmarks with CTL* properties. 
 
     //This property times out. Comment it out to view rest of the results. 
     //register_CTLStar_SAT_test "ppblock.t2" "E F(PPBlockInits > 0  && ( ( (E F(G (IoCreateDevice != 1))) || (A G( F(status == 1))) ) && (E G(PPBunlockInits <= 0)) ) )"    
-    register_CTLStar_SAT_test "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
+    register_CTLStar_SAT_testd "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
     register_CTLStar_UNSAT_test "1394complete-succeed-2.t2" "E F((A F(phi_io_compl > 0)) && (A G(F (phi_nSUC_ret <= 0))))"
     register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) && (A G (keR == 0)))))"
     register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) || (E F (keR == 1)))))"   
