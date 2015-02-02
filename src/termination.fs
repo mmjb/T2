@@ -364,7 +364,6 @@ let propogate_func p f recur pi pi_mod cutp existential (loc_to_loopduploc : Map
     let recurs, r = match recur with
                    |Some(x) -> (x,true)
                    |None -> (Formula.falsec, false)
-
     //First propagate preconditions to sccs contained within the loop 
     let propertyMap = propTotransitions p f recur pi_mod cutp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term
 
@@ -698,7 +697,6 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
             refine_cnt := !refine_cnt + 1          
             cex := (Counterexample.make (Some (List.map (fun (x,y,z) -> (x,[y],z)) pi)) None)
             outputCexAsDefect !cex
-
             //Investigate counterexample. Hopefully returns a solution:
             match Lasso.investigate_cex pars p_final p_instrumented_sccs graph pi !found_disj_rfs !found_lex_rfs lex_info with
             | (None, _) ->
@@ -1010,7 +1008,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
             | _ ->
                 let Props = snd <| prover pars p f termination_only propertyMap fairness_constraint false true false
                 propertyMap.Union(Props)
-        //for n in propertyMap do printfn "%A" n                                                                                                          
+                                                                                                        
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         bottomUp pars p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
@@ -1032,39 +1030,59 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
     | CTL.CTL_And(e1,e2)                     
     | CTL.CTL_Or(e1,e2)  -> 
         //First get subresults for the subformulae
-        bottomUp pars p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
-        bottomUp pars p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+        if not(e1.isAtomic) && not(e2.isAtomic) && nest_level = 0 then
+            let prop1 = bottomUp pars p e1 termination_only 0 fairness_constraint propertyMap 
+            let prop2 = bottomUp pars p e2 termination_only 0 fairness_constraint propertyMap
 
-        //Propagate knowledge for non-atomic formulae
-        if not(e1.isAtomic) && e2.isAtomic then
-            propagate_nodes p e1 propertyMap
-        else if e1.isAtomic && not(e2.isAtomic) then
-            propagate_nodes p e2 propertyMap
-        else
-            if nest_level = 0 then
-                propagate_nodes p e1 propertyMap
-                propagate_nodes p e2 propertyMap
-
-        let preCond_map1 = match e1 with
-                           |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
-                           |CTL.CTL_Or _-> fold_by_loc Formula.Or propertyMap.[e1]
-                           |_ -> fold_by_loc Formula.And propertyMap.[e1]
-        let preCond_map2 = match e2 with
-                           |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
-                           |CTL.CTL_Or _ ->fold_by_loc Formula.Or propertyMap.[e2]
-                           |_ -> fold_by_loc Formula.And propertyMap.[e2]  
-
-        for entry in preCond_map1 do
-           if preCond_map2.ContainsKey entry.Key then
-               let precondTuple = (entry.Value, preCond_map2.[entry.Key])
-               match f with
-               | CTL.CTL_And _ -> propertyMap.Add (f, (entry.Key, (Formula.And precondTuple)))                       
-               | CTL.CTL_Or _ -> propertyMap.Add (f, (entry.Key, (Formula.Or precondTuple)))   
+            let (prop_value1,output) =
+                match prop1 with
+                | Some(pair) -> pair 
+                | None -> failwith "Failure when doing &&/||"
+            let (prop_value2,output) =
+                match prop1 with
+                | Some(pair) -> pair 
+                | None -> failwith "Failure when doing &&/||"
+            match f with
+               | CTL.CTL_And _ -> ret_value := Some(prop_value1 && prop_value2, output)                    
+               | CTL.CTL_Or _ -> ret_value := Some(prop_value1 || prop_value2, output) 
                | _ -> failwith "Failure when doing &&/||"
-        //If Operator is not nested within another temporal property, then check at the initial state
-        if nest_level = 0 then
-           let ret = fst <| prover pars p f termination_only propertyMap fairness_constraint false false false
-           ret_value := ret
+
+                
+        else
+            bottomUp pars p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+            bottomUp pars p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+
+            //Propagate knowledge for non-atomic formulae
+            if not(e1.isAtomic) && e2.isAtomic then
+                propagate_nodes p e1 propertyMap
+            else if e1.isAtomic && not(e2.isAtomic) then
+                propagate_nodes p e2 propertyMap
+            else
+                if nest_level = 0 then
+                    propagate_nodes p e1 propertyMap
+                    propagate_nodes p e2 propertyMap
+
+            let preCond_map1 = match e1 with
+                               |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
+                               |CTL.CTL_Or _-> fold_by_loc Formula.Or propertyMap.[e1]
+                               |_ -> fold_by_loc Formula.And propertyMap.[e1]
+            let preCond_map2 = match e2 with
+                               |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
+                               |CTL.CTL_Or _ ->fold_by_loc Formula.Or propertyMap.[e2]
+                               |_ -> fold_by_loc Formula.And propertyMap.[e2]  
+
+            for entry in preCond_map1 do
+               if preCond_map2.ContainsKey entry.Key then
+                   let precondTuple = (entry.Value, preCond_map2.[entry.Key])
+                   match f with
+                   | CTL.CTL_And _ -> propertyMap.Add (f, (entry.Key, (Formula.And precondTuple)))                       
+                   | CTL.CTL_Or _ -> propertyMap.Add (f, (entry.Key, (Formula.Or precondTuple)))   
+                   | _ -> failwith "Failure when doing &&/||"
+
+            //If Operator is not nested within another temporal property, then check at the initial state
+            if nest_level = 0 then
+               let ret = fst <| prover pars p f termination_only propertyMap fairness_constraint false false false
+               ret_value := ret
  
     | CTL.Atom a ->  
         //We've hit bottom, so now to prove the next outer temporal property
