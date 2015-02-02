@@ -270,8 +270,8 @@ let register_tests (pars : Parameters.parameters) =
     //////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "1394complete-succeed.t2" "[EF](phi_io_compl > 0) && [EF](phi_nSUC_ret > 0)" None
     register_CTL_SAT_test "1394complete-succeed.t2" "([EG](phi_io_compl > 0)) && ([EG](phi_nSUC_ret > 0))" None
-    //Super bad and should not be happening
-    register_CTL_SAT_test "1394complete-succeed.t2" "([AF](phi_io_compl <= 0)) || ([AF](phi_nSUC_ret <= 0))" None  
+    //Below should not be happening
+   // register_CTL_SAT_test "1394complete-succeed.t2" "([AF](phi_io_compl <= 0)) || ([AF](phi_nSUC_ret <= 0))" None  
     
     register_CTL_UNSAT_test "1394complete-succeed.t2" "[AF](phi_io_compl > 0) || [AF](phi_nSUC_ret > 0)" None
     register_CTL_UNSAT_test "1394complete-succeed.t2" "[AG](phi_io_compl <= 0) || [AG](phi_nSUC_ret <= 0)" None
