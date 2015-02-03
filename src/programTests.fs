@@ -109,7 +109,7 @@ let register_tests (pars : Parameters.parameters) =
         Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint None)
 
     // Small, manually crafted examples ---------------------------------------------------
-    (*register_term_test "testsuite/small01.t2"
+    register_term_test "testsuite/small01.t2"
     register_safety_test "testsuite/small02.t2"
     register_safety_test "testsuite/small03.t2"
     register_safety_test "testsuite/small04.t2"
@@ -231,7 +231,7 @@ let register_tests (pars : Parameters.parameters) =
         register_term_test "testsuite/polyrank3.t2"
         register_term_test "testsuite/polyrank4.t2"
         register_term_test "testsuite/polyrank5.t2"
-        register_term_test "testsuite/polyrank6.t2"*)
+        register_term_test "testsuite/polyrank6.t2"
 
     //Heidy's basic Temporal Properties examples, some termination
     register_CTL_SAT_test   "testsuite/heidy1.t2" "[AG] (x_1 >= y_1)" None
