@@ -231,7 +231,7 @@ let register_tests (pars : Parameters.parameters) =
         register_term_test "testsuite/polyrank3.t2"
         register_term_test "testsuite/polyrank4.t2"
         register_term_test "testsuite/polyrank5.t2"
-        register_term_test "testsuite/polyrank6.t2"*)
+        register_term_test "testsuite/polyrank6.t2"
 
     //Heidy's basic Temporal Properties examples, some termination
     register_CTL_SAT_test   "testsuite/heidy1.t2" "[AG] (x_1 >= y_1)" None
@@ -257,6 +257,15 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "ax_test_3.t2" "[AG](p <= 0 || [AX](p <= 0))" None
     register_CTL_SAT_test   "ax_test.t2" "[AX](p <= 0)" None
     register_CTL_SAT_test   "ax_test.t2" "[EX](p <= 0)" None
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
+    //One with bug + Fairness.
+    register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
+    //No Fairness constraint, should fail
+    register_CTL_UNSAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" None*)
+
+    //FMCAD Benchmarks start here:
     ///////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "1394-succeed.t2" "[AG](keA <= 0 || [AF](keR == 1))" None
     register_CTL_SAT_test "1394-succeed.t2" "[AG](keA <= 0 || [EF](keR == 1))" None
@@ -270,7 +279,7 @@ let register_tests (pars : Parameters.parameters) =
     //////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "1394complete-succeed.t2" "[EF](phi_io_compl > 0) && [EF](phi_nSUC_ret > 0)" None
     register_CTL_SAT_test "1394complete-succeed.t2" "([EG](phi_io_compl > 0)) && ([EG](phi_nSUC_ret > 0))" None
-    //Below should not be happening
+    //Small bug to be fixed for stand alone AF. 
    // register_CTL_SAT_test "1394complete-succeed.t2" "([AF](phi_io_compl <= 0)) || ([AF](phi_nSUC_ret <= 0))" None  
     
     register_CTL_UNSAT_test "1394complete-succeed.t2" "[AF](phi_io_compl > 0) || [AF](phi_nSUC_ret > 0)" None
@@ -284,7 +293,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test "acqrel-succeed.t2" "[EF](A == 1 && [AG](R == 0)) " None
     register_CTL_SAT_test "acqrel-succeed.t2" "[EG](A == 0 || [EG](R == 0)) " None
 
-    // Error error form unrolling
+    // Marc note: Error from unrolling
     //register_CTL_SAT_test "acqrel-succeed.t2" "[AG](A == 0 || [AF](R == 5)) " None
     register_CTL_UNSAT_test "acqrel-succeed.t2" "[AF](A == 1 && [AF](R == 1)) " None
     register_CTL_UNSAT_test "acqrel-succeed.t2" "[AG](A == 1 && [AG](R == 5)) " None
@@ -324,9 +333,13 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test "smagilla-fail.t2" "c > 5 || [AG](resp <= 5)" None
 
     ////////////////////////////////////////////////////////////////////////////////////////////
-    
-    register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
-    //One with bug + Fairness.
-    register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
-    //No Fairness constraint, should fail
-    register_CTL_UNSAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" None
+    register_CTL_SAT_test "st88b.t2" "[EF]([EG](WItemsNum >= 1))" None
+    register_CTL_UNSAT_test "st88b.t2" "[EF]([AG](WItemsNum >= 1))" None
+    register_CTL_UNSAT_test "st88b.t2" "[EF]([EG](WItemsNum < 1))" None
+    register_CTL_UNSAT_test "st88b.t2" "[EF]([AG](WItemsNum < 1))" None
+
+    register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
+    register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
+    register_CTL_UNSAT_test "st88b.t2" "[AG]([EF](WItemsNum >= 1))" None
+    register_CTL_UNSAT_test "st88b.t2" "[AG]([EF](WItemsNum >= 1))" None
+

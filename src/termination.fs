@@ -1007,8 +1007,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 propertyMap.Union(nested_X f (Some(f)) p 2 Props fairness_constraint)
             | _ ->
                 let Props = snd <| prover pars p f termination_only propertyMap fairness_constraint false true false
-                propertyMap.Union(Props)
-                                                                                                        
+                propertyMap.Union(Props)                                                                                              
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         bottomUp pars p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
