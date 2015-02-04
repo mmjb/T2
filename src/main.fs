@@ -52,6 +52,7 @@ if t2_input_file = "" then
 let protectLocations =
     match runMode with
         | Arguments.CTL _
+        | Arguments.CTLStar _
         | Arguments.Safety _ -> true
         | _ -> false
 
@@ -106,7 +107,8 @@ match runMode with
         | Some _ -> printfn "Safety proof failed"
         
     | Arguments.Termination
-    | Arguments.CTL _ ->
+    | Arguments.CTL _
+    | Arguments.CTLStar _ ->
         let fairness_constraint =
             if fairness_constraint_string <> "" then
                 let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes fairness_constraint_string)
@@ -128,6 +130,16 @@ match runMode with
         | Arguments.CTL formulaString ->
             let formula = CTL_Parser.parse_CTL formulaString
             match Termination.bottomUpProver parameters p formula false fairness_constraint with
+            | Some (true, proof_printer) ->
+                printfn "Temporal proof succeeded"
+                if parameters.print_proof then proof_printer System.Console.Out
+            | Some (false, proof_printer) ->
+                printfn "Temporal proof failed"
+                if parameters.print_proof then proof_printer System.Console.Out
+            | None -> printfn "Temporal proof failed"
+        | Arguments.CTLStar formulaString ->
+            let formula = CTL_Parser.parse_CTLStar formulaString
+            match Termination.CTLStar_Prover parameters p formula false with
             | Some (true, proof_printer) ->
                 printfn "Temporal proof succeeded"
                 if parameters.print_proof then proof_printer System.Console.Out

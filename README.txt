@@ -1,10 +1,10 @@
-                 ======================================
+﻿                 ======================================
                  ====== T2 TEMPORAL LOGIC PROVER ======
                  ======================================
 
 In this directory you will find the sources for the T2 temporal logic prover.
 T2 is designed to prove temporal properties of programs, such as safety,
-termination, or properties specified in the logic CTL.
+termination, or properties specified in the logic CTL and CTL*.
 In this document, we first discuss how to use the tool and explain how to build
 it. Then, we give a rough overview of the implementation, and finally list the
 developers of the tool and point to some related research papers.
@@ -112,6 +112,18 @@ used to define the proof goal:
     For more CTL formula examples, see programTests.fs, or the parser
     definition in absparse.mly.
 
+ -ctlstar <CTLStar_Formula>:
+    Try to prove that <CTLStar_Formula> holds for the program.
+    The formula format is as follows:
+      - E F(G ((tt > 0) || (A F (wakend == 0)) ))
+      - One Path and one temporal quantifier can be paired at a time,
+	separated by a space, followed by parantheses e.g. 
+	E F(x == 0), E F(G (tt > 0)), and A F(G (E F (x == 0)))  .
+      - Subformulas following quantifiers have to be enclosed in
+        parentheses, as shown above.
+    For more CTL formula examples, see programTests.fs, or the parser
+    definition in absparse.mly.
+
  -fairness <Fairness_Condition>:
     Try to prove termination/a CTL formula under <Fairness_Condition>.
     The format of <Fairness_Condition> is "(<P>, <Q>)", where a
@@ -143,6 +155,8 @@ Typical calls of T2 on Windows, with output, look like this:
 
  $ src/bin/Debug/T2.exe -input_t2 test/testsuite/heidy1.t2 -CTL "[AG] (x_1 >= y_1)"
  Temporal proof succeeded
+
+ $ src/bin/Debug/T2.exe -input_t2 test/e-pgarch-succeed.t2 -CTLStar "A F(G (E F (wakend == 0)))"
 
  $ src/bin/Debug/T2.exe -input_t2 test/bakery.t2 -CTL "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" -fairness "(P == 1, Q == 1)"
  Temporal proof succeeded
@@ -295,6 +309,19 @@ Implementation:
    Implements the reduction of model checking to safety checking and
    well-foundedness in the procedures "instrument_(X|F|G|...)", driven by the
    procedure "mergeProgramAndProperty".
+
+
+Temporal Logic (CTL*) proving algorithm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To run the CTL* verifier benchmarks,please seek lines 357-382 in programTests.fs. 
+These are the benchmarks that were run in our evaluation section. 
+Please follow the provided format to add benchmarks you seek to verify.
+Note that in programTests.fs, we have commented out existing CTL benchmarks initially provided by T2. 
+To run the available tests in programTests.fs, simply build and run T2
+without additional command line options. This should call main.fs and execute programTests.fs.
+
+The implementation of our procedure begins at line 1223 in termination.fs
+
 
 
 Safety/reachability prover

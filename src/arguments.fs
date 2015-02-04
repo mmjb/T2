@@ -28,6 +28,7 @@ type runMode =
     | Safety of int
     | Termination
     | CTL of string
+    | CTLStar of string
 
 let parseArguments =
     let pars = Parameters.defaultParameters
@@ -188,6 +189,10 @@ let parseArguments =
              , ArgType.String (fun s -> setMode (CTL s))
              , "Run CTL temporal prover"
              )
+           ; new ArgInfo( "-CTLStar"
+             , ArgType.String (fun s -> setMode (CTLStar s))
+             , "Run CTL temporal prover"
+             )
            ; new ArgInfo( "-fairness"
              , ArgType.String (fun s -> fairness_constraint_string := s)
              , "Only consider program runs satisfying the given fairness constraint (p, q)"
@@ -247,7 +252,7 @@ let parseArguments =
     ArgParser.Parse args
 
     if (!mode).IsNone then
-        eprintfn "No valid action option (-tests, -termination, -safety, -CTL, -output_as) given"
+        eprintfn "No valid action option (-tests, -termination, -safety, -CTL, -CTLStar, -output_as) given"
         exit 3
 
     (!t2_input_file, (!mode).Value, pars, !fairness_constraint_string, !output_type, !output_file, !imperative_style, !java_nondet_style)
