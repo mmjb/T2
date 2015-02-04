@@ -283,7 +283,7 @@ let register_tests (pars : Parameters.parameters) =
     //One with bug + Fairness.
     register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
     //No Fairness constraint, should fail
-    register_CTL_UNSAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" None*)
+    register_CTL_UNSAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" None
 
     //FMCAD Benchmarks start here:
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -348,7 +348,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "smagilla-succeed.t2" "c <= 5 && [AG](resp <= 5)" None
 
     register_CTL_SAT_test "smagilla-fail.t2" "c <= 5 || [AF](resp > 5)" None
-    register_CTL_SAT_test "smagilla-succeed.t2" "c <= 5 || [EF](resp > 5)" None
+    register_CTL_SAT_test "smagilla-succeed.t2" "c <= 5 || [EF](resp > 5)" None*)
     
     //CTL* Benchmarks. Files adapted from CTL benchmarks with CTL* properties. 
 

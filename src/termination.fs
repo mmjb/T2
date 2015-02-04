@@ -936,7 +936,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
     | CTL.EF e ->
         //First get subresults                 
         if nest_level >= 0 then
-        bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
+            bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
         if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover pars p f termination_only propertyMap fairness_constraint true false false
@@ -960,7 +960,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
 
     | CTL.EX e ->
         if nest_level >= 0 then
-        bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
+            bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
         if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover pars p f termination_only propertyMap fairness_constraint true false true
@@ -975,7 +975,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
  
     | CTL.AX e ->
         if nest_level >= 0 then
-        bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
+            bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
         if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover pars p f termination_only propertyMap fairness_constraint false false true
@@ -993,7 +993,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
     | CTL.AF e ->   
         //First get subresults
         if nest_level >= 0 then
-        bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore               
+            bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore               
         //If we are in the outermost case, check if the precondition holds for the initial state, return that:
         if nest_level = 0 || nest_level = -1 then
             let ret = fst <| prover pars p f termination_only propertyMap fairness_constraint false false false
@@ -1015,8 +1015,8 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         if nest_level >= 0 then
-        bottomUp pars p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
-        bottomUp pars p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+            bottomUp pars p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
+            bottomUp pars p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
         //Propagate knowledge for non-atomic formulae
         if not(e1.isAtomic) && e2.isAtomic then
             propagate_nodes p e1 propertyMap
@@ -1435,4 +1435,4 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
             printfn "Exception! %s " (ex.Message)
             (None,None)
 
-        ret_value
+    ret_value
