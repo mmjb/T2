@@ -3,6 +3,9 @@ START: 0;
 FROM: 0;
 keA := 0;
 keR := 0;
+ioR := 0;
+phi_nSUC_ret := 0;
+phi_io_compl := 0;
 TO: 1;
 
 FROM: 1;
@@ -155,11 +158,11 @@ TO: 26;
 
 FROM: 26;
 keR := 0;
-TO: 28;
+TO: 25;
 
-//FROM: 25;
-//k4 := nondet();
-//TO: 28;
+FROM: 25;
+k4 := nondet();
+TO: 28;
 
 
 ////////////////////////
@@ -172,7 +175,6 @@ keA := 0;
 TO: 27;
 
 FROM: 27;
-k4 := nondet();
 assume(0 <= 0);
 TO: 30;
 
@@ -268,12 +270,7 @@ assume(k5 > 0);
 prevCancel := 0;
 BusResetIrp := nondet();
 k5 := k5 - 1 ;
-TO: 43;
-
-FROM: 44;
-assume(k5 > 0);
-prevCancel := 0;
-BusResetIrp := nondet();
+phi_io_compl := 0;
 TO: 43;
 
 FROM: 44;
@@ -285,7 +282,16 @@ keR := 1;
 TO: 47;
 
 FROM: 47;
+assume(ntStatus <= 0);
+phi_nSUC_ret := 0;
+TO: 48;
+
+FROM: 47;
+assume(ntStatus > 0);
+TO: 48;
+
+FROM: 48;
 assume(0<=0);
-TO: 47;
+TO: 48;
 
 

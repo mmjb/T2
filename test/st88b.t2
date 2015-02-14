@@ -1,0 +1,38 @@
+START: 0;
+
+FROM: 0;
+WItemsNum := nondet();
+TO: 1;
+
+FROM: 1;
+rho_2 := nondet();
+TO: 2;
+
+FROM: 2;
+assume(WItemsNum <=5);
+WItemsNum := WItemsNum + 1;
+TO: 2;
+
+FROM: 2;
+assume(WItemsNum <=5);
+TO: 3;
+
+FROM: 2;
+assume(WItemsNum > 5);
+WItemsNum := WItemsNum + 1;
+TO: 2;
+
+FROM: 3;
+assume(WItemsNum > 2);
+WItemsNum := WItemsNum - 1;
+TO:3;
+
+FROM: 3;
+assume(WItemsNum <= 2);
+TO: 4;
+
+FROM: 4;
+WItemsNum := 1;
+TO: 1;
+
+
