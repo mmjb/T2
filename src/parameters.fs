@@ -179,7 +179,7 @@ let defaultParameters =
         mcnp_style_bound_decr = false
 
         dottify_reachability = false
-        dottify_input_pgms = true
+        dottify_input_pgms = false
         sanity_checking = true
         safety_counterexample = false
         fc_look_back = false
