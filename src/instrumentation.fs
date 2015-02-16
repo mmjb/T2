@@ -698,14 +698,24 @@ let add_subproperty_conditions p conditions_per_cp cp isExistential start_node_f
 
     //We generate a list of disjunctions of conjunctions (list of lists), then we flatten to just a list of disjunctions
     //between conjucted formulas
-    let dnf_cond = distribute cond |> List.map (fun x -> Formula.conj x)
 
+    //Get rid of redundant formulae to error locations by checking for entailment. TODO: Do the same for dnf_cond. 
+    let precond_entail x y = x |> List.collect(fun z ->
+                                    if not(Formula.entails z Formula.falsec) && z <> Formula.truec && not(Formula.entails y Formula.falsec) && y <> Formula.truec then
+                                        if Formula.entails z y then [z]
+                                        else if Formula.entails y z then [y]
+                                        else [y;z]
+                                    else [y;z]) |> Set.ofList |> Set.toList
+    
+    let dnf_cond = distribute cond |> List.map (fun x -> Formula.conj x) |> Set.ofList
     //Generate the equivalent for the negation:
     let neg_cond = conditions_per_cp |> List.filter (fun (x,_) -> x = cp) |> List.map (fun (_,y) -> Formula.negate(y)) |> Formula.disj
-    let neg_cond = neg_cond |> Formula.polyhedra_dnf  |> Formula.split_disjunction
+    let neg_cond = neg_cond |> Formula.polyhedra_dnf  |> Formula.split_disjunction |> Set.ofList
 
     //If existential then we want to reverse dnf_cond and neg_cond because we are doing the negation of A
     let (dnf_cond, neg_cond) = if isExistential then (neg_cond, dnf_cond) else (dnf_cond, neg_cond)
+    let init_cond = (neg_cond |> Set.toList).Head
+    let neg_cond = neg_cond |> Set.toList |> List.fold(fun acc elem -> precond_entail acc elem) [init_cond] |> Set.ofList |> Set.toList
 
     //Handling dnf_cond  instrumentation
     for l in dnf_cond do
