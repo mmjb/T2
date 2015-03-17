@@ -1289,9 +1289,9 @@ let is_existential e =
 //from the preconditions.
 //For each location, apply quantifier elimination.
 //So make below a function that you can call, and also call it in other areas where you do this.
-let quantify_proph_var e new_F (propertyMap : ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>) =
+let quantify_proph_var e new_F formulaMap =
     let propertyMap_temp = ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
-    for n in (propertyMap.[new_F]) do 
+    for n in formulaMap do 
         let (loc,loc_form) = n
         let loc_form = if (is_existential e) then loc_form else Formula.negate(loc_form)
         let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> x.Contains "__proph_var_det")                    
@@ -1347,8 +1347,9 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                         if (!is_ltl) then
                                             is_ltl := false
                                             let ret = bottomUp pars p_dtmz new_F termination_only nest_level None propertyMap
-                                            propertyMap.Remove(new_F)|> ignore
-                                            propertyMap.Union(quantify_proph_var e new_F propertyMap)
+                                            let formulaMap = propertyMap.[new_F]                                                                                      
+                                            propertyMap.Remove(new_F)|> ignore                                          
+                                            propertyMap.Union(quantify_proph_var e new_F formulaMap)                                         
                                             ret
                                         else
                                              bottomUp pars p new_F termination_only nest_level None propertyMap

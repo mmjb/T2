@@ -354,17 +354,17 @@ let register_tests (pars : Parameters.parameters) =
 
     //This property times out. Comment it out to view rest of the results. 
     //register_CTLStar_SAT_test "ppblock.t2" "E F(PPBlockInits > 0  && ( ( (E F(G (IoCreateDevice != 1))) || (A G( F(status == 1))) ) && (E G(PPBunlockInits <= 0)) ) )"    
-    register_CTLStar_SAT_test "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
-    register_CTLStar_UNSAT_test "1394complete-succeed-2.t2" "E F((A F(phi_io_compl > 0)) && (A G(F (phi_nSUC_ret <= 0))))"
+    register_CTLStar_UNSAT_test "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
+    register_CTLStar_SAT_test "1394complete-succeed-2.t2" "E F((A F(phi_io_compl > 0)) && (A G(F (phi_nSUC_ret <= 0))))"
     register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) && (A G (keR == 0)))))"
-    register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) || (E F (keR == 1)))))"   
+    register_CTLStar_UNSAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) || (E F (keR == 1)))))"   
 
     //Program is about 110 - 400 lines of code.   
     register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E F(G ((tt > 0) || (A F (wakend == 0)) ))"
     register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "A G(F ((tt <= 0) && (E G (wakend == 1)) ))"
     register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E F(G( (wakend == 1) && (E G (F (wakend == 0))) ))"
     register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E G(F (A G (wakend == 1)))"
-    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "A F(G (E F (wakend == 0)))"
+    register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "A F(G (E F (wakend == 0)))"
 
     register_CTLStar_SAT_test "pgarch-succeed.t2" "A G(F(wakend == 1))"
     register_CTLStar_UNSAT_test "pgarch-succeed.t2" "E F(G(wakend == 0))"
@@ -378,5 +378,5 @@ let register_tests (pars : Parameters.parameters) =
 
     register_CTLStar_SAT_test "testsuite/ctlstar_4.t2" "A G(F(b == 0)) && (W(x == 0),(b == 0))"
     register_CTLStar_SAT_test "testsuite/example10.t2" "A G( (E F (G (x = 0))) && (E F(x = 20)))"
-    register_CTLStar_SAT_test "ctlstar_test.t2" "(E F(G (x == 0))) && (E F(G (x == 1)))"
+    register_CTLStar_UNSAT_test "ctlstar_test.t2" "(E F(G (x == 0))) && (E F(G (x == 1)))"
     register_CTLStar_SAT_test "ctlstar_test.t2" "A G((A F(G (x == 0))) || (A F(G (x == 1))))"
