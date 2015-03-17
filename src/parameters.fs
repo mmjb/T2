@@ -153,9 +153,9 @@ let defaultParameters =
         start_time = System.DateTime.Now
         timeout = 300.0
         print_proof = false
-        print_stats = false
+        print_stats = true
 
-        print_log = false
+        print_log = true
         print_debug = false
 
         lazy_disj = true
@@ -179,7 +179,7 @@ let defaultParameters =
         mcnp_style_bound_decr = false
 
         dottify_reachability = false
-        dottify_input_pgms = false
+        dottify_input_pgms = true
         sanity_checking = true
         safety_counterexample = false
         fc_look_back = false

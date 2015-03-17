@@ -257,6 +257,8 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test   "ax_test.t2" "[AX](p <= 0)" None
     register_CTL_SAT_test   "ax_test.t2" "[EX](p <= 0)" None
 
+    register_CTL_SAT_testd "nir.t2" "[AF](n <= 0)" (parse_fairness_constraint "(1 > 0, n <= 0)")
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
     //One with bug + Fairness.

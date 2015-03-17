@@ -229,8 +229,8 @@ let findPreCond_FM (cex : (int*Programs.command*int) list) =
 
     //Fourier-Motzkin elimination done here
     let cex, var_map = Symex.path_to_transitions_and_var_map cex Map.empty
-    //let cex = Symex.transitions_to_formulae cex |> List.filter (fun f -> not(Formula.contains_instr_var f)) |> Formula.conj
-    let cex = Symex.transitions_to_formulae cex |> List.filter (fun f -> not(Formula.contains_instr_var f) && not(Formula.contains_fair_var f)) |> Formula.conj
+    let cex = Symex.transitions_to_formulae cex |> List.filter (fun f -> not(Formula.contains_instr_var f)) |> Formula.conj
+    //let cex = Symex.transitions_to_formulae cex |> List.filter (fun f -> not(Formula.contains_instr_var f) && not(Formula.contains_fair_var f)) |> Formula.conj
     let ts = ref (cex |> SparseLinear.formula_to_linear_terms)
     for var in var_map.Keys do
         for i in (Symex.get_var_index Map.empty var)+1..(Symex.get_var_index var_map var) do
@@ -243,6 +243,37 @@ let findPreCond_FM (cex : (int*Programs.command*int) list) =
     //If disjunction, we also must split in order to properly instrument in graph.
     let f = Formula.negate (strip_ssa f)
     (f, Formula.polyhedra_dnf f |> Formula.split_disjunction)
+
+let is_existential e = 
+    match e with
+    | CTL.EF _ | CTL.EG _ | CTL.EU _ | CTL.EX _ -> true
+    | _ -> false
+
+//Now we must either universally or existentially quantify out the prophecy variables
+//from the preconditions.
+//For each location, apply quantifier elimination.
+//So make below a function that you can call, and also call it in other areas where you do this.
+let quantify_proph_var e F (propertyMap : ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>) =
+    let propertyMap_temp = ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
+    for n in (propertyMap.[F]) do 
+        let (loc,loc_form) = n
+        let loc_form = if (is_existential e) then loc_form else Formula.negate(loc_form)
+        let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> Formula.is_fair_var x)//x.Contains proph_string __proph_var_det")                    
+        let disj_fmla = ref Set.empty
+        let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf loc_form)
+        //When doing QE for universal versus existential
+        //\forall X.phi(X) === \neg \exists \neg phi(X)
+        for var in split_disj do
+            let ts = ref (var |> SparseLinear.formula_to_linear_terms)
+            for var in proph_var do
+                    ts := SparseLinear.eliminate_var var !ts
+                    ts := SparseLinear.simplify_as_inequalities !ts
+            disj_fmla := Set.add (List.map SparseLinear.linear_term_to_formula !ts |> Formula.conj) !disj_fmla                                      
+        disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
+        let strength_f = if (is_existential e) then Formula.disj !disj_fmla else Formula.negate(Formula.disj !disj_fmla)
+        propertyMap_temp.Add(F,(loc,strength_f))
+    
+    propertyMap_temp
 
 //Generating precondition using weakest precondition
 let findPreCond (cex : (int*Programs.command*int) list)=
@@ -343,7 +374,7 @@ let propTotransitions p f recur pi_mod cutp existential (loc_to_loopduploc : Map
                                 else if p_loops.ContainsKey x then x
                                 else if (!p.locs).Contains x then x
                                 else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x)                               
-                    if existential then                          
+                    if existential then                    
                         propertyMap.Add(f,(orig,Formula.negate(tempfPreCond)))
                     else
                         propertyMap.Add(f,(orig,tempfPreCond))    
@@ -472,13 +503,11 @@ let insertForRerun (pars : Parameters.parameters) recurSet existential f final_l
                                                                         | Programs.Assign(p,v,t) -> Programs.Assign(p,env_var v,Term.alpha env_var t))
                                 Programs.plain_add_transition p_final (get_copy_of_loopnode k)
                                     cmds (get_copy_of_loopnode k')
-                                //LOOK AT THIS, IS IT RIGHT?
                                 if p_loops.ContainsKey k' && k' <> cutp && not ((!visited_BU_cp).ContainsKey k') && loopnode_to_copiednode.ContainsKey k' then 
                                     Programs.plain_add_transition p_final (get_copy_of_loopnode k') [] k'                          
                         Reachability.reset pars graph k
-                    //Output.print_dot_program p_final "duplicate2.dot"
 
-                    //NOW PROPAGATE UPWARDS TO COPIES!!!!?
+                    //NOW PROPAGATE UPWARDS TO COPIES
                 else if cutp <> -1 && loopnode_to_copiednode.ContainsKey cutp then
                     for l in !p_final.active do
                         let(k, _, k') = p_final.transitions.[l]
@@ -554,7 +583,7 @@ let insertForRerun (pars : Parameters.parameters) recurSet existential f final_l
                         let p_0 = if existential then Formula.negate(p1) else p1
                         let precond_length = propertyMap.[f] |> List.filter (fun (x,y) -> x = orig_cp) |> List.length
                         let (vis_BU,propogateMap) = propogate_func p f None pi pi_mod orig_cp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode
-                        visited_nodes := !vis_BU
+                        visited_nodes := Set.union !vis_BU (set[orig_cp])
                         propertyMap.Union(propogateMap)
                         //Checking for repeated counterexamples/preconditions for strengthening
                         if List.contains (orig_cp,p_0) (propertyMap.[f])  || (precond_length > 3 )then
@@ -1024,7 +1053,8 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 propertyMap.Union(nested_X f (Some(f)) p 2 Props fairness_constraint)
             | _ ->
                 let Props = snd <| prover pars p f termination_only propertyMap fairness_constraint false true false
-                propertyMap.Union(Props)                                                                                            
+                propertyMap.Union(Props)
+        //for n in propertyMap do printfn "%A" n                                                                                            
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         bottomUp pars p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
@@ -1116,6 +1146,10 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
     | CTL.EU _ ->
         raise (new System.NotImplementedException "EU constraints not yet implemented")
 
+    let propertyMap =  if fairness_constraint.IsSome then
+                            quantify_proph_var f f propertyMap
+                       else propertyMap
+
     !ret_value
 
 let make_program_infinite (p : Programs.Program) =
@@ -1178,7 +1212,8 @@ let rec nTerm f =
     | CTL.EG e -> CTL.EG(CTL.CTL_And(nTerm e, CTL.EG(CTL.Atom(Formula.truec))))
     | CTL.EF e -> CTL.EF(CTL.CTL_And(nTerm e, CTL.EG(CTL.Atom(Formula.truec)))) 
     | CTL.AG e -> CTL.AG(CTL.CTL_Or(nTerm e, CTL.AF(CTL.Atom(Formula.falsec))))
-    | CTL.AF e -> CTL.AF(CTL.CTL_Or(nTerm e, CTL.AF(CTL.Atom(Formula.falsec))))
+    |CTL.AF e -> CTL.AF e
+    //| CTL.AF e -> CTL.AF(CTL.CTL_Or(nTerm e, CTL.AF(CTL.Atom(Formula.falsec))))
     | CTL.AW(e1,e2) -> CTL.AW(nTerm e1, (CTL.CTL_Or(nTerm e2, CTL.AF(CTL.Atom(Formula.falsec)))))
     | CTL.EU _ -> raise (new System.NotImplementedException "EU constraints not yet implemented")
     
