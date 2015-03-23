@@ -109,7 +109,7 @@ let register_tests (pars : Parameters.parameters) =
         Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint None)
 
     // Small, manually crafted examples ---------------------------------------------------
-    register_term_test "testsuite/small01.t2"
+    (*register_term_test "testsuite/small01.t2"
     register_safety_test "testsuite/small02.t2"
     register_safety_test "testsuite/small03.t2"
     register_safety_test "testsuite/small04.t2"
@@ -231,7 +231,7 @@ let register_tests (pars : Parameters.parameters) =
         register_term_test "testsuite/polyrank3.t2"
         register_term_test "testsuite/polyrank4.t2"
         register_term_test "testsuite/polyrank5.t2"
-        register_term_test "testsuite/polyrank6.t2"
+        register_term_test "testsuite/polyrank6.t2"*)
 
     //Heidy's basic Temporal Properties examples, some termination
     register_CTL_SAT_test   "testsuite/heidy1.t2" "[AG] (x_1 >= y_1)" None
@@ -257,11 +257,14 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test   "ax_test.t2" "[AX](p <= 0)" None
     register_CTL_SAT_test   "ax_test.t2" "[EX](p <= 0)" None
 
-    register_CTL_SAT_testd "nir.t2" "[AF](n <= 0)" (parse_fairness_constraint "(1 > 0, n <= 0)")
+    register_CTL_SAT_testd "nir.t2" "[AF]([AF](n <= 0))" (parse_fairness_constraint "(1 > 0, n <= 0)")
+
+    register_CTL_SAT_test "pmc.t2" "[AG]([EF](x1_p == x2_p))" None
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
     //One with bug + Fairness.
+    //TODO: Why didn't this work with QE?
     register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
     //No Fairness constraint, should fail
     register_CTL_UNSAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" None
@@ -319,6 +322,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test "ppblock.t2" "[EF](PPBlockInits > 0 && ([AG](PPBunlockInits < 0)))" None
     register_CTL_SAT_test "ppblock.t2" "[EF](PPBlockInits > 0 && [AG](PPBunlockInits <= 0))" None
     //One with bug + Fairness.
+    //Same with this one
     register_CTL_FAIL_test "ppblockbug.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (parse_fairness_constraint "(IoCreateDevice == 1, status == 1)")
     ////////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_UNSAT_test "smagilla-fail.t2" "c <= 5 || [EF](resp > 5)" None
