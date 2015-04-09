@@ -22,8 +22,8 @@ downloaded manually.
 Using Mono (for Linux and MacOS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To build T2, you first need to build the .NET bindings of z3 using mono.
-For this, get z3 sources for z3/unstable (4.3.2 is known to work) from
-   http://z3.codeplex.com/
+For this, get the z3 sources (version 4.3.2 is known to work) from
+  https://github.com/Z3Prover/z3
 
 To install needed .NET libraries, you will need NuGet, which you can
 obtain from http://nuget.org/nuget.exe.
