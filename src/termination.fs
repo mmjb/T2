@@ -252,28 +252,30 @@ let is_existential e =
 //Now we must either universally or existentially quantify out the prophecy variables
 //from the preconditions.
 //For each location, apply quantifier elimination.
-//So make below a function that you can call, and also call it in other areas where you do this.
 let quantify_proph_var e F formulaMap =
     let propertyMap_temp = ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
     for n in formulaMap do 
         let (loc,loc_form) = n
         let loc_form = if (is_existential e) then loc_form else Formula.negate(loc_form)
         let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> Formula.is_fair_var x)//x.Contains proph_string __proph_var_det")                    
-        let disj_fmla = ref Set.empty
-        let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf loc_form)
-        //When doing QE for universal versus existential
-        //\forall X.phi(X) === \neg \exists \neg phi(X)
-        for var in split_disj do
-            let ts = ref (var |> SparseLinear.formula_to_linear_terms)
-            for var in proph_var do
-                    ts := SparseLinear.eliminate_var var !ts
-                    ts := SparseLinear.simplify_as_inequalities !ts
-            disj_fmla := Set.add (List.map SparseLinear.linear_term_to_formula !ts |> Formula.conj) !disj_fmla 
-        //printfn "Before %A" disj_fmla                                     
-        //disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
-        //printfn "After %A" disj_fmla
-        let strength_f = if (is_existential e) then Formula.disj !disj_fmla else Formula.negate(Formula.disj !disj_fmla)
-        propertyMap_temp.Add(F,(loc,strength_f))
+        if not(Set.isEmpty proph_var) then
+            let disj_fmla = ref Set.empty
+            let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf loc_form)
+            //When doing QE for universal versus existential
+            //\forall X.phi(X) === \neg \exists \neg phi(X)
+            for var in split_disj do
+                let ts = ref (var |> SparseLinear.formula_to_linear_terms)
+                for var in proph_var do
+                        ts := SparseLinear.eliminate_var var !ts
+                        ts := SparseLinear.simplify_as_inequalities !ts
+                disj_fmla := Set.add (List.map SparseLinear.linear_term_to_formula !ts |> Formula.conj) !disj_fmla 
+            //printfn "Before %A" disj_fmla                                     
+            //disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
+            //printfn "After %A" disj_fmla
+            let strength_f = if (is_existential e) then Formula.disj !disj_fmla else Formula.negate(Formula.disj !disj_fmla)
+            propertyMap_temp.Add(F,(loc,strength_f))
+        else
+            propertyMap_temp.Add(F,n)
     
     propertyMap_temp
 
@@ -756,9 +758,17 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
             /////////// Disjunctive (transition invariant) argument:
             | (Some(Lasso.Disj_WF(cp, rf, bnd)),_) ->
                 Instrumentation.instrument_disj_RF pars cp rf bnd found_disj_rfs cp_rf p_final graph
-
+                
             /////////// Lexicographic termination argument:
             | (Some(Lasso.Lex_WF(cp, decr_list, not_incr_list, bnd_list)),_) ->
+                let pi_elim = ref (List.rev pi |> List.tail |> List.tail |> List.rev)
+                let (node,c,node2) = (!pi_elim).Head
+                for n in decr_list do
+                    pi_elim := (!pi_elim)@[(node2,Programs.assume(n),-1)]
+                let (p1,l1) = findPreCond_FM pi
+                let p1 = Formula.negate p1 |> Formula.simplify
+                let new_f = quantify_proph_var f f [(node2,p1)]
+
                 Instrumentation.instrument_lex_RF pars cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final graph lex_info
 
             /////////// Lexicographic polyranking termination argument:
@@ -1060,8 +1070,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 propertyMap.Union(nested_X f (Some(f)) p 2 Props fairness_constraint)
             | _ ->
                 let Props = snd <| prover pars p f termination_only propertyMap fairness_constraint false true false
-                propertyMap.Union(Props)
-        for n in propertyMap do printfn "%A" n                                                                                           
+                propertyMap.Union(Props)                                                                                           
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         bottomUp pars p e1 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
