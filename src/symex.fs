@@ -63,13 +63,10 @@ let slice_path pi relevantCmds =
             depends_on.[v] <- Set.union d (Term.freevars t)
         | Assume _ -> ()
 
-    for (_, cs, _) in pi do
+    for (_, cs, _) in pi @ relevantCmds do
         for c in cs do
             needed_vars.AddAll (needed_vars_from_cmd c)
             track_dependency c
-    for (_, cs, _) in relevantCmds do
-        for c in cs do
-            needed_vars.AddAll (needed_vars_from_cmd c)
 
     //Now do a fixpoint thing where we recursively compute all needed variables
     let queue = ref (List.ofSeq needed_vars)

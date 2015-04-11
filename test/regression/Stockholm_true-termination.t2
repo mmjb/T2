@@ -1,0 +1,49 @@
+/// Taken from SVCOMP'15, compiled to T2 via llvm2kittel.
+/// Original example comes with the following information:
+///
+/// Date: 2012-02-12
+/// Author: leike@informatik.uni-freiburg.de
+///
+/// Ranking function: f(x, a, b) = x;
+/// needs the loop invariant b >= a.
+///
+/// This example exposed a bug in program path slicing,
+/// manifesting itself in proving it to be nonterminating.
+/// The issue was reported by Le Ton Chanh <chanhle@comp.nus.edu.sg>.
+
+///*** 1_main ***///
+START: 1;
+
+FROM: 1;
+TO: 2;
+FROM: 2;
+  nondef.1 := nondet();
+  nondef.2 := nondet();
+  assume(nondef.1 < nondef.2);
+TO: 3;
+FROM: 2;
+  nondef.1 := nondet();
+  nondef.2 := nondet();
+  assume(nondef.1 > nondef.2);
+TO: 3;
+FROM: 2;
+  nondef.0 := nondet();
+  nondef.1 := nondet();
+  nondef.2 := nondet();
+  assume(nondef.1 == nondef.2);
+  v_1 := nondef.1;
+  v_2 := nondef.2;
+  v_x.0 := nondef.0;
+TO: 4;
+FROM: 4;
+  assume(v_x.0 >= 0);
+TO: 5;
+FROM: 4;
+  assume(v_x.0 < 0);
+TO: 3;
+FROM: 5;
+  kittel_old__v_x.0 := v_x.0;
+  v_x.0 := kittel_old__v_x.0 + v_1 - v_2 - 1;
+TO: 4;
+FROM: 3;
+TO: 6;
