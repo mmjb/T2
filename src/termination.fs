@@ -1029,7 +1029,9 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 propertyMap.Union(nested_X f (Some(f)) p 2 Props fairness_constraint)
             | _ ->
                 let Props = snd <| prover pars p f termination_only propertyMap fairness_constraint false true false
-                propertyMap.Union(Props)                                                                                              
+                let x_formulae = fold_by_loc Formula.And Props.[f]
+                x_formulae |> Seq.iter(fun x -> propertyMap.Add(f,(x.Key,x.Value)))
+                //propertyMap.Union(Props)                                                                                              
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         if nest_level >= 0 then
@@ -1294,20 +1296,23 @@ let quantify_proph_var e new_F formulaMap =
     for n in formulaMap do 
         let (loc,loc_form) = n
         let loc_form = if (is_existential e) then loc_form else Formula.negate(loc_form)
-        let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> x.Contains "__proph_var_det")                    
-        let disj_fmla = ref Set.empty
-        let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf loc_form)
-        //When doing QE for universal versus existential
-        //\forall X.phi(X) === \neg \exists \neg phi(X)
-        for var in split_disj do
-            let ts = ref (var |> SparseLinear.formula_to_linear_terms)
-            for var in proph_var do
-                    ts := SparseLinear.eliminate_var var !ts
-                    ts := SparseLinear.simplify_as_inequalities !ts
-            disj_fmla := Set.add (List.map SparseLinear.linear_term_to_formula !ts |> Formula.conj) !disj_fmla                                      
-        disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
-        let strength_f = if (is_existential e) then Formula.disj !disj_fmla else Formula.negate(Formula.disj !disj_fmla)
-        propertyMap_temp.Add(new_F,(loc,strength_f))
+        let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> x.Contains "__proph_var_det")
+        if not(Set.isEmpty proph_var) then                    
+            let disj_fmla = ref Set.empty
+            let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf loc_form)
+            //When doing QE for universal versus existential
+            //\forall X.phi(X) === \neg \exists \neg phi(X)
+            for var in split_disj do
+                let ts = ref (var |> SparseLinear.formula_to_linear_terms)
+                for var in proph_var do
+                        ts := SparseLinear.eliminate_var var !ts
+                        ts := SparseLinear.simplify_as_inequalities !ts
+                disj_fmla := Set.add (List.map SparseLinear.linear_term_to_formula !ts |> Formula.conj) !disj_fmla                                      
+            //disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
+            let strength_f = if (is_existential e) then Formula.disj !disj_fmla else Formula.negate(Formula.disj !disj_fmla)
+            propertyMap_temp.Add(new_F,(loc,strength_f))
+        else
+            propertyMap_temp.Add(new_F, n)
     
     propertyMap_temp
     
