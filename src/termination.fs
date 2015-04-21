@@ -384,19 +384,6 @@ let strengthenCond pi_mod (propertyMap: ListDictionary<CTL.CTL_Formula, (int*For
     disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
                             
     let strength_f = Formula.disj !disj_fmla
-    if existential then propertyMap.Add(f,(orig_cp,Formula.negate(strength_f)))
-    else propertyMap.Add(f, (orig_cp,strength_f))
-    //let old_list = propertyMap.[f]
-    //if existential then
-        //propertyMap.Replace f (orig_cp, Formula.negate(strength_f))
-    //else
-        //propertyMap.Replace f (orig_cp, strength_f)
-
-     //Relook into this, because although the equation may not exactly be equals to p_0
-     //it could be an artificat from it. 
-    //old_list |> List.filter(fun (x,y) -> not(x = orig_cp && y = p_0))
-      //              |> List.iter(fun (x,y) -> propertyMap.Add(f,(x,y)))
-
     (strength_f, disj_fmla, (orig_cp,p_0))
     
 
@@ -645,16 +632,35 @@ let insertForRerun (pars : Parameters.parameters) recurSet existential f final_l
                         let precond_length = propertyMap.[f] |> List.filter (fun (x,y) -> x = orig_cp) |> List.length                        
                         //Checking for repeated counterexamples/preconditions for strengthening
                         if List.contains (orig_cp,p_0) (propertyMap.[f])  || (precond_length > 3 )then
+
                             let (strength_f, disj_fmla, preStrengthf) = strengthenCond pi_mod propertyMap orig_cp f p_0 p1 existential
                             //Add strength formula here to propertyMap
                             let (_,propogateMap, preStrengthSet) = propogate_func p f None pi pi_mod orig_cp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode true
+                            
                             preStrengthSet := Set.add (orig_cp,p_0) !preStrengthSet                    
-                            let strengthPropagation = propertyMap.[f] |> Set.ofList
-                            propertyMap.Replace f (orig_cp, strength_f)
-                            let strengthPropogation = Set.difference strengthPropagation !preStrengthSet |> Set.toList
-                                                            |> List.iter(fun x -> propertyMap.Add(f, x))                           
+                            //Saving the properties for formula f before going through the strengthening procedures
+                            let preStrengthProps = propertyMap.[f] |> Set.ofList
+                            //We can now replace the properties with their strengthened versions, beginning with orig_cp
+                            //propertyMap.Replace f (orig_cp, strength_f)
+                            if existential then propertyMap.Replace f (orig_cp, Formula.negate(strength_f))
+                            else propertyMap.Replace f (orig_cp, strength_f)
+                            //First, remove any obvious repeating preconditions that have been strengthened
+                            //preStrengthSet (x,formula) indicates the property before it is strengthened that
+                            //would definitely need to be removed. Later propogateMap will replace it with
+                            //a strengthened verison of the formula
+                            let strengthPropogation = Set.difference preStrengthProps !preStrengthSet
+                            //The case where preconditon may not be repeating, but getting infinitely more refined
+                            //We spot the formulas that need to be strengthened by checking if the newly produced (non-strengthened)
+                            //precondition would imply the old one. If so, then we also remove it, as it will be replaced by propagateMap
+                            let StrengthPropagation2 = !preStrengthSet |> Set.map(fun (x,y) ->
+                                                                            //Furtherstrength contains the set of values that should be removed from
+                                                                            //the non-strenghtened property list.  
+                                                                            let furtherstrength =
+                                                                                preStrengthProps |> Set.filter(fun (z,w) -> x = z && (Formula.entails y w)) 
+                                                                            furtherstrength) |> Set.unionMany
+                            let strengthPropogation = Set.difference strengthPropogation StrengthPropagation2
+                                                             |> Set.toList |> List.iter(fun x -> propertyMap.Add(f, x))                           
                             propertyMap.Union(propogateMap)
-
                             stren := true
                             (strength_f,List.ofSeq !disj_fmla)
 
