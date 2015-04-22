@@ -263,7 +263,6 @@ let register_tests (pars : Parameters.parameters) =
     /////////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
     //One with bug + Fairness.
-    //TODO: Why didn't this work with QE?
     register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
     //No Fairness constraint, should fail
     register_CTL_UNSAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" None

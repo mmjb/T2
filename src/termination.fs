@@ -322,6 +322,20 @@ let isorigNodeNum x p_BU =
                                  else false
     | None -> false
 
+///Takes a loc->formula list as second arg, groups the formulas by loc and connects them using the first argument
+let fold_by_loc collector l =
+    let preCond_map = new System.Collections.Generic.Dictionary<int, Formula.formula>()
+    //First thing, is to eliminate duplicates in the list.
+    let l =
+        match l with
+        | [ ] -> [ ]
+        | x::xs -> List.fold(fun acc x -> if x = List.head acc then acc else x::acc) [x] xs 
+
+    l |> List.iter(fun (x,y) -> if preCond_map.ContainsKey x then
+                                    preCond_map.[x] <- collector (preCond_map.[x], y)
+                                else
+                                    preCond_map.Add (x,y))
+    preCond_map
 
 let findErrNode p pi =
     let err_node = ref -1
@@ -351,7 +365,30 @@ let findErrNode p pi =
     assert(!insr_node <> -1)
     (!err_node,!insr_node)
 
-let propTotransitions p f recur pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int> ref) visited_nodes cps_checked_for_term (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir=
+let strengthenCond pi_mod (propertyMap: ListDictionary<CTL.CTL_Formula, (int*Formula.formula)>) orig_cp f p_0 p1 existential =
+    
+    let mod_var = pi_mod |> List.map (fun (_,y,_)-> y) |>
+                    List.choose(fun cmd ->
+                                match cmd with
+                                | Programs.Assign(_,v,_) -> Some(v)
+                                | _ -> None)
+    let disj_fmla = ref Set.empty
+    let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf p1)
+
+    for var in split_disj do
+        let ts = ref (var |> SparseLinear.formula_to_linear_terms)
+        for var in mod_var do
+                ts := SparseLinear.eliminate_var var !ts
+                ts := SparseLinear.simplify_as_inequalities !ts
+        disj_fmla := Set.add (List.map SparseLinear.linear_term_to_formula !ts |> Formula.conj) !disj_fmla
+    disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
+                            
+    let strength_f = Formula.disj !disj_fmla
+    (strength_f, disj_fmla, (orig_cp,p_0))
+    
+
+let propTotransitions p f recur pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int> ref) visited_nodes cps_checked_for_term (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
+    let preStrengthSet = ref Set.empty
     let (p_loops, _) = Programs.find_loops p
     let propertyMap = new ListDictionary<CTL.CTL_Formula, int * Formula.formula>()
     let elim_node = ref !p.initial
@@ -378,22 +415,28 @@ let propTotransitions p f recur pi_mod cutp existential (loc_to_loopduploc : Map
                                 else if p_loops.ContainsKey x then x
                                 else if (!p.locs).Contains x then x
                                 else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x)                               
-                    if existential then                    
-                        propertyMap.Add(f,(orig,Formula.negate(tempfPreCond)))
-                    else
-                        propertyMap.Add(f,(orig,tempfPreCond))    
+
+                    let truefPreCond = if existential then 
+                                            Formula.negate(tempfPreCond)
+                                       else tempfPreCond
+
+                    if strengthen then
+                        let (_,_,preStrengthf) = strengthenCond pi_mod propertyMap orig f truefPreCond tempfPreCond existential
+                        preStrengthSet := Set.add preStrengthf !preStrengthSet
+                    else                  
+                        propertyMap.Add(f,(orig,truefPreCond))
 
             pi_wp := (!pi_wp).Tail
-    propertyMap
+    (propertyMap, preStrengthSet)
     
 
-let propogate_func p f recur pi pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int> ref) visited_nodes cps_checked_for_term loopnode_to_copiednode=
+let propogate_func p f recur pi pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int> ref) visited_nodes cps_checked_for_term loopnode_to_copiednode strengthen=
     let recurs, r = match recur with
                    |Some(x) -> (x,true)
                    |None -> (Formula.falsec, false)
     let (p_loops, p_sccs) = Programs.find_loops p
     //First propagate preconditions to sccs contained within the loop
-    let propertyMap = propTotransitions p f recur pi_mod cutp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode false
+    let (propertyMap, preStrengthSet) = propTotransitions p f recur pi_mod cutp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode false strengthen
     //Second, propagate upwards to non-cp nodes that are not part of any SCCS.
     let sccs_vals = p_sccs |> Map.filter(fun x y -> x <> cutp) |> Map.toSeq |> Seq.map snd |> Seq.fold (fun acc elem -> Seq.append elem acc) Seq.empty |> Set.ofSeq
     if sccs_vals.Contains cutp || r then
@@ -422,7 +465,7 @@ let propogate_func p f recur pi pi_mod cutp existential (loc_to_loopduploc : Map
         if r then
             pi_elim := (!pi_elim)@[(node,Programs.assume(recurs),-1)]
 
-        propertyMap.Union(propTotransitions p f recur !pi_elim cutp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode true)
+        propertyMap.Union(propTotransitions p f recur !pi_elim cutp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
     let is_dup x = loc_to_loopduploc |> Map.filter(fun _ value -> value = x) |> Map.isEmpty |> not
     let cex_path = pi |> List.map(fun (x,_,_) -> x) |> List.filter(fun x -> Set.contains x !p.locs || loopnode_to_copiednode.ContainsValue x || is_dup x)
     let cex_path = cex_path |> List.map(fun x -> if loopnode_to_copiednode.ContainsValue x then
@@ -431,7 +474,7 @@ let propogate_func p f recur pi pi_mod cutp existential (loc_to_loopduploc : Map
                                                  else if (!p.locs).Contains x then x
                                                  else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x) )
     visited_nodes := Set.union !visited_nodes (Set.ofList cex_path)
-    (visited_nodes, propertyMap)
+    (visited_nodes, propertyMap, preStrengthSet)
 
 /// Prepare the program for another prover run, slowly enumerating all different pre-conditions
 /// (which are either conjunctive/disjunctive, depending on whether we are doing universal/existential)
@@ -453,12 +496,13 @@ let insertForRerun (pars : Parameters.parameters) recurSet existential f final_l
         //If doing existential, we instrument the negation of the precondition, yet store the precondition
         //in propertyMap. This is due to the fact that a counterexample in A is a witness of E!
         let mapPreCond = if existential then Formula.negate(fPreCond) else fPreCond
-        if cutp <> -1 then
-            if not(List.contains (orig_cp,mapPreCond) (propertyMap.[f])) then
-                propertyMap.Add(f,(orig_cp,mapPreCond))
-        else
-            if not(List.contains (orig_cp,mapPreCond) (propertyMap.[f])) then
-                propertyMap.Add(f,(err_node,mapPreCond))
+        if not(strengthen) then 
+            if cutp <> -1 then
+                if not(List.contains (orig_cp,mapPreCond) (propertyMap.[f])) then
+                    propertyMap.Add(f,(orig_cp,mapPreCond))
+            else
+                if not(List.contains (orig_cp,mapPreCond) (propertyMap.[f])) then
+                    propertyMap.Add(f,(err_node,mapPreCond))
 
         if cutp <> -1 && not((!visited_BU_cp).ContainsKey cutp) then
             if f_contains_AF then
@@ -575,7 +619,7 @@ let insertForRerun (pars : Parameters.parameters) recurSet existential f final_l
                     preCond |> List.iter (fun x -> Programs.plain_add_transition p_final k (Programs.assume(x)::cmds) k')
                     Programs.remove_transition p_final l
             
-            let (vis_BU,propogateMap) = propogate_func p f (Some(fPreCondNeg)) pi pi_mod orig_cp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode
+            let (vis_BU,propogateMap,_) = propogate_func p f (Some(fPreCondNeg)) pi pi_mod orig_cp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode false
             propertyMap.Union(propogateMap)
             visited_nodes := !vis_BU
             (fPreCond, preCond)
@@ -585,37 +629,45 @@ let insertForRerun (pars : Parameters.parameters) recurSet existential f final_l
                     let(fPreCond, preCond) =
                         let (p1,l1) = findPreCond_FM pi_mod
                         let p_0 = if existential then Formula.negate(p1) else p1
-                        let precond_length = propertyMap.[f] |> List.filter (fun (x,y) -> x = orig_cp) |> List.length
-                        let (vis_BU,propogateMap) = propogate_func p f None pi pi_mod orig_cp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode
-                        visited_nodes := Set.union !vis_BU (set[orig_cp])
-                        propertyMap.Union(propogateMap)
+                        let precond_length = propertyMap.[f] |> List.filter (fun (x,y) -> x = orig_cp) |> List.length                        
                         //Checking for repeated counterexamples/preconditions for strengthening
                         if List.contains (orig_cp,p_0) (propertyMap.[f])  || (precond_length > 3 )then
-                            let mod_var = pi_mod |> List.map (fun (_,y,_)-> y) |>
-                                            List.choose(fun cmd ->
-                                                        match cmd with
-                                                        | Programs.Assign(_,v,_) -> Some(v)
-                                                        | _ -> None)
-                            let disj_fmla = ref Set.empty
-                            let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf p1)
 
-                            for var in split_disj do
-                                let ts = ref (var |> SparseLinear.formula_to_linear_terms)
-                                for var in mod_var do
-                                        ts := SparseLinear.eliminate_var var !ts
-                                        ts := SparseLinear.simplify_as_inequalities !ts
-                                disj_fmla := Set.add (List.map SparseLinear.linear_term_to_formula !ts |> Formula.conj) !disj_fmla
-                            disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
+                            let (strength_f, disj_fmla, preStrengthf) = strengthenCond pi_mod propertyMap orig_cp f p_0 p1 existential
+                            //Add strength formula here to propertyMap
+                            let (_,propogateMap, preStrengthSet) = propogate_func p f None pi pi_mod orig_cp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode true
                             
-                            let strength_f = Formula.disj !disj_fmla
-                            let old_list = propertyMap.[f]
-                            propertyMap.Replace f (orig_cp, strength_f)
-                            old_list |> List.filter(fun (x,y) -> not(x = orig_cp && y = p_0))
-                                            |> List.iter(fun (x,y) -> propertyMap.Add(f,(x,y)))
+                            preStrengthSet := Set.add (orig_cp,p_0) !preStrengthSet                    
+                            //Saving the properties for formula f before going through the strengthening procedures
+                            let preStrengthProps = propertyMap.[f] |> Set.ofList
+                            //We can now replace the properties with their strengthened versions, beginning with orig_cp
+                            //propertyMap.Replace f (orig_cp, strength_f)
+                            if existential then propertyMap.Replace f (orig_cp, Formula.negate(strength_f))
+                            else propertyMap.Replace f (orig_cp, strength_f)
+                            //First, remove any obvious repeating preconditions that have been strengthened
+                            //preStrengthSet (x,formula) indicates the property before it is strengthened that
+                            //would definitely need to be removed. Later propogateMap will replace it with
+                            //a strengthened verison of the formula
+                            let strengthPropogation = Set.difference preStrengthProps !preStrengthSet
+                            //The case where preconditon may not be repeating, but getting infinitely more refined
+                            //We spot the formulas that need to be strengthened by checking if the newly produced (non-strengthened)
+                            //precondition would imply the old one. If so, then we also remove it, as it will be replaced by propagateMap
+                            let StrengthPropagation2 = !preStrengthSet |> Set.map(fun (x,y) ->
+                                                                            //Furtherstrength contains the set of values that should be removed from
+                                                                            //the non-strenghtened property list.  
+                                                                            let furtherstrength =
+                                                                                preStrengthProps |> Set.filter(fun (z,w) -> x = z && (Formula.entails y w)) 
+                                                                            furtherstrength) |> Set.unionMany
+                            let strengthPropogation = Set.difference strengthPropogation StrengthPropagation2
+                                                             |> Set.toList |> List.iter(fun x -> propertyMap.Add(f, x))                           
+                            propertyMap.Union(propogateMap)
                             stren := true
                             (strength_f,List.ofSeq !disj_fmla)
 
                         else
+                            let (vis_BU,propogateMap,_) = propogate_func p f None pi pi_mod orig_cp existential loc_to_loopduploc visited_BU_cp visited_nodes cps_checked_for_term loopnode_to_copiednode false
+                            visited_nodes := Set.union !vis_BU (set[orig_cp])
+                            propertyMap.Union(propogateMap)
                             (p1,l1)
                     (fPreCond, preCond)
     instrument fPreCond preCond cutp err_node end_sub_node !stren
@@ -913,21 +965,6 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
                 Some (false, output_nocex existential)
 
     (return_option, propertyMap)
-
-///Takes a loc->formula list as second arg, groups the formulas by loc and connects them using the first argument
-let fold_by_loc collector l =
-    let preCond_map = new System.Collections.Generic.Dictionary<int, Formula.formula>()
-    //First thing, is to eliminate duplicates in the list.
-    let l =
-        match l with
-        | [ ] -> [ ]
-        | x::xs -> List.fold(fun acc x -> if x = List.head acc then acc else x::acc) [x] xs 
-
-    l |> List.iter(fun (x,y) -> if preCond_map.ContainsKey x then
-                                    preCond_map.[x] <- collector (preCond_map.[x], y)
-                                else
-                                    preCond_map.Add (x,y))
-    preCond_map
 
 let propagate_nodes (p : Programs.Program) f (propertyMap : ListDictionary<CTL.CTL_Formula, int * Formula.formula>) =
     //Propagate to non-cutpoints if those have not been reached yet.
