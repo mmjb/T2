@@ -233,6 +233,9 @@ let register_tests (pars : Parameters.parameters) =
         register_term_test "testsuite/polyrank5.t2"
         register_term_test "testsuite/polyrank6.t2"
 
+    //Regression tests for reported bugs in (non)termination:
+    register_term_test "regression/Stockholm_true-termination.t2"
+
     //Heidy's basic Temporal Properties examples, some termination
     register_CTL_SAT_test   "testsuite/heidy1.t2" "[AG] (x_1 >= y_1)" None
     register_CTL_UNSAT_test "testsuite/heidy2.t2" "[AG] (x_1 > 1)" None
