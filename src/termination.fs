@@ -335,19 +335,6 @@ let strengthenCond pi_mod (propertyMap: ListDictionary<CTL.CTL_Formula, (int*For
     disj_fmla := Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) !disj_fmla
                             
     let strength_f = Formula.disj !disj_fmla
-    if existential then propertyMap.Add(f,(orig_cp,Formula.negate(strength_f)))
-    else propertyMap.Add(f, (orig_cp,strength_f))
-    //let old_list = propertyMap.[f]
-    //if existential then
-        //propertyMap.Replace f (orig_cp, Formula.negate(strength_f))
-    //else
-        //propertyMap.Replace f (orig_cp, strength_f)
-
-     //Relook into this, because although the equation may not exactly be equals to p_0
-     //it could be an artificat from it. 
-    //old_list |> List.filter(fun (x,y) -> not(x = orig_cp && y = p_0))
-      //              |> List.iter(fun (x,y) -> propertyMap.Add(f,(x,y)))
-
     (strength_f, disj_fmla, (orig_cp,p_0))
     
 
@@ -604,7 +591,8 @@ let insertForRerun (pars : Parameters.parameters) recurSet existential f final_l
                             //Saving the properties for formula f before going through the strengthening procedures
                             let preStrengthProps = propertyMap.[f] |> Set.ofList
                             //We can now replace the properties with their strengthened versions, beginning with orig_cp
-                            propertyMap.Replace f (orig_cp, strength_f)
+                            if existential then  propertyMap.Replace f (orig_cp, Formula.negate(strength_f))
+                            else propertyMap.Replace f (orig_cp, strength_f)
 
                             //First, remove any obvious repeating preconditions that have been strengthened
                             //preStrengthSet (x,formula) indicates the property before it is strengthened that
