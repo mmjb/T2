@@ -31,6 +31,10 @@ assume(tt > 0);
 TO: 5;
 
 FROM: 5;
+wakend := 0;
+TO: 10;
+
+FROM: 10;
 assume(wakend > 0);
 wakend := 0;
 t_last_copy_time := last_copy_time;
@@ -51,24 +55,20 @@ dif := curtime - last_copy_time;
 TO: 8;
 
 FROM: 8;
+assume(wakend <= 0);
 assume(dif >= PGARCH_AUTOWAKE_INTERVAL);
 wakend := 1;
 TO: 7;
 
 FROM: 8;
+assume(wakend <= 0);
 assume(dif < PGARCH_AUTOWAKE_INTERVAL);
 TO: 7;
 
-FROM: 6;
-assume(wakend > 0);
-TO: 7;
-
 FROM: 7;
-assume(dummy <= 0);
 TO: 9;
 
 FROM: 7;
-assume(dummy > 0);
 TO: 1;
 
 FROM: 9;

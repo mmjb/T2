@@ -153,7 +153,7 @@ let defaultParameters =
         start_time = System.DateTime.Now
         timeout = 300.0
         print_proof = false
-        print_stats = false
+        print_stats = true
 
         print_log = false
         print_debug = false
