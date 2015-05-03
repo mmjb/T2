@@ -53,10 +53,6 @@ type parameters = {
     print_debug : bool
 
     // ---------------------------- Program things ----------------------------
-    /// Lazily split disjunction within assumes.
-    /// If it's false, disjunctions are split eagerly.
-    mutable lazy_disj : bool
-
     /// Symbolic abstraction: change constants in the program from 5 to var5.  Constraints are added
     /// so that var5<var6,etc. This is needed because otherwise, the reachability graph is unwound
     /// (i.e., the program is executed!) until actually reaching the constants. Not so bad for 5, but
@@ -70,9 +66,6 @@ type parameters = {
 
     /// Choice of numerical domain for abstract interpretation
     mutable ai_domain : numAbsDomain
-
-    /// When we see assume(p || q || r), should we just use "assume(true)"?
-    mutable abstract_disj : bool
 
     // ---------------------------- Termination things ----------------------------
     /// Try proving non-termination as well as termination?
@@ -158,12 +151,10 @@ let defaultParameters =
         print_log = false
         print_debug = false
 
-        lazy_disj = true
         elim_constants = true
         do_ai_threshold = 50
         did_ai_first = false
         ai_domain = Box
-        abstract_disj = false
 
         prove_nonterm = true
         init_cond = false

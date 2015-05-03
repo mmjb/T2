@@ -58,12 +58,7 @@ let protectLocations =
 //Turn off tricks that don't always work for sepcific cases (this influences the input, thus we do it now) in the program representation that change the input program when just outputting
 match runMode with
     | Arguments.Output ->
-        parameters.abstract_disj <- false
-        parameters.lazy_disj <- false
         parameters.elim_constants <- false
-    | Arguments.Safety _ ->
-        parameters.abstract_disj <- false
-        parameters.lazy_disj <- false
     | _ -> ()
 
 let (p, loc) =

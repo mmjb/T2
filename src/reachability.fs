@@ -12,8 +12,6 @@
 //
 //       * Currently we're using an interpolation procedure that really likes only convex constraits.  That
 //         causes some problems, particularly when attempting to force covers (see try_force_cover)
-//       * I've implemented a lazy method of hiding disjunction such that disjunction in assume(...)
-//         statements is only used if/when it's needed in the lazy interpolation graph
 //       * I've also implemented an optimization that explictly tracks when "seeding" has happened when
 //         the safety prover is being used as the basis of a termination prover
 //       * I've also implemented a priority-scheme such that the caller can specify transitions that he/she
@@ -63,17 +61,13 @@ type ImpactARG(parameters : Parameters.parameters,
                loc_init : int, 
                loc_err : int, 
                transition : Programs.TransitionFunction, 
-               priority : Map<int,int>, 
-               abstracted_disjunctions : Map<string, Programs.command list>) =
+               priority : Map<int,int>) =
     /// Should we perform garbage collection on the abstraction graph?
     let do_gc = ref true
 
     /// Should we perform some sanity checks to make sure that we're not using
     /// nodes that have been GC'd?
     let gc_check = ref false
-
-    /// refine_disj decides if we perform lazy disjunction refinement.
-    let refine_disj = ref true
 
     /// Tree/Graph constructon representing the state of the safety proof procedure.  Back edges
     /// in the "covering" relations represent induction checks.  At the end of a successful proof
@@ -689,7 +683,7 @@ type ImpactARG(parameters : Parameters.parameters,
             match Symex.find_unsat_path_interpolant parameters formulae with
             | None ->
                 let translate (k1, cmd, k2) = (abs_node_to_program_loc.[k1], cmd, abs_node_to_program_loc.[k2])
-                Some(List.map translate pi,pi)
+                Some (List.map translate pi)
 
             | Some(interpolants) ->
                 // Found a strengthening.  Now we apply it by conjoining the pieces along the states
@@ -712,17 +706,6 @@ type ImpactARG(parameters : Parameters.parameters,
     /// Depth first search:  in this procedure we start building the tree in a DFS manner until we hit
     /// what we think might be an error.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Things get a little complex.
-    /// We're trying to approximate a convex analysis as much as possible.  If we see some transition
-    /// cmd1;cmd2;cmd3 where cmd2 is a disjunction (e.g. assume(x &gt; 0 || y &lt; 2) or  assume(x!=y)),
-    /// then we will have replaced that with a cmd2' which is an overapproximation.
-    /// We now need to make it possible to refine this again. For this, we return a thunk in a
-    /// callback to the caller.  It may be that they (e.g. the termination prover) can still find
-    /// a ranking function even with the spurious approximation cmd1;cmd2';cmd3.
-    /// </remarks>
-    ///
     member private self.dfs start =
         self.db ()
         // Start the ball rolling.  The priority doesn't matter, since we're just going
@@ -742,44 +725,11 @@ type ImpactARG(parameters : Parameters.parameters,
                 // refine it if it's an error location or expand it otherwise.
                 if abs_node_to_program_loc.[v] = loc_err then
                     match self.refine v with
-                    | Some(pi, abs_pi) ->
+                    | Some pi ->
                         // This is a real error, and the path pi witnesses it.
                         // Due to incrementality we need to add v back as a leaf, as we may be back here.
                         add_leaf v
-
-                        let used_disjs =
-                            if !refine_disj then
-                                List.fold
-                                    (fun used_disjs (x, cmd, y) ->
-                                        match cmd with
-                                        | Assign(_,v,_) when Formula.is_disj_var v ->
-                                          (x,v,y) :: used_disjs
-                                        | _ -> used_disjs)
-                                    []
-                                    abs_pi
-                            else
-                                []
-
-                        match used_disjs with
-                        | [] ->
-                            // No abstracted disjunction used.
-                            ret := Some (pi, [])
-                        | _ ->
-                            // Found a disjunction. Make thunks that will refine the Tree/Graph
-                            let make_disj_refinement_callback (k,v,k') () =
-                                let abstracted_disjunction = Map.find v abstracted_disjunctions
-                                match abstracted_disjunction with
-                                | (first_disjunct::disjunctions) ->
-                                    Log.log parameters <| sprintf "Lazy disjunction expansion for %s" v
-                                    //Replace existing edge (with abstract label) by the first disjunct
-                                    abs_edge_to_program_commands.[(k,k')] <- [first_disjunct]
-                                    //Add new edges for the other disjuncts
-                                    for other_disjunct in disjunctions do
-                                        self.make_node k [other_disjunct] (abs_node_to_program_loc.[k']) |> ignore
-                                | _ -> die()
-                            let disjunctive_refinements = List.map make_disj_refinement_callback used_disjs
-
-                            ret := Some (pi, disjunctive_refinements)
+                        ret := Some pi
                     | None ->
                         // In this case we haven't hit an error node (yet).
                         ignore (self.close v)
@@ -831,10 +781,10 @@ type ImpactARG(parameters : Parameters.parameters,
         let path = ref None
         while Set.exists self.not_covered !leaves && (!path).IsNone do
             match self.unwind () with
-            | Some(pi, disjunction_refinements) ->
+            | Some pi ->
                     let (_, _, l2) = List.last pi
                     assert (l2 = loc_err)
-                    path := Some(pi, disjunction_refinements)
+                    path := Some pi
             | None -> ()
 
             self.gc()
@@ -867,8 +817,6 @@ type ImpactARG(parameters : Parameters.parameters,
 let prover (pars : Parameters.parameters) p err =
     Utils.timeout pars.timeout
 
-    assert (not pars.lazy_disj && not pars.abstract_disj); //Overapproximations are very uncool for reachability
-
     // Create new initial location with transition assume(_const_100 > _const_32) for all
     // abstracted const variables.
     Programs.symbconsts_init p
@@ -876,7 +824,7 @@ let prover (pars : Parameters.parameters) p err =
     // The connection between programs and Graph is a little bit messy
     // at the moment. We have to marshal a little bit of data between them
     let transition = Programs.transitions_from p
-    let abs = ImpactARG(pars, !p.initial, err, transition, Map.empty, !p.abstracted_disjunctions)
+    let abs = ImpactARG(pars, !p.initial, err, transition, Map.empty)
 
     if pars.dottify_input_pgms then
         Output.print_dot_program p "input.dot"
@@ -886,7 +834,7 @@ let prover (pars : Parameters.parameters) p err =
 
     // If the flag is set, produce a counterexample file
     if pars.safety_counterexample && r.IsSome then
-        let stem = Some (List.map (fun (x,y,z) -> (x,[y],z)) (fst r.Value))
+        let stem = Some (List.map (fun (x,y,z) -> (x,[y],z)) r.Value)
         let cex = Counterexample.make stem None
         Counterexample.print_defect pars [cex] "defect.tt"
         Counterexample.print_program pars [cex] "defect.t2"

@@ -118,17 +118,9 @@ let parseArguments =
              , "Print rank functions / recurrence sets after finishing a proof."
              )
 
-           ; new ArgInfo( "-lazy_disj"
-             , ArgType.String (fun s -> pars.lazy_disj <- Utils.true_string s) 
-             , "Lazy treatment of disjunctions"
-             )
            ; new ArgInfo( "-elim_constants"
              , ArgType.String (fun s -> pars.elim_constants <- Utils.true_string s) 
              , "Abstract away unusual constants"
-             )
-           ; new ArgInfo( "-abstract_disj"
-             , ArgType.String (fun s -> pars.abstract_disj <- Utils.true_string s) 
-             , "Abstract away disjunction in assumes"
              )
 
            ; new ArgInfo( "-lexicographic"

@@ -162,11 +162,7 @@ let transitions_to_formulae ts = List.concat [for (_, f, _) in ts -> f]
 /// Vars from 'vars' go to prevars and postvars.
 /// Prevars and postvars are guaranteed to be distinct.
 let path_to_relation path vars =
-    let cmds =
-        [for _, cmds, _ in path do
-            for cmd in cmds do
-                if not (Programs.is_disj_cmd cmd) then
-                    yield cmd]
+    let cmds = List.collect (fun (_, cmds, _) -> cmds) path
 
     let written_vars = Set.intersect (Programs.modified cmds) vars
 
@@ -257,7 +253,7 @@ let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * (in
 
     let scc_vars =
            Programs.freevars scc_commands
-        |> Set.filter (fun v -> not(Formula.is_instr_var v || Formula.is_disj_var v))
+        |> Set.filter (fun v -> not(Formula.is_instr_var v))
 
     let scc_rels =
            scc_transitions

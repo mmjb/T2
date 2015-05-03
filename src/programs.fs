@@ -9,8 +9,6 @@
 //      Representation for arithmetic, non-recursive programs
 //
 //  Notes:
-//      * During construction of programs we abstract away disjunctions within assume(...) commands
-//        and store them away to be used later if needed
 //
 // Copyright (c) Microsoft Corporation
 //
@@ -136,8 +134,6 @@ type Program = { initial : int ref
                ; node_cnt : int ref
                ; nodeToLabels : Map<int,string> ref
                ; labels : Map<string,int> ref
-               /// Map from newly introduced instrumentation variables to disjunctions abstracted by them
-               ; abstracted_disjunctions : Map<string, command list> ref
                ; transitions : (int * command list * int) []
                ; transitions_cnt : int ref
 
@@ -379,12 +375,6 @@ let commands_constants range cmds =
     (cmds', Set.unionMany constants)
 
 ///
-/// Is cmd c representing a disjunction?
-///
-let is_disj_cmd c = Set.exists Formula.is_disj_var (freevars [c])
-
-
-///
 /// add transition n--T-->m as it is, without any preprocessing
 ///
 let plain_add_transition p n T m =
@@ -457,23 +447,7 @@ let rec command_to_seqpar (pars : Parameters.parameters) p cmd =
         let f = polyhedra_dnf f
         match f |> split_disjunction |> List.map split_conjunction with
         | [[f1]; [f2]] -> // disjunction of two atomic formulae
-            if pars.lazy_disj then
-                Log.log pars <| sprintf "Abstracting disjunction '%s' away for now." (Formula.Or (f1, f2)).pp
-                log pars "Lazy disjunction"
-                let cmd1 = Assume (pos, f1)
-                let cmd2 = Assume (pos, f2)
-                let k = (!p.abstracted_disjunctions).Count
-                let v = Formula.disj_var k
-                p.abstracted_disjunctions := Map.add v [cmd1; cmd2] !p.abstracted_disjunctions
-                let cmd = Assign(pos, v, Term.var v)
-
-                // this is important to wrap it into fake Par, because
-                // we have to generate nodes for this instruction
-                // (so that later disj refinement callback can
-                // remove this edge and introduce two concrete edges)
-                Par [Atom cmd]
-            else
-                Par [for f' in [f1; f2] -> command_to_seqpar pars p (Assume (pos, f'))]
+            Par [for f' in [f1; f2] -> command_to_seqpar pars p (Assume (pos, f'))]
         | [fs] -> // conjunction of atomic formulae
             Seq [
                 for f in fs do
@@ -492,12 +466,9 @@ let rec command_to_seqpar (pars : Parameters.parameters) p cmd =
 
                     | _ -> dieWith "polyhedra_dnf returned something strange"
             ]
-        | x -> if pars.abstract_disj then
-                   Log.log pars <| sprintf "WARNING: IGNORING ASSUME\n"
-                   Seq []
-               else
-                   Log.log pars <| sprintf "WARNING: assume blowup = %d\n" x.Length
-                   Par [for f' in x -> Seq [for f'' in f' -> command_to_seqpar pars p (Assume (pos, f''))]]
+        | x -> 
+            Log.log pars <| sprintf "WARNING: assume blowup = %d\n" x.Length
+            Par [for f' in x -> Seq [for f'' in f' -> command_to_seqpar pars p (Assume (pos, f''))]]
 
     | Assign(_, _, Nondet) ->
         Atom cmd
@@ -523,8 +494,7 @@ let add_transition_unmapped (pars : Parameters.parameters) p n T m =
 
     add_transition_seqpar p n sp m
 
-/// add transition n--T-->M with preprocessing
-/// (elim_constants; lazy_disj / split disjunctions)
+/// add transition n--T-->M with preprocessing (elim_constants)
 let add_transition (pars : Parameters.parameters) p input_n (T : command list) input_m =
     let n = map p input_n
     let m = map p input_m
@@ -545,7 +515,6 @@ let copy q  =
                 ; node_cnt = ref (!q.node_cnt)
                 ; labels = ref (!q.labels)
                 ; nodeToLabels = ref(!q.nodeToLabels)
-                ; abstracted_disjunctions = ref (!q.abstracted_disjunctions)
                 ; transitions_cnt = ref (!q.transitions_cnt)
                 ; transitions = Array.copy q.transitions
                 ; active = ref (!q.active)
@@ -750,7 +719,6 @@ let make (pars : Parameters.parameters) is_temporal init (ts : (string * command
                 ; node_cnt = ref 0
                 ; labels = ref Map.empty
                 ; nodeToLabels = ref Map.empty
-                ; abstracted_disjunctions = ref Map.empty
                 ; transitions_cnt = ref 0
                 ; transitions = Array.create !transitions_sz (-1,[],-1)
                 ; active = ref Set.empty

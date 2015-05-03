@@ -119,17 +119,11 @@ let liveness p alwaysLive =
 
     let rec kill_cmd cmd =
        match cmd with
-       | Assign(_,v,_) when Formula.is_disj_var v ->
-           let cmds = Map.find v !p.abstracted_disjunctions |> Set.ofList
-           Set.map kill_cmd cmds |> Set.unionMany |> Set.add v
        | Assign(_,v,_) -> Set.singleton v
        | Assume(_,_) -> Set.empty
 
     let rec gen_cmd cmd =
        match cmd with
-       | Assign(_,v,t) when Formula.is_disj_var v ->
-           let cmds = Map.find v !p.abstracted_disjunctions |> Set.ofList
-           Set.map gen_cmd cmds |> Set.unionMany |> Set.union (Term.freevars t)
        | Assign(_,_,t) ->   Term.freevars t
        | Assume(_,e) -> Formula.freevars e
 

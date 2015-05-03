@@ -316,9 +316,9 @@ let unsat x = entails x falsec
 
 // ----------------------------------------------------------------------------
 // IMPORTANT
-// The encoding of termination, as well as the lazy disjunction optimization are encoded using
-// commands, formulae and variables.  Variables with special names are used.  I'm trying to keep all of
-// those details in one spot. This code is very brittle, as it may have subtle consequences elsewhere.
+// Termination and CTL are encoded using commands, formulae and variables.
+// Variables with special names are used.  I'm trying to keep all of those details
+// in one spot. This code is very brittle, as it may have subtle consequences elsewhere.
 // Beware when modifying it!
 //
 
@@ -354,10 +354,6 @@ let is_init_cond_var (v:string) = v.StartsWith init_cond_prefix
 let iter_prefix = instrumentation_prefix + "iters_"
 let iters_var cp = Var.var iter_prefix + string(cp)
 let is_iter_var (v:string) = v.StartsWith iter_prefix
-
-let disj_prefix = instrumentation_prefix + "disjvar_"
-let disj_var v = sprintf "%s%d" disj_prefix v
-let is_disj_var (v:string) = v.StartsWith disj_prefix
 
 let fair_proph_var = Var.var instrumentation_prefix + "fair_proph"
 let fair_proph_old_var = Var.var instrumentation_prefix + "fair_proph_old"

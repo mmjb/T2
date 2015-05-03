@@ -606,7 +606,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
 
     //BottomUp changes the instrumentation, so make a copy for that purpose here, as we do not want the pre-conditions to persist in other runs
     let p_final = Programs.copy p_instrumented
-    let safety = Reachability.ImpactARG(pars, !p_final.initial, error_loc, trans_fun p_final.transitions, make_prio_map p_final error_loc, !p_final.abstracted_disjunctions)
+    let safety = Reachability.ImpactARG(pars, !p_final.initial, error_loc, trans_fun p_final.transitions, make_prio_map p_final error_loc)
     let p_bu_sccs = snd <| Programs.find_loops p_final
 
     ///////////////////////////////////////////////////////////////////////////
@@ -640,7 +640,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
             else
                 ()
             terminating := Some true
-        | Some(pi, disj_refinements) ->
+        | Some pi ->
             refine_cnt := !refine_cnt + 1          
             cex := (Counterexample.make (Some (List.map (fun (x,y,z) -> (x,[y],z)) pi)) None)
             outputCexAsDefect !cex
@@ -682,81 +682,75 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
             /////////// Counterexample for which we couldn't find a program refinement:
             | (Some(Lasso.CEX(cex)), failure_cp) ->
                 Log.log pars <| sprintf "Could not find termination argument for counterexample on cutpoint %i" failure_cp
-                // First option: This was due to our lazy treatment of disjunctions. Refine the problematic disjunctions, try again:
-                if List.length disj_refinements > 0 then
-                    Log.log pars <| sprintf "Refining abstracted %i disjunctions." (List.length disj_refinements)
-                    for disj_refinement in disj_refinements do
-                        disj_refinement () //This changes the state of the underlying reachability graph
+                //If we're doing lexicographic method, try finding a recurrent set at this point (before trying anything else)
+                let attempting_lex = ((!lex_info.cp_attempt_lex).[failure_cp])
+                if attempting_lex && pars.prove_nonterm then
+                    match RecurrentSets.synthesize pars (if termination_only then cex.stem.Value else []) cex.cycle.Value termination_only with
+                    | Some set -> 
+                        terminating := Some false
+                        recurrent_set := Some (failure_cp, set)
+                    | None   -> ()
+
+                //if we found a recurrent set, exit
+                if (!terminating).IsSome then
+                    noteUnhandledCex cex
                 else
-                    //If we're doing lexicographic method, try finding a recurrent set at this point (before trying anything else)
-                    let attempting_lex = ((!lex_info.cp_attempt_lex).[failure_cp])
-                    if attempting_lex && pars.prove_nonterm then
-                        match RecurrentSets.synthesize pars (if termination_only then cex.stem.Value else []) cex.cycle.Value termination_only with
-                        | Some set -> 
-                            terminating := Some false
-                            recurrent_set := Some (failure_cp, set)
-                        | None   -> ()
-
-                    //if we found a recurrent set, exit
-                    if (!terminating).IsSome then
-                        noteUnhandledCex cex
+                    //We might haven chosen the wrong order of lexicographic RFs. Try backtracking to another option:
+                    let exist_past_lex = (Lasso.exist_past_lex_options failure_cp lex_info)
+                    if attempting_lex && exist_past_lex then
+                        Log.log pars "Trying to backtrack to other order for lexicographic RF."
+                        let (decr_list,not_incr_list,bnd_list) = Instrumentation.switch_to_past_lex_RF pars lex_info failure_cp
+                        Instrumentation.instrument_lex_RF pars failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final safety lex_info
                     else
-                        //We might haven chosen the wrong order of lexicographic RFs. Try backtracking to another option:
-                        let exist_past_lex = (Lasso.exist_past_lex_options failure_cp lex_info)
-                        if attempting_lex && exist_past_lex then
-                            Log.log pars "Trying to backtrack to other order for lexicographic RF."
-                            let (decr_list,not_incr_list,bnd_list) = Instrumentation.switch_to_past_lex_RF pars lex_info failure_cp
-                            Instrumentation.instrument_lex_RF pars failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final safety lex_info
+                        //If we are trying lexicographic termination arguments, try switching to lexicographic polyranking arguments:
+                        let already_polyrank = (!lex_info.cp_polyrank).[failure_cp]
+                        if pars.polyrank && not(already_polyrank) && attempting_lex then
+                            Log.log pars "Switching to polyrank."
+                            Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_final safety
                         else
-                            //If we are trying lexicographic termination arguments, try switching to lexicographic polyranking arguments:
-                            let already_polyrank = (!lex_info.cp_polyrank).[failure_cp]
-                            if pars.polyrank && not(already_polyrank) && attempting_lex then
-                                Log.log pars "Switching to polyrank."
-                                Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_final safety
+                            //Try the "unrolling" technique
+                            if attempting_lex && pars.unrolling && Instrumentation.can_unroll pars lex_info failure_cp then
+                                Log.log pars "Trying the unrolling technique."
+                                Instrumentation.do_unrolling pars lex_info failure_cp cp_rf_lex p_final safety termination_only
                             else
-                                //Try the "unrolling" technique
-                                if attempting_lex && pars.unrolling && Instrumentation.can_unroll pars lex_info failure_cp then
-                                    Log.log pars "Trying the unrolling technique."
-                                    Instrumentation.do_unrolling pars lex_info failure_cp cp_rf_lex p_final safety termination_only
+                                //Try the "detect initial condition" technique
+                                let already_doing_init_cond = ((!lex_info.cp_init_cond).[failure_cp])
+                                if pars.init_cond && attempting_lex && not(already_doing_init_cond) && not(pars.polyrank) then
+                                    Log.log pars "Trying initial condition detection."
+                                    Instrumentation.do_init_cond pars lex_info failure_cp p_final cp_rf_lex safety
+
+                                // That's it, no tricks left. Return the counterexample and give up
                                 else
-                                    //Try the "detect initial condition" technique
-                                    let already_doing_init_cond = ((!lex_info.cp_init_cond).[failure_cp])
-                                    if pars.init_cond && attempting_lex && not(already_doing_init_cond) && not(pars.polyrank) then
-                                        Log.log pars "Trying initial condition detection."
-                                        Instrumentation.do_init_cond pars lex_info failure_cp p_final cp_rf_lex safety
+                                    Log.log pars "Giving up."
+                                    noteUnhandledCex cex
+                                    cex_found := true
 
-                                    // That's it, no tricks left. Return the counterexample and give up
-                                    else
-                                        Log.log pars "Giving up."
-                                        noteUnhandledCex cex
-                                        cex_found := true
+                                    //If we are doing lexicographic proving, we already tried nonterm further up:
+                                    if not(attempting_lex) && (!terminating).IsNone && pars.prove_nonterm && ((!unhandled_counterexample).IsSome) then
+                                        match RecurrentSets.synthesize pars (if termination_only then cex.stem.Value else []) cex.cycle.Value termination_only with
+                                        | Some set -> 
+                                            terminating := Some false
+                                            recurrent_set := Some (failure_cp, set)
+                                        | None   -> ()
 
-                                        //If we are doing lexicographic proving, we already tried nonterm further up:
-                                        if not(attempting_lex) && (!terminating).IsNone && pars.prove_nonterm && ((!unhandled_counterexample).IsSome) then
-                                            match RecurrentSets.synthesize pars (if termination_only then cex.stem.Value else []) cex.cycle.Value termination_only with
-                                            | Some set -> 
-                                                terminating := Some false
-                                                recurrent_set := Some (failure_cp, set)
-                                            | None   -> ()
+                                    finished := true
 
-                                        finished := true
+                if (!recurrent_set).IsSome then
+                    cex_found := true
 
-                    if (!recurrent_set).IsSome then
-                        cex_found := true
-
-                    if findPreconds then
-                        //Some true = successful termination proof
-                        //Some false = successful nontermination proof (RS in !recurrent_set)
-                        //None = Giving up
-                        if !terminating = Some false then
-                            finished := false
-                            terminating := None
-                            insertForRerun pars !recurrent_set propagate existential f final_loc p loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp p_final
-                        else if !terminating = None && !finished = true then
-                            //Giving up, if no lex/recurrent set found, then false and entail giving up.
-                            //TODO: Exit recursive bottomUp all together, as we cannot proceed with verification
-                            //if we have reached this point. 
-                            raise (System.ArgumentException("Cannot synthesize preconditions due to a failure in either lexicographic function or recurrent set generation!"))
+                if findPreconds then
+                    //Some true = successful termination proof
+                    //Some false = successful nontermination proof (RS in !recurrent_set)
+                    //None = Giving up
+                    if !terminating = Some false then
+                        finished := false
+                        terminating := None
+                        insertForRerun pars !recurrent_set propagate existential f final_loc p loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp p_final
+                    else if !terminating = None && !finished = true then
+                        //Giving up, if no lex/recurrent set found, then false and entail giving up.
+                        //TODO: Exit recursive bottomUp all together, as we cannot proceed with verification
+                        //if we have reached this point. 
+                        raise (System.ArgumentException("Cannot synthesize preconditions due to a failure in either lexicographic function or recurrent set generation!"))
 
                                     
         Utils.run_clear()

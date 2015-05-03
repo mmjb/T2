@@ -605,20 +605,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 ///Make new copied variables and assume commands to store a copy
 ///Returns a list of assignments of old vars to new (renamed) vars.
 let var_copy_commands (p_orig: Programs.Program) (p_c : Programs.Program) cp =
-    //We had a bug where variables were abstracted away by lazy disjunction, then after disjunctive callback, they weren't in the copying transition as required.
-    //Here I'm putting all variables, even those abstracted away, in at the beginning.
-    let vars =
-        let retrieve_vars (_, cmds) =
-            [for cmd in cmds do
-                    let vars_in_cmd =
-                        match cmd with
-                            |Programs.Assume(_,f) ->
-                                Formula.freevars f
-                            |_ -> failwith "unexpected"
-                    yield vars_in_cmd] |> Set.unionMany
-        let vars_from_lazy_disj = (!p_orig.abstracted_disjunctions).Items |> Seq.map retrieve_vars  |> Set.unionMany
-        let filtered_pvars = !p_orig.vars |> Set.filter (fun x -> not(Formula.is_disj_var x) && not(Formula.is_const_var x))
-        Set.union vars_from_lazy_disj filtered_pvars
+    let vars = !p_orig.vars |> Set.filter (fun x -> not(Formula.is_const_var x))
 
     let copy_vars = vars |> Seq.map (fun x -> Formula.save_state_var x cp)
 

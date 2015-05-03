@@ -34,7 +34,7 @@
 module Microsoft.Research.T2.ProgramTests
 
 let register_tests (pars : Parameters.parameters) =
-    let safety_pars = { pars with abstract_disj = false; lazy_disj = false}
+    let safety_pars = pars
     let term_pars = pars
     let ctl_pars = pars
 

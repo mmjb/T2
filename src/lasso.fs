@@ -562,7 +562,7 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
     let cycle = remove_instrumentation_cmds cycle_pre_clean
     
     let pi_commands = List.map (fun (_,x,_) -> x) pi
-    let pi_vars_cleaned = pi_commands |> Programs.freevars |> Set.filter (fun v -> not <| (Formula.is_disj_var v || Formula.is_instr_var v))
+    let pi_vars_cleaned = pi_commands |> Programs.freevars |> Set.filter (fun v -> not (Formula.is_instr_var v))
 
     if pars.print_log then print_lasso stem cycle
 
