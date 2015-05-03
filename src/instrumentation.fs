@@ -143,7 +143,7 @@ let contains_copied_gets_1 cp (cmds:Programs.command list)=
     !found
 
 //Instruments a RF to p_final (when we're doing the disjunctive method).
-let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs : Map<int, (formula * formula) list> ref) (cp_rf:Dictionary<int,int>) (p_final:Programs.Program) graph =
+let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs : Map<int, (formula * formula) list> ref) (cp_rf:Dictionary<int,int>) (p_final:Programs.Program) (safety : Reachability.ImpactARG) =
     let old_rfs_for_cp = (!found_disj_rfs).FindWithDefault cp []
     found_disj_rfs := !found_disj_rfs |> Map.remove cp |> Map.add cp ((rf, bnd)::old_rfs_for_cp)
 
@@ -176,7 +176,7 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
     Log.log pars <| sprintf "Instrumented in disjunctive RF between %i and %i" new_node k
     
     //Now reset the reachability graph and remove every (incomplete) unwinding that has passed behind (l), as we changed the program there:
-    Reachability.reset pars graph l
+    safety.ResetFrom p_final l
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_disjunctive_rf.dot"
 
@@ -207,7 +207,7 @@ let replace_lex_rf_checkers (pars : Parameters.parameters) p old_checker_trans_i
     (k, !new_checker_trans_ids)
 
 //Instruments a lexicographic RF to p_final
-let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph lex_info =
+let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : Reachability.ImpactARG) lex_info =
     let doing_init_cond = (!lex_info.cp_init_cond).[cp]
 
     //Standard lexicographic RFs:
@@ -221,7 +221,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
         let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
         cp_rf_lex.[cp] <- new_lex_checker_trans_ids
-        Reachability.reset pars graph first_checker_node
+        safety.ResetFrom p_final first_checker_node
 
     //We are instrumenting the Lex RF under a particular initial condition for the cp:
     else
@@ -237,13 +237,13 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         let new_counter_checkers_map = Map.add counter new_lex_checker_trans_ids counters_to_checkers
         lex_info.cp_rf_init_cond := Map.add cp new_counter_checkers_map !lex_info.cp_rf_init_cond
 
-        Reachability.reset pars graph first_checker_node
+        safety.ResetFrom p_final first_checker_node
 
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_lex_RF.dot"
 
 //Instruments a lexicographic polyranking function to p_final.
-let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.formula list list) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph =
+let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.formula list list) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : Reachability.ImpactARG) =
     assert(cp_rf_lex.ContainsKey(cp))
 
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
@@ -253,7 +253,7 @@ let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.
     let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
     cp_rf_lex.[cp] <- new_lex_checker_trans_ids
 
-    Reachability.reset pars graph first_checker_node
+    safety.ResetFrom p_final first_checker_node
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_poly_lex_RF.dot"
 
@@ -270,7 +270,7 @@ let switch_to_past_lex_RF (pars : Parameters.parameters) lex_info failure_cp =
     (decr_list,not_incr_list,bnd_list)
 
 ///Deletes the old lex checkers for failure_cp and get ready to start finding lex polyranking functions
-let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) graph=
+let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : Reachability.ImpactARG) =
     Log.log pars <| sprintf "Now looking for polyranking functions for cp %d" failure_cp
     lex_info.cp_polyrank:= Map.add failure_cp true !lex_info.cp_polyrank
 
@@ -284,7 +284,7 @@ let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf
     cp_rf_lex.[failure_cp]<-[cnt]
     lex_info.partial_orders := Map.add failure_cp [] !lex_info.partial_orders
 
-    Reachability.reset pars graph k
+    safety.ResetFrom p_final k
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__instrumented_switch_to_polyrank.dot"
 
@@ -421,7 +421,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
     !cp_rf_init_cond
 
 ///Switches to detecting initial condition for failure_cp
-let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp p_final cp_rf_lex graph =
+let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp p_final cp_rf_lex (safety : Reachability.ImpactARG) =
 
     (sprintf "\nDetecting initial condition for cp %d" failure_cp) |> Log.log pars
 
@@ -438,7 +438,7 @@ let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
     lex_info.partial_orders_init_cond:= Map.add failure_cp new_partial_orders !lex_info.partial_orders_init_cond
     lex_info.past_lex_options:= Map.add failure_cp [] !lex_info.past_lex_options
 
-    Reachability.reset pars graph !p_final.initial
+    safety.ResetFrom p_final !p_final.initial
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__init_cond.dot"
 
@@ -540,7 +540,7 @@ let can_unroll (pars : Parameters.parameters) (lex_info:LexicographicInfo) failu
         current_iter < pars.unrolling_limit
 
 //Unrolls failure_cp until we reach unrolling_limit. Returns true if we reached limit.
-let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp cp_rf_lex p_final graph termination_only =
+let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp cp_rf_lex p_final (safety : Reachability.ImpactARG) termination_only =
 
     let already_unrolling = ((!lex_info.cp_unrolling).[failure_cp])
 
@@ -559,7 +559,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
         lex_info.past_lex_options := Map.add failure_cp [] !lex_info.past_lex_options
         lex_info.cp_iter_guard := Map.add failure_cp guard_index !lex_info.cp_iter_guard
 
-        Reachability.reset pars graph !p_final.initial
+        safety.ResetFrom p_final !p_final.initial
         if pars.dottify_input_pgms then
             Output.print_dot_program p_final "input_unrolling_002.dot"
 
@@ -590,9 +590,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
             (sprintf "\nUnrolling cp %d" failure_cp) |> Log.log pars
             (sprintf "iters >= %d" (current_iter+1)) |> Log.log pars
 
-            //printfn "k:%d" k
-
-            Reachability.reset pars graph k
+            safety.ResetFrom p_final k
             if pars.dottify_input_pgms then
                 let filename = sprintf "input_unrolling_%03d.dot" (current_iter+1)
                 Output.print_dot_program p_final filename

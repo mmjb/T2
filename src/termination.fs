@@ -353,7 +353,7 @@ let propogate_func p f recur pi cutp existential (loc_to_loopduploc : Map<int,in
 /// (which are either conjunctive/disjunctive, depending on whether we are doing universal/existential)
 //Note: If a certain PC does not have a pre-condition, it means that there was no CEX, thus it's true.
 let insertForRerun (pars : Parameters.parameters) recurSet propagate existential f final_loc (p : Programs.Program) (loc_to_loopduploc : Map<int,int>) f_contains_AF 
-                     (p_bu_sccs : Map<int,Set<int>>) graph cps_checked_for_term pi (propertyMap: ListDictionary<CTL.CTL_Formula, int * Formula.formula>) (visited_BU_cp : Map<int, int*int> ref) (p_final : Programs.Program) =
+                     (p_bu_sccs : Map<int,Set<int>>) (safety : Reachability.ImpactARG) cps_checked_for_term pi (propertyMap: ListDictionary<CTL.CTL_Formula, int * Formula.formula>) (visited_BU_cp : Map<int, int*int> ref) (p_final : Programs.Program) =
     //Store in a slot of the datastructure as the original formula (Versus the disjunction splits)
     //But first we must find the original cutpoint, versus a copy if it's in AF.
     let (p_loops, p_sccs) = Programs.find_loops p
@@ -412,7 +412,7 @@ let insertForRerun (pars : Parameters.parameters) recurSet propagate existential
                         //if k = cutp && not((!visited_BU_cp).ContainsKey cutp) then
                             visited_BU_cp := (!visited_BU_cp).Add(cutp, (k,k'))
                             Programs.plain_add_transition p_final k [] (get_copy_of_loopnode k)
-                            Reachability.reset pars graph k
+                            safety.ResetFrom p_final k
 
                     let env_var v =  Var.var v
                     for l in !p.active do
@@ -423,7 +423,7 @@ let insertForRerun (pars : Parameters.parameters) recurSet propagate existential
                                                                         | Programs.Assign(p,v,t) -> Programs.Assign(p,env_var v,Term.alpha env_var t))
                                 Programs.plain_add_transition p_final (get_copy_of_loopnode k)
                                     cmds (get_copy_of_loopnode k')
-                        Reachability.reset pars graph k
+                        safety.ResetFrom p_final k
                 else visited_BU_cp := (!visited_BU_cp).Add(cutp, (end_sub_node,final_loc))
 
         let (m, m') = if cutp <> -1 then (!visited_BU_cp).[cutp] else (end_sub_node,final_loc)
@@ -443,12 +443,12 @@ let insertForRerun (pars : Parameters.parameters) recurSet propagate existential
             else if cutp <> -1 && k' = m && (p_bu_sccs.[cutp]).Contains k then
                 Programs.plain_add_transition p_final k cmds m'
                 Programs.remove_transition p_final l
-            Reachability.reset pars graph k
+            safety.ResetFrom p_final k
         if strengthen then
             if !insert <> (-1,-1) then
                 let (k,k') = !insert
                 preCond |> List.iter (fun x -> Programs.plain_add_transition p_final k (Programs.assume(x)::[]) k')
-                Reachability.reset pars graph k
+                safety.ResetFrom p_final k
 
     //if cutp = -1, then we are checking a node that occurs before checking any cut-points.
     let(cutp, pi_mod) = findCP p_loops cps_checked_for_term loc_to_loopduploc pi
@@ -606,7 +606,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
 
     //BottomUp changes the instrumentation, so make a copy for that purpose here, as we do not want the pre-conditions to persist in other runs
     let p_final = Programs.copy p_instrumented
-    let graph = Reachability.init !p_final.initial error_loc (trans_fun p_final.transitions) (Some (make_prio_map p_final error_loc)) !p_final.abstracted_disjunctions
+    let safety = Reachability.ImpactARG(pars, !p_final.initial, error_loc, trans_fun p_final.transitions, make_prio_map p_final error_loc, !p_final.abstracted_disjunctions)
     let p_bu_sccs = snd <| Programs.find_loops p_final
 
     ///////////////////////////////////////////////////////////////////////////
@@ -631,7 +631,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
         unhandled_counterexample := Some cex        
 
     while not !finished && (!terminating).IsNone do
-        match Reachability.reachable pars graph with
+        match safety.ErrorLocationReachable () with
         | None ->
             if (propertyMap.[f]).IsEmpty && not(existential) then
                 p_loops.Keys |> Seq.iter (fun locs -> propertyMap.Add(f,(locs,Formula.truec)))
@@ -646,38 +646,38 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
             outputCexAsDefect !cex
 
             //Investigate counterexample. Hopefully returns a solution:
-            match Lasso.investigate_cex pars p_final p_instrumented_sccs graph pi !found_disj_rfs !found_lex_rfs lex_info with
+            match Lasso.investigate_cex pars p_final p_instrumented_sccs safety pi !found_disj_rfs !found_lex_rfs lex_info with
             | (None, _) ->
                 //We hit this case when the counterexample is not due to a cycle (i.e., we
                 //investigated the counterexample, but it wasn't a lasso at all, but just a
                 //straight-line path to the error loc)
                 //dieWith "Obtained counterexample to termination without a cycle!"
                 if findPreconds then
-                     insertForRerun pars None propagate existential f final_loc p loc_to_loopduploc f_contains_AF p_bu_sccs graph cps_checked_for_term pi propertyMap visited_BU_cp p_final
+                     insertForRerun pars None propagate existential f final_loc p loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp p_final
                 else
                     cex_found := true
                     finished := true
 
             /////////// Disjunctive (transition invariant) argument:
             | (Some(Lasso.Disj_WF(cp, rf, bnd)),_) ->
-                Instrumentation.instrument_disj_RF pars cp rf bnd found_disj_rfs cp_rf p_final graph
+                Instrumentation.instrument_disj_RF pars cp rf bnd found_disj_rfs cp_rf p_final safety
 
             /////////// Lexicographic termination argument:
             | (Some(Lasso.Lex_WF(cp, decr_list, not_incr_list, bnd_list)),_) ->
-                Instrumentation.instrument_lex_RF pars cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final graph lex_info
+                Instrumentation.instrument_lex_RF pars cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final safety lex_info
 
             /////////// Lexicographic polyranking termination argument:
             | (Some(Lasso.Poly_WF(poly_checkers)),cp) ->
-                Instrumentation.instrument_poly_RF pars cp poly_checkers cp_rf_lex p_final graph
+                Instrumentation.instrument_poly_RF pars cp poly_checkers cp_rf_lex p_final safety
 
             /////////// Program simplification:
             | (Some(Lasso.Transition_Removal(trans_to_remove)), _) ->
                 //Remove the transitions from the program, remove them from the reachability graph:
                 for trans_idx in trans_to_remove do
-                    let (k,cmds,k') = p_final.transitions.[trans_idx]
+                    let (k, cmds, k') = p_final.transitions.[trans_idx]
                     Programs.remove_transition p_final trans_idx
-                    Reachability.delete_program_transition graph (k,cmds,k')
-                    Reachability.reset pars graph k'
+                    safety.DeleteProgramTransition (k, cmds, k')
+                    safety.ResetFrom p_final k'
 
             /////////// Counterexample for which we couldn't find a program refinement:
             | (Some(Lasso.CEX(cex)), failure_cp) ->
@@ -706,24 +706,24 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
                         if attempting_lex && exist_past_lex then
                             Log.log pars "Trying to backtrack to other order for lexicographic RF."
                             let (decr_list,not_incr_list,bnd_list) = Instrumentation.switch_to_past_lex_RF pars lex_info failure_cp
-                            Instrumentation.instrument_lex_RF pars failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final graph lex_info
+                            Instrumentation.instrument_lex_RF pars failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final safety lex_info
                         else
                             //If we are trying lexicographic termination arguments, try switching to lexicographic polyranking arguments:
                             let already_polyrank = (!lex_info.cp_polyrank).[failure_cp]
                             if pars.polyrank && not(already_polyrank) && attempting_lex then
                                 Log.log pars "Switching to polyrank."
-                                Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_final graph
+                                Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_final safety
                             else
                                 //Try the "unrolling" technique
                                 if attempting_lex && pars.unrolling && Instrumentation.can_unroll pars lex_info failure_cp then
                                     Log.log pars "Trying the unrolling technique."
-                                    Instrumentation.do_unrolling pars lex_info failure_cp cp_rf_lex p_final graph termination_only
+                                    Instrumentation.do_unrolling pars lex_info failure_cp cp_rf_lex p_final safety termination_only
                                 else
                                     //Try the "detect initial condition" technique
                                     let already_doing_init_cond = ((!lex_info.cp_init_cond).[failure_cp])
                                     if pars.init_cond && attempting_lex && not(already_doing_init_cond) && not(pars.polyrank) then
                                         Log.log pars "Trying initial condition detection."
-                                        Instrumentation.do_init_cond pars lex_info failure_cp p_final cp_rf_lex graph
+                                        Instrumentation.do_init_cond pars lex_info failure_cp p_final cp_rf_lex safety
 
                                     // That's it, no tricks left. Return the counterexample and give up
                                     else
@@ -751,7 +751,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
                         if !terminating = Some false then
                             finished := false
                             terminating := None
-                            insertForRerun pars !recurrent_set propagate existential f final_loc p loc_to_loopduploc f_contains_AF p_bu_sccs graph cps_checked_for_term pi propertyMap visited_BU_cp p_final
+                            insertForRerun pars !recurrent_set propagate existential f final_loc p loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp p_final
                         else if !terminating = None && !finished = true then
                             //Giving up, if no lex/recurrent set found, then false and entail giving up.
                             //TODO: Exit recursive bottomUp all together, as we cannot proceed with verification

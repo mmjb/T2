@@ -536,7 +536,7 @@ let split_path_for_cp pi cp =
         | [] -> dieWith "Could not split counterexample into stem/cycle"
     split_path_for_cp' pi cp []
 
-let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) reachGraph pi cp (lex_info:LexicographicInfo) =
+let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (reachGraph : Reachability.ImpactARG) pi cp (lex_info:LexicographicInfo) =
     Log.log pars <| sprintf "Investigating counterexample for cutpoint %d" cp
 
     //This code is for initial condition detection. It works out which initial condition path pi_uncut belongs to
@@ -598,11 +598,7 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
     | Some(Disj_WF(_,rf,bnd)) -> Some(Disj_WF(cp,rf,bnd))
     | Some(Lex_WF(_,decr,not_incr,bnd)) -> Some(Lex_WF(cp,decr,not_incr,bnd))
     | Some(Poly_WF(poly_checkers)) -> Some(Poly_WF(poly_checkers))
-    | None ->
-        let convert (s,c) =
-            let convert (k,cmds,k') = (Reachability.abs_node_to_program_loc reachGraph k, cmds, Reachability.abs_node_to_program_loc reachGraph k')
-            Counterexample.make (Some(List.map convert s)) (Some(List.map convert c))
-        Some(CEX (convert (stem, cycle)))
+    | None -> Some(CEX (Counterexample.make (Some stem) (Some cycle)))
     | Some(Transition_Removal(trans)) -> Some(Transition_Removal(trans))
     | Some(CEX(_)) -> failwith "unexpected CEX at this point"
 
