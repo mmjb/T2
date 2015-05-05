@@ -57,17 +57,63 @@ type Reachability =
     abstract Initialize : Programs.Program -> int -> Reachability
     abstract GetCounterExample : unit -> Counterexample.cex option
 
-type ImpactARG(parameters : Parameters.parameters,
-               loc_init : int, 
-               loc_err : int, 
-               transition : Programs.TransitionFunction, 
-               priority : Map<int,int>) =
-    /// Should we perform garbage collection on the abstraction graph?
-    let do_gc = ref true
 
-    /// Should we perform some sanity checks to make sure that we're not using
-    /// nodes that have been GC'd?
-    let gc_check = ref false
+let make_prio_map (p: Programs.Program) (error_loc: int) =
+    //bfs from error location on reversed transition relation, assigned prio is inverted minimal distance
+    let in_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<int * Programs.command list * int>>()
+    let all_nodes = ref Set.empty
+    let add_to_set_dict (dict : System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<int * Programs.command list * int>>) k v =
+        if dict.ContainsKey k then
+            dict.[k].Add v
+        else
+            dict.Add(k, new System.Collections.Generic.HashSet<int * Programs.command list * int>())
+            dict.[k].Add v
+    for n in !p.active do
+        let trans = p.transitions.[n]
+        let (k, _, k') = trans
+        add_to_set_dict in_trans k' trans |> ignore
+        all_nodes := Set.add k' <| Set.add k !all_nodes
+
+    let res = ref Map.empty
+    let todo = new System.Collections.Generic.Queue<int * int>()
+    todo.Enqueue(error_loc, 0)
+
+    while todo.Count > 0 do
+        let (node, dist) = todo.Dequeue()
+        if not(Map.containsKey node !res) then
+            res := Map.add node dist !res
+            if in_trans.ContainsKey node then //not everyone has incoming transitions. Think start state
+                let all_in_trans = in_trans.[node]
+                for (pred, _, _) in all_in_trans do
+                    todo.Enqueue(pred, dist - 1)
+
+    //Whoever has no weight does not even reach error_loc. Make them go last:
+    let min_weight = -(!p.active).Count
+    for node in !all_nodes do
+        if not(Map.containsKey node !res) then
+            res := Map.add node min_weight !res
+
+    !res
+
+/// Should we perform garbage collection on the abstraction graph?
+let do_gc = ref true
+
+/// Should we perform some sanity checks to make sure that we're not using
+/// nodes that have been GC'd?
+let gc_check = ref false
+
+type ImpactARG(parameters : Parameters.parameters,
+               program : Programs.Program,
+               loc_err : int) =
+    /// Initial program location
+    let loc_init = !program.initial
+
+    /// Transition relation, mapping each location to a list of (relation, successor location) pairs.
+    /// Note that this reflects changes to program that are done while this is ARG is instantiated.
+    let transition loc = Programs.transitions_from program loc
+
+    /// Priority of each node in the original program.  Used to choose which node to take during DFS
+    let priority = make_prio_map program loc_err
 
     /// Tree/Graph constructon representing the state of the safety proof procedure.  Back edges
     /// in the "covering" relations represent induction checks.  At the end of a successful proof
@@ -813,21 +859,22 @@ type ImpactARG(parameters : Parameters.parameters,
 
             // The deleted tree might have made nodes disappear
             nodes := Set.intersect !nodes !V
+
  /// Prove that location err is unreachable in p
-let prover (pars : Parameters.parameters) p err =
+let prover (pars : Parameters.parameters) program err =
     Utils.timeout pars.timeout
 
     // Create new initial location with transition assume(_const_100 > _const_32) for all
     // abstracted const variables.
-    Programs.symbconsts_init p
+    Programs.symbconsts_init program
 
     // The connection between programs and Graph is a little bit messy
     // at the moment. We have to marshal a little bit of data between them
-    let transition = Programs.transitions_from p
-    let abs = ImpactARG(pars, !p.initial, err, transition, Map.empty)
+    let transition = Programs.transitions_from program
+    let abs = ImpactARG(pars, program, err)
 
     if pars.dottify_input_pgms then
-        Output.print_dot_program p "input.dot"
+        Output.print_dot_program program "input.dot"
 
     // Try to disprove/prove the error location in abs to be unreachable
     let r = abs.ErrorLocationReachable ()

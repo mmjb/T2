@@ -39,43 +39,6 @@
 module Microsoft.Research.T2.Termination
 open Utils
 
-let make_prio_map (p: Programs.Program) (error_loc: int) =
-    //bfs from error location on reversed transition relation, assigned prio is inverted minimal distance
-    let in_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<int * Programs.command list * int>>()
-    let all_nodes = ref Set.empty
-    let add_to_set_dict (dict : System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<int * Programs.command list * int>>) k v =
-        if dict.ContainsKey k then
-            dict.[k].Add v
-        else
-            dict.Add(k, new System.Collections.Generic.HashSet<int * Programs.command list * int>())
-            dict.[k].Add v
-    for n in !p.active do
-        let trans = p.transitions.[n]
-        let (k, _, k') = trans
-        add_to_set_dict in_trans k' trans |> ignore
-        all_nodes := Set.add k' <| Set.add k !all_nodes
-
-    let res = ref Map.empty
-    let todo = new System.Collections.Generic.Queue<int * int>()
-    todo.Enqueue(error_loc, 0)
-
-    while todo.Count > 0 do
-        let (node, dist) = todo.Dequeue()
-        if not(Map.containsKey node !res) then
-            res := Map.add node dist !res
-            if in_trans.ContainsKey node then //not everyone has incoming transitions. Think start state
-                let all_in_trans = in_trans.[node]
-                for (pred, _, _) in all_in_trans do
-                    todo.Enqueue(pred, dist - 1)
-
-    //Whoever has no weight does not even reach error_loc. Make them go last:
-    let min_weight = -(!p.active).Count
-    for node in !all_nodes do
-        if not(Map.containsKey node !res) then
-            res := Map.add node min_weight !res
-
-    !res
-
 /// Tries to remove as many transitions as possible from a SCC. Returns a list of used rank functions/bounds.
 let simplify_scc (pars : Parameters.parameters) p (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all_cutpoints: int list) cp scc_nodes =
     let (scc_vars, scc_trans, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program pars p scc_nodes cp
@@ -595,10 +558,6 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
 
     let lex_info = Instrumentation.init_lex_info pars cps_checked_for_term
 
-    //Filters out all transitions not starting in src_loc.
-    let trans_fun (trs : (int * Programs.command list * int) []) (src_loc : int) =
-        List.ofSeq (trs |> Seq.choose (fun (a,b,c) -> if a <> src_loc then None else Some (b,c)))
-
     //If empty, then property is not AF. In cutpoint_nesting_map we fetch the CP's from the original program. If not
     //empty, then proving AF. This means that we just need to match up the original cut-points with their loop copies
     //which are in cp_rf.
@@ -606,7 +565,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
 
     //BottomUp changes the instrumentation, so make a copy for that purpose here, as we do not want the pre-conditions to persist in other runs
     let p_final = Programs.copy p_instrumented
-    let safety = Reachability.ImpactARG(pars, !p_final.initial, error_loc, trans_fun p_final.transitions, make_prio_map p_final error_loc)
+    let safety = Reachability.ImpactARG(pars, p_final, error_loc)
     let p_bu_sccs = snd <| Programs.find_loops p_final
 
     ///////////////////////////////////////////////////////////////////////////
