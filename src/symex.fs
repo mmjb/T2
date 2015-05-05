@@ -246,7 +246,7 @@ let find_unsat_path_interpolant (pars : Parameters.parameters) pi =
     | Some (intps) -> Some(List.map (Formula.alpha Var.unprime_var) intps)
     | None -> None
 
-let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * (int * command list * int)>) =
+let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * Transition>) =
     let scc_commands =
            [ for (_, (_, cmds, _)) in scc_transitions do yield cmds ]
         |> Seq.concat

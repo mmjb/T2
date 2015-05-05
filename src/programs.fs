@@ -127,6 +127,8 @@ let modified cmds =
 // Control flow graphs -----------------------------------------------------
 //
 
+type Transition = int * command list * int
+
 /// Default size for transitions array
 let transitions_sz = ref 50000
 
@@ -134,7 +136,7 @@ type Program = { initial : int ref
                ; node_cnt : int ref
                ; nodeToLabels : Map<int,string> ref
                ; labels : Map<string,int> ref
-               ; transitions : (int * command list * int) []
+               ; transitions : Transition []
                ; transitions_cnt : int ref
 
                /// x \in active iff transitions[x] != (-1,_,-1)
@@ -845,13 +847,13 @@ let const_subst cmd =
 /// Merge chains of transitions together.
 let chain_transitions nodes_to_consider transitions =
     // (1) Create maps in_trans/out_trans mapping nodes to incoming/outgoing transitions.
-    let in_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<(Set<int> * (int * command list * int))>>()
-    let out_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<(Set<int> * (int * command list * int))>>()
-    let add_to_set_dict (dict : System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<(Set<int> * (int * command list * int))>>) k v =
+    let in_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Set<int> * Transition>>()
+    let out_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Set<int> * Transition>>()
+    let add_to_set_dict (dict : System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Set<int> * Transition>>) k v =
         if dict.ContainsKey k then
             dict.[k].Add v
         else
-            dict.Add(k, new System.Collections.Generic.HashSet<(Set<int> * (int * command list * int))>())
+            dict.Add(k, new System.Collections.Generic.HashSet<(Set<int> * Transition)>())
             dict.[k].Add v
     for trans in transitions do
         let (_, (k, _, k')) = trans
