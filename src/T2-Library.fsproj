@@ -76,7 +76,7 @@
     <Compile Include="IntervalIntDom.fs" />
     <Compile Include="counterexample.fs" />
     <Compile Include="analysis.fs" />
-    <Compile Include="priostack.fs" />
+    <Compile Include="PriorityQueue.fs" />
     <Compile Include="reachability.fs" />
     <Compile Include="rankfunction.fs" />
     <Compile Include="ctl.fs" />

@@ -51,7 +51,7 @@ open Utils
 open Log
 open Programs
 open Stats
-open PrioStack
+open PriorityQueue
 
 type Reachability =
     abstract Initialize : Programs.Program -> int -> Reachability
@@ -160,8 +160,8 @@ type ImpactARG(parameters : Parameters.parameters,
     /// Helper to create dfs numbers
     let dfs_cnt = ref 0
 
-    /// The stack used during DFS.
-    let stack = ref empty_priostack
+    /// The priority queue used during DFS.
+    let stack = PriorityQueue<int>()
 
     /// Nodes that have been deemed as garbage but havent been GC'd yet.
     let garbage = ref Set.empty
@@ -184,13 +184,6 @@ type ImpactARG(parameters : Parameters.parameters,
         add_leaf newNode
         abs_node_to_program_loc.[newNode] <- loc_init
         program_loc_to_abs_nodes.Add (loc_init, newNode)
-
-    member private __.push_priostack_abs_many vs  =
-        let mutable sr = !stack
-        for v in List.rev vs do
-            let prio = Map.findWithDefault abs_node_to_program_loc.[v] 0 priority
-            sr <- push_priostack prio v sr
-        stack := sr
 
     member private __.dfs_add x =
         if not (dfs_map.ContainsKey x) then
@@ -280,8 +273,7 @@ type ImpactARG(parameters : Parameters.parameters,
             fc_candidates.[n] <- None
 
         // We're cleaning out fc_candidates in the get_force_cover_candidates routine
-        let keep x = not (Set.contains x desc)
-        stack := filter_priostack keep !stack
+        stack.RemoveWhere (fun v -> Set.contains v desc)
         leaves := Set.difference !leaves desc
 
         for d in (desc.Add t) do
@@ -679,6 +671,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
         let covered, candidates, changed = try_force_cover_candidates (self.get_force_cover_candidates v) [] false
 
+
         // most of the times the candidates do not change so we write back only when needed (i.e. when 'changed' is true)
         if changed && parameters.fc_remove_on_fail then fc_candidates.[v] <- Some candidates
 
@@ -756,12 +749,12 @@ type ImpactARG(parameters : Parameters.parameters,
         self.db ()
         // Start the ball rolling.  The priority doesn't matter, since we're just going
         // to pop it below.
-        stack := singleton_priostack 0 start
+        stack.Clear()
+        stack.Push start 0
 
         let ret = ref None
-        while not(isempty_priostack !stack) && (!ret).IsNone do
-            let (v, s') = pop_priostack !stack
-            stack := s'
+        while not(stack.IsEmpty) && (!ret).IsNone do
+            let v = stack.Pop()
 
             // The call to dfs_add gives v its DFS ordering number.
             self.dfs_add v
@@ -782,7 +775,9 @@ type ImpactARG(parameters : Parameters.parameters,
                         self.close_all_ancestors v
                 else
                     let children = self.expand v
-                    self.push_priostack_abs_many children
+                    for child in children do
+                        let prio = Map.findWithDefault abs_node_to_program_loc.[child] 0 priority
+                        stack.Push child prio
 
         !ret
 
@@ -870,7 +865,6 @@ let prover (pars : Parameters.parameters) program err =
 
     // The connection between programs and Graph is a little bit messy
     // at the moment. We have to marshal a little bit of data between them
-    let transition = Programs.transitions_from program
     let abs = ImpactARG(pars, program, err)
 
     if pars.dottify_input_pgms then
