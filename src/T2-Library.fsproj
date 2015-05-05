@@ -77,7 +77,9 @@
     <Compile Include="counterexample.fs" />
     <Compile Include="analysis.fs" />
     <Compile Include="PriorityQueue.fs" />
-    <Compile Include="reachability.fs" />
+    <Compile Include="SafetyInterface.fs" />
+    <Compile Include="Impact.fs" />
+    <Compile Include="Safety.fs" />
     <Compile Include="rankfunction.fs" />
     <Compile Include="ctl.fs" />
     <Compile Include="instrumentation.fs" />

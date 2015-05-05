@@ -32,6 +32,8 @@ type outputFormat =
 type imperativeProgramStyle = Loop | Goto
 type javaNondetStyle = Aprove | Julia
 
+type SafetyImplementation = Impact
+
 type parameters = {
     /// Time when T2 execution began
     start_time : System.DateTime
@@ -103,6 +105,10 @@ type parameters = {
     mutable mcnp_style_bound_decr : bool
 
     // ---------------------------- Reachability things ----------------------------
+    /// Type of used safety prover.
+    mutable safety_implementation : SafetyImplementation
+
+
     /// Generate DOT graphs of the impact tree (at each step)
     mutable dottify_reachability : bool
     /// Generate DOT graphs of the input program
@@ -169,6 +175,7 @@ let defaultParameters =
         lex_term_proof_first = true
         mcnp_style_bound_decr = false
 
+        safety_implementation = Impact
         dottify_reachability = false
         dottify_input_pgms = false
         sanity_checking = true

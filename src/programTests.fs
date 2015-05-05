@@ -68,7 +68,7 @@ let register_tests (pars : Parameters.parameters) =
             sprintf "Couldn't open file %s\n" input_file |> failwith
 
     let safety_prover p l =
-        match Reachability.prover safety_pars p l with
+        match Safety.prover safety_pars p l with
         | Some(_) -> false
         | None -> true
     let inline register_safety_test file =

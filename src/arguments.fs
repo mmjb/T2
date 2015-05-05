@@ -21,6 +21,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 module Microsoft.Research.T2.Arguments
+open Microsoft.FSharp.Reflection
 
 type runMode =
     | Output
@@ -35,6 +36,7 @@ let parseArguments =
     let mode = ref None
     let output_type = ref None
     let output_file = ref "out"
+    let safety_implementation = ref Parameters.Impact
     let imperative_style = ref Parameters.Goto
     let java_nondet_style = ref Parameters.Aprove
     let fairness_constraint_string = ref ""
@@ -68,6 +70,20 @@ let parseArguments =
                 exit 1
         setMode Output
 
+    let safetyImplementations = FSharpType.GetUnionCases typeof<Parameters.SafetyImplementation>
+    let knownSafetyImplementationsString = String.concat ", " (Array.map (fun (i : UnionCaseInfo) -> i.Name) safetyImplementations)
+
+    let parse_safety_implementation_string (s : string) =
+        let s = s.ToLower()
+        let chosen : Parameters.SafetyImplementation option ref = ref None
+        for safetyImplementation in safetyImplementations do
+            if s = safetyImplementation.Name.ToLower() then
+                chosen := Some (FSharpValue.MakeUnion (safetyImplementation, [||]) :?> Parameters.SafetyImplementation)
+        match !chosen with
+        | Some i -> i
+        | None ->
+            failwithf "Cannot parse safety implementation '%s' (known: %s). Giving up.\n" s knownSafetyImplementationsString
+
     let args = 
         [
              new ArgInfo( "-log"
@@ -75,6 +91,10 @@ let parseArguments =
              , "Turn on verbose logging"
              )
 
+           ; new ArgInfo( "-safety_implementation"
+             , ArgType.String (fun s -> pars.safety_implementation <- parse_safety_implementation_string s)
+             , sprintf "Choose safety implementation. [known: %s, default: %A]" knownSafetyImplementationsString pars.safety_implementation
+             )
            ; new ArgInfo( "-dottify_reachability"
              , ArgType.Unit (fun () -> pars.dottify_reachability <- true)
              , "Generate DOT graphs of the impact tree"

@@ -38,6 +38,7 @@
 
 module Microsoft.Research.T2.Termination
 open Utils
+open SafetyInterface
 
 /// Tries to remove as many transitions as possible from a SCC. Returns a list of used rank functions/bounds.
 let simplify_scc (pars : Parameters.parameters) p (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all_cutpoints: int list) cp scc_nodes =
@@ -316,7 +317,7 @@ let propogate_func p f recur pi cutp existential (loc_to_loopduploc : Map<int,in
 /// (which are either conjunctive/disjunctive, depending on whether we are doing universal/existential)
 //Note: If a certain PC does not have a pre-condition, it means that there was no CEX, thus it's true.
 let insertForRerun (pars : Parameters.parameters) recurSet propagate existential f final_loc (p : Programs.Program) (loc_to_loopduploc : Map<int,int>) f_contains_AF 
-                     (p_bu_sccs : Map<int,Set<int>>) (safety : Reachability.ImpactARG) cps_checked_for_term pi (propertyMap: ListDictionary<CTL.CTL_Formula, int * Formula.formula>) (visited_BU_cp : Map<int, int*int> ref) (p_final : Programs.Program) =
+                     (p_bu_sccs : Map<int,Set<int>>) (safety : SafetyProver) cps_checked_for_term pi (propertyMap: ListDictionary<CTL.CTL_Formula, int * Formula.formula>) (visited_BU_cp : Map<int, int*int> ref) (p_final : Programs.Program) =
     //Store in a slot of the datastructure as the original formula (Versus the disjunction splits)
     //But first we must find the original cutpoint, versus a copy if it's in AF.
     let (p_loops, p_sccs) = Programs.find_loops p
@@ -375,7 +376,7 @@ let insertForRerun (pars : Parameters.parameters) recurSet propagate existential
                         //if k = cutp && not((!visited_BU_cp).ContainsKey cutp) then
                             visited_BU_cp := (!visited_BU_cp).Add(cutp, (k,k'))
                             Programs.plain_add_transition p_final k [] (get_copy_of_loopnode k)
-                            safety.ResetFrom p_final k
+                            safety.ResetFrom k
 
                     let env_var v =  Var.var v
                     for l in !p.active do
@@ -386,7 +387,7 @@ let insertForRerun (pars : Parameters.parameters) recurSet propagate existential
                                                                         | Programs.Assign(p,v,t) -> Programs.Assign(p,env_var v,Term.alpha env_var t))
                                 Programs.plain_add_transition p_final (get_copy_of_loopnode k)
                                     cmds (get_copy_of_loopnode k')
-                        safety.ResetFrom p_final k
+                        safety.ResetFrom k
                 else visited_BU_cp := (!visited_BU_cp).Add(cutp, (end_sub_node,final_loc))
 
         let (m, m') = if cutp <> -1 then (!visited_BU_cp).[cutp] else (end_sub_node,final_loc)
@@ -406,12 +407,12 @@ let insertForRerun (pars : Parameters.parameters) recurSet propagate existential
             else if cutp <> -1 && k' = m && (p_bu_sccs.[cutp]).Contains k then
                 Programs.plain_add_transition p_final k cmds m'
                 Programs.remove_transition p_final l
-            safety.ResetFrom p_final k
+            safety.ResetFrom k
         if strengthen then
             if !insert <> (-1,-1) then
                 let (k,k') = !insert
                 preCond |> List.iter (fun x -> Programs.plain_add_transition p_final k (Programs.assume(x)::[]) k')
-                safety.ResetFrom p_final k
+                safety.ResetFrom k
 
     //if cutp = -1, then we are checking a node that occurs before checking any cut-points.
     let(cutp, pi_mod) = findCP p_loops cps_checked_for_term loc_to_loopduploc pi
@@ -565,7 +566,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
 
     //BottomUp changes the instrumentation, so make a copy for that purpose here, as we do not want the pre-conditions to persist in other runs
     let p_final = Programs.copy p_instrumented
-    let safety = Reachability.ImpactARG(pars, p_final, error_loc)
+    let safety = Safety.GetProver pars p_final error_loc
     let p_bu_sccs = snd <| Programs.find_loops p_final
 
     ///////////////////////////////////////////////////////////////////////////
@@ -636,7 +637,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
                     let (k, cmds, k') = p_final.transitions.[trans_idx]
                     Programs.remove_transition p_final trans_idx
                     safety.DeleteProgramTransition (k, cmds, k')
-                    safety.ResetFrom p_final k'
+                    safety.ResetFrom k'
 
             /////////// Counterexample for which we couldn't find a program refinement:
             | (Some(Lasso.CEX(cex)), failure_cp) ->

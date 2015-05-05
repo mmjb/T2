@@ -40,6 +40,7 @@ open Formula
 open Programs
 open Rankfunction
 open Instrumentation
+open SafetyInterface
 
 //If we have a lex RF with a certain RF appearing more than once, then it could be simplified to be of shorter length
 let simplify_lex_RF (rf_list:term list) (bnd_list:term list) =
@@ -536,7 +537,7 @@ let split_path_for_cp pi cp =
         | [] -> dieWith "Could not split counterexample into stem/cycle"
     split_path_for_cp' pi cp []
 
-let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (reachGraph : Reachability.ImpactARG) pi cp (lex_info:LexicographicInfo) =
+let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (reachGraph : SafetyProver) pi cp (lex_info:LexicographicInfo) =
     Log.log pars <| sprintf "Investigating counterexample for cutpoint %d" cp
 
     //This code is for initial condition detection. It works out which initial condition path pi_uncut belongs to

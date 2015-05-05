@@ -96,7 +96,7 @@ match runMode with
               eprintfn "Could not find location %d in program" inputLoc
               exit 3
             | Some loc -> loc
-        match Reachability.prover parameters p loc with
+        match Safety.prover parameters p loc with
         | None -> printfn "Safety proof succeeded"
         | Some _ -> printfn "Safety proof failed"
         
