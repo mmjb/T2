@@ -33,53 +33,49 @@
 
 module Microsoft.Research.T2.Stats
 
-///
-/// Set of counters
-///
-let counters : Map<string, int> ref = ref Map.empty
+open Utils
+open System.Collections.Generic
 
-let start_times : Map<string, System.DateTime> ref = ref Map.empty
-let total_times : Map<string, int> ref = ref Map.empty
+// Set of counters / timers. Should be transitioned into a context object, to become thread safe.
+let counters : Dictionary<string, int> = Dictionary()
+let startTimes : Dictionary<string, System.DateTime> = Dictionary()
+let totalTimes : Dictionary<string, float> = Dictionary()
 
-let start_time s =
-    match Map.tryFind s !start_times with
-    | Some(_) -> Utils.dieWith "Unexpected start_time use of timer %s" s
-    | None -> start_times := Map.add s System.DateTime.Now !start_times
+/// Record start time of some timer.
+let startTimer s =
+    match startTimes.TryGetValue s with
+    | (true, _) ->
+        Utils.dieWith "Tried to restart running timer '%s'." s
+    | _ ->
+        startTimes.[s] <- System.DateTime.Now
 
-let end_time s =
-    match Map.tryFind s !start_times with
-    | Some(start_time) ->
-        let current_time = System.DateTime.Now
-        let elapsed = (current_time - start_time).Milliseconds
-        start_times := Map.remove s !start_times
-        match Map.tryFind s !total_times with
-        | Some(old_elapsed) ->
-            total_times := Map.add s (old_elapsed+elapsed) !total_times
-        | None ->
-            total_times := Map.add s (elapsed) !total_times
-    | None -> Utils.dieWith "Unexpected end_time use of timer %s" s
+/// Note end time of some timer.
+let endTimer s =
+    match startTimes.TryGetValue s with
+    | (true, startTime) ->
+        startTimes.Remove s |> ignore
+        let currentTime = System.DateTime.Now
+        let elapsed = (currentTime - startTime).TotalSeconds
+        match totalTimes.TryGetValue s with
+        | (true, oldTime) ->
+            totalTimes.[s] <- oldTime + elapsed
+        | _ ->
+            totalTimes.[s] <- elapsed
+    | _ -> Utils.dieWith "Tried to stop inactive '%s'." s
 
-///
-/// add_stat s x updates stats counter s with x
-///
-let add_stat s x =
-    match Map.tryFind s !counters with
-    | Some(i) ->
-        counters := Map.add s (i+x) !counters
-    | None ->
-        counters := Map.add s x !counters
+/// Add x to the counter s
+let addToCounter s x =
+    match counters.TryGetValue s with
+    | (true, oldCounter) ->
+        counters.[s] <- oldCounter + x
+    | _ ->
+        counters.[s] <- x
 
-///
-/// Increment a stats counter by 1
-///
-let inc_stat s = add_stat s 1
+/// Increment counter s
+let incCounter s = addToCounter s 1
 
-///
-/// Print out the current stats state
-///
-let print_stats () =
+/// Print out statistics
+let printStatistics () =
     printfn "Statistics:"
-    Map.iter (fun k v -> printfn "  %s: %d" k v) !counters
-
-let print_times () =
-    Map.iter (fun k v -> printfn "%s time: %.3fs" k (float(v)/1000.)) !total_times
+    Seq.iter (function KeyValue(k, v) -> printfn "  Timer '%s': %.3fs" k v) totalTimes
+    Seq.iter (function KeyValue(k, v) -> printfn "  %s: %d" k v) counters

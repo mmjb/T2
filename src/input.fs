@@ -93,9 +93,6 @@ let simplify_chains blocks dont_chain =
             for T, e in out do
                 yield s, T, e]
 
-    Stats.add_stat "simplify_chains - total" (Seq.length blocks)
-    Stats.add_stat "simplify_chains - eliminated" (List.length result)
-
     //Now get rid of self loops:
     let i = ref 0
     // Find a fresh label that we haven't seen so far

@@ -575,7 +575,6 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
     let finished = ref false
     let terminating = ref None
     let unhandled_counterexample = ref None
-    let refine_cnt = ref 0
     let cex_found = ref false
     let found_disj_rfs = ref Map.empty
     let found_lex_rfs = ref Map.empty
@@ -601,7 +600,6 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
                 ()
             terminating := Some true
         | Some pi ->
-            refine_cnt := !refine_cnt + 1          
             cex := (Counterexample.make (Some (List.map (fun (x,y,z) -> (x,[y],z)) pi)) None)
             outputCexAsDefect !cex
 
@@ -723,18 +721,14 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
         if termination_only then
             match !terminating with
             | Some true -> 
-                Stats.inc_stat "termination - yes"
                 Some (true, output_term_proof !scc_simplification_rfs !found_lex_rfs !found_disj_rfs)
             | Some false ->
                 if not(!p_final.incomplete_abstraction) then
                     assert (!unhandled_counterexample <> None)
-                    Stats.inc_stat "termination - no"
                     Some (false, output_nonterm_proof (!recurrent_set).Value)
                 else
-                    Stats.inc_stat "termination - don't know"
                     None
             | None ->
-                Stats.inc_stat "termination - don't know"
                 None
         else
             if !cex_found && not(existential) then 

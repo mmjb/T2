@@ -230,7 +230,7 @@ let synthesize (pars : Parameters.parameters) stem cycle (tryOneElementSets:bool
                 result := recurrent_state pars vars stem cycle i
 
                 if (!result).IsSome then
-                    Stats.inc_stat (sprintf "recurrent set of %d elements" i)
+                    Stats.incCounter (sprintf "T2 - Looping nontermination after %i iterations" i)
 
     if (!result).IsNone then
         result := recurrent_set_from_path_conditions pars stem cycle

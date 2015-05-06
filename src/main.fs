@@ -32,7 +32,7 @@
 
 module Microsoft.Research.T2.Main
 
-Stats.start_time "T2"
+Stats.startTimer "T2 - Initialization"
 printfn "T2 program prover/analysis tool."
 
 // Perform the arguments parsing
@@ -67,7 +67,9 @@ let (p, loc) =
     with ParseError.Error ->
         eprintfn "Could not parse input file '%s'" t2_input_file
         exit 3
+Stats.endTimer "T2 - Initialization"
 
+Stats.startTimer "T2 - Execution"
 match runMode with
     | Arguments.Test -> () //Handled above, so this is never reached...
     | Arguments.Output ->
@@ -132,11 +134,10 @@ match runMode with
             | None -> printfn "Temporal proof failed"
         | _ -> assert(false); //This cannot happen, but we need this fallthrough to avoid a warning.
 
-Stats.end_time "T2"
+Stats.endTimer "T2 - Execution"
 
 // Print stats/times and exit
 if parameters.print_stats then
-    Stats.print_times ()
-    Stats.print_stats ()
+    Stats.printStatistics ()
 
 Z.finished()

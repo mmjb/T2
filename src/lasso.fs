@@ -576,11 +576,12 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
     
     //Try to refine the termination argument:
     let ret = ref None
+    Stats.incCounter "T2 - Counterexample investigation without path invariant"
     ret := refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
 
     // If we didn't find a rank function yet, try strengthening the cycle with a path invariant...
     if !ret = None then
-        Stats.inc_stat "investigate with invariant"
+        Stats.incCounter "T2 - Counterexample investigation without path invariant failed"
         log pars "Trying to find a path invariant..."
 
         let invariant = path_invariant stem strengthened_cycle
@@ -593,7 +594,11 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
         let strengthened_cycle_rel = Symex.path_to_relation strengthened_cycle pi_vars_cleaned
         ret := refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
         if (!ret).IsSome then
-            Stats.inc_stat "investigate with invariant - success"
+            Stats.incCounter "T2 - Counterexample investigation with path invariant successful"
+        else
+            Stats.incCounter "T2 - Counterexample investigation with path invariant failed"
+    else
+        Stats.incCounter "T2 - Counterexample investigation without path invariant successful"
 
     match !ret with
     | Some(Disj_WF(_,rf,bnd)) -> Some(Disj_WF(cp,rf,bnd))

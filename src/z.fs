@@ -139,7 +139,7 @@ let rec solve_more_rec k l (solver : Solver) =
             solver.Pop()
 
 let sat_opt q =
-    Stats.start_time "Z3"
+    Stats.startTimer "Z3 - Satisfiability"
     let solver = z3.MkSimpleSolver()
     set_solver_parameters z3 solver
 
@@ -150,9 +150,9 @@ let sat_opt q =
         | Status.SATISFIABLE -> Some true
         | Status.UNSATISFIABLE -> Some false
         | _ -> None
+    Stats.endTimer "Z3 - Satisfiability"
     solver.Pop()
     solver.Dispose()
-    Stats.end_time "Z3"
 
     result
 
@@ -174,10 +174,8 @@ let unsat_core assertions =
         Array.iter2 make_assertion assertions assumptions
         let core = ref null
 
-        Stats.start_time "Z3"
         let result = solver.Check(assumptions)
         //(model, assumptions, proof, core)
-        Stats.end_time "Z3"
 
         match result with
         | Status.SATISFIABLE ->
@@ -193,6 +191,8 @@ let unsat_core assertions =
     finally
         solver.Pop ()
         solver.Dispose ()
+    Stats.startTimer "Z3 - Unsat Core"
+    Stats.endTimer "Z3 - Unsat Core"
 
 let valid q = not (sat ([| mk_not q |]))
 
@@ -206,16 +206,14 @@ let valid q = not (sat ([| mk_not q |]))
 ///
 let solve_k fs =
     (!Utils.check_timeout)()
-    Stats.start_time "Z3"
+    Stats.startTimer "Z3 - Satisfiability (opt)"
     let solver = z3.MkSimpleSolver()
     solver.Push()
     let result = try (try solve_more_rec 0 fs solver with :? System.TimeoutException as e -> Stats.inc_stat "solve_k, Timeout"; raise e) finally Stats.end_time "Z3"
 
-    match result with
-    | Some (k, _) -> Stats.inc_stat ("solve_k, k=" + k.ToString())
-    | None -> Stats.inc_stat "solve_k, None"
     solver.Pop()
     solver.Dispose()
+            Stats.endTimer "Z3 - Satisfiability (opt)"
 
     result
 

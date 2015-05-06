@@ -49,7 +49,6 @@ module Microsoft.Research.T2.Impact
 
 open Utils
 open Log
-open Stats
 open PriorityQueue
 
 let private make_prio_map (p: Programs.Program) (error_loc: int) =
@@ -164,7 +163,7 @@ type ImpactARG(parameters : Parameters.parameters,
     let dead = ref Set.empty
 
     let new_vertex () =
-        inc_stat "created new vertex"
+        Stats.incCounter "Impact - Created vertices"
         let v = !cnt
         incr cnt
         v
@@ -192,8 +191,11 @@ type ImpactARG(parameters : Parameters.parameters,
     member private __.remove_leaf v = leaves := Set.remove v !leaves
     member private __.rm_from_covering f =
         let the_filter x y =
-            if not (f (x, y)) then true
-            else inc_stat "uncovered vertex"; false
+            if not (f (x, y)) then
+                true
+            else
+                Stats.incCounter "Impact - Uncovered vertices"
+                false
         covering := Map.filter the_filter !covering
 
     member private __.add_covering a b =
@@ -422,7 +424,7 @@ type ImpactARG(parameters : Parameters.parameters,
         self.db ()
         self.check_not_removed v
 
-        inc_stat "expand vertex"
+        Stats.incCounter "Impact - Expanded vertices"
         if parameters.print_log then
             Log.log parameters <| sprintf "Expanding leaf %d (loc %d)" v abs_node_to_program_loc.[v]
 
@@ -616,8 +618,10 @@ type ImpactARG(parameters : Parameters.parameters,
             | None ->  false
             | Some (initial, formulae, final) -> do_interpolants initial formulae final x_nearest nearest_path
 
-        if result then inc_stat "force cover succeeded"
-        else inc_stat "force cover failed"
+        if result then 
+            Stats.incCounter "Impact - Successful force covers"
+        else 
+            Stats.incCounter "Impact - Failed force covers"
 
         result
 
@@ -794,17 +798,22 @@ type ImpactARG(parameters : Parameters.parameters,
         /// Return path to loc_err or None if it's unreachable
         member self.ErrorLocationReachable () =
             self.db ()
-            let path = ref None
-            while Set.exists self.not_covered !leaves && (!path).IsNone do
-                match self.unwind () with
-                | Some pi ->
-                        let (_, _, l2) = List.last pi
-                        assert (l2 = loc_err)
-                        path := Some pi
-                | None -> ()
 
-                self.gc()
-            done
+            let path = ref None
+            Stats.startTimer "Impact"
+            try
+                while Set.exists self.not_covered !leaves && (!path).IsNone do
+                    match self.unwind () with
+                    | Some pi ->
+                            let (_, _, l2) = List.last pi
+                            assert (l2 = loc_err)
+                            path := Some pi
+                    | None -> ()
+
+                    self.gc()
+                done
+            finally
+                Stats.endTimer "Impact"
 
             // Check that we we've constructed a consistent proof graph
             if parameters.sanity_checking then
