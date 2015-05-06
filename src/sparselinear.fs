@@ -53,13 +53,24 @@ type LinearTerm = Map<string, bigint>
 // is Map (immutable structure that supports sharing) as opposed to Dictionary.
 
 let linear_term_to_term (t:LinearTerm) =
-    [for KeyValue(v, coeff) in t do
-        if coeff <> bigint.Zero && v <> ONE then
-            if coeff = bigint.One then
-                yield Term.var v
+    let mutable summands = []
+
+    for KeyValue(v, coeff) in t do
+        if coeff <> bigint.Zero then
+            let z3Coeff = Term.Const coeff
+            if v = ONE then
+                summands <- z3Coeff :: summands
             else
-                yield Term.Mul (Term.Const coeff, Term.var v)
-    ] |> List.fold (fun x y -> Term.Add(x,y)) (Term.Const (t.FindWithDefault ONE bigint.Zero))
+                if coeff = bigint.One then
+                    summands <- (Term.var v) :: summands
+                else
+                    summands <- (Term.Mul (z3Coeff, Term.var v)) :: summands
+
+    if summands.IsEmpty then
+        Term.Const bigint.Zero
+    else
+        let first = List.head summands
+        List.fold (fun x y -> Term.Add(x, y)) first (List.tail summands)
 
 let remove_zeros (t:LinearTerm) : LinearTerm =
     Map.filter (fun _ coeff -> coeff <> bigint.Zero) t
