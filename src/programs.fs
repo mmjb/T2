@@ -501,13 +501,7 @@ let add_transition (pars : Parameters.parameters) p input_n (T : command list) i
     let n = map p input_n
     let m = map p input_m
 
-    if n <> m then
-        add_transition_unmapped pars p n T m
-    else
-        // split loop edge, because loop edges cause problems with compact_path
-        let tmp = new_node p
-        add_transition_unmapped pars p n T tmp
-        add_transition_unmapped pars p tmp [] m
+    add_transition_unmapped pars p n T m
 
 ///
 /// copy p returns a deep copy of program p
@@ -667,8 +661,15 @@ let isolated_regions p =
         let sets = [
             //Check each SCC:
             for comp in scs do
-                //Weed out trivial one-element SCCs. Invariant guarantees that we have no self-loops:
-                if comp.Count > 1 then
+                //Weed out trivial one-element SCCs.
+                let isNontrivial =
+                    if comp.Count > 1 then
+                        true
+                    else
+                        let singletonElement = Set.minElement comp
+                        let outgoingTrans = transitions_from p singletonElement
+                        Seq.exists (fun (_, k) -> k = singletonElement) outgoingTrans
+                if isNontrivial then
                     //Does this SCC only have one entry point?
                     if well_formed dtree comp then
                         //Is that entry point our cutpoint? If yes, add things.
@@ -738,7 +739,7 @@ let make (pars : Parameters.parameters) is_temporal init (ts : (string * command
         p.initial := map p init
 
         //Make sure that an initial state is not in a loop:
-        if not(is_temporal) then
+        if not(is_temporal) && init_is_target then
             let new_initial = new_node p
             plain_add_transition p new_initial [] !p.initial
             p.initial := new_initial
@@ -761,15 +762,13 @@ let collapse_path p =
     let mutable accum_cmds = []
     let mutable result = []
 
-    for l1, cmd, l2 in p do
-        assert (l1 <> l2)
+    for (l1, cmd, l2) in p do
         if not first && l1 = prev_l1 && l2 = prev_l2 then
             accum_cmds <- cmd :: accum_cmds
         else
             //assert (first || prev_l2 = l1)
             if accum_cmds <> [] then
                 result <- (prev_l1, List.rev accum_cmds, prev_l2) :: result
-                accum_cmds <- []
             prev_l1 <- l1
             prev_l2 <- l2
             accum_cmds <- [cmd]

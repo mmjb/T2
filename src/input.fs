@@ -59,63 +59,35 @@ let parse (filename : string) =
 /// replace edges x->y->z with x->z if there are
 /// no other edges from/to y.
 ///
-let simplify_chains blocks dont_chain =
+let simplify_chains (blocks : (string * Programs.command list * string) list) dont_chain =
     let nodes = Seq.collect (fun (s, _, e) -> [s ; e]) blocks |> Set.ofSeq |> ref
-    let mutable incoming = [for n in !nodes -> (n, Set.empty)] |> Map.ofList
-    let mutable outgoing = [for n in !nodes -> (n, Set.empty)] |> Map.ofList
+    let incoming = Utils.SetDictionary()
+    let outgoing = Utils.SetDictionary()
 
     for (s, commands, e) in blocks do
-        incoming <- incoming.Add(e, incoming.[e].Add (s, commands))
-        outgoing <- outgoing.Add(s, outgoing.[s].Add (commands, e))
+        incoming.Add (e, (s, commands)) |> ignore
+        outgoing.Add (s, (commands, e)) |> ignore
 
-    let as_singleton set =
-        (Set.toList set).Head
-
+    //Search for nodes with one incoming and one outgoing transition. Connect pred/succ directly
     for n in !nodes do
         if not <| Set.contains n dont_chain then
-            if Set.count incoming.[n] = 1 && Set.count outgoing.[n] = 1 then
-                let s, T1 = as_singleton incoming.[n]
-                let T2, e = as_singleton outgoing.[n]
+            if incoming.[n].Count = 1 && outgoing.[n].Count = 1 then
+                let (s, T1) = incoming.[n].MinimumElement //singleton -> minimum only ele
+                let (T2, e) = outgoing.[n].MinimumElement
 
-                // don't do this for self-loops:
-                if (s <> n && e <> n) then
+                //Don't do this for self-loops
+                if s <> n && e <> n then
                     let T = T1@T2
-                    incoming <- incoming.Add(e, (incoming.[e].Remove(n, T2)).Add(s, T))
-                    outgoing <- outgoing.Add(s, (outgoing.[s].Remove(T1, n)).Add(T, e))
+                    incoming.RemoveKeyVal e (n, T2)
+                    incoming.Add (e, (s, T))
+                    outgoing.RemoveKeyVal s (T1, n)
+                    outgoing.Add (s, (T, e))
+                    incoming.Remove n |> ignore
+                    outgoing.Remove n |> ignore
 
-                    incoming <- incoming.Remove n
-                    outgoing <- outgoing.Remove n
-
-    let outgoing = outgoing
-
-    let result =
-        [for KeyValue(s, out) in outgoing do
-            for T, e in out do
-                yield s, T, e]
-
-    //Now get rid of self loops:
-    let i = ref 0
-    // Find a fresh label that we haven't seen so far
-    let get_new_node nodes =
-        let next_name () =
-            i := !i + 1
-            sprintf "tmp_%i" !i
-        let mutable name = next_name ()
-        while Set.contains name !nodes do
-            name <- next_name ()
-        nodes := Set.add name !nodes
-        name
-
-    let cleaned_result = ref []
-    for e in result do
-        let (k, l, k') = e
-        if (k <> k') then
-            cleaned_result := e::!cleaned_result
-        else
-            let new_node = get_new_node nodes
-            cleaned_result := (k,l,new_node)::(new_node,[],k')::!cleaned_result
-
-    !cleaned_result
+    [for (s, out) in outgoing do
+        for (T, e) in out do
+            yield (s, T, e)]
 
 ///
 /// Load a program in T2 format

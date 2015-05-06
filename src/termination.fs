@@ -973,11 +973,9 @@ let make_program_infinite (p : Programs.Program) =
     let (p_loops, p_sccs) = Programs.find_loops p
     let visited = ref Set.empty
     let infinite_loop = Programs.map p "INF_Loop"
-    let inf_trans = Programs.map p "INF_trans"
 
     //Creating self-loop
-    Programs.plain_add_transition p infinite_loop [Programs.assign Formula.fair_term_var (Term.Const(bigint.One))] inf_trans
-    Programs.plain_add_transition p inf_trans [] infinite_loop
+    Programs.plain_add_transition p infinite_loop [Programs.assign Formula.fair_term_var (Term.Const(bigint.One))] infinite_loop
 
     //Find dead end locations
     let dead_ends = ref !p.locs
