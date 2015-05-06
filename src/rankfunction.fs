@@ -592,7 +592,7 @@ let synthesis_lex_scc_trans_unaffected
                 if List.isEmpty trans_to_delete then
                     //Oh well. No transition could be shown to decrease and be bounded (but everything is weakly oriented):
                     let rfs = extract_rf_from_model mu.[0] m
-                    let rf = rfs.[cp] |> SparseLinear.linear_term_to_term
+                    let rf = rfs.[cp] |> SparseLinear.linear_term_to_term |> Term.subst (fun v -> if v = extra_pre_var then Term.constant 1 else Term.var v)
                     let bnd = Term.Const -(Z.get_model_int m bound_var)
                     m.Dispose()
 
@@ -662,13 +662,11 @@ let rec synth_maximal_lex_rf (pars : Parameters.parameters) (loop_transitions : 
 
     /// mu_k for every program point k, where every prevar gets a coefficient
     let mu = construct_mu 0 (List.ofSeq program_points) all_prevars
-
     let (all_enriched_transitions_weakly_decreasing, trans_decreasing_and_bounded, bound_var_for_transition) =
         build_scc_constraints pars loop_transitions mu true rel_to_simplified_linterm_cache
 
     /// This enforces that at least one transition is strictly decreasing and bounded:
     let at_least_one_strictly_decreasing_and_bounded = (!trans_decreasing_and_bounded).Items |> Seq.map (fun (_, var) -> var) |> List.ofSeq
-
     // Now go off and find something (ensure everything is non-increasing, at least one strictly decreasing and bounded):
     match Z.solve [Z.conj2 all_enriched_transitions_weakly_decreasing (Z.disj at_least_one_strictly_decreasing_and_bounded)] with
         | None -> None

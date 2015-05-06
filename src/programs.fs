@@ -608,7 +608,7 @@ let dominators_from p_orig loc =
     let cfg = new SetDictionary<int, int>()
     for l, _, l' in enumerate_transitions p_orig do
         cfg.Add(l, l')
-
+    
     Dominators.find_dominators cfg loc
 
 let dominators p_orig =
@@ -626,10 +626,8 @@ let headers t xs = Dominators.headers t xs
 let cutpoints p =
     let cuts = ref Set.empty
     let marks = new System.Collections.Generic.Dictionary<int, bool>()
-
     let rec dfs_visit node =
         marks.Add(node, false) // false means in progress
-
         for _, node' in transitions_from p node do
             match marks.TryGetValue(node') with
             | false, _ -> dfs_visit node'
@@ -637,11 +635,8 @@ let cutpoints p =
             | true, false ->
                 // node->node' is backedge
                 cuts := (!cuts).Add node'
-
         marks.[node] <- true // true means fully processed
-
     dfs_visit !p.initial
-
     !cuts |> Set.toList
 
 //
@@ -651,9 +646,8 @@ let cutpoints p =
 // Return list of pairs (cutpoint, corresponding region)
 let isolated_regions p =
     let scs = sccsgs p
-    let cps = cutpoints p
-
     let dtree = dominators p
+    let cps = cutpoints p
 
     //Check out all CPs
     [for cutpoint in cps do
@@ -682,21 +676,42 @@ let isolated_regions p =
         yield cutpoint, sets
     ]
 
-let combine (xs:'a Set) (ys:'a Set) = [yield! xs; yield! ys] |> Seq.fold (fun (acc:'a Set) x -> acc.Add(x)) Set.empty
-let concat (xs:(Set<'a>) seq) = Seq.fold combine Set.empty xs
+let isolated_regions_non_cp p nodes =
+    let scs = sccsgs p
+    let dtree = dominators p
+
+    //Check out all CPs
+    [for node in nodes do
+        //For each CP, find the SCCs dominated by it:
+        let sets = [
+            //Check each SCC:
+            for comp in scs do
+                //Weed out trivial one-element SCCs. Invariant guarantees that we have no self-loops:
+                if comp.Count > 1 then
+                    //Does this SCC only have one entry point?
+                    if well_formed dtree comp then
+                        //Is that entry point our cutpoint? If yes, add things.
+                        yield Set.filter (dominates dtree node) comp // is that even right?
+                    else
+                        //If not, are we part of the SCC?
+                        if comp.Contains node then
+                            yield comp
+            ]
+        yield node, sets
+    ]
 
 let find_loops p =
     let regions = isolated_regions p
     let cps_to_loops =
         seq {
             for (cp, sccs) in regions do
-                let loop = concat sccs
+                let loop = Set.unionMany sccs
                 yield cp, loop
         } |> Map.ofSeq
     let cps_to_sccs =
         seq {
             for (cp, sccs) in regions do
-                let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> concat
+                let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> Set.unionMany
                 yield cp, loop
         } |> Map.ofSeq
     (cps_to_loops, cps_to_sccs)

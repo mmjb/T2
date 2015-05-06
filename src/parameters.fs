@@ -126,7 +126,7 @@ type parameters = {
     mutable fc_unsat_core : bool
 
     /// Do iterative reachability proving, where only a part of the graph needs to be recomputed after changes:
-    iterative_reachability : bool
+    mutable iterative_reachability : bool
 
     // ---------------------------- Interpolation things ----------------------------
     /// Print interpolants found
@@ -138,7 +138,7 @@ type parameters = {
     mutable seq_interpolation_ignore_last_constr : bool
 
     /// Do efficient sequential interpolation (generating all interpolants for a path in one go) instead of standard interpolation
-    seq_interpolation : bool
+    mutable seq_interpolation : bool
 
     // ---------------------------- Counterexample things ----------------------------
     /// When testing we dont want to create a billion defect files, so we
@@ -151,7 +151,7 @@ let defaultParameters =
         start_time = System.DateTime.Now
         timeout = 300.0
         print_proof = false
-        print_stats = false
+        print_stats = true
 
         print_log = false
         print_debug = false

@@ -24,16 +24,16 @@
 //
 // Copyright (c) Microsoft Corporation
 //
-// All rights reserved. 
+// All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the ""Software""), to 
+// of this software and associated documentation files (the ""Software""), to
 // deal in the Software without restriction, including without limitation the
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included 
+// The above copyright notice and this permission notice shall be included
 // in all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -115,10 +115,10 @@ type ImpactARG(parameters : Parameters.parameters,
     /// RIDDLED with invariants. Fun.
     (* ------- State of the abstract reachability graph ------- *)
     /// Counter tracking how many nodes we have in the system
-    let cnt = ref 0 
+    let cnt = ref 0
 
     /// Current nodes in the system
-    let V = ref Set.empty
+    let V = System.Collections.Generic.HashSet<int>()
 
     /// Edge relation
     let E = new SetDictionary<int,int>()
@@ -130,20 +130,20 @@ type ImpactARG(parameters : Parameters.parameters,
     let psi = new DefaultDictionary<int,Set<Formula.formula>>(fun _ -> Set.empty)
 
     /// Current leaves in the execution tree
-    let leaves = ref Set.empty
+    let leaves = System.Collections.Generic.HashSet<int>()
 
     /// Mapping from edges in the execution tree to the commands in the original program
-    let abs_edge_to_program_commands = new System.Collections.Generic.Dictionary<int * int, Programs.command list>()
+    let abs_edge_to_program_commands = System.Collections.Generic.Dictionary<int * int, Programs.command list>()
 
     /// Mapping from nodes in the execution tree to the original program
-    let abs_node_to_program_loc = new DefaultDictionary<int,int>(fun _ -> -1)
+    let abs_node_to_program_loc = DefaultDictionary<int,int>(fun _ -> -1)
 
     /// A node n\in representatives(k) if n in the graph maps back to k in the original program.
     /// i.e. if n\in representatives(k) then node_map n = k
-    let program_loc_to_abs_nodes = new SetDictionary<int,int>()
+    let program_loc_to_abs_nodes = SetDictionary<int,int>()
 
     /// Induction coverings
-    let covering = ref Map.empty
+    let covering = System.Collections.Generic.Dictionary<int, int>()
 
     /// Per-node list of candidates that we should search for when looking for a force cover
     let fc_candidates = new DefaultDictionary<int,int list option>(fun _ -> None)
@@ -157,19 +157,21 @@ type ImpactARG(parameters : Parameters.parameters,
     let stack = PriorityQueue<int>()
 
     /// Nodes that have been deemed as garbage but havent been GC'd yet.
-    let garbage = ref Set.empty
+    let garbage = System.Collections.Generic.HashSet<int>()
 
     /// Nodes that were in the system but have now been dead and GC'd
-    let dead = ref Set.empty
+    let dead = System.Collections.Generic.HashSet<int>()
 
     let new_vertex () =
         Stats.incCounter "Impact - Created vertices"
         let v = !cnt
         incr cnt
         v
-    let add_V w = V := Set.add w !V
-    let add_E v w = E.Add (v, w); parent.[w] <- v
-    let add_leaf v = leaves := Set.add v !leaves
+    let add_V w = V.Add w |> ignore
+    let add_E v w =
+        E.Add (v, w)
+        parent.[w] <- v
+    let add_leaf v = leaves.Add v |> ignore
 
     do
         let newNode = new_vertex ()
@@ -184,22 +186,23 @@ type ImpactARG(parameters : Parameters.parameters,
             incr dfs_cnt
     member private __.dfs_visited x = dfs_map.ContainsKey(x)
 
-    member private __.psi v = psi.[v] |> Set.toList |> Formula.conj
+    member private __.psi v = psi.[v] |> Formula.conj
     member private __.get_same_pc v = program_loc_to_abs_nodes.[abs_node_to_program_loc.[v]]
     member private __.parent v = if v = 0 then None else Some parent.[v]
-    member private __.leaf v = Set.contains v !leaves
-    member private __.remove_leaf v = leaves := Set.remove v !leaves
+    member private __.leaf v = leaves.Contains v
+    member private __.remove_leaf v = leaves.Remove v |> ignore
     member private __.rm_from_covering f =
-        let the_filter x y =
-            if not (f (x, y)) then
-                true
-            else
-                Stats.incCounter "Impact - Uncovered vertices"
-                false
-        covering := Map.filter the_filter !covering
+        let toRemove = ref []
+        covering
+        |> Seq.iter
+            (fun kv ->
+                if f (kv.Key, kv.Value) then
+                    Stats.incCounter "Impact - Uncovered vertices"
+                    toRemove := kv.Key :: !toRemove
+            )
+        covering.RemoveAll !toRemove
 
-    member private __.add_covering a b =
-        covering := Map.add a b !covering
+    member private __.add_covering a b = covering.Add (a, b)
 
     member private self.descendents t = [
         for c in E.[t] do
@@ -210,7 +213,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// Sanity check to be used before using a node
     member private __.check_not_removed x =
         if !gc_check then
-             if Set.contains x !dead then
+             if dead.Contains x then
                  printf "CHECK_NOT_REMOVED FAILED"
                  assert(false);
 
@@ -237,10 +240,10 @@ type ImpactARG(parameters : Parameters.parameters,
                     for s in psi.[v] do
                         st <- st + (sprintf "%s\\n" (Formula.pp s))
                     st
-                let vertex_list = Set.map (fun v -> sprintf "%d [label=\"%d (node %d): %s\"]\n" v (abs_node_to_program_loc.[v]) v (pp_psi_nl v)) !V
-                let vertices = Set.fold (fun x s -> x + s) "" vertex_list
+                let vertex_list = Seq.map (fun v -> sprintf "%d [label=\"%d (node %d): %s\"]\n" v (abs_node_to_program_loc.[v]) v (pp_psi_nl v)) V
+                let vertices = Seq.fold (fun x s -> x + s) "" vertex_list
                 let edges = E.Fold (fun res sourceLoc targetLocs -> Set.fold (fun res targetLoc -> sprintf "%s%d -> %d\n" res sourceLoc targetLoc) res targetLocs) ""
-                let covering = Map.fold (fun s x y -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" x y) + s) "" !covering
+                let covering = Seq.fold (fun s (t : System.Collections.Generic.KeyValuePair<int,int>) -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" t.Key t.Value) + s) "" covering
                 sprintf "\ndigraph program {\n%s\n%s\n\n%s}" vertices edges covering
             dot_abs_state |> write_to_fresh_file
             ()
@@ -250,14 +253,14 @@ type ImpactARG(parameters : Parameters.parameters,
     /// nodes.
     member private self.delete_tree t =
         let desc = self.descendents t |> Set.ofList
-        dead := Set.union !dead desc
+        dead.AddAll desc
 
         self.rm_from_covering (fun (x, y) -> desc.Contains x || desc.Contains y)
-        let edges_to_remove = abs_edge_to_program_commands.Keys |> Seq.filter (fun (x, y) -> (desc.Contains x) || (desc.Contains y)) |> List.ofSeq
+        let edges_to_remove = abs_edge_to_program_commands.Keys |> Seq.filter (fun (x, y) -> (desc.Contains x) || (desc.Contains y)) |> List.ofSeq //Otherwise, we run into a concurrent modification
         for edge_to_remove in edges_to_remove do
             abs_edge_to_program_commands.Remove edge_to_remove |> ignore
-        V := Set.difference (!V) desc
-        leaves := Set.difference (!leaves) desc
+        V.RemoveAll desc
+        leaves.RemoveAll desc
 
         for n in desc do
             parent.[n] <- -1
@@ -268,7 +271,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
         // We're cleaning out fc_candidates in the get_force_cover_candidates routine
         stack.RemoveWhere (fun v -> Set.contains v desc)
-        leaves := Set.difference !leaves desc
+        leaves.RemoveAll desc
 
         for d in (desc.Add t) do
             while E.ContainsKey d do
@@ -279,19 +282,19 @@ type ImpactARG(parameters : Parameters.parameters,
     /// condition is met.
     member private self.gc () =
         if !do_gc then
-            for v in !garbage do
-                if Set.contains v !V then
+            for v in garbage do
+                if V.Contains v then
                     self.delete_tree v
-            garbage := Set.empty
+            garbage.Clear()
 
     member private __.garbage_add v =
         if !do_gc then
-            garbage := Set.add v !garbage
+            garbage.Add v |> ignore
 
     member private self.garbage_check v =
         if !do_gc then
             if Formula.unsat (self.psi v) then
-                garbage := Set.add v !garbage
+                garbage.Add v |> ignore
 
     /// Strengthen the invariant at a node.
     member private self.conjoin_with_psi l newPsi =
@@ -300,7 +303,7 @@ type ImpactARG(parameters : Parameters.parameters,
                xs
            else if Formula.is_false_formula n then
                Set.singleton n
-           else if Formula.unsat (n::Set.toList xs |> Formula.conj) then
+           else if Formula.unsat (Formula.conj (Seq.append [n] xs)) then
                Set.singleton Formula.falsec
            else
                let p x = Formula.entails n x |> not
@@ -337,7 +340,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// Returns true if the node is covered by an induction covering, or if its parent is.
     member private self.is_covered v =
         self.check_not_removed v
-        if Map.containsKey v (!covering) then
+        if covering.ContainsKey v then
             true
         else if Formula.unsat (self.psi v) then
             true
@@ -359,20 +362,22 @@ type ImpactARG(parameters : Parameters.parameters,
 
             // We look at nodes at the same location the original program
             | None ->
-                self.get_same_pc v
-                // We have to filter out nodes that are in in the DFS stack but haven't actually
-                // been visited yet
-                |> Set.filter (self.dfs_visited)
-                // We can only be covered by nodes less than us in the DFS order
-                // (otherwise we could great circular/unsound induction arguments)
-                |> Set.filter (fun w -> dfs_map.[w] < dfs_v)
-                // We don't want our children, obviously
-                |> Set.filter (fun w -> not (self.sq_eq v w))
+                [
+                    for v' in self.get_same_pc v do
+                        // We have to filter out nodes that are in in the DFS stack but haven't actually
+                        // been visited yet
+                        if self.dfs_visited v' then
+                        // We can only be covered by nodes less than us in the DFS order
+                        // (otherwise we could great circular/unsound induction arguments)
+                            if dfs_map.[v'] < dfs_v then
+                                // We don't want our children, obviously
+                                if not (self.sq_eq v v') then
+                                    yield v'
                 // Sort in reverse dfs-search order
-                |> Set.toList |> List.sortBy (fun v -> dfs_map.[v]) |> List.rev
+                ] |> List.sortBy (fun v -> dfs_map.[v]) |> List.rev
 
         // We're gc-ing here, as it's a little faster.
-        let cleaned = List.filter (fun x -> (!dead).Contains x |> not) candidates
+        let cleaned = List.filter (fun x -> dead.Contains x |> not) candidates
         fc_candidates.[v] <- Some(cleaned)
         List.filter (self.not_covered) cleaned
 
@@ -477,8 +482,8 @@ type ImpactARG(parameters : Parameters.parameters,
         let x_nearest =
             let v_ancestors = v :: (self.ancestors v) |> Set.ofList
             let w_ancestors = w :: (self.ancestors w) |> Set.ofList
-            let common = Set.intersect v_ancestors w_ancestors |> Set.toList
-            List.maxBy (fun v -> dfs_map.[v]) common
+            let common = Set.intersect v_ancestors w_ancestors
+            Seq.maxBy (fun v -> dfs_map.[v]) common
         assert (self.sq_eq x_nearest v && self.sq_eq x_nearest w)
 
         let psi_w =
@@ -504,7 +509,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
         let do_interpolants initial formulae final x path =
             let find_path_interpolant =
-                if x = w || not (self.sq w v) then 
+                if x = w || not (self.sq w v) then
                     Symex.find_path_interpolant_old parameters (not parameters.fc_unsat_core) 0 []
                 else
                     let (initial, formulae, _, var_map) = get_formulae x path
@@ -618,9 +623,9 @@ type ImpactARG(parameters : Parameters.parameters,
             | None ->  false
             | Some (initial, formulae, final) -> do_interpolants initial formulae final x_nearest nearest_path
 
-        if result then 
+        if result then
             Stats.incCounter "Impact - Successful force covers"
-        else 
+        else
             Stats.incCounter "Impact - Failed force covers"
 
         result
@@ -679,7 +684,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// If an error path was spurious, refine abstraction and return None.
     /// Otherwise, return true (almost) error path.
     member private self.refine v =
-        self.db () 
+        self.db ()
 
         assert (abs_node_to_program_loc.[v] = loc_err)
         self.check_not_removed v
@@ -763,21 +768,24 @@ type ImpactARG(parameters : Parameters.parameters,
     ///   a) preferably corresponds to error loc
     ///   b) is earliest in dfs order
     member private self.pick_vertex () =
-        let error_nodes, other_nodes =
-            !leaves
-            |> Seq.filter self.not_covered
-            |> Seq.toList
-            |> List.partition (fun v -> abs_node_to_program_loc.[v] = loc_err)
+        let errorNodes = ref []
+        let otherNodes = ref []
+        for v in leaves do
+           if self.not_covered v then
+                if abs_node_to_program_loc.[v] = loc_err then
+                    errorNodes := v :: !errorNodes
+                else
+                    otherNodes := v :: !otherNodes
 
-        if not error_nodes.IsEmpty then
-            List.minBy (fun v -> dfs_map.[v]) error_nodes
-        elif not other_nodes.IsEmpty then
-            List.minBy (fun v -> dfs_map.[v]) other_nodes
+        if not (List.isEmpty !errorNodes) then
+            List.minBy (fun v -> dfs_map.[v]) !errorNodes
+        elif not (List.isEmpty !otherNodes) then
+            List.minBy (fun v -> dfs_map.[v]) !otherNodes
         else
             die()
 
     member private self.unwind () =
-        self.db () 
+        self.db ()
         let v = self.pick_vertex ()
         Log.log parameters <| sprintf "Unwinding node %d (loc %d)" v abs_node_to_program_loc.[v]
         self.close_all_ancestors v
@@ -788,10 +796,10 @@ type ImpactARG(parameters : Parameters.parameters,
     //
 
     member private self.sanity_check =
-        if Map.exists (fun x y -> self.entails_psi x y |> not) !covering then
+        if Seq.exists (function KeyValue(x, y) -> self.entails_psi x y |> not) covering then
             printf "BIG PROBLEM!\n"
 
-        if Map.exists (fun _ y -> self.ancestors y |> List.forall (fun a -> not (Map.containsKey a !covering)) |> not) !covering then
+        if Seq.exists (function KeyValue(_, y) -> self.ancestors y |> List.forall (fun a -> not (covering.ContainsKey a)) |> not) covering then
             printf "BIG PROBLEM 2x!\n"
 
     interface SafetyInterface.SafetyProver with
@@ -802,7 +810,7 @@ type ImpactARG(parameters : Parameters.parameters,
             let path = ref None
             Stats.startTimer "Impact"
             try
-                while Set.exists self.not_covered !leaves && (!path).IsNone do
+                while Seq.exists self.not_covered leaves && (!path).IsNone do
                     match self.unwind () with
                     | Some pi ->
                             let (_, _, l2) = List.last pi
@@ -824,20 +832,34 @@ type ImpactARG(parameters : Parameters.parameters,
 
         /// For incrementality, we sometimes need to delete a subtree within the proof graph
         member self.ResetFrom locationToReset =
-            let to_reset = 
-                if parameters.iterative_reachability then
-                    locationToReset
-                else
-                    loc_init
-            let nodes = Set.filter (fun x -> abs_node_to_program_loc.[x] = to_reset) !V |> ref
-            while !nodes<>Set.empty do
-                let t = Set.minElement !nodes
-                nodes := Set.remove t !nodes
-                self.delete_tree t
-                add_leaf t
+            if parameters.iterative_reachability then
+                let nodes_to_remove = Seq.filter (fun x -> abs_node_to_program_loc.[x] = locationToReset) V |> List.ofSeq
+                for t in nodes_to_remove do
+                    if V.Contains t then
+                        self.delete_tree t
+                        add_leaf t
+            else
+                //Get rid of _everything_
+                V.Clear()
+                E.Clear()
+                parent.Clear()
+                psi.Clear()
+                abs_node_to_program_loc.Clear()
+                program_loc_to_abs_nodes.Clear()
+                fc_candidates.Clear()
+                leaves.Clear()
+                abs_edge_to_program_commands.Clear()
+                cnt := 0
+                covering.Clear()
+                stack.Clear()
 
-                // The deleted tree might have made nodes disappear
-                nodes := Set.intersect !nodes !V
+                //Start anew:
+                let newNode = new_vertex ()
+                add_V newNode
+                add_leaf newNode
+                abs_node_to_program_loc.[newNode] <- loc_init
+                program_loc_to_abs_nodes.Add (loc_init, newNode)
+
 
         ///Delete everything from the graph that used/used some program transition:
         member self.DeleteProgramTransition ((k, cmds, k') : (int * Programs.command list * int)) =

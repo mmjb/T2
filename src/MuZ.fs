@@ -43,7 +43,7 @@ let private printSMT2Horn = false
 type MuZWrapper (parameters : Parameters.parameters,
                  program : Programs.Program,
                  errorLocation : int) =
-g
+
     static member private GetFuncDeclForLocation (fixedPoint : Microsoft.Z3.Fixedpoint) (locationToFuncDecl : Dictionary<int, Microsoft.Z3.FuncDecl>) (predDomain : Microsoft.Z3.Sort[]) location =
         match locationToFuncDecl.TryGetValue location with
         | (true, funcDecl) -> funcDecl
@@ -59,7 +59,7 @@ g
     member private __.BuildProgramRepresentation () =
         /// The actual underlying fixed point object.
         let fixedPoint = Z.z3Context.MkFixedpoint ()
-g
+
         // Set parameters:
         let muZParameters = Z.z3Context.MkParams()
         match parameters.safety_implementation with
@@ -79,15 +79,15 @@ g
 
         //Prepare bits and pieces:
         /// The program variables, in fixed order.
-        let programVars : Var.var[] =g
+        let programVars : Var.var[] =
             !program.vars |> Array.ofSeq
 
         /// The program variables (as pre-transition version), in fixed order.
-        let programPreVars : Var.var[] =g
+        let programPreVars : Var.var[] =
             programVars |> Array.map (fun var -> Var.prime_var var 0)
 
         /// The program variables (as pre-transition version) in Z3 format, in fixed order.
-        let z3PreVars : Microsoft.Z3.Expr[] =g
+        let z3PreVars : Microsoft.Z3.Expr[] =
             programPreVars |> Array.map (fun var -> Z.z3Context.MkIntConst var :> Microsoft.Z3.Expr)
 
         /// The domain of the predicates that we introduce to represent program locations.
@@ -95,7 +95,7 @@ g
             programVars |> Array.map (fun _ -> Z.z3Context.MkIntSort () :> Microsoft.Z3.Sort)
 
         /// Maps locations to z3 function symbols, which are predicates representing the set of states reachable at that location
-        let locationToFuncDecl : Dictionary<int, Microsoft.Z3.FuncDecl> =g
+        let locationToFuncDecl : Dictionary<int, Microsoft.Z3.FuncDecl> =
             Dictionary<int, Microsoft.Z3.FuncDecl>()
 
         /// Maps names assigned to rules we pass to z3 to indices in our program representation.
@@ -104,7 +104,7 @@ g
 
         //Build and insert fact for initial state:
         let startFuncDecl = MuZWrapper.GetFuncDeclForLocation fixedPoint locationToFuncDecl z3PredicateDomain !program.initial
-        let initState =g
+        let initState =
             Z.z3Context.MkImplies
                 (Z.z3Context.MkBool true,
                  Z.z3Context.MkApp (startFuncDecl, z3PreVars) :?> Microsoft.Z3.BoolExpr)
@@ -118,17 +118,17 @@ g
             let (pathCondition, varToPostIdx) = Symex.path_to_transitions_and_var_map [(k, cmds, k')] Map.empty
             let (_, pathCondition, _) = List.head pathCondition //One transition in, one relation out...
             let pathCondition = Formula.conj pathCondition
-            let usedVars =g
+            let usedVars =
                 Set.union (Formula.freevars pathCondition) (Set.ofSeq programPreVars)
                 |> Array.ofSeq |> Array.map (fun var -> Z.z3Context.MkIntConst var :> Microsoft.Z3.Expr)
-g
+
             let preFuncDecl = MuZWrapper.GetFuncDeclForLocation fixedPoint locationToFuncDecl z3PredicateDomain k
             let preState = Z.z3Context.MkApp (preFuncDecl, z3PreVars) :?> Microsoft.Z3.BoolExpr
-g
+
             let postFuncDecl = MuZWrapper.GetFuncDeclForLocation fixedPoint locationToFuncDecl z3PredicateDomain k'
             let postVars = programVars |> Array.map (fun var -> Z.z3Context.MkIntConst (Var.prime_var var (Map.findWithDefault var 0 varToPostIdx)) :> Microsoft.Z3.Expr)
             let postState = Z.z3Context.MkApp (postFuncDecl, postVars) :?> Microsoft.Z3.BoolExpr
-g
+
             let transitionCondition = Z.z3Context.MkImplies (Z.z3Context.MkAnd (preState, Formula.z3 pathCondition), postState)
             if printSMT2Horn then
                 printfn "(rule %A)" transitionCondition
@@ -155,11 +155,11 @@ g
             Stats.startTimer "muZ-Query"
             let queryResult =
                 try
-                    fixedPoint.Query errorQueryg
+                    fixedPoint.Query errorQuery
                 finally
                     Stats.endTimer "muZ-Query"
 
-            match queryResult withg
+            match queryResult with
             | Microsoft.Z3.Status.SATISFIABLE ->
                 Log.log parameters "... found counterexample"
                 let rulesInTrace = fixedPoint.GetRuleNamesAlongTrace()

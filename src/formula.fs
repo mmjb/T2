@@ -364,6 +364,7 @@ let is_fair_var (v:string) =    v.StartsWith fair_proph_var
 let subcheck_return_prefix = instrumentation_prefix + "RET_VAL_" 
 let subcheck_return_var id = Var.var subcheck_return_prefix + string(id)
 let is_subcheck_return (v:string) = v.StartsWith subcheck_return_prefix
+let contains_var_str (var:string) (v:Var.var) = v.Contains var
 
 let is_instr_var (v:string) =  is_saved_var v
                             || is_copied_var v
@@ -373,6 +374,8 @@ let is_instr_var (v:string) =  is_saved_var v
 
 let contains_instr_var f = f |> freevars |> Seq.exists is_instr_var
 let contains_fair_var f = f |> freevars |> Seq.exists is_fair_var
+let contains_var f v = f |> freevars |> Seq.exists (contains_var_str v)
+
 //
 /// For __const_42 return Term.Const(42).
 /// To use in subst

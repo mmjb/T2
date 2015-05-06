@@ -47,15 +47,17 @@ type ListDictionary<'Key, 'Value when 'Key : equality>() =
 
     ///// Accessing entries:
     member __.Item
-       with get key       = if backingDict.ContainsKey key then backingDict.[key] else []
-       and  set key value = backingDict.[key] <- value
+        with get key       =
+            match backingDict.TryGetValue key with
+            | (true, res) -> res
+            | (false, _)  -> []
+        and  set key value = backingDict.[key] <- value
 
     ///// Adding, removing and replacing single entries or full entry seqs:
     member __.Add (key, value) =
-        if backingDict.ContainsKey key then
-            backingDict.[key] <- value :: backingDict.[key]
-        else
-            backingDict.[key] <- [value]
+        match backingDict.TryGetValue key with
+        | (true, res) -> backingDict.[key] <- value :: res
+        | (false, _)  -> backingDict.[key] <- [value]
     member self.AddMany keyValuePairs =
         Seq.iter self.Add keyValuePairs
     member self.Union (otherDict : ListDictionary<'Key, 'Value>) =
@@ -66,6 +68,8 @@ type ListDictionary<'Key, 'Value when 'Key : equality>() =
         backingDict.[key] <- [value]
     member __.ReplaceList key valueList =
         backingDict.[key] <- valueList
+    member __.Clear () =
+        backingDict.Clear()
 
     member __.ContainsKey key =
        backingDict.ContainsKey key
@@ -93,15 +97,17 @@ type SetDictionary<'Key,'Value when 'Key : equality and 'Value : comparison>() =
 
     ///// Accessing entries:
     member __.Item
-       with get key = if backingDict.ContainsKey key then backingDict.[key] else Set.empty
-       and  set key value = backingDict.[key] <- value
+        with get key       =
+            match backingDict.TryGetValue key with
+            | (true, res) -> res
+            | (false, _)  -> Set.empty
+        and  set key value = backingDict.[key] <- value
 
     ///// Adding, removing and replacing single entries or full entry seqs:
     member __.Add (key, value) =
-        if backingDict.ContainsKey key then
-            backingDict.[key] <- Set.add value backingDict.[key]
-        else
-            backingDict.[key] <- Set.singleton value
+        match backingDict.TryGetValue key with
+        | (true, res) -> backingDict.[key] <- Set.add value res
+        | (false, _)  -> backingDict.[key] <- Set.singleton value
     member self.AddMany keyValuePairs =
         Seq.iter self.Add keyValuePairs
     member self.Union (otherDict : SetDictionary<'Key, 'Value>) =
@@ -114,6 +120,8 @@ type SetDictionary<'Key,'Value when 'Key : equality and 'Value : comparison>() =
         backingDict.[key] <- Set.singleton value
     member __.ReplaceSet key valueSet =
         backingDict.[key] <- valueSet
+    member __.Clear () =
+        backingDict.Clear()
 
     member __.ContainsKey key =
        backingDict.ContainsKey key
@@ -137,20 +145,28 @@ type SetDictionary<'Key,'Value when 'Key : equality and 'Value : comparison>() =
         member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, Set<'Value>>(backingDict.GetEnumerator()) :> _
 
 type DefaultDictionary<'Key,'Value when 'Key : equality>(defaultVal : ('Key -> 'Value)) =
-    let dict = new System.Collections.Generic.Dictionary<'Key, 'Value>()
+    let backingDict = new System.Collections.Generic.Dictionary<'Key, 'Value>()
 
-    member this.ContainsKey key =
-        dict.ContainsKey key
-    
-    member this.Item 
-        with get key = 
-            if dict.ContainsKey key then 
-                dict.[key]
-            else
-                defaultVal key
-        and  set key value = dict.[key] <- value
+    member __.ContainsKey key =
+        backingDict.ContainsKey key
 
+    member __.Item
+        with get key =
+            match backingDict.TryGetValue key with
+            | (true, res) -> res
+            | (false, _)  -> defaultVal key
+        and  set key value = backingDict.[key] <- value
+    member __.Clear () =
+        backingDict.Clear()
 
+    member __.Keys = backingDict.Keys
+    member __.Values = backingDict.Values
+    member __.Bindings = seq { for KeyValue(k,vs) in backingDict do yield (k,vs) }
+  
+    interface System.Collections.Generic.IEnumerable<'Key * 'Value> with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value>(backingDict.GetEnumerator()) :> _
+    interface System.Collections.IEnumerable with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value>(backingDict.GetEnumerator()) :> _
 ///
 /// List of functions that should be called when T2 is ending some
 /// reasoning and moving to a new problem.  Caches, Gensym, etc can add reset functions
@@ -294,6 +310,17 @@ type Set<'T when 'T : comparison> with
 type List<'T> with
     static member contains element list =
         List.exists ((=) element) list 
+
+type System.Collections.Generic.HashSet<'T> with
+    member self.RemoveAll vs =
+        Seq.iter (self.Remove >> ignore) vs
+    member self.AddAll vs =
+        Seq.iter (self.Add >> ignore) vs
+
+type System.Collections.Generic.Dictionary<'TKey, 'TValue> with
+    member self.RemoveAll vs =
+        Seq.iter (self.Remove >> ignore) vs
+
 //
 // Euclid's GCD algorithm
 //

@@ -49,7 +49,7 @@ let substitute_map_in_formula var_map f =
 /// Second parameter gives commands that are relevant for the "needed" bit, but are not supposed to be cleaned
 let slice_path pi relevantCmds =
     let depends_on = System.Collections.Generic.Dictionary()
-    let needed_vars = ref Set.empty
+    let needed_vars = System.Collections.Generic.HashSet()
 
     //Run through the path, get needed variables and dependencies:
     let needed_vars_from_cmd c =
@@ -63,16 +63,13 @@ let slice_path pi relevantCmds =
             depends_on.[v] <- Set.union d (Term.freevars t)
         | Assume _ -> ()
 
-    for (_, cs, _) in pi do
+    for (_, cs, _) in pi @ relevantCmds do
         for c in cs do
-            needed_vars := Set.union !needed_vars (needed_vars_from_cmd c)
+            needed_vars.AddAll (needed_vars_from_cmd c)
             track_dependency c
-    for (_, cs, _) in relevantCmds do
-        for c in cs do
-            needed_vars := Set.union !needed_vars (needed_vars_from_cmd c)
 
     //Now do a fixpoint thing where we recursively compute all needed variables
-    let queue = ref (Set.toList !needed_vars)
+    let queue = ref (List.ofSeq needed_vars)
     let relevant = ref Set.empty
     while not (!queue).IsEmpty do
         let var = (!queue).Head
@@ -92,11 +89,11 @@ let slice_path pi relevantCmds =
 
     let filter_out c =
         if is_relevant c then
-            c
+            [c]
         else
-            Assume(c.Position, truec)
+            []
 
-    pi |> List.map (fun (l1, cs, l2) -> (l1, List.map filter_out cs, l2))
+    pi |> List.map (fun (l1, cs, l2) -> (l1, List.collect filter_out cs, l2))
 
 let add_vars_to_map fs var_map =
     let vars = List.fold (fun accum f -> Set.union accum (Formula.freevars f)) Set.empty fs |> Set.toList
