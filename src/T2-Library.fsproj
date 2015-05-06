@@ -79,6 +79,7 @@
     <Compile Include="PriorityQueue.fs" />
     <Compile Include="SafetyInterface.fs" />
     <Compile Include="Impact.fs" />
+    <Compile Include="MuZ.fs" />
     <Compile Include="Safety.fs" />
     <Compile Include="rankfunction.fs" />
     <Compile Include="ctl.fs" />

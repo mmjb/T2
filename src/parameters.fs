@@ -31,8 +31,7 @@ type outputFormat =
     | SMTPushdown
 type imperativeProgramStyle = Loop | Goto
 type javaNondetStyle = Aprove | Julia
-
-type SafetyImplementation = Impact
+type SafetyImplementation = Impact | PDR | Spacer
 
 type parameters = {
     /// Time when T2 execution began
