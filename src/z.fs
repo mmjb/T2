@@ -57,7 +57,7 @@ let create_config () =
 
 let set_solver_parameters (z3 : Context) (solver : Solver) =
     let p = z3.MkParams()
-    p.Add("soft_timeout", 10000u)
+    p.Add("timeout", 10000u)
     solver.Parameters <- p
     Microsoft.Z3.Global.SetParameter("model_evaluator.completion", "true")
 

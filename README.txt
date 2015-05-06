@@ -24,8 +24,8 @@ Using Mono (for Linux, Unix and MacOS)
 The precompiled binary will not work, as the z3 library is not provided.
 
 To build T2, you first need to build the .NET bindings of z3 using mono.
-For this, get z3 sources for z3/unstable (4.3.2 is known to work) from 
-   http://z3.codeplex.com/
+For this, get z3 sources from 
+   https://bitbucket.org/mmjb/spacer-dotnet
 
 To install needed .NET libraries, you will need NuGet, which you can
 obtain from http://nuget.org/nuget.exe.
