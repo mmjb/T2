@@ -103,7 +103,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
     /// Transition relation, mapping each location to a list of (relation, successor location) pairs.
     /// Note that this reflects changes to program that are done while this is ARG is instantiated.
-    let transition loc = Programs.transitions_from program loc
+    let transition loc = List.rev <| Programs.transitions_from program loc
 
     /// Priority of each node in the original program.  Used to choose which node to take during DFS
     let priority = make_prio_map program loc_err
