@@ -187,6 +187,7 @@ let private synthesis_base (pars : Parameters.parameters) try_ignore_beginning f
 ///
 let private synthesis_base_with_entailment (pars : Parameters.parameters) fs entail_distance invar_fs =
     assert (fs <> [])
+    Z.createZ3Context()
 
     // unprime the invar i
     let unprime i = [for (var,term) in Map.toList i -> (if var = ONE then ONE else Var.unprime_var var), term] |> Map.ofList
@@ -286,8 +287,6 @@ let private synthesis_base_with_entailment (pars : Parameters.parameters) fs ent
 
 let private path_synthesis (pars : Parameters.parameters) try_ignore_beginning entail_distance invar_fs fs =
     assert (fs <> [])
-    Z.clear() // speed things up
-
     let ltfs = List.map formula_to_linear_terms fs
     let invar_ltfs = List.map formula_to_linear_terms invar_fs
 

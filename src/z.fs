@@ -8,17 +8,6 @@
 //
 //      Interface to the Z3 decision procedure
 //
-//  Environment:
-//
-//
-//  Notes:
-//
-//      * Z3 seems to slow down if you call it relentlessly.  To avoid this, we must reset the Z3 context from
-//        time to time. Resetting the context after every call makes things awkward, as we're hoping to
-//        construct complex Z3 terms first and then call the validity procedure a lot.  Thus, at startup we
-//        build a context and provide clear(). clear() should not be called between the creation
-//        of a Z3 term and the call to the validity checker.
-//
 // Copyright (c) Microsoft Corporation
 //
 // All rights reserved. 
@@ -47,78 +36,70 @@ open Microsoft.Z3
 open Microsoft.FSharp.Math
 open Utils
 
-//
-// Z3 setup Load up Z3.  Note: we need to dispose of z3 at the end.
-//
-let create_config () =
+// A parameter (dictionary) object we use to configure the Z3 Solver instance
+let z3Config =
     let p = new System.Collections.Generic.Dictionary<string, string>()
     p.Add("MODEL", "true")
     p
 
-let set_solver_parameters (z3 : Context) (solver : Solver) =
-    let p = z3.MkParams()
+/// The actual z3 context through we which pipe all of our work.
+/// It should be disposed at the end of a run.
+// TODO: This should be wrapped into a context, to be thread-safe.
+let mutable z3Context : Microsoft.Z3.Context = null
+let createZ3Context () =
+    if z3Context <> null then
+        System.GC.SuppressFinalize z3Context
+        z3Context.Dispose()
+    z3Context <- new Microsoft.Z3.Context(z3Config)
+createZ3Context()
+
+// Register clear() createZ3Context when we "clear" the prover state. This dumps
+// internal z3 state and provides a fresh solver.
+Utils.add_clear createZ3Context
+
+/// Create a simple z3 SMT Solver. Caller has to take care of disposal of the object.
+let getSolver () =
+    let solver = z3Context.MkSimpleSolver()
+    let p = z3Context.MkParams()
     p.Add("timeout", 10000u)
     solver.Parameters <- p
     Microsoft.Z3.Global.SetParameter("model_evaluator.completion", "true")
+    solver
 
-let p = create_config()
-let mutable z3 = new Microsoft.Z3.Context(p)
+let finished() = z3Context.Dispose()
 
-//
-// Reset Z3. See comment
-//
-let clear() =
-    System.GC.SuppressFinalize z3
-    z3.Dispose()
-    let p = create_config()
-    z3 <- new Microsoft.Z3.Context(p)
-//
-// Register clear() to be called during "downtime"
-//
-Utils.add_clear clear
+////////// Arithmetic wrappers
+let defaultType () = z3Context.MkIntSort ()
 
-let finished() = z3.Dispose()
+let constant (i:bigint) = z3Context.MkNumeral(string(i), defaultType()) :?> ArithExpr
+let constantInt (i:int) = z3Context.MkNumeral(i, defaultType()) :?> ArithExpr
 
-//
-// Arithmetic wrappers and overloading
-//
-type z3e = Expr
-
-let make_type (z3:Context) = z3.MkIntSort ()
-
-let constant (i:bigint) = z3.MkNumeral(string(i), make_type z3) :?> ArithExpr
-let constantInt (i:int) = z3.MkNumeral(i, make_type z3) :?> ArithExpr
-
-let add a b = z3.MkAdd(a,b)
-let sub a b = z3.MkSub(a,b)
-let mul a b = z3.MkMul(a,b)
+let add a b = z3Context.MkAdd(a,b)
+let sub a b = z3Context.MkSub(a,b)
+let mul a b = z3Context.MkMul(a,b)
 let neg z = mul (constant (bigint.MinusOne)) z
 
-let eq q1 q2 = z3.MkEq(q1,q2)
-let ge q1 q2 = z3.MkGe(q1,q2)
-let lt q1 q2 = z3.MkLt(q1,q2)
-let le q1 q2 = z3.MkLe(q1,q2)
-let gt q1 q2 = z3.MkGt(q1,q2)
-let ite x y z = z3.MkITE(x,y,z)
+let eq q1 q2 = z3Context.MkEq(q1,q2)
+let ge q1 q2 = z3Context.MkGe(q1,q2)
+let lt q1 q2 = z3Context.MkLt(q1,q2)
+let le q1 q2 = z3Context.MkLe(q1,q2)
+let gt q1 q2 = z3Context.MkGt(q1,q2)
+let ite x y z = z3Context.MkITE(x,y,z)
 
-let mk_not q1 = z3.MkNot(q1)
+let mk_not q1 = z3Context.MkNot(q1)
 let neq q1 q2 = mk_not (eq q1 q2)
-let implies q1 q2 = z3.MkImplies(q1,q2)
+let implies q1 q2 = z3Context.MkImplies(q1,q2)
 
-let var (name:string) =  z3.MkIntConst(name)
-let bool_var (name:string) = z3.MkBoolConst(name)
-let symbol (name:string) =  z3.MkSymbol(name)
+let var (name:string) =  z3Context.MkIntConst(name)
+let bool_var (name:string) = z3Context.MkBoolConst(name)
+let symbol (name:string) =  z3Context.MkSymbol(name)
 
-let conj (xs : BoolExpr list) = z3.MkAnd(Array.ofList xs)
-let conj2 f1 f2 = z3.MkAnd (f1, f2)
-let disj (xs : BoolExpr list)  = z3.MkOr(Array.ofList xs)
-let disj2 f1 f2 = z3.MkOr (f1, f2)
+let conj (xs : BoolExpr list) = z3Context.MkAnd(Array.ofList xs)
+let conj2 f1 f2 = z3Context.MkAnd (f1, f2)
+let disj (xs : BoolExpr list)  = z3Context.MkOr(Array.ofList xs)
+let disj2 f1 f2 = z3Context.MkOr (f1, f2)
 
-let make_constraint f (v:RowVector<Expr>) =
-    let vl = Vector.Generic.fold (fun x y -> y::x) [] (v.Transpose) in
-    let cs = List.map f vl in
-    conj cs
-
+////////// The actual querying routines:
 let rec solve_more_rec k l (solver : Solver) =
     match l with
     | [] -> None
@@ -129,9 +110,13 @@ let rec solve_more_rec k l (solver : Solver) =
             match solver.Check() with
             | Status.SATISFIABLE ->
                 let model = solver.Model
+                //Try to get a better model, if possible. Otherwise, return ours:
                 match solve_more_rec (k+1) qs solver with
-                            | None -> Some (k, model)
-                            | other -> model.Dispose();  other
+                | None ->
+                    Some (k, model)
+                | Some betterModel ->
+                    model.Dispose()
+                    Some betterModel
             | Status.UNSATISFIABLE -> None
             | Status.UNKNOWN -> raise (System.TimeoutException "z3 timeout")
             | _ -> die()
@@ -140,19 +125,17 @@ let rec solve_more_rec k l (solver : Solver) =
 
 let sat_opt q =
     Stats.startTimer "Z3 - Satisfiability"
-    let solver = z3.MkSimpleSolver()
-    set_solver_parameters z3 solver
 
-    solver.Push()
-    solver.Assert(q)
     let result =
-        match solver.Check() with
-        | Status.SATISFIABLE -> Some true
-        | Status.UNSATISFIABLE -> Some false
-        | _ -> None
-    Stats.endTimer "Z3 - Satisfiability"
-    solver.Pop()
-    solver.Dispose()
+        try
+            use solver = getSolver()
+            solver.Assert(q)
+            match solver.Check() with
+            | Status.SATISFIABLE -> Some true
+            | Status.UNSATISFIABLE -> Some false
+            | _ -> None
+        finally
+            Stats.endTimer "Z3 - Satisfiability"
 
     result
 
@@ -164,35 +147,31 @@ let sat q =
 
 let unsat_core assertions =
     !Utils.check_timeout ()
-    let assumptions = Array.init (Array.length assertions) (fun _ -> z3.MkBoolConst ("unsat_core") :> Expr)
+    let assumptions = Array.init (Array.length assertions) (fun _ -> z3Context.MkBoolConst ("unsat_core") :> Expr)
 
-    let solver = z3.MkSimpleSolver()
-    set_solver_parameters z3 solver
-    solver.Push()
-    try
-        let make_assertion assertion (assumption : Expr) = solver.Assert (z3.MkOr (assertion, z3.MkNot (assumption :?> BoolExpr)))
-        Array.iter2 make_assertion assertions assumptions
-        let core = ref null
+    use solver = getSolver()
+    let make_assertion assertion (assumption : Expr) = solver.Assert (z3Context.MkOr (assertion, z3Context.MkNot (assumption :?> BoolExpr)))
+    Array.iter2 make_assertion assertions assumptions
+    let core = ref null
 
-        let result = solver.Check(assumptions)
-        //(model, assumptions, proof, core)
-
-        match result with
-        | Status.SATISFIABLE ->
-            None
-        | Status.UNSATISFIABLE ->
-            let result =
-                [
-                    for i=0 to (Array.length assertions - 1) do
-                        yield (Array.exists (fun x -> x = assumptions.[i]) !core)
-                ]
-            Some result
-        | _ -> die ()
-    finally
-        solver.Pop ()
-        solver.Dispose ()
     Stats.startTimer "Z3 - Unsat Core"
-    Stats.endTimer "Z3 - Unsat Core"
+    let result =
+        try
+            solver.Check(assumptions)
+        finally
+            Stats.endTimer "Z3 - Unsat Core"
+
+    match result with
+    | Status.SATISFIABLE ->
+        None
+    | Status.UNSATISFIABLE ->
+        let result =
+            [
+                for i=0 to (Array.length assertions - 1) do
+                    yield (Array.exists (fun x -> x = assumptions.[i]) !core)
+            ]
+        Some result
+    | _ -> die ()
 
 let valid q = not (sat ([| mk_not q |]))
 
@@ -207,12 +186,17 @@ let valid q = not (sat ([| mk_not q |]))
 let solve_k fs =
     (!Utils.check_timeout)()
     Stats.startTimer "Z3 - Satisfiability (opt)"
-    let solver = z3.MkSimpleSolver()
-    solver.Push()
-    let result = try (try solve_more_rec 0 fs solver with :? System.TimeoutException as e -> Stats.inc_stat "solve_k, Timeout"; raise e) finally Stats.end_time "Z3"
 
-    solver.Pop()
-    solver.Dispose()
+    use solver = getSolver()
+    let result =
+        try
+            try
+                solve_more_rec 0 fs solver
+            with
+            :? System.TimeoutException as e ->
+                Stats.incCounter "Z3 - Timeout"
+                raise e
+        finally
             Stats.endTimer "Z3 - Satisfiability (opt)"
 
     result

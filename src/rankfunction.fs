@@ -128,7 +128,7 @@ let generate_weakly_decreasing_constraints_for_rel
                 // lambda2_i * b_i = e_i >= 0
                 yield (Z.eq (decreasing.FindWithDefault ONE_var ZERO) decrease_var)
                 yield (Z.ge decrease_var ZERO)
-                yield z3.MkEq (rel_strict_decrease_var, Z.gt decrease_var ZERO)
+                yield Z.z3Context.MkEq (rel_strict_decrease_var, Z.gt decrease_var ZERO)
             ] |> Z.conj
         (rel_strict_decrease_var, constraints)
 
@@ -156,7 +156,7 @@ let generate_bounded_constraints_for_rel
 
         // Set trans_decreasing_and_bounded_var to 1 if and only if the corresponding transition is bounded
         let constraints =
-            z3.MkEq (rel_bounded_var,
+            Z.z3Context.MkEq (rel_bounded_var,
                 Z.conj [
                     // lambda1_i >= 0
                     for lambda in lambdas1 do
@@ -522,7 +522,7 @@ let build_scc_constraints (pars : Parameters.parameters) transitions mu add_boun
                         let d_diff_nonnull = Z.mk_not <| Z.eq (Z.add (!d_num_map).[k'] (Z.neg (!d_num_map).[k])) ZERO // not(#_D(k') - #_D(k) = 0)
                         let b_diff_nonnull = Z.mk_not <| Z.eq (Z.add (!b_num_map).[k'] (Z.neg (!b_num_map).[k])) ZERO // not(#_B(k') - #_B(k) = 0)
                         let globally_decr_and_bounded = Z.conj2 d_diff_nonnull b_diff_nonnull
-                        yield z3.MkEq(rel_strict_decrease_and_bounded_var, Z.disj2 locally_decr_and_bounded globally_decr_and_bounded)
+                        yield Z.z3Context.MkEq(rel_strict_decrease_and_bounded_var, Z.disj2 locally_decr_and_bounded globally_decr_and_bounded)
                 ]
             else
                 [ for (i, _, _, _) in transitions do
@@ -530,7 +530,7 @@ let build_scc_constraints (pars : Parameters.parameters) transitions mu add_boun
                     let bounded_var = (!bounded_var_for_transition).[i]
                     let rel_strict_decrease_and_bounded_var = Z.fresh_bool_var "bounded_and_decr"
                     decreasing_and_bounded_var_for_transition := Map.add i rel_strict_decrease_and_bounded_var !decreasing_and_bounded_var_for_transition
-                    yield z3.MkEq(rel_strict_decrease_and_bounded_var, (Z.conj2 decreasing_var bounded_var))
+                    yield Z.z3Context.MkEq(rel_strict_decrease_and_bounded_var, (Z.conj2 decreasing_var bounded_var))
                 ]
         ([decr_constraints; bound_constraints; trans_decr_and_bounded_constraints] |> List.concat |> Z.conj, decreasing_and_bounded_var_for_transition, bound_var_for_transition)
     else
