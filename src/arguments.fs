@@ -36,7 +36,6 @@ let parseArguments =
     let mode = ref None
     let output_type = ref None
     let output_file = ref "out"
-    let safety_implementation = ref Parameters.Impact
     let imperative_style = ref Parameters.Goto
     let java_nondet_style = ref Parameters.Aprove
     let fairness_constraint_string = ref ""
