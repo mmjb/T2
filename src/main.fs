@@ -43,6 +43,8 @@ if runMode = Arguments.Test then
     ProgramTests.register_tests parameters
     parameters.create_defect_files <- false
     Test.run_tests parameters.timeout
+    if parameters.print_stats then
+        Stats.printStatistics ()
     Z.finished()
     exit 0;
 
