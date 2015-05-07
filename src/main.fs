@@ -43,6 +43,7 @@ if runMode = Arguments.Test then
     ProgramTests.register_tests parameters
     parameters.create_defect_files <- false
     Test.run_tests parameters.timeout
+    Z.finished()
     exit 0;
 
 if t2_input_file = "" then
