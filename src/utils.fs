@@ -311,6 +311,13 @@ type List<'T> with
     static member contains element list =
         List.exists ((=) element) list 
 
+    static member count pred list =
+        let counter = ref 0
+        for element in list do
+            if pred element then
+                incr counter
+        !counter
+
 type System.Collections.Generic.HashSet<'T> with
     member self.RemoveAll vs =
         Seq.iter (self.Remove >> ignore) vs
@@ -320,6 +327,10 @@ type System.Collections.Generic.HashSet<'T> with
 type System.Collections.Generic.Dictionary<'TKey, 'TValue> with
     member self.RemoveAll vs =
         Seq.iter (self.Remove >> ignore) vs
+    member self.GetWithDefault key defaultValue =
+        match self.TryGetValue key with
+        | (true, value) -> value
+        | (false, _) -> defaultValue
 
 //
 // Euclid's GCD algorithm

@@ -154,7 +154,7 @@ let path_to_transitions_and_var_map p var_map =
 let path_to_formulae p =
     path_to_transitions_and_var_map p Map.empty |> fst
 
-let transitions_to_formulae ts = List.concat [for (_, f, _) in ts -> f]
+let project_transitions_to_formulae ts = List.collect (fun (_, f, _) -> f) ts
 
 /// Vars from 'vars' go to prevars and postvars.
 /// Prevars and postvars are guaranteed to be distinct.
@@ -167,7 +167,7 @@ let path_to_relation path vars =
 
     let (transitions, var_map') = path_to_transitions_and_var_map path Map.empty
 
-    let formulae = transitions_to_formulae transitions
+    let formulae = project_transitions_to_formulae transitions
 
     let copy_forward v idx =
         Formula.Eq(Term.var(Var.prime_var v idx), Term.var(Var.prime_var v (idx + 1)))

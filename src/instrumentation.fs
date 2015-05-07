@@ -740,7 +740,7 @@ let add_fairness_check_transititions p (fairness_constraint : ((Programs.command
         for n in fair_2 do
             Programs.plain_add_transition p fair_node n end_node_of_subproperty
 
-let instrument_X p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
+let instrument_X p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
     let p_X = Programs.copy p
     let final_loc = Programs.new_node p_X
     let p_X_copy = Programs.copy p_X
@@ -751,7 +751,7 @@ let instrument_X p formula (propertyMap : ListDictionary<CTL_Formula, int * Form
     p_X.vars := Set.add ret !p_X.vars
 
     //let cp_conditions = eliminate_redun propertyMap.[formula]
-    let cp_conditions = propertyMap.[formula]
+    let cp_conditions = propertyMap.[formula] |> List.ofSeq
     let cp = cp_conditions |> List.map(fun (x,_) -> x)
 
     for n in !p_X_copy.active do
@@ -795,7 +795,7 @@ let instrument_X p formula (propertyMap : ListDictionary<CTL_Formula, int * Form
 
     (p_X, ret, final_loc, [], Map.empty)
 
-let instrument_G p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
+let instrument_G p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
     let p_G = Programs.copy p
     let final_loc = Programs.new_node p_G
     let p_G_copy = Programs.copy p_G
@@ -803,7 +803,7 @@ let instrument_G p formula (propertyMap : ListDictionary<CTL_Formula, int * Form
     let ret = Formula.subcheck_return_var "0"
     p_G.vars := Set.add ret !p_G.vars
     //let cp_conditions = eliminate_redun propertyMap.[formula]
-    let cp_conditions = propertyMap.[formula]
+    let cp_conditions = propertyMap.[formula] |> List.ofSeq
     let cp = cp_conditions |> List.map(fun (x,_) -> x)
 
     // 2. Instrument in the sub-property: Visit every state, and add links to the check for the sub-property.
@@ -838,7 +838,7 @@ let instrument_G p formula (propertyMap : ListDictionary<CTL_Formula, int * Form
 
     (p_G, ret, final_loc, [], Map.empty)
 
-let instrument_F (pars : Parameters.parameters) p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) findPreconds isExistential =
+let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) findPreconds isExistential =
     let p_F = Programs.copy p
     let final_loc = Programs.new_node p_F
 
@@ -854,7 +854,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : ListDic
     let p_F_copy = Programs.copy p_F
 
     //let cp_conditions = eliminate_redun propertyMap.[formula]
-    let cp_conditions = propertyMap.[formula]
+    let cp_conditions = propertyMap.[formula] |> List.ofSeq
     let cp_propMap = cp_conditions |> List.map(fun (x,_) -> x)
 
     //Prepare node copies for the splitted-out AF instrumentation
@@ -1107,15 +1107,14 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : ListDic
     let loopnode_to_copiednode = loopnode_to_copiednode |> Seq.map (fun x -> (x.Key, x.Value)) |> Map.ofSeq
     (p_F, ret, final_loc, List.ofSeq(loop_var_cmmd), loopnode_to_copiednode)
 
-let instrument_AndOr p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) =
+let instrument_AndOr p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) =
     let p_AndOr = Programs.copy p
     let final_loc = Programs.new_node p_AndOr
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
     p_AndOr.vars := Set.add ret !p_AndOr.vars
 
-    //let cp_conditions = eliminate_redun propertyMap.[formula]
-    let cp_conditions = propertyMap.[formula]
+    let cp_conditions = propertyMap.[formula] |> List.ofSeq
 
     // 2. Instrument in the sub-property only for the initial state
     let init_check_node = ref -1
@@ -1148,7 +1147,7 @@ let instrument_AndOr p formula (propertyMap : ListDictionary<CTL_Formula, int * 
 
     (p_AndOr, ret, final_loc, [], Map.empty)
 
-let bottomUp_AW p formula1 formula2 (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
+let bottomUp_AW p formula1 formula2 (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
     let p_AW = Programs.copy p
 
     if fairness_constraint <> None then
@@ -1163,10 +1162,8 @@ let bottomUp_AW p formula1 formula2 (propertyMap : ListDictionary<CTL_Formula, i
     p_AW.vars := Set.add ret1 !p_AW.vars
     p_AW.vars := Set.add ret2 !p_AW.vars
     
-    //let cp_conditions1 = eliminate_redun propertyMap.[formula1]
-    //let cp_conditions2 = eliminate_redun propertyMap.[formula2]
-    let cp_conditions1 = propertyMap.[formula1]
-    let cp_conditions2 = propertyMap.[formula2]
+    let cp_conditions1 = propertyMap.[formula1] |> List.ofSeq
+    let cp_conditions2 = propertyMap.[formula2] |> List.ofSeq
     let cps = Set.union (Set.ofList (cp_conditions1 |> List.map(fun (x,_) -> x)))
                              (Set.ofList (cp_conditions2 |> List.map(fun (x,_) -> x)))
 
@@ -1227,20 +1224,20 @@ let bottomUp_AW p formula1 formula2 (propertyMap : ListDictionary<CTL_Formula, i
                 node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
     (p_AW, ret, final_loc, [], Map.empty)
 
-let bottomUp_AX p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
+let bottomUp_AX p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
     instrument_X p formula propertyMap fairness_constraint false
-let bottomUp_EX p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
+let bottomUp_EX p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
     instrument_X p formula propertyMap fairness_constraint true
 
 let bottomUp_AG p formula propertyMap fairness_constraint =
     instrument_G p formula propertyMap fairness_constraint false
-let bottomUp_EG (pars : Parameters.parameters) p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly fairness_constraint findPreconds =
+let bottomUp_EG (pars : Parameters.parameters) p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly fairness_constraint findPreconds =
     //is_false in EG is meant for the purpose of recurrent sets, so in this case we attempt to find termination only for AF
     instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds true
 
 let bottomUp_AF (pars : Parameters.parameters) p formula propertyMap isTerminationOnly fairness_constraint findPreconds =
     instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds false
-let bottomUp_EF p formula (propertyMap : ListDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
+let bottomUp_EF p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
     instrument_G p formula propertyMap fairness_constraint true
 
 //Instrumentation of the proposition happens here because in the AF/AG case, I automatically incorporate it.

@@ -49,7 +49,7 @@ let recurrent_state (pars : Parameters.parameters) vars stem cycle count =
     let var_map = ref Map.empty
     for segment in stem :: List.replicate count cycle do
         let f, new_var_map = path_to_transitions_and_var_map segment !var_map
-        let f = transitions_to_formulae f |> Formula.conj
+        let f = project_transitions_to_formulae f |> Formula.conj
         var_map := new_var_map
         var_maps := !var_maps @ [!var_map]
         formulae := !formulae @ [f]
