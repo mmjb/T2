@@ -439,7 +439,9 @@ type ImpactARG(parameters : Parameters.parameters,
                 let to_add = ref true
                 let psi = self.psi v
                 if (not <| Formula.unsat psi) && !to_add then
-                    yield self.make_node v T m
+                    let new_node = self.make_node v T m
+                    Log.log parameters <| sprintf "  Expanded to %d (loc %d)" new_node m
+                    yield new_node
             ] |> List.rev
         else
             []

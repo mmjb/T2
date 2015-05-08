@@ -223,22 +223,3 @@ let get_interval_analysis (p:Programs.Program) (e : Formula.formula)=
                                     |> Seq.map(fun (x,_) -> x)
 
     to_check
-
-let rec weakest_precondition (pi : (int*Programs.command*int) list) =
-
-    match pi with
-    | (_,Programs.Assume(_,f),_)::tail ->   //let vars = Formula.freevars f
-                                            //if vars.Contains Formula.subcalls_var || vars.Contains Formula.subrets_var then
-                                            if Formula.contains_instr_var f then
-                                                (weakest_precondition tail)
-                                            else
-                                                Formula.disj[(Formula.negate(f));(weakest_precondition tail)]
-    | (_,Programs.Assign(_,v,t),_)::tail -> let subvar_t x = if v = x then t else Var(x)
-                                            if Term.contains_nondet t then
-                                                let f = Formula.polyhedra_dnf (weakest_precondition tail) |> Formula.split_disjunction
-                                                let f = f |> List.map(fun x -> SparseLinear.eliminate_var v (SparseLinear.formula_to_linear_terms x))
-                                                f |> List.map(fun x -> x |> List.map (fun y -> SparseLinear.linear_term_to_formula y) |> Formula.conj) |> Formula.disj
-                                            else
-                                                let f = Formula.subst subvar_t (weakest_precondition tail)
-                                                f
-    | [] -> Formula.falsec

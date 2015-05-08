@@ -108,6 +108,7 @@ let register_tests (pars : Parameters.parameters) =
     let inline register_CTL_FAIL_testd file property fairness_constraint =
         Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint None)
 
+    (*
     // Small, manually crafted examples ---------------------------------------------------
     register_term_test "testsuite/small01.t2"
     register_safety_test "testsuite/small02.t2"
@@ -235,6 +236,8 @@ let register_tests (pars : Parameters.parameters) =
 
     //Regression tests for reported bugs in (non)termination:
     register_term_test "regression/Stockholm_true-termination.t2"
+
+    *)
 
     //Heidy's basic Temporal Properties examples, some termination
     register_CTL_SAT_test   "testsuite/heidy1.t2" "[AG] (x_1 >= y_1)" None

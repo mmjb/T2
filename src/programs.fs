@@ -381,6 +381,7 @@ let commands_constants range cmds =
 ///
 let plain_add_transition p n T m =
     let cnt = !p.transitions_cnt
+    //printfn "  Adding %i(%i, %i): %s" cnt n m (commands2pp T)
     p.transitions_cnt := cnt + 1;
     p.active := Set.add cnt !p.active
     if (!p.transitions_cnt >= !transitions_sz) then die()
@@ -572,6 +573,8 @@ let cfg_reach p =
 
 ///Remove transition with index n from the program p
 let remove_transition p n =
+    //let (k,cmds,k') = p.transitions.[n]
+    //printfn "  Rm'ing %i(%i, %i): %s" n k k' (commands2pp cmds)
     p.transitions.[n] <- (-1,[],-1)
     p.active := Set.remove n !p.active
 
@@ -687,7 +690,14 @@ let isolated_regions_non_cp p nodes =
             //Check each SCC:
             for comp in scs do
                 //Weed out trivial one-element SCCs. Invariant guarantees that we have no self-loops:
-                if comp.Count > 1 then
+                let isNontrivial =
+                    if comp.Count > 1 then
+                        true
+                    else
+                        let singletonElement = Set.minElement comp
+                        let outgoingTrans = transitions_from p singletonElement
+                        Seq.exists (fun (_, k) -> k = singletonElement) outgoingTrans
+                if isNontrivial then
                     //Does this SCC only have one entry point?
                     if well_formed dtree comp then
                         //Is that entry point our cutpoint? If yes, add things.
@@ -701,6 +711,7 @@ let isolated_regions_non_cp p nodes =
     ]
 
 let find_loops p =
+    Stats.startTimer "T2 - Find Loops"
     let regions = isolated_regions p
     let cps_to_loops =
         seq {
@@ -714,6 +725,7 @@ let find_loops p =
                 let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> Set.unionMany
                 yield cp, loop
         } |> Map.ofSeq
+    Stats.endTimer "T2 - Find Loops"
     (cps_to_loops, cps_to_sccs)
 
 //Returns a map of a nested loop, out loop
@@ -857,6 +869,69 @@ let const_subst cmd =
         | Assume(pos,f)   ->
             let f' = Formula.subst Formula.eval_const_var f
             Assume(pos,f')
+
+/// Chain linear sequences of program transitions, in-place.
+/// Returns a map from original transition IDs to the freshly chosen transition IDs.
+let chain_program_transitions (pars : Parameters.parameters) (program : Program) (dontChain : int seq) onlyRemoveUnnamed =
+    let dontChain = System.Collections.Generic.HashSet(dontChain)
+    // (1) Create map, giving access to all incoming/outgoing transitions for a location
+    let incomingTransitions = Utils.SetDictionary()
+    let outgoingTransitions = Utils.SetDictionary()
+    for idx in !program.active do
+        let (k, cmds, k') = program.transitions.[idx]
+        incomingTransitions.Add (k', (Set.singleton idx, k, cmds)) |> ignore
+        outgoingTransitions.Add (k, (Set.singleton idx, cmds, k')) |> ignore
+
+    // (2) Then try to chain away each location:
+    for location in !program.locs do
+        if not (dontChain.Contains location) 
+            && (not onlyRemoveUnnamed || not (Map.containsKey location !program.nodeToLabels)) then
+            let incomingCount = incomingTransitions.[location].Count
+            let outgoingCount = outgoingTransitions.[location].Count
+            let incomingEmptySingleton =
+                if incomingCount = 1 && outgoingCount > 0 then
+                    let (_, _, cmds) = incomingTransitions.[location].MinimumElement
+                    cmds.IsEmpty
+                else
+                    false
+            let outgoingEmptySingleton =
+                if outgoingCount = 1 && incomingCount > 0 then
+                    let (_, cmds, _) = outgoingTransitions.[location].MinimumElement
+                    cmds.IsEmpty
+                else
+                    false
+            if (incomingCount = 1 && outgoingCount = 1) then //|| incomingEmptySingleton || outgoingEmptySingleton then
+                let chained = ref true
+                for (inIdx, s, T1) in incomingTransitions.[location] do
+                    for (outIdx, T2, e) in outgoingTransitions.[location] do
+                        //Don't do this for self-loops
+                        if s <> location && e <> location then
+                            if pars.print_log then
+                                Log.log pars <| sprintf "Removed location %i by chaining %A:(%i,%i) w/ %A:(%i,%i)" location inIdx s location outIdx location e
+                            let T = T1@T2
+                            let transIdxSet = Set.union inIdx outIdx
+                            incomingTransitions.RemoveKeyVal e (outIdx, location, T2)
+                            incomingTransitions.Add (e, (transIdxSet, s, T))
+                            outgoingTransitions.RemoveKeyVal s (inIdx, T1, location)
+                            outgoingTransitions.Add (s, (transIdxSet, T, e))
+                        else
+                            chained := true
+                if !chained then
+                    incomingTransitions.Remove location |> ignore
+                    outgoingTransitions.Remove location |> ignore
+
+    // (3) Rewrite the program:
+    program.active := Set.empty
+    program.transitions_cnt := 0
+    program.locs := Set.empty
+    let transMap = System.Collections.Generic.Dictionary()
+    for (startLoc, outgoings) in outgoingTransitions do
+        for (transIdxSet, cmds, endLoc) in outgoings do
+            let newTransIdx = !program.transitions_cnt
+            plain_add_transition program startLoc cmds endLoc
+            for transIdx in transIdxSet do
+                transMap.[transIdx] <- newTransIdx
+    transMap
 
 /// Merge chains of transitions together.
 let chain_transitions nodes_to_consider transitions =

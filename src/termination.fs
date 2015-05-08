@@ -241,15 +241,6 @@ let quantify_proph_var e F formulaMap =
 
     propertyMap_temp
 
-//Generating precondition using weakest precondition
-let findPreCond (cex : (int*Programs.command*int) list)=
-    let f = Analysis.weakest_precondition cex
-    let f = Formula.polyhedra_dnf f |> Formula.split_disjunction
-    let f = (f |> List.map(fun x -> SparseLinear.formula_to_linear_terms x))
-    let f = f |> List.map(fun x -> x |> List.map (fun y -> SparseLinear.linear_term_to_formula y) |> Formula.conj) |> Formula.disj
-    let f = Formula.fromZ3 (Z.simplify(Formula.z3 f))
-    (f, Formula.polyhedra_dnf f |> Formula.split_disjunction)
-
 let findCP (p_loops : Map<int, Set<int>>) all_cutpoints (copy_pair : Map<int, int>) pi =
     let cutp = ref -1
     let pi_rev = ref (List.rev pi)
@@ -339,15 +330,11 @@ let strengthenCond pi_mod p1 =
     (strength_f, disj_fmla)
 
 
-let propTotransitions p f recur pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int> ref) cps_checked_for_term (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
+let propTotransitions (p_orig : Programs.Program) (p_orig_loops : Map<int, Set<int>>) f pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int> ref) cps_checked_for_term (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
     let preStrengthSet = ref Set.empty
-    let (p_loops, _) = Programs.find_loops p
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
-    let elim_node = ref !p.initial
+    let elim_node = ref !p_orig.initial
     let pi_wp = ref pi_mod
-    let recur, r = match recur with
-                   |Some(x) -> (x,true)
-                   |None -> (Formula.falsec, false)
     while !pi_wp <> [] do
         let (x,_,z) = (!pi_wp).Head
         let x = if propDir then x else z
@@ -358,14 +345,14 @@ let propTotransitions p f recur pi_mod cutp existential (loc_to_loopduploc : Map
             //We do not want to find a condition for the non-copy of a cp, only the copy cp
             let(tempfPreCond, _) = findPreCond_FM !pi_wp
             //Propagate to all cutpoints, not just loops.
-            if p_loops.ContainsKey x || List.contains x cps_checked_for_term || Set.contains x !p.locs && isorigNodeNum x p || loopnode_to_copiednode.ContainsValue x then
+            if p_orig_loops.ContainsKey x || List.contains x cps_checked_for_term || Set.contains x !p_orig.locs && isorigNodeNum x p_orig || loopnode_to_copiednode.ContainsValue x then
                 let visited = loc_to_loopduploc.FindWithDefault x x
                 if not((!visited_BU_cp).ContainsKey visited) then
                     let orig =  if loopnode_to_copiednode.ContainsValue x then
                                     let orig_node = loopnode_to_copiednode |> Seq.find(fun y -> y.Value = x)
                                     orig_node.Key
-                                else if p_loops.ContainsKey x then x
-                                else if (!p.locs).Contains x then x
+                                else if p_orig_loops.ContainsKey x then x
+                                else if (!p_orig.locs).Contains x then x
                                 else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x)
 
                     let truefPreCond = if existential then
@@ -382,16 +369,15 @@ let propTotransitions p f recur pi_mod cutp existential (loc_to_loopduploc : Map
     (propertyMap, preStrengthSet)
 
 
-let propogate_func p f recur pi pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int> ref) cps_checked_for_term loopnode_to_copiednode strengthen=
+let propogate_func (p_orig : Programs.Program) (p_orig_loops : Map<int, Set<int>>) (p_orig_sccs : Map<int, Set<int>>) f recur pi pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int> ref) cps_checked_for_term loopnode_to_copiednode strengthen=
     let recurs, r =
         match recur with
         | Some x -> (x, true)
         | None -> (Formula.falsec, false)
-    let (p_loops, p_sccs) = Programs.find_loops p
     //First propagate preconditions to sccs contained within the loop
-    let (propertyMap, preStrengthSet) = propTotransitions p f recur pi_mod cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
+    let (propertyMap, preStrengthSet) = propTotransitions p_orig p_orig_loops f pi_mod cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
     //Second, propagate upwards to non-cp nodes that are not part of any SCCS.
-    let sccs_vals = p_sccs |> Map.filter(fun x y -> x <> cutp) |> Map.toSeq |> Seq.map snd |> Seq.fold (fun acc elem -> Seq.append elem acc) Seq.empty |> Set.ofSeq
+    let sccs_vals = p_orig_sccs |> Map.filter(fun x y -> x <> cutp) |> Map.toSeq |> Seq.map snd |> Seq.fold (fun acc elem -> Seq.append elem acc) Seq.empty |> Set.ofSeq
     if sccs_vals.Contains cutp || r then
         let cp_reached = ref false
         let found_cp = ref false
@@ -405,10 +391,10 @@ let propogate_func p f recur pi pi_mod cutp existential (loc_to_loopduploc : Map
                 pi_rev := (!pi_rev).Tail
                 found_cp := true
             else if !found_cp then
-                if p_loops.ContainsKey x || List.contains x cps_checked_for_term || Set.contains x !p.locs then
+                if p_orig_loops.ContainsKey x || List.contains x cps_checked_for_term || Set.contains x !p_orig.locs then
                     let visited = loc_to_loopduploc.FindWithDefault x x
                     if not((!visited_BU_cp).ContainsKey visited) then
-                        if x = !p.initial || p_loops.ContainsKey x || not(Map.isEmpty (loc_to_loopduploc |> Map.filter(fun _ value -> value = x)))then
+                        if x = !p_orig.initial || p_orig_loops.ContainsKey x || not(Map.isEmpty (loc_to_loopduploc |> Map.filter(fun _ value -> value = x)))then
                             cp_reached := true
                 pi_elim := List.append [(!pi_rev).Head] !pi_elim
                 pi_rev := (!pi_rev).Tail
@@ -418,13 +404,13 @@ let propogate_func p f recur pi pi_mod cutp existential (loc_to_loopduploc : Map
         if r then
             pi_elim := (!pi_elim)@[(node,Programs.assume(recurs),-1)]
 
-        propertyMap.Union(propTotransitions p f recur !pi_elim cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
+        propertyMap.Union(propTotransitions p_orig p_orig_loops f !pi_elim cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
     let is_dup x = loc_to_loopduploc |> Map.filter(fun _ value -> value = x) |> Map.isEmpty |> not
-    let cex_path = pi |> List.map(fun (x,_,_) -> x) |> List.filter(fun x -> Set.contains x !p.locs || loopnode_to_copiednode.ContainsValue x || is_dup x)
+    let cex_path = pi |> List.map(fun (x,_,_) -> x) |> List.filter(fun x -> Set.contains x !p_orig.locs || loopnode_to_copiednode.ContainsValue x || is_dup x)
     let cex_path = cex_path |> List.map(fun x -> if loopnode_to_copiednode.ContainsValue x then
                                                     let orig_node = loopnode_to_copiednode |> Seq.find(fun y -> y.Value = x)
                                                     orig_node.Key
-                                                 else if (!p.locs).Contains x then x
+                                                 else if (!p_orig.locs).Contains x then x
                                                  else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x) )
     (Set.ofList cex_path, propertyMap, preStrengthSet)
 
@@ -449,8 +435,9 @@ let insertForRerun
     (visited_BU_cp : Map<int, int*int> ref)
     (visited_nodes : Set<int> ref)
     (p_final : Programs.Program) =
+    Stats.startTimer "T2 - Insert for rerun"
     //Store in a slot of the datastructure as the original formula (Versus the disjunction splits)
-    let (p_loops, p_sccs) = Programs.find_loops p_orig
+    let (p_orig_loops, p_orig_sccs) = Programs.find_loops p_orig
 
     let fillVisited_BU_cp cutp uncopied_cutp end_sub_node =
         if isAFFormula then
@@ -470,7 +457,7 @@ let insertForRerun
                         if k = cutp then
                             visited_BU_cp := (!visited_BU_cp).Add(cutp, (cutp, k'))
                 else
-                    for node in p_sccs.[cutp] do
+                    for node in p_orig_sccs.[cutp] do
                         if not (loopnode_to_copiednode.ContainsKey node) then
                             let copiednode = Programs.new_node p_final
                             loopnode_to_copiednode.Add(node, copiednode)
@@ -487,11 +474,11 @@ let insertForRerun
                             safety.ResetFrom k
 
                     for (k, cmds, k') in Programs.enumerate_transitions p_orig do
-                        if (k' <> cutp && not(loopnode_to_copiednode.ContainsKey k')) || p_sccs.[cutp].Contains k then
+                        if (k' <> cutp && not(loopnode_to_copiednode.ContainsKey k')) || p_orig_sccs.[cutp].Contains k then
                             if loopnode_to_copiednode.ContainsKey k || loopnode_to_copiednode.ContainsKey k' then
                                 Programs.plain_add_transition p_final (get_copy_of_loopnode k)
                                     cmds (get_copy_of_loopnode k')
-                                if p_loops.ContainsKey k' && k' <> cutp && not ((!visited_BU_cp).ContainsKey k') && loopnode_to_copiednode.ContainsKey k' then
+                                if p_orig_loops.ContainsKey k' && k' <> cutp && not ((!visited_BU_cp).ContainsKey k') && loopnode_to_copiednode.ContainsKey k' then
                                     Programs.plain_add_transition p_final (get_copy_of_loopnode k') [] k'
                         safety.ResetFrom k
 
@@ -531,11 +518,11 @@ let insertForRerun
 
 
     //if cutp = -1, then we are checking a node that occurs before checking any cut-points.
-    let(cutp, pi_mod) = findCP p_loops cps_checked_for_term loc_to_loopduploc pi
+    let(cutp, pi_mod) = findCP p_orig_loops cps_checked_for_term loc_to_loopduploc pi
     let(err_node, end_sub_node) = findErrNode p_final pi
     let orig_cp =
         if isAFFormula then
-            if p_loops.ContainsKey cutp then cutp
+            if p_orig_loops.ContainsKey cutp then cutp
             else loc_to_loopduploc |> Map.findKey(fun _ value -> value = cutp)
         else if cutp = -1 then
             err_node
@@ -564,7 +551,7 @@ let insertForRerun
                     for precondDisjunct in preconditionDisjuncts do
                         Programs.plain_add_transition p_final k (Programs.assume(precondDisjunct)::cmds) k'
 
-            let (visitedOnCex, propogateMap,_) = propogate_func p_orig propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
+            let (visitedOnCex, propogateMap,_) = propogate_func p_orig p_orig_loops p_orig_sccs propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
             propertyMap.Union(propogateMap)
             visited_nodes := Set.union !visited_nodes visitedOnCex
             (false, precondition, preconditionDisjuncts)
@@ -578,7 +565,7 @@ let insertForRerun
                 let (strength_f, disj_fmla) = strengthenCond pi_mod precondition
                 //Add strength formula here to propertyMap
                 let (visitedOnCex ,propogateMap, preStrengthSet) =
-                    propogate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true
+                    propogate_func p_orig p_orig_loops p_orig_sccs propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true
                 visited_nodes := Set.union !visited_nodes visitedOnCex
 
                 preStrengthSet := Set.add (orig_cp, p0) !preStrengthSet
@@ -610,7 +597,7 @@ let insertForRerun
                 (true, strength_f,List.ofSeq !disj_fmla)
 
             else
-                let (visitedOnCex, propogateMap,_) = propogate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
+                let (visitedOnCex, propogateMap,_) = propogate_func p_orig p_orig_loops p_orig_sccs propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
                 visited_nodes := Set.add orig_cp (Set.union !visited_nodes visitedOnCex)
                 propertyMap.Union(propogateMap)
                 (false, precondition, preconditionDisjuncts)
@@ -634,12 +621,12 @@ let insertForRerun
         fillVisited_BU_cp cutp uncopied_cutp end_sub_node
 
     updateInstrumentation preconditionDisjuncts cutp err_node end_sub_node strengthen
+    Stats.endTimer "T2 - Insert for rerun"
 
-let find_instrumented_loops (p_loops : Map<int, Set<int>>) p_instrumented (loc_to_loopduploc: Map<int, int>) =
-    let (instrumented_loops, p_instrumented_sccs) = Programs.find_loops p_instrumented
-    let loc_to_loopduploc = loc_to_loopduploc |> Map.filter (fun x y -> p_loops.ContainsKey x)
+let find_instrumented_loops p_instrumented (p_orig_loops : Map<int, Set<int>>) (p_instrumented_loops : Map<int, Set<int>>) (p_instrumented_sccs : Map<int, Set<int>>) (loc_to_loopduploc: Map<int, int>) =
+    let loc_to_loopduploc = loc_to_loopduploc |> Map.filter (fun x y -> p_orig_loops.ContainsKey x)
     let duplicated_nodes = loc_to_loopduploc |> Map.toList |> List.map(fun (x,y) -> y)
-    let to_add = Set.difference (Set.ofList duplicated_nodes) (Set.ofSeq instrumented_loops.Keys)
+    let to_add = Set.difference (Set.ofList duplicated_nodes) (Set.ofSeq p_instrumented_loops.Keys)
 
     let regions = Programs.isolated_regions_non_cp p_instrumented to_add
     let cps_to_loops =
@@ -655,34 +642,48 @@ let find_instrumented_loops (p_loops : Map<int, Set<int>>) p_instrumented (loc_t
                 yield cp, loop
         } |> Map.ofSeq
 
-    let cps_to_loops = Map.fold (fun acc key value -> Map.add key value acc) instrumented_loops cps_to_loops
+    let cps_to_loops = Map.fold (fun acc key value -> Map.add key value acc) p_instrumented_loops cps_to_loops
     let cps_to_sccs = Map.fold (fun acc key value -> Map.add key value acc) p_instrumented_sccs cps_to_sccs
 
     (cps_to_loops,cps_to_sccs)
 
-let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) precondMap (fairness_constraint : (Formula.formula * Formula.formula) option) existential findPreconds next =
+let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) precondMap (fairness_constraint : (Formula.formula * Formula.formula) option) existential findPreconds next =
     Utils.timeout pars.timeout
     //Maybe let's do some AI first:
-    if pars.do_ai_threshold > (!p.active).Count then
+    if pars.do_ai_threshold > (!p_orig.active).Count then
         Log.log pars <| sprintf "Performing Interval-AI ... "
         pars.did_ai_first <- true
-        do_interval_AI_on_program pars p
+        do_interval_AI_on_program pars p_orig
         Log.log pars <| sprintf "done."
     else
         pars.did_ai_first <- false
 
     ///bottomUp: propertyMap represents a map from subformulas to a set of locations/pre-conditions pairs.
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
-    let (p_instrumented, final_loc, error_loc, cp_rf, loc_to_loopduploc) = Instrumentation.mergeProgramAndProperty pars p f termination_only precondMap fairness_constraint findPreconds next
+    let (p_instrumented, final_loc, error_loc, cp_rf, loc_to_loopduploc) = Instrumentation.mergeProgramAndProperty pars p_orig f termination_only precondMap fairness_constraint findPreconds next
+    (*
+    let transMap = Programs.chain_program_transitions pars p_instrumented (Seq.append cp_rf.Keys (Seq.collect (function (l1,l2) -> [l1;l2]) loc_to_loopduploc.Items)) true
+    //Rewrite cp_rf to new transition names:
+    let cp_rf_serialized = cp_rf |> List.ofSeq
+    for KeyValue (cp, checkerTrans) in cp_rf_serialized do
+        let mappedCheckerTrans = transMap.[checkerTrans]
+        cp_rf.[cp] <- mappedCheckerTrans
+
+    for KeyValue(loc, duploc) in loc_to_loopduploc do
+        if not (Set.contains loc !p_instrumented.locs) then
+            Log.log pars <| sprintf "Removed duplicated location %i" loc
+        if not (Set.contains duploc !p_instrumented.locs) then
+            Log.log pars <| sprintf "Removed location duplicate %i" duploc
+    *)
     let cps_checked_for_term = Seq.toList cp_rf.Keys
 
     let scc_simplification_rfs = ref []
-    let (p_loops, _) = Programs.find_loops p
-    let(_,connected_scc_cp) = Programs.find_loops p_instrumented
-    let (_, p_instrumented_sccs) = find_instrumented_loops p_loops p_instrumented loc_to_loopduploc
+    let (p_orig_loops, _) = Programs.find_loops p_orig
+    let (p_instrumented_loops, p_instrumented_sccs_plain) = Programs.find_loops p_instrumented
+    let (_, p_instrumented_sccs) = find_instrumented_loops p_instrumented p_orig_loops p_instrumented_loops p_instrumented_sccs_plain loc_to_loopduploc
     //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
     let seen_sccs = ref Set.empty
-    for scc in (Map.filter (fun cp _ -> List.contains cp cps_checked_for_term) connected_scc_cp) do
+    for scc in (Map.filter (fun cp _ -> List.contains cp cps_checked_for_term) p_instrumented_sccs_plain) do
         let (cp, scc_nodes) = (scc.Key, scc.Value)
         if not(Set.contains scc_nodes !seen_sccs) then
             seen_sccs := Set.add scc_nodes !seen_sccs
@@ -712,8 +713,8 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
     //BottomUp changes the instrumentation, so make a copy for that purpose here, as we do not want the pre-conditions to persist in other runs
     let p_final = Programs.copy p_instrumented
     let safety = Safety.GetProver pars p_final error_loc
-    //let p_bu_sccs = snd <| Programs.find_loops p_final
-    let p_bu_sccs = snd <| find_instrumented_loops p_loops p_instrumented loc_to_loopduploc
+    let (p_instrumented_loops, p_instrumented_sccs) = Programs.find_loops p_instrumented
+    let (_, p_bu_sccs) = find_instrumented_loops p_instrumented p_orig_loops p_instrumented_loops p_instrumented_sccs loc_to_loopduploc
     ///////////////////////////////////////////////////////////////////////////
     /// Main safety loop, instrumenting in termination arguments when needed //
     ///////////////////////////////////////////////////////////////////////////
@@ -740,9 +741,9 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
         match safety.ErrorLocationReachable() with
         | None ->
             if (propertyMap.[f]).IsEmpty && not(existential) then
-                p_loops.Keys |> Seq.iter (fun locs -> propertyMap.Add(f,(locs,Formula.truec)))
+                p_orig_loops.Keys |> Seq.iter (fun locs -> propertyMap.Add(f,(locs,Formula.truec)))
             else if existential then
-                p_loops.Keys |> Seq.iter (fun locs -> propertyMap.Add(f,(locs,Formula.falsec)))
+                p_orig_loops.Keys |> Seq.iter (fun locs -> propertyMap.Add(f,(locs,Formula.falsec)))
             else
                 ()
             terminating := Some true
@@ -757,7 +758,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
                 //straight-line path to the error loc)
                 //dieWith "Obtained counterexample to termination without a cycle!"
                 if findPreconds then
-                    insertForRerun pars None existential f final_loc p loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_final
+                    insertForRerun pars None existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_final
                 else
                     cex_found := true
                     finished := true
@@ -857,7 +858,7 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
                     if !terminating = Some false then
                         finished := false
                         terminating := None
-                        insertForRerun pars !recurrent_set existential f final_loc p loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_final
+                        insertForRerun pars !recurrent_set existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_final
                     else if !terminating = None && !finished = true then
                         //Giving up, if no lex/recurrent set found, then false and entail giving up.
                         //TODO: Exit recursive bottomUp all together, as we cannot proceed with verification
@@ -868,8 +869,8 @@ let prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formul
         Utils.run_clear()
     done
     //This is marking nodes that have now cex reaching them for existential..
-    for n in !p.locs do
-        if !p.initial <> n && existential && isorigNodeNum n p then
+    for n in !p_orig.locs do
+        if !p_orig.initial <> n && existential && isorigNodeNum n p_orig then
             if loopnode_to_copiednode.ContainsKey n then
                 if not(Set.contains loopnode_to_copiednode.[n] !visited_nodes) && not(Set.contains n !visited_nodes) then
                     propertyMap.Add(f,(n,Formula.falsec))
@@ -1219,6 +1220,7 @@ let rec nTerm f =
     | CTL.EU _ -> raise (new System.NotImplementedException "EU constraints not yet implemented")
 
 let bottomUpProver (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) (fairness_constraint : (Formula.formula * Formula.formula) option) =
+    Z.createZ3Context()
     Utils.timeout pars.timeout
 
     //Under CTL semantics, it is assumed that all paths are infinite. We thus add infinite loops to any terminating paths unless we are explicitly proving termination.

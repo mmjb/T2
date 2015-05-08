@@ -38,7 +38,7 @@ open SafetyInterface
 open Utils
 
 /// Debug helper. If true, prints generated clauses on STDOUT.
-let private printSMT2Horn = false
+let private printSMT2Horn = true 
 
 type MuZWrapper (parameters : Parameters.parameters,
                  program : Programs.Program,
@@ -67,13 +67,13 @@ type MuZWrapper (parameters : Parameters.parameters,
         | Parameters.Spacer -> muZParameters.Add("engine", "spacer")
         | _ ->
             failwithf "Invalid muZ engine '%A' chosen. Exiting" parameters.safety_implementation
-        muZParameters.Add("xform.slice", false)
+        //muZParameters.Add("xform.slice", false)
         muZParameters.Add("xform.inline_linear", false)
-        muZParameters.Add("xform.inline_eager", false)
+        //muZParameters.Add("xform.inline_eager", false)
         muZParameters.Add("use_heavy_mev", true)
         muZParameters.Add("pdr.flexible_trace", true)
         muZParameters.Add("reset_obligation_queue", false)
-        muZParameters.Add("spacer.elim_aux", false)
+        //muZParameters.Add("spacer.elim_aux", false)
         muZParameters.Add("datalog.subsumption", false)
         fixedPoint.Parameters <- muZParameters
 
@@ -102,6 +102,13 @@ type MuZWrapper (parameters : Parameters.parameters,
         let ruleNameToTransitionIdx : Dictionary<string, int> =
             Dictionary<string, int>()
 
+        let declaredVariables : HashSet<Microsoft.Z3.Expr> = HashSet()
+        let registerVariables (vars : Microsoft.Z3.Expr seq) =
+            for v in vars do
+                if declaredVariables.Add v then
+                    printfn "(declare-var %s Int)" (v.ToString())
+        registerVariables z3PreVars
+
         //Build and insert fact for initial state:
         let startFuncDecl = MuZWrapper.GetFuncDeclForLocation fixedPoint locationToFuncDecl z3PredicateDomain !program.initial
         let initState =
@@ -121,6 +128,7 @@ type MuZWrapper (parameters : Parameters.parameters,
             let usedVars =
                 Set.union (Formula.freevars pathCondition) (Set.ofSeq programPreVars)
                 |> Array.ofSeq |> Array.map (fun var -> Z.z3Context.MkIntConst var :> Microsoft.Z3.Expr)
+            registerVariables usedVars
 
             let preFuncDecl = MuZWrapper.GetFuncDeclForLocation fixedPoint locationToFuncDecl z3PredicateDomain k
             let preState = Z.z3Context.MkApp (preFuncDecl, z3PreVars) :?> Microsoft.Z3.BoolExpr
