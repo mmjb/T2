@@ -654,20 +654,22 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
     ///bottomUp: propertyMap represents a map from subformulas to a set of locations/pre-conditions pairs.
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
     let (p_instrumented, final_loc, error_loc, cp_rf, loc_to_loopduploc) = Instrumentation.mergeProgramAndProperty pars p_orig f termination_only precondMap fairness_constraint findPreconds next
-    (*
-    let transMap = Programs.chain_program_transitions pars p_instrumented (Seq.append cp_rf.Keys (Seq.collect (function (l1,l2) -> [l1;l2]) loc_to_loopduploc.Items)) true
-    //Rewrite cp_rf to new transition names:
-    let cp_rf_serialized = cp_rf |> List.ofSeq
-    for KeyValue (cp, checkerTrans) in cp_rf_serialized do
-        let mappedCheckerTrans = transMap.[checkerTrans]
-        cp_rf.[cp] <- mappedCheckerTrans
+    if pars.chaining then
+        let transMap = 
+            Programs.chain_program_transitions pars p_instrumented 
+                (Seq.append cp_rf.Keys (Seq.collect (function (l1,l2) -> [l1;l2]) loc_to_loopduploc.Items))
+                true
+        //Rewrite cp_rf to new transition names:
+        let cp_rf_serialized = cp_rf |> List.ofSeq
+        for KeyValue (cp, checkerTrans) in cp_rf_serialized do
+            let mappedCheckerTrans = transMap.[checkerTrans]
+            cp_rf.[cp] <- mappedCheckerTrans
 
     for KeyValue(loc, duploc) in loc_to_loopduploc do
         if not (Set.contains loc !p_instrumented.locs) then
             Log.log pars <| sprintf "Removed duplicated location %i" loc
         if not (Set.contains duploc !p_instrumented.locs) then
             Log.log pars <| sprintf "Removed location duplicate %i" duploc
-    *)
     let cps_checked_for_term = Set.ofSeq cp_rf.Keys
 
     let scc_simplification_rfs = ref []
@@ -746,12 +748,19 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             //Investigate counterexample. Hopefully returns a solution:
             match Lasso.investigate_cex pars p_final p_instrumented_sccs safety pi !found_disj_rfs !found_lex_rfs lex_info with
             | (None, _) ->
+                if pars.print_debug then
+                    Log.debug pars <| sprintf "Full counterexample we got:"
+                    for (k, cmd, k') in pi do
+                        Log.debug pars <| sprintf "  (%i, %A, %i)" k cmd k'
                 //We hit this case when the counterexample is not due to a cycle (i.e., we
                 //investigated the counterexample, but it wasn't a lasso at all, but just a
                 //straight-line path to the error loc)
                 //dieWith "Obtained counterexample to termination without a cycle!"
                 if findPreconds then
                     insertForRerun pars None existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_final
+
+                    if pars.dottify_input_pgms then
+                        Output.print_dot_program p_final "input__instrumented_cleaned_rerun.dot"
                 else
                     cex_found := true
                     finished := true

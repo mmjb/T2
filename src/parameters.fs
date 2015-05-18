@@ -128,6 +128,9 @@ type parameters = {
     /// Do iterative reachability proving, where only a part of the graph needs to be recomputed after changes:
     mutable iterative_reachability : bool
 
+    /// Chain transitions that connect via unlabeled nodes.
+    mutable chaining : bool
+
     // ---------------------------- Interpolation things ----------------------------
     /// Print interpolants found
     mutable print_interpolants : bool
@@ -183,6 +186,7 @@ let defaultParameters =
         fc_remove_on_fail = false
         fc_unsat_core = false
         iterative_reachability = true
+        chaining = true
 
         print_interpolants = false
         check_interpolants = true
