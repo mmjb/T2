@@ -742,7 +742,7 @@ let add_fairness_check_transititions p (fairness_constraint : ((Programs.command
 
 let instrument_X p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
     let p_X = Programs.copy p
-    let final_loc = Programs.new_node p_X
+    let final_loc = Programs.map p_X "final_loc"
     let p_X_copy = Programs.copy p_X
     let first_states = ref Set.empty
     let next_states = ref Set.empty
@@ -797,7 +797,7 @@ let instrument_X p formula (propertyMap : SetDictionary<CTL_Formula, int * Formu
 
 let instrument_G p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) isExistential =
     let p_G = Programs.copy p
-    let final_loc = Programs.new_node p_G
+    let final_loc = Programs.map p_G "final_loc"
     let p_G_copy = Programs.copy p_G
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
@@ -840,7 +840,7 @@ let instrument_G p formula (propertyMap : SetDictionary<CTL_Formula, int * Formu
 
 let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly (fairness_constraint : ((Programs.command list * Programs.command list) * Programs.command list list) option) findPreconds isExistential =
     let p_F = Programs.copy p
-    let final_loc = Programs.new_node p_F
+    let final_loc = Programs.map p_F "final_loc"
 
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
@@ -1000,7 +1000,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
                         // - pre_final to final - we only need this for the CTL encoding
                         Programs.plain_add_transition p_F k [] copied_k
 
-                        let node_after_copying = Programs.new_node p_F
+                        let node_after_copying = Programs.map p_F ("pre_RF_check_" + k.ToString())
                         if not(isTerminationOnly) then
                             Programs.plain_add_transition p_F
                                 node_to_end_of_subproperty_node_map.[k]
@@ -1014,7 +1014,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
                                         ::assume_ret_value_false_cmd)
                                 node_after_copying
 
-                        let pre_final = Programs.new_node p_F
+                        let pre_final = Programs.map p_F ("after_RF_check_" + k.ToString())
                         // Start with rf 'true' (0=0).
                         Programs.plain_add_transition p_F
                             node_after_copying
@@ -1109,7 +1109,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
 
 let instrument_AndOr p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) =
     let p_AndOr = Programs.copy p
-    let final_loc = Programs.new_node p_AndOr
+    let final_loc = Programs.map p_AndOr "final_loc"
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
     p_AndOr.vars := Set.add ret !p_AndOr.vars
@@ -1153,7 +1153,7 @@ let bottomUp_AW p formula1 formula2 (propertyMap : SetDictionary<CTL_Formula, in
     if fairness_constraint <> None then
         raise (new System.NotImplementedException "Fairness for AW constaints not yet implemented")
 
-    let final_loc = Programs.new_node p_AW
+    let final_loc = Programs.map p_AW "final_loc"
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret1 = Formula.subcheck_return_var "1_1"
     let ret2 = Formula.subcheck_return_var "2_1"
