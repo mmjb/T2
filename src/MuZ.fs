@@ -63,18 +63,18 @@ type MuZWrapper (parameters : Parameters.parameters,
         // Set parameters:
         let muZParameters = Z.z3Context.MkParams()
         match parameters.safety_implementation with
-        | Parameters.PDR -> muZParameters.Add("engine", "pdr")
-        | Parameters.Spacer -> muZParameters.Add("engine", "spacer")
+        | Parameters.PDR -> muZParameters.Add("engine", Z.z3Context.MkSymbol("pdr"))
+        | Parameters.Spacer -> muZParameters.Add("engine", Z.z3Context.MkSymbol("spacer"))
         | _ ->
             failwithf "Invalid muZ engine '%A' chosen. Exiting" parameters.safety_implementation
-        //muZParameters.Add("xform.slice", false)
+        //Turn off some preprocessor options that break traces for us:
         muZParameters.Add("xform.inline_linear", false)
-        //muZParameters.Add("xform.inline_eager", false)
+        muZParameters.Add("xform.inline_eager", false)
+        muZParameters.Add("datalog.subsumption", false)
+        //muZParameters.Add("xform.slice", false)
+
         muZParameters.Add("use_heavy_mev", true)
         muZParameters.Add("pdr.flexible_trace", true)
-        muZParameters.Add("reset_obligation_queue", false)
-        //muZParameters.Add("spacer.elim_aux", false)
-        muZParameters.Add("datalog.subsumption", false)
         fixedPoint.Parameters <- muZParameters
 
         //Prepare bits and pieces:
