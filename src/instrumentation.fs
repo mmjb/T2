@@ -773,8 +773,8 @@ let instrument_X p formula (propertyMap : SetDictionary<CTL_Formula, int * Formu
 
             // Create the two nodes between which we nest the encoding of the subproperty we consider:
             let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_X
-            let ret_true_node = Programs.map p_X ("RET_TRUE" + n.ToString())
-            let ret_false_node = Programs.map p_X ("RET_FALSE" + n.ToString())
+            let ret_true_node = Programs.map p_X ("RET_TRUE_" + n.ToString())
+            let ret_false_node = Programs.map p_X ("RET_FALSE_" + n.ToString())
 
             //Very similar to traditional AG, except we are only adding propositional conditions where there are cut-points
             //We're also handling disjunctions
@@ -814,8 +814,8 @@ let instrument_G p formula (propertyMap : SetDictionary<CTL_Formula, int * Formu
         if (k <> !p_G.initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (List.contains k cp) then
             // Create the two nodes between which we nest the encoding of the subproperty we consider:
             let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_G
-            let ret_true_node = Programs.map p_G ("RET_TRUE" + n.ToString())
-            let ret_false_node = Programs.map p_G ("RET_FALSE" + n.ToString())
+            let ret_true_node = Programs.map p_G ("RET_TRUE_" + n.ToString())
+            let ret_false_node = Programs.map p_G ("RET_FALSE_" + n.ToString())
 
             Programs.plain_add_transition p_G k [] start_node_for_subproperty
 
@@ -906,8 +906,8 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
 
                 //See comments in AG to understand how this works.
                 if List.contains k cp_propMap then
-                    let ret_true_node = Programs.map p_F ("RET_TRUE" + n.ToString())
-                    let ret_false_node = Programs.map p_F ("RET_FALSE" + n.ToString())
+                    let ret_true_node = Programs.map p_F ("RET_TRUE_" + n.ToString())
+                    let ret_false_node = Programs.map p_F ("RET_FALSE_" + n.ToString())
                     
                     add_subproperty_conditions p_F cp_conditions k isExistential start_node_for_subproperty ret_true_node ret_false_node
 
@@ -1130,8 +1130,8 @@ let instrument_AndOr p formula (propertyMap : SetDictionary<CTL_Formula, int * F
         if k = !init_check_node then
             // Create the two nodes between which we nest the encoding of the subproperty we consider:
             let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_AndOr
-            let ret_true_node = Programs.map p_AndOr ("RET_TRUE" + n.ToString())
-            let ret_false_node = Programs.map p_AndOr ("RET_FALSE" + n.ToString())
+            let ret_true_node = Programs.map p_AndOr ("RET_TRUE_" + n.ToString())
+            let ret_false_node = Programs.map p_AndOr ("RET_FALSE_" + n.ToString())
 
             Programs.plain_add_transition p_AndOr k [] start_node_for_subproperty
 
@@ -1180,8 +1180,8 @@ let bottomUp_AW p formula1 formula2 (propertyMap : SetDictionary<CTL_Formula, in
                 Programs.plain_add_transition p_AW k [] start_node_for_subproperty
 
                 // Create two nodes to check the first subproperty we consider:
-                let ret_true_node1 = Programs.map p_AW ("RET1_TRUE" + n.ToString())
-                let ret_false_node1 = Programs.map p_AW ("RET1_FALSE" + n.ToString())
+                let ret_true_node1 = Programs.map p_AW ("RET1_TRUE_" + n.ToString())
+                let ret_false_node1 = Programs.map p_AW ("RET1_FALSE_" + n.ToString())
 
                 add_subproperty_conditions p_AW cp_conditions1 k false start_node_for_subproperty ret_true_node1 ret_false_node1
 
@@ -1193,8 +1193,8 @@ let bottomUp_AW p formula1 formula2 (propertyMap : SetDictionary<CTL_Formula, in
                                                                         Programs.assign ret (Term.Const(bigint.Zero))] second_node_for_subproperty
                                  
                 // Create two nodes to check the second subproperty we consider:
-                let ret_true_node2 = Programs.map p_AW ("RET_TRUE" + n.ToString())
-                let ret_false_node2 = Programs.map p_AW ("RET_FALSE" + n.ToString())
+                let ret_true_node2 = Programs.map p_AW ("RET_TRUE_" + n.ToString())
+                let ret_false_node2 = Programs.map p_AW ("RET_FALSE_" + n.ToString())
 
                 add_subproperty_conditions p_AW cp_conditions2 k false start_node_for_subproperty ret_true_node2 ret_false_node2
 
