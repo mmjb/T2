@@ -38,7 +38,7 @@ open SafetyInterface
 open Utils
 
 /// Debug helper. If true, prints generated clauses on STDOUT.
-let private printSMT2Horn = true 
+let private printSMT2Horn = false
 
 type MuZWrapper (parameters : Parameters.parameters,
                  program : Programs.Program,
@@ -106,7 +106,8 @@ type MuZWrapper (parameters : Parameters.parameters,
         let registerVariables (vars : Microsoft.Z3.Expr seq) =
             for v in vars do
                 if declaredVariables.Add v then
-                    printfn "(declare-var %s Int)" (v.ToString())
+                    if printSMT2Horn then
+                        printfn "(declare-var %s Int)" (v.ToString())
         registerVariables z3PreVars
 
         //Build and insert fact for initial state:
