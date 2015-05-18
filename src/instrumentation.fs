@@ -96,7 +96,7 @@ type LexicographicInfo =
     }
 
 //initialises lex_info
-let init_lex_info (pars : Parameters.parameters) (cutpoints:int list) =
+let init_lex_info (pars : Parameters.parameters) (cutpoints : Set<int>) =
 
     {
         partial_orders= ref ([for cp in cutpoints -> (cp,[])] |> Map.ofList)

@@ -64,6 +64,11 @@ type CTL_Formula =
         | Atom _ -> true
         | _ -> false
 
+    member self.IsExistential =
+        match self with
+        | EF _ | EG _ | EU _ | EX _ -> true
+        | _ -> false
+
     static member freevars formula =
         match formula with
         | Atom a -> 
