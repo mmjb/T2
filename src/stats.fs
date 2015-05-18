@@ -43,10 +43,11 @@ let totalTimes : Dictionary<string, float> = Dictionary()
 
 /// Record start time of some timer.
 let startTimer s =
+    (*
     match startTimes.TryGetValue s with
     | (true, _) ->
         Utils.dieWith "Tried to restart running timer '%s'." s
-    | _ ->
+    | _ -> *)
         startTimes.[s] <- System.DateTime.Now
 
 /// Note end time of some timer.
