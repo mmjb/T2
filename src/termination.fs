@@ -749,10 +749,6 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             //Investigate counterexample. Hopefully returns a solution:
             match Lasso.investigate_cex pars p_final p_instrumented_sccs safety pi !found_disj_rfs !found_lex_rfs lex_info with
             | (None, _) ->
-                if pars.print_debug then
-                    Log.debug pars <| sprintf "Full counterexample we got:"
-                    for (k, cmd, k') in pi do
-                        Log.debug pars <| sprintf "  (%i, %A, %i)" k cmd k'
                 //We hit this case when the counterexample is not due to a cycle (i.e., we
                 //investigated the counterexample, but it wasn't a lasso at all, but just a
                 //straight-line path to the error loc)
