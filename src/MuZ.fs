@@ -63,18 +63,16 @@ type MuZWrapper (parameters : Parameters.parameters,
         // Set parameters:
         let muZParameters = Z.z3Context.MkParams()
         match parameters.safety_implementation with
-        | Parameters.PDR -> muZParameters.Add("engine", Z.z3Context.MkSymbol("pdr"))
-        | Parameters.Spacer -> muZParameters.Add("engine", Z.z3Context.MkSymbol("spacer"))
+        | Parameters.PDR ->
+            muZParameters.Add("engine", Z.z3Context.MkSymbol("pdr"))
+            failwith "PDR support currently broken. Try spacer!"
+        | Parameters.Spacer ->
+            muZParameters.Add("engine", Z.z3Context.MkSymbol("spacer"))
+            muZParameters.Add("use_heavy_mev", true)
+            muZParameters.Add("pdr.flexible_trace", true)
         | _ ->
             failwithf "Invalid muZ engine '%A' chosen. Exiting" parameters.safety_implementation
-        //Turn off some preprocessor options that break traces for us:
-        muZParameters.Add("xform.inline_linear", false)
-        muZParameters.Add("xform.inline_eager", false)
-        muZParameters.Add("datalog.subsumption", false)
-        //muZParameters.Add("xform.slice", false)
 
-        muZParameters.Add("use_heavy_mev", true)
-        muZParameters.Add("pdr.flexible_trace", true)
         fixedPoint.Parameters <- muZParameters
 
         //Prepare bits and pieces:
@@ -180,17 +178,18 @@ type MuZWrapper (parameters : Parameters.parameters,
                     let curRuleName = (rulesInTrace.[i] :?> Microsoft.Z3.StringSymbol).String
                     Log.debug parameters ("  " + curRuleName)
                     if curRuleName <> "init" then
-                        if curRuleName <> "<null>" then //Skip unnamed rules and the initial transition
-                            let transitionIdx = ruleNameToTransitionIdx.[curRuleName]
-                            let (k, cmds, k') = program.transitions.[transitionIdx]
-                            if cmds.IsEmpty then
-                                //This case is important, otherwise we "skip" the transition in the returned CEx, and it looks like there is a gap in the path.
-                                resultTrace <- (k, Programs.assume Formula.truec, k') :: resultTrace
+                        if curRuleName <> "__query" then //Ignore the error fact
+                            if not(ruleNameToTransitionIdx.ContainsKey curRuleName) then
+                                Log.log parameters <| sprintf "Cannot translate transition in muZ counterexample to our representation."
                             else
-                                for cmd in List.rev cmds do
-                                    resultTrace <- (k, cmd, k') :: resultTrace
-                        else
-                            Log.log parameters <| sprintf "Cannot translate transition in muZ counterexample to our representation."
+                                let transitionIdx = ruleNameToTransitionIdx.[curRuleName]
+                                let (k, cmds, k') = program.transitions.[transitionIdx]
+                                if cmds.IsEmpty then
+                                    //This case is important, otherwise we "skip" the transition in the returned CEx, and it looks like there is a gap in the path.
+                                    resultTrace <- (k, Programs.assume Formula.truec, k') :: resultTrace
+                                else
+                                    for cmd in List.rev cmds do
+                                        resultTrace <- (k, cmd, k') :: resultTrace
 
                 fixedPoint.Dispose()
                 Some resultTrace
