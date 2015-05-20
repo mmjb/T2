@@ -672,22 +672,23 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             Log.log pars <| sprintf "Removed location duplicate %i" duploc
     let cps_checked_for_term = Set.ofSeq cp_rf.Keys
 
-    let scc_simplification_rfs = ref []
     let (p_orig_loops, _) = Programs.find_loops p_orig
-    let (_, p_instrumented_sccs_plain) = Programs.find_loops p_instrumented
-    //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
-    let seen_sccs = ref Set.empty
-    for scc in (Map.filter (fun cp _ -> Set.contains cp cps_checked_for_term) p_instrumented_sccs_plain) do
-        let (cp, scc_nodes) = (scc.Key, scc.Value)
-        if not(Set.contains scc_nodes !seen_sccs) then
-            seen_sccs := Set.add scc_nodes !seen_sccs
-            match simplify_scc pars p_instrumented termination_only cp_rf cps_checked_for_term cp scc_nodes with
-            | Some (rfs, removed_transitions) ->
-                scc_simplification_rfs := (rfs, removed_transitions)::(!scc_simplification_rfs)
-            | None ->
-                ()
-    if pars.print_log then
-        Log.log pars <| (List.map snd !scc_simplification_rfs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
+    let scc_simplification_rfs = ref []
+    if pars.lex_term_proof_first then
+        let (_, p_instrumented_sccs_plain) = Programs.find_loops p_instrumented
+        //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
+        let seen_sccs = ref Set.empty
+        for scc in (Map.filter (fun cp _ -> Set.contains cp cps_checked_for_term) p_instrumented_sccs_plain) do
+            let (cp, scc_nodes) = (scc.Key, scc.Value)
+            if not(Set.contains scc_nodes !seen_sccs) then
+                seen_sccs := Set.add scc_nodes !seen_sccs
+                match simplify_scc pars p_instrumented termination_only cp_rf cps_checked_for_term cp scc_nodes with
+                | Some (rfs, removed_transitions) ->
+                    scc_simplification_rfs := (rfs, removed_transitions)::(!scc_simplification_rfs)
+                | None ->
+                    ()
+        if pars.print_log then
+            Log.log pars <| (List.map snd !scc_simplification_rfs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
 
     if pars.dottify_input_pgms then
         Output.print_dot_program p_instrumented "input__instrumented_cleaned.dot"
