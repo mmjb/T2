@@ -42,7 +42,9 @@ let (t2_input_file, runMode, parameters, fairness_constraint_string, output_type
 if runMode = Arguments.Test then
     ProgramTests.register_tests parameters
     parameters.create_defect_files <- false
+    Stats.startTimer "T2 - Total test time"
     Test.run_tests parameters.timeout
+    Stats.endTimer "T2 - Total test time"
     if parameters.print_stats then
         Stats.printStatistics ()
     Z.finished()
