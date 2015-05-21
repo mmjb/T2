@@ -610,6 +610,7 @@ type Oct =
         member self.to_formula = self.to_formula
         member self.to_formula_filtered filter = self.to_formula_filtered filter
 
+
 let register_tests() =
 
     let equiv f1 f2 =
@@ -619,13 +620,13 @@ let register_tests() =
     let y = Term.var "y"
     let z = Term.var "z"
 
-    Test.register_test true (fun () ->
+    Test.register_test true "Octagon-1" (fun () ->
         let oct = Oct.create
         oct.assume Formula.falsec
         equiv oct.to_formula Formula.falsec
     )
 
-    Test.register_test true (fun () ->
+    Test.register_test true "Octagon-2" (fun () ->
         let oct = Oct.create
         oct.assume (Formula.Gt(x, y))
         oct.assume (Formula.Gt(y, z))
@@ -634,7 +635,7 @@ let register_tests() =
         oct.is_empty
     )
 
-    Test.register_test true (fun () ->
+    Test.register_test true "Octagon-3" (fun () ->
         let oct = Oct.create
         oct.assume (Formula.Ge(x, y))
         oct.assume (Formula.Ge(y, z))
@@ -643,7 +644,7 @@ let register_tests() =
         equiv oct.to_formula (Formula.conj [Formula.Eq(x, y); Formula.Eq(y, z)])
     )
 
-    Test.register_test true (fun () ->
+    Test.register_test true "Octagon-4" (fun () ->
         let oct = Oct.create
         oct.assume (Formula.Ge(x, Term.constant 10))
         oct.assign "x" (Term.add x (Term.constant 1))
@@ -658,7 +659,7 @@ let register_tests() =
         equiv oct.to_formula res
     )
 
-    Test.register_test true (fun () ->
+    Test.register_test true "Octagon-5" (fun () ->
         let oct = Oct.create
         oct.assume (Formula.Lt(x, Term.constant 10))
         oct.assume (Formula.Le(z, Term.constant 1))
@@ -679,7 +680,7 @@ let register_tests() =
                 let y = if sy = 1 then Term.var "y" else Term.sub (Term.constant 0) (Term.var "y")
                 let z = Term.mul (Term.var "z") (Term.constant sz)
 
-                Test.register_test true (fun () ->
+                Test.register_test true (sprintf "Octagon-6 [%i,%i,%i]" sx sy sz) (fun () ->
                     let oct = Oct.create
                     oct.assume (Formula.Ge (x, Term.constant 1))
                     oct.assume (Formula.Ge (y, Term.constant 2))

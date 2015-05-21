@@ -45,7 +45,7 @@ module Microsoft.Research.T2.Test
 //
 // List of all unit tests across T2
 //
-let tests = ref ([] : (bool * (unit -> bool) * (string * int)) list)
+let tests = ref ([] : (bool * (unit -> bool) * string) list)
 
 ///
 /// This is set to true if we use register_testd instead of register_test.  The behavior
@@ -66,60 +66,43 @@ let run_tests timeout  =
     let failed = ref []
     let timeouts = ref []
 
-    let run_test (stored, f, info) =
+    let run_test (expectedResult, testClosure, testName) =
         // This is probably not the right thing to do............
         Utils.run_clear ()
-        System.GC.Collect()
 
-        let (file,line) = info
+        printf "%-90s " (testName + ":")
 
-        printf "Running test %s,%d," file line
         let start_time = System.DateTime.Now
-
         try
-            let b = f()
+            let result = testClosure()
 
-            if b <> stored then
-                printf "Regression: %s,%d\n" file line
-                if b then
-                    printf "But it's good, see comment to register_test\n"
-                printf "Stored = %A, Current = %A\n" stored b
-                failed := (info, b, stored) :: !failed;
+            if result = expectedResult then
+                printf "OK after "
+            else
+                printf "FAIL after "
+            printf "%A\n" (System.DateTime.Now.Subtract start_time)
         with
             | :? System.TimeoutException ->
-                printf "Timeout!\n"
-                timeouts := info :: !timeouts
+                printf "Timeout after %A!\n" (System.DateTime.Now.Subtract start_time)
+                timeouts := testName :: !timeouts
             | e ->
-                printf "Regression: %s,%d\n" file line
-                printf "RAISED EXCEPTION!!!!!\n"
-                printf "Exception: %s\n" (e.ToString())
-                failed := (info, false, stored) :: !failed;
+                printf "FAIL after %A -- Got exception:\n %s" (System.DateTime.Now.Subtract start_time) (e.ToString())
+                failed := testName :: !failed;
 
-        printf "%A\n" (System.DateTime.Now.Subtract start_time)
 
     if not !found_debug then
         List.iter run_test !tests
 
-    let failed_len = List.length !failed
-    let timeout_len = List.length !timeouts
-
     printf "\n\n----------------------------------------\n\n"
-    printf "TEST RESULTS: %d regressions and %d timeouts on %d tests\n" failed_len timeout_len num
+    printf "TEST RESULTS: %d regressions and %d timeouts on %d tests\n" (List.length !failed) (List.length !timeouts) num
 
-    if failed_len>0 then
-        printf "\n----------------------------------------\n";
-        printf "Failures:\n\n";
-        let f ((file, line), b, stored) =
-            printf "Regression: %s,%d\n" file line
-            printf "Stored = %A, Current = %A\n\n" stored b
-        List.iter f !failed
+    if not(List.isEmpty !failed) then
+        printf "\n--- Failures:\n"
+        List.iter (fun testName -> printfn "   %s" testName) !failed
 
-    if timeout_len > 0 then
-        printf "\n----------------------------------------\n"
-        printf "Timeouts:\n\n"
-        let f (file, line) =
-            printf "Timeout: %s,%d\n" file line
-        List.iter f !timeouts
+    if not(List.isEmpty !timeouts) then
+        printf "\n--- Timeouts:\n"
+        List.iter (fun testName -> printfn "   %s" testName) !timeouts
 
 ///
 /// if "register_testd" gets called we'll shut off normal testing and just run
@@ -141,10 +124,5 @@ let register_testd s f =
 /// So if this feature eventually was implemented, it would show up
 /// as regression, and thus attract developer's attention.
 ///
-let inline register_test s f =
-    let sf = new System.Diagnostics.StackFrame(true)
-    let st = new System.Diagnostics.StackTrace(sf)
-    let cf = st.GetFrame(0)
-    let k = cf.GetFileLineNumber()
-    let fn = cf.GetFileName()
-    tests := !tests @ [(s, f, (fn, k))]
+let inline register_test expectedResult testName testClosure =
+    tests := !tests @ [(expectedResult, testClosure, testName)]

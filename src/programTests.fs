@@ -39,6 +39,23 @@ let register_tests (pars : Parameters.parameters) =
     let ctl_pars = pars
 
     // Utilities for the different types of tests -----------------------------
+    let termTestName filename fairnessCond =
+        match fairnessCond with
+        | Some fairCond ->
+            sprintf "Fair termination test %s [fair '%s']" filename fairCond
+        | None ->
+            sprintf "Termination test %s" filename
+
+    let safetyTestName filename loc =
+        sprintf "Safety test %s [loc %i]" filename loc
+
+    let ctlTestName filename ctlProperty fairnessCond =
+        match fairnessCond with
+        | Some fairCond ->
+            sprintf "Fair CTL test %s [prop '%s', fair '%s']" filename ctlProperty fairCond
+        | None ->
+            sprintf "CTL test %s [prop '%s']" filename ctlProperty
+
     let t2_run_loc parameters prover s =
         if System.IO.File.Exists s then
             let (p,loc) = Input.load_t2 parameters true s
@@ -72,43 +89,44 @@ let register_tests (pars : Parameters.parameters) =
         | Some(_) -> false
         | None -> true
     let inline register_safety_test file =
-        Test.register_test true (fun () -> t2_run_loc safety_pars safety_prover file)
+        Test.register_test true (safetyTestName file 10000) (fun () -> t2_run_loc safety_pars safety_prover file)
     let inline register_safety_testd file =
         Test.register_testd true (fun () -> t2_run_loc safety_pars safety_prover file)
     let inline register_unsafety_test file =
-        Test.register_test true (fun () -> t2_run_loc safety_pars safety_prover file |> not)
+        Test.register_test true (safetyTestName file 10000) (fun () -> t2_run_loc safety_pars safety_prover file |> not)
     let inline register_unsafety_testd file =
         Test.register_testd true (fun () -> t2_run_loc safety_pars safety_prover file |> not)
 
     let termination_prover p = Termination.bottomUpProver term_pars p ((CTL.AF(CTL.Atom(Formula.falsec)))) true None
     let inline register_term_test file =
-        Test.register_test true (fun () -> t2_run_termination term_pars termination_prover file (Some true))
+        Test.register_test true (termTestName file None) (fun () -> t2_run_termination term_pars termination_prover file (Some true))
     let inline register_term_testd file =
         Test.register_testd true (fun () -> t2_run_termination term_pars termination_prover file (Some true))
     let inline register_nonterm_test file =
-        Test.register_test true (fun () -> t2_run_termination term_pars termination_prover file (Some false))
+        Test.register_test true (termTestName file None) (fun () -> t2_run_termination term_pars termination_prover file (Some false))
     let inline register_nonterm_testd file =
         Test.register_testd true (fun () -> t2_run_termination term_pars termination_prover file (Some false))
 
-    let no_fair_const = (Formula.falsec,Formula.falsec)
-    let parse_fairness_constraint (s : string) =
-        let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes s)
-        Some (Absparse.Fairness_constraint Absflex.token lexbuf)
+    let parse_fairness_constraint (s : string option) =
+        match s with
+        | None -> None
+        | Some s ->
+            let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes s)
+            Some (Absparse.Fairness_constraint Absflex.token lexbuf)
     let bottomUp_prover p actl_fmla fairness_constraint = Termination.bottomUpProver ctl_pars p actl_fmla false fairness_constraint
     let inline register_CTL_SAT_test file property fairness_constraint =
-        Test.register_test true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint (Some true))
+        Test.register_test true (ctlTestName file property fairness_constraint) (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) (Some true))
     let inline register_CTL_SAT_testd file property fairness_constraint =
-        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint (Some true))
+        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) (Some true))
     let inline register_CTL_UNSAT_test file property fairness_constraint =
-        Test.register_test true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint (Some false))
+        Test.register_test true (ctlTestName file property fairness_constraint) (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) (Some false))
     let inline register_CTL_UNSAT_testd file property fairness_constraint =
-        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint (Some false))
+        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) (Some false))
     let inline register_CTL_FAIL_test file property fairness_constraint =
-        Test.register_test true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint None)
+        Test.register_test true (ctlTestName file property fairness_constraint) (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) None)
     let inline register_CTL_FAIL_testd file property fairness_constraint =
-        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property fairness_constraint None)
+        Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) None)
 
-    (*
     // Small, manually crafted examples ---------------------------------------------------
     register_term_test "testsuite/small01.t2"
     register_safety_test "testsuite/small02.t2"
@@ -237,8 +255,6 @@ let register_tests (pars : Parameters.parameters) =
     //Regression tests for reported bugs in (non)termination:
     register_term_test "regression/Stockholm_true-termination.t2"
 
-    *)
-
     //Heidy's basic Temporal Properties examples, some termination
     register_CTL_SAT_test   "testsuite/heidy1.t2" "[AG] (x_1 >= y_1)" None
     register_CTL_UNSAT_test "testsuite/heidy2.t2" "[AG] (x_1 > 1)" None
@@ -264,9 +280,9 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test   "ax_test.t2" "[EX](p <= 0)" None
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
+    register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (Some "(P == 1, Q == 1)")
     //One with bug + Fairness.
-    register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (parse_fairness_constraint "(P == 1, Q == 1)")
+    register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (Some "(P == 1, Q == 1)")
     //No Fairness constraint, should fail
     register_CTL_UNSAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" None
 
@@ -313,7 +329,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "e-pgarch-succeed.t2" "[AG]([AF](wakend == 1))" None
     register_CTL_UNSAT_test "e-pgarch-succeed.t2" "[AG]([EF](wakend == 1))" None
     ////////////////////////////////////////////////////////////////////////////////////////
-    register_CTL_SAT_test "ppblock.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (parse_fairness_constraint "(IoCreateDevice == 1, status == 1)")   
+    register_CTL_SAT_test "ppblock.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (Some "(IoCreateDevice == 1, status == 1)")   
     //No Fairness constraint, should fail
     register_CTL_UNSAT_test "ppblock.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" None
     register_CTL_UNSAT_test "ppblock.t2" "[AG](PPBlockInits <= 0 || ([EF](PPBunlockInits > 0)))" None
@@ -324,7 +340,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test "ppblock.t2" "[EF](PPBlockInits > 0 && [AG](PPBunlockInits <= 0))" None
     //One with bug + Fairness.
     //Same with this one
-    register_CTL_FAIL_test "ppblockbug.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (parse_fairness_constraint "(IoCreateDevice == 1, status == 1)")
+    register_CTL_FAIL_test "ppblockbug.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (Some "(IoCreateDevice == 1, status == 1)")
     ////////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_UNSAT_test "smagilla-fail.t2" "c <= 5 || [EF](resp > 5)" None
     register_CTL_UNSAT_test "smagilla-fail.t2" "c <= 5 && [EG](resp <= 5)" None
