@@ -44,6 +44,17 @@ type MuZWrapper (parameters : Parameters.parameters,
                  program : Programs.Program,
                  errorLocation : int) =
 
+    static member private BuildRule (variables : Microsoft.Z3.Expr[]) (transitionCondition : Microsoft.Z3.BoolExpr) =
+        let variables =
+            if variables.Length = 0 then
+                [| Z.z3Context.MkIntConst "__makeItLookLessEmptyVar" :> Microsoft.Z3.Expr |]
+            else
+                variables
+        if printSMT2Horn then
+            printfn "Prevars: %s" (String.concat ", " (variables |> Seq.map (fun v -> v.ToString())))
+            printfn "(rule %A)" transitionCondition
+        Z.z3Context.MkForall(variables, transitionCondition)
+
     static member private GetFuncDeclForLocation (fixedPoint : Microsoft.Z3.Fixedpoint) (locationToFuncDecl : Dictionary<int, Microsoft.Z3.FuncDecl>) (predDomain : Microsoft.Z3.Sort[]) location =
         match locationToFuncDecl.TryGetValue location with
         | (true, funcDecl) -> funcDecl
@@ -114,9 +125,7 @@ type MuZWrapper (parameters : Parameters.parameters,
             Z.z3Context.MkImplies
                 (Z.z3Context.MkBool true,
                  Z.z3Context.MkApp (startFuncDecl, z3PreVars) :?> Microsoft.Z3.BoolExpr)
-        if printSMT2Horn then
-            printfn "(rule %A)" initState
-        fixedPoint.AddRule (Z.z3Context.MkForall(z3PreVars, initState), Z.z3Context.MkSymbol "init")
+        fixedPoint.AddRule (MuZWrapper.BuildRule z3PreVars initState, Z.z3Context.MkSymbol "init")
 
         //Then, build rules for all transitions:
         for idx in !program.active do
@@ -137,10 +146,8 @@ type MuZWrapper (parameters : Parameters.parameters,
             let postState = Z.z3Context.MkApp (postFuncDecl, postVars) :?> Microsoft.Z3.BoolExpr
 
             let transitionCondition = Z.z3Context.MkImplies (Z.z3Context.MkAnd (preState, Formula.z3 pathCondition), postState)
-            if printSMT2Horn then
-                printfn "(rule %A)" transitionCondition
             let ruleName = sprintf "trans_%i" idx
-            fixedPoint.AddRule (Z.z3Context.MkForall(usedVars, transitionCondition), Z.z3Context.MkSymbol ruleName)
+            fixedPoint.AddRule (MuZWrapper.BuildRule usedVars transitionCondition, Z.z3Context.MkSymbol ruleName)
             ruleNameToTransitionIdx.[ruleName] <- idx
 
         //Finally, build the query:
@@ -148,8 +155,12 @@ type MuZWrapper (parameters : Parameters.parameters,
         let errorQuery = Z.z3Context.MkApp(errorFuncDecl, z3PreVars) :?> Microsoft.Z3.BoolExpr
         if printSMT2Horn then
             printfn "(query %A)" errorQuery
-
-        (fixedPoint, Z.z3Context.MkExists (z3PreVars, errorQuery), ruleNameToTransitionIdx)
+        let queryVars =
+            if z3PreVars.Length = 0 then
+               [| Z.z3Context.MkIntConst "__makeItLookLessEmptyVar" :> Microsoft.Z3.Expr |]
+            else
+               z3PreVars
+        (fixedPoint, Z.z3Context.MkExists (queryVars, errorQuery), ruleNameToTransitionIdx)
 
     interface SafetyProver with
         member self.ErrorLocationReachable () =
