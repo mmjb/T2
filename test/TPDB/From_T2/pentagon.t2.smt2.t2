@@ -1,0 +1,92 @@
+START: 7;
+
+FROM: 0;
+ a_post := nondet();
+ b_post := nondet();
+ c_post := nondet();
+ d_post := nondet();
+ e_post := nondet();
+ sum_post := nondet();
+ assume((0 <= 0) && 1 <= a_post+b_post+c_post+d_post+e_post && sum_post = a_post+b_post+c_post+d_post+e_post);
+ a_0 := a_post;
+ b_0 := b_post;
+ c_0 := c_post;
+ d_0 := d_post;
+ e_0 := e_post;
+ sum_0 := sum_post;
+TO: 1;
+
+FROM: 1;
+ a_post := nondet();
+ d_post := nondet();
+ e_post := nondet();
+ assume(1+e_0 <= 0 && e_post = -1*e_0 && d_post = d_0-e_post && a_post = a_0-e_post);
+ a_0 := a_post;
+ d_0 := d_post;
+ e_0 := e_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ c_post := nondet();
+ d_post := nondet();
+ e_post := nondet();
+ assume(1+d_0 <= 0 && d_post = -1*d_0 && c_post = c_0-d_post && e_post = -1*d_post+e_0);
+ c_0 := c_post;
+ d_0 := d_post;
+ e_0 := e_post;
+TO: 3;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ b_post := nondet();
+ c_post := nondet();
+ d_post := nondet();
+ assume(1+c_0 <= 0 && c_post = -1*c_0 && b_post = b_0-c_post && d_post = -1*c_post+d_0);
+ b_0 := b_post;
+ c_0 := c_post;
+ d_0 := d_post;
+TO: 4;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ a_post := nondet();
+ b_post := nondet();
+ c_post := nondet();
+ assume(1+b_0 <= 0 && b_post = -1*b_0 && a_post = a_0-b_post && c_post = -1*b_post+c_0);
+ a_0 := a_post;
+ b_0 := b_post;
+ c_0 := c_post;
+TO: 5;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ a_post := nondet();
+ b_post := nondet();
+ e_post := nondet();
+ assume(1+a_0 <= 0 && a_post = -1*a_0 && b_post = -1*a_post+b_0 && e_post = -1*a_post+e_0);
+ a_0 := a_post;
+ b_0 := b_post;
+ e_0 := e_post;
+TO: 6;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 0;
+

@@ -1,0 +1,38 @@
+START: 5;
+
+FROM: 0;
+ hi_post := nondet();
+ assume((0 <= 0));
+ hi_0 := hi_post;
+TO: 1;
+
+FROM: 0;
+ lo_post := nondet();
+ assume((0 <= 0));
+ lo_0 := lo_post;
+TO: 1;
+
+FROM: 2;
+ assume(lo_0 <= hi_0);
+TO: 3;
+
+FROM: 2;
+ assume(1+hi_0 <= lo_0);
+TO: 0;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 4;
+ hi_post := nondet();
+ lo_post := nondet();
+ assume(hi_post = 0 && lo_post = __const_99_0);
+ hi_0 := hi_post;
+ lo_0 := lo_post;
+TO: 1;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 4;
+

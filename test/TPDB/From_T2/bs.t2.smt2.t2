@@ -1,0 +1,64 @@
+START: 6;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 0;
+ fvalue3_post := nondet();
+ up5_post := nondet();
+ assume(up5_post = -1+low6_0);
+ fvalue3_0 := fvalue3_post;
+ up5_0 := up5_post;
+TO: 2;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 3;
+ ret_binary_search7_post := nondet();
+ tmp_post := nondet();
+ assume(1+up5_0 <= low6_0 && ret_binary_search7_post = fvalue3_0 && tmp_post = ret_binary_search7_post);
+ ret_binary_search7_0 := ret_binary_search7_post;
+ tmp_0 := tmp_post;
+TO: 4;
+
+FROM: 3;
+ mid4_post := nondet();
+ assume(low6_0 <= up5_0);
+ mid4_0 := mid4_post;
+TO: 0;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 1;
+ low6_post := nondet();
+ assume(low6_post = 1+mid4_0);
+ low6_0 := low6_post;
+TO: 2;
+
+FROM: 1;
+ up5_post := nondet();
+ assume(up5_post = -1+mid4_0);
+ up5_0 := up5_post;
+TO: 2;
+
+FROM: 5;
+ fvalue3_post := nondet();
+ low6_post := nondet();
+ up5_post := nondet();
+ x2_post := nondet();
+ assume(x2_post = __const_8_0 && low6_post = 0 && up5_post = __const_14_0 && fvalue3_post = -1);
+ fvalue3_0 := fvalue3_post;
+ low6_0 := low6_post;
+ up5_0 := up5_post;
+ x2_0 := x2_post;
+TO: 2;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

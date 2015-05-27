@@ -1,0 +1,46 @@
+START: 3;
+
+FROM: 0;
+ arg1P := nondet();
+ arg2P := nondet();
+ assume(arg1 > 0 && arg2 > -1 && arg2 = arg1P);
+ arg1 := arg1P;
+ arg2 := arg2P;
+TO: 1;
+
+FROM: 1;
+ arg1P := nondet();
+ arg2P := nondet();
+ assume(arg1 < 21 && arg1 > 10 && arg1-1 = arg1P);
+ arg1 := arg1P;
+ arg2 := arg2P;
+TO: 2;
+
+FROM: 1;
+ arg1P := nondet();
+ arg2P := nondet();
+ assume(arg1 > 20 && arg1+1 = arg1P);
+ arg1 := arg1P;
+ arg2 := arg2P;
+TO: 2;
+
+FROM: 2;
+ arg2P := nondet();
+ assume(arg1 < 30);
+ arg2 := arg2P;
+TO: 1;
+
+FROM: 2;
+ arg2P := nondet();
+ assume(arg1 > 30);
+ arg2 := arg2P;
+TO: 1;
+
+FROM: 3;
+ arg1P := nondet();
+ arg2P := nondet();
+ assume((0 <= 0));
+ arg1 := arg1P;
+ arg2 := arg2P;
+TO: 0;
+

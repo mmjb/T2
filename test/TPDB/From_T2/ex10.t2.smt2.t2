@@ -1,0 +1,112 @@
+START: 12;
+
+FROM: 0;
+ i6_post := nondet();
+ assume((0 <= 0));
+ i6_0 := i6_post;
+TO: 1;
+
+FROM: 0;
+ ret_f19_post := nondet();
+ assume(ret_f19_post = 1);
+ ret_f19_0 := ret_f19_post;
+TO: 2;
+
+FROM: 2;
+ tmp_post := nondet();
+ assume(tmp_post = ret_f19_0);
+ tmp_0 := tmp_post;
+TO: 3;
+
+FROM: 4;
+ ret_f19_post := nondet();
+ assume(ret_f19_post = ret28_0);
+ ret_f19_0 := ret_f19_post;
+TO: 2;
+
+FROM: 5;
+ ret_f19_post := nondet();
+ assume(ret28_0 <= 0 && 0 <= ret28_0 && ret_f19_post = 0);
+ ret_f19_0 := ret_f19_post;
+TO: 2;
+
+FROM: 5;
+ assume(1 <= ret28_0);
+TO: 4;
+
+FROM: 5;
+ assume(1+ret28_0 <= 0);
+TO: 4;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 7;
+ ret_f19_post := nondet();
+ assume(ret_f19_post = ret17_0);
+ ret_f19_0 := ret_f19_post;
+TO: 2;
+
+FROM: 8;
+ i6_post := nondet();
+ assume(ret17_0 <= 0 && 0 <= ret17_0 && i6_post = -1+i6_0);
+ i6_0 := i6_post;
+TO: 1;
+
+FROM: 8;
+ assume(1 <= ret17_0);
+TO: 7;
+
+FROM: 8;
+ assume(1+ret17_0 <= 0);
+TO: 7;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 9;
+
+FROM: 10;
+ data16_post := nondet();
+ ret17_post := nondet();
+ ret_f212_post := nondet();
+ val10_post := nondet();
+ assume(data16_post = val10_post && ret_f212_post = 0 && ret17_post = ret_f212_post);
+ data16_0 := data16_post;
+ ret17_0 := ret17_post;
+ ret_f212_0 := ret_f212_post;
+ val10_0 := val10_post;
+TO: 8;
+
+FROM: 9;
+ data18_post := nondet();
+ ret28_post := nondet();
+ ret_f215_post := nondet();
+ val13_post := nondet();
+ assume(i6_0 <= 0 && 0 <= i6_0 && data18_post = val13_post && ret_f215_post = 0 && ret28_post = ret_f215_post);
+ data18_0 := data18_post;
+ ret28_0 := ret28_post;
+ ret_f215_0 := ret_f215_post;
+ val13_0 := val13_post;
+TO: 5;
+
+FROM: 9;
+ assume(1 <= i6_0);
+TO: 10;
+
+FROM: 9;
+ assume(1+i6_0 <= 0);
+TO: 10;
+
+FROM: 11;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 12;
+ assume((0 <= 0));
+TO: 11;
+

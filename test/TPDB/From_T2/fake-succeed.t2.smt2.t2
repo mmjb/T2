@@ -1,0 +1,1001 @@
+START: 88;
+
+FROM: 0;
+ assume(CurrentWaitIrp_0 <= 0 && 0 <= CurrentWaitIrp_0);
+TO: 1;
+
+FROM: 0;
+ assume(1 <= CurrentWaitIrp_0);
+TO: 2;
+
+FROM: 0;
+ assume(1+CurrentWaitIrp_0 <= 0);
+TO: 2;
+
+FROM: 3;
+ i1212_post := nondet();
+ keR_post := nondet();
+ keR_1 := nondet();
+ assume(keR_1 = 1 && keR_post = 0 && i1212_post = OldIrql_0);
+ i1212_0 := i1212_post;
+ keR_0 := keR_post;
+TO: 0;
+
+FROM: 4;
+ status_post := nondet();
+ x1010_post := nondet();
+ assume(__rho_7__0 <= 0 && x1010_post = Irp_0 && status_post = __const_7_0);
+ status_0 := status_post;
+ x1010_0 := x1010_post;
+TO: 3;
+
+FROM: 4;
+ status_post := nondet();
+ assume(1 <= __rho_7__0 && status_post = 1);
+ status_0 := status_post;
+TO: 3;
+
+FROM: 5;
+ CurrentWaitIrp_post := nondet();
+ __rho_7__post := nondet();
+ keA_post := nondet();
+ keA_1 := nondet();
+ assume(keA_1 = 1 && keA_post = 0);
+ CurrentWaitIrp_0 := CurrentWaitIrp_post;
+ __rho_7__0 := __rho_7__post;
+ keA_0 := keA_post;
+TO: 4;
+
+FROM: 6;
+ assume(__rho_6__0 <= 0);
+TO: 5;
+
+FROM: 6;
+ status_post := nondet();
+ assume(1 <= __rho_6__0 && status_post = 4);
+ status_0 := status_post;
+TO: 5;
+
+FROM: 7;
+ assume(__rho_5__0 <= 0);
+TO: 8;
+
+FROM: 7;
+ CurrentWaitIrp_post := nondet();
+ __rho_6__post := nondet();
+ assume(1 <= __rho_5__0 && CurrentWaitIrp_post = 0);
+ CurrentWaitIrp_0 := CurrentWaitIrp_post;
+ __rho_6__0 := __rho_6__post;
+TO: 6;
+
+FROM: 9;
+ x66_post := nondet();
+ y77_post := nondet();
+ assume(x66_post = CurrentWaitIrp_0 && y77_post = 2);
+ x66_0 := x66_post;
+ y77_0 := y77_post;
+TO: 1;
+
+FROM: 10;
+ assume(CurrentWaitIrp_0 <= 0 && 0 <= CurrentWaitIrp_0);
+TO: 1;
+
+FROM: 10;
+ assume(1 <= CurrentWaitIrp_0);
+TO: 9;
+
+FROM: 10;
+ assume(1+CurrentWaitIrp_0 <= 0);
+TO: 9;
+
+FROM: 11;
+ NewMask_post := nondet();
+ i55_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(__rho_4__0 <= 0 && keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i55_post = OldIrql_0);
+ NewMask_0 := NewMask_post;
+ i55_0 := i55_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 10;
+
+FROM: 11;
+ status_post := nondet();
+ assume(1 <= __rho_4__0 && status_post = 4);
+ status_0 := status_post;
+TO: 1;
+
+FROM: 12;
+ assume(__rho_3__0 <= 0);
+TO: 7;
+
+FROM: 12;
+ CurrentWaitIrp_post := nondet();
+ NewMask_post := nondet();
+ __rho_4__post := nondet();
+ assume(1 <= __rho_3__0 && CurrentWaitIrp_post = 0);
+ CurrentWaitIrp_0 := CurrentWaitIrp_post;
+ NewMask_0 := NewMask_post;
+ __rho_4__0 := __rho_4__post;
+TO: 11;
+
+FROM: 1;
+ assume(status_0 <= __const_7_0 && __const_7_0 <= status_0);
+TO: 13;
+
+FROM: 1;
+ assume(1+__const_7_0 <= status_0);
+TO: 14;
+
+FROM: 1;
+ assume(1+status_0 <= __const_7_0);
+TO: 14;
+
+FROM: 15;
+ assume(__rho_2__0 <= 0);
+TO: 1;
+
+FROM: 15;
+ status_post := nondet();
+ assume(1 <= __rho_2__0 && status_post = 4);
+ status_0 := status_post;
+TO: 1;
+
+FROM: 16;
+ assume(__rho_1__0 <= 0);
+TO: 12;
+
+FROM: 16;
+ __rho_2__post := nondet();
+ assume(1 <= __rho_1__0);
+ __rho_2__0 := __rho_2__post;
+TO: 15;
+
+FROM: 17;
+ assume((0 <= 0));
+TO: 18;
+
+FROM: 18;
+ assume((0 <= 0));
+TO: 17;
+
+FROM: 19;
+ assume((0 <= 0));
+TO: 20;
+
+FROM: 13;
+ x6565_post := nondet();
+ assume(x6565_post = DeviceObject_0);
+ x6565_0 := x6565_post;
+TO: 21;
+
+FROM: 22;
+ x6363_post := nondet();
+ y6464_post := nondet();
+ assume(x6363_post = Irp_0 && y6464_post = status_0);
+ x6363_0 := x6363_post;
+ y6464_0 := y6464_post;
+TO: 13;
+
+FROM: 14;
+ assume(Irp_0 <= 0 && 0 <= Irp_0);
+TO: 13;
+
+FROM: 14;
+ assume(1 <= Irp_0);
+TO: 22;
+
+FROM: 14;
+ assume(1+Irp_0 <= 0);
+TO: 22;
+
+FROM: 23;
+ status_post := nondet();
+ assume(__rho_22__0 <= 0 && status_post = __const_41_0);
+ status_0 := status_post;
+TO: 1;
+
+FROM: 23;
+ assume(1 <= __rho_22__0);
+TO: 1;
+
+FROM: 24;
+ i6262_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i6262_post = OldIrql_0);
+ i6262_0 := i6262_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 1;
+
+FROM: 25;
+ assume(__rho_34__0 <= 0);
+TO: 24;
+
+FROM: 25;
+ status_post := nondet();
+ assume(1 <= __rho_34__0 && status_post = 4);
+ status_0 := status_post;
+TO: 24;
+
+FROM: 26;
+ assume(__rho_21__0 <= 0);
+TO: 23;
+
+FROM: 26;
+ __rho_34__post := nondet();
+ assume(1 <= __rho_21__0);
+ __rho_34__0 := __rho_34__post;
+TO: 25;
+
+FROM: 27;
+ status_post := nondet();
+ assume(status_post = __const_15_0);
+ status_0 := status_post;
+TO: 28;
+
+FROM: 29;
+ LStop_post := nondet();
+ assume(LStop_post = __const_33_0);
+ LStop_0 := LStop_post;
+TO: 28;
+
+FROM: 30;
+ assume(1+__const_27_0 <= LData_0);
+TO: 29;
+
+FROM: 30;
+ assume(1+LData_0 <= __const_27_0);
+TO: 29;
+
+FROM: 30;
+ status_post := nondet();
+ assume(LData_0 <= __const_27_0 && __const_27_0 <= LData_0 && status_post = __const_15_0);
+ status_0 := status_post;
+TO: 29;
+
+FROM: 31;
+ assume(1+__const_29_0 <= __rho_33__0);
+TO: 27;
+
+FROM: 31;
+ assume(1+__rho_33__0 <= __const_29_0);
+TO: 27;
+
+FROM: 31;
+ assume(__rho_33__0 <= __const_29_0 && __const_29_0 <= __rho_33__0);
+TO: 30;
+
+FROM: 32;
+ LStop_post := nondet();
+ assume(LStop_post = __const_37_0);
+ LStop_0 := LStop_post;
+TO: 28;
+
+FROM: 33;
+ status_post := nondet();
+ assume(status_post = __const_15_0);
+ status_0 := status_post;
+TO: 32;
+
+FROM: 34;
+ assume(LData_0 <= __const_27_0 && __const_27_0 <= LData_0);
+TO: 32;
+
+FROM: 34;
+ assume(1+__const_27_0 <= LData_0);
+TO: 33;
+
+FROM: 34;
+ assume(1+LData_0 <= __const_27_0);
+TO: 33;
+
+FROM: 35;
+ assume(1+__const_36_0 <= __rho_33__0);
+TO: 31;
+
+FROM: 35;
+ assume(1+__rho_33__0 <= __const_36_0);
+TO: 31;
+
+FROM: 35;
+ assume(__rho_33__0 <= __const_36_0 && __const_36_0 <= __rho_33__0);
+TO: 34;
+
+FROM: 28;
+ i5858_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i5858_post = OldIrql_0);
+ i5858_0 := i5858_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 1;
+
+FROM: 36;
+ assume(1+__const_28_0 <= __rho_33__0);
+TO: 35;
+
+FROM: 36;
+ assume(1+__rho_33__0 <= __const_28_0);
+TO: 35;
+
+FROM: 36;
+ LStop_post := nondet();
+ assume(__rho_33__0 <= __const_28_0 && __const_28_0 <= __rho_33__0 && LStop_post = __const_32_0);
+ LStop_0 := LStop_post;
+TO: 28;
+
+FROM: 37;
+ status_post := nondet();
+ assume(status_post = __const_15_0);
+ status_0 := status_post;
+TO: 38;
+
+FROM: 39;
+ assume(1+__const_36_0 <= __rho_32__0);
+TO: 37;
+
+FROM: 39;
+ assume(1+__rho_32__0 <= __const_36_0);
+TO: 37;
+
+FROM: 39;
+ LParity_post := nondet();
+ assume(__rho_32__0 <= __const_36_0 && __const_36_0 <= __rho_32__0 && LParity_post = __const_37_0);
+ LParity_0 := LParity_post;
+TO: 38;
+
+FROM: 40;
+ assume(1+__const_34_0 <= __rho_32__0);
+TO: 39;
+
+FROM: 40;
+ assume(1+__rho_32__0 <= __const_34_0);
+TO: 39;
+
+FROM: 40;
+ LParity_post := nondet();
+ assume(__rho_32__0 <= __const_34_0 && __const_34_0 <= __rho_32__0 && LParity_post = __const_35_0);
+ LParity_0 := LParity_post;
+TO: 38;
+
+FROM: 41;
+ assume(1+__const_32_0 <= __rho_32__0);
+TO: 40;
+
+FROM: 41;
+ assume(1+__rho_32__0 <= __const_32_0);
+TO: 40;
+
+FROM: 41;
+ LParity_post := nondet();
+ assume(__rho_32__0 <= __const_32_0 && __const_32_0 <= __rho_32__0 && LParity_post = __const_33_0);
+ LParity_0 := LParity_post;
+TO: 38;
+
+FROM: 42;
+ assume(1+__const_30_0 <= __rho_32__0);
+TO: 41;
+
+FROM: 42;
+ assume(1+__rho_32__0 <= __const_30_0);
+TO: 41;
+
+FROM: 42;
+ LParity_post := nondet();
+ assume(__rho_32__0 <= __const_30_0 && __const_30_0 <= __rho_32__0 && LParity_post = __const_31_0);
+ LParity_0 := LParity_post;
+TO: 38;
+
+FROM: 38;
+ __rho_33__post := nondet();
+ assume((0 <= 0));
+ __rho_33__0 := __rho_33__post;
+TO: 36;
+
+FROM: 43;
+ assume(1+__const_28_0 <= __rho_32__0);
+TO: 42;
+
+FROM: 43;
+ assume(1+__rho_32__0 <= __const_28_0);
+TO: 42;
+
+FROM: 43;
+ LParity_post := nondet();
+ assume(__rho_32__0 <= __const_28_0 && __const_28_0 <= __rho_32__0 && LParity_post = __const_29_0);
+ LParity_0 := LParity_post;
+TO: 38;
+
+FROM: 44;
+ assume((0 <= 0));
+TO: 45;
+
+FROM: 46;
+ assume((0 <= 0));
+TO: 47;
+
+FROM: 48;
+ status_post := nondet();
+ assume(status_post = __const_15_0);
+ status_0 := status_post;
+TO: 49;
+
+FROM: 50;
+ assume(1+__const_8_0 <= __rho_31__0);
+TO: 48;
+
+FROM: 50;
+ assume(1+__rho_31__0 <= __const_8_0);
+TO: 48;
+
+FROM: 50;
+ LData_post := nondet();
+ assume(__rho_31__0 <= __const_8_0 && __const_8_0 <= __rho_31__0 && LData_post = __const_26_0);
+ LData_0 := LData_post;
+TO: 49;
+
+FROM: 51;
+ assume(1+__const_7_0 <= __rho_31__0);
+TO: 50;
+
+FROM: 51;
+ assume(1+__rho_31__0 <= __const_7_0);
+TO: 50;
+
+FROM: 51;
+ LData_post := nondet();
+ Mask_post := nondet();
+ assume(__rho_31__0 <= __const_7_0 && __const_7_0 <= __rho_31__0 && LData_post = __const_25_0 && Mask_post = __const_127_0);
+ LData_0 := LData_post;
+ Mask_0 := Mask_post;
+TO: 49;
+
+FROM: 52;
+ assume(1+__const_6_0 <= __rho_31__0);
+TO: 51;
+
+FROM: 52;
+ assume(1+__rho_31__0 <= __const_6_0);
+TO: 51;
+
+FROM: 52;
+ LData_post := nondet();
+ Mask_post := nondet();
+ assume(__rho_31__0 <= __const_6_0 && __const_6_0 <= __rho_31__0 && LData_post = __const_24_0 && Mask_post = __const_63_0);
+ LData_0 := LData_post;
+ Mask_0 := Mask_post;
+TO: 49;
+
+FROM: 49;
+ __rho_32__post := nondet();
+ assume((0 <= 0));
+ __rho_32__0 := __rho_32__post;
+TO: 43;
+
+FROM: 45;
+ __rho_12__post := nondet();
+ __rho_13__post := nondet();
+ __rho_14__post := nondet();
+ __rho_15__post := nondet();
+ __rho_16__post := nondet();
+ __rho_17__post := nondet();
+ __rho_18__post := nondet();
+ __rho_19__post := nondet();
+ __rho_1__post := nondet();
+ __rho_20__post := nondet();
+ __rho_21__post := nondet();
+ __rho_22__post := nondet();
+ __rho_3__post := nondet();
+ __rho_5__post := nondet();
+ __rho_8__post := nondet();
+ assume((0 <= 0));
+ __rho_12__0 := __rho_12__post;
+ __rho_13__0 := __rho_13__post;
+ __rho_14__0 := __rho_14__post;
+ __rho_15__0 := __rho_15__post;
+ __rho_16__0 := __rho_16__post;
+ __rho_17__0 := __rho_17__post;
+ __rho_18__0 := __rho_18__post;
+ __rho_19__0 := __rho_19__post;
+ __rho_1__0 := __rho_1__post;
+ __rho_20__0 := __rho_20__post;
+ __rho_21__0 := __rho_21__post;
+ __rho_22__0 := __rho_22__post;
+ __rho_3__0 := __rho_3__post;
+ __rho_5__0 := __rho_5__post;
+ __rho_8__0 := __rho_8__post;
+TO: 16;
+
+FROM: 53;
+ assume(1+__const_5_0 <= __rho_31__0);
+TO: 52;
+
+FROM: 53;
+ assume(1+__rho_31__0 <= __const_5_0);
+TO: 52;
+
+FROM: 53;
+ LData_post := nondet();
+ Mask_post := nondet();
+ assume(__rho_31__0 <= __const_5_0 && __const_5_0 <= __rho_31__0 && LData_post = __const_27_0 && Mask_post = __const_31_0);
+ LData_0 := LData_post;
+ Mask_0 := Mask_post;
+TO: 49;
+
+FROM: 54;
+ __rho_31__post := nondet();
+ assume((0 <= 0));
+ __rho_31__0 := __rho_31__post;
+TO: 53;
+
+FROM: 55;
+ assume(__rho_30__0 <= 0);
+TO: 54;
+
+FROM: 55;
+ status_post := nondet();
+ assume(1 <= __rho_30__0 && status_post = 4);
+ status_0 := status_post;
+TO: 54;
+
+FROM: 56;
+ assume(__rho_20__0 <= 0);
+TO: 26;
+
+FROM: 56;
+ LData_post := nondet();
+ LParity_post := nondet();
+ LStop_post := nondet();
+ Mask_post := nondet();
+ __rho_30__post := nondet();
+ pLineControl_post := nondet();
+ assume(1 <= __rho_20__0 && LData_post = 0 && LStop_post = 0 && LParity_post = 0 && Mask_post = __const_255_0);
+ LData_0 := LData_post;
+ LParity_0 := LParity_post;
+ LStop_0 := LStop_post;
+ Mask_0 := Mask_post;
+ __rho_30__0 := __rho_30__post;
+ pLineControl_0 := pLineControl_post;
+TO: 55;
+
+FROM: 57;
+ i5454_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(__rho_29__0 <= 0 && keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i5454_post = OldIrql_0);
+ i5454_0 := i5454_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 1;
+
+FROM: 57;
+ status_post := nondet();
+ assume(1 <= __rho_29__0 && status_post = 4);
+ status_0 := status_post;
+TO: 1;
+
+FROM: 58;
+ assume(__rho_19__0 <= 0);
+TO: 56;
+
+FROM: 58;
+ __rho_29__post := nondet();
+ pBaudRate_post := nondet();
+ assume(1 <= __rho_19__0);
+ __rho_29__0 := __rho_29__post;
+ pBaudRate_0 := pBaudRate_post;
+TO: 57;
+
+FROM: 59;
+ assume(2 <= status_0 && status_0 <= 2);
+TO: 45;
+
+FROM: 59;
+ assume(1+status_0 <= 2);
+TO: 17;
+
+FROM: 59;
+ assume(3 <= status_0);
+TO: 17;
+
+FROM: 60;
+ i5050_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(__rho_28__0 <= 0 && keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i5050_post = OldIrql_0);
+ i5050_0 := i5050_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 1;
+
+FROM: 60;
+ status_post := nondet();
+ assume(1 <= __rho_28__0 && status_post = 4);
+ status_0 := status_post;
+TO: 1;
+
+FROM: 61;
+ assume(__rho_18__0 <= 0);
+TO: 58;
+
+FROM: 61;
+ __rho_28__post := nondet();
+ assume(1 <= __rho_18__0);
+ __rho_28__0 := __rho_28__post;
+TO: 60;
+
+FROM: 62;
+ assume(__rho_27__0 <= 0);
+TO: 1;
+
+FROM: 62;
+ status_post := nondet();
+ assume(1 <= __rho_27__0 && status_post = 4);
+ status_0 := status_post;
+TO: 1;
+
+FROM: 63;
+ assume(__rho_17__0 <= 0);
+TO: 61;
+
+FROM: 63;
+ __rho_27__post := nondet();
+ assume(1 <= __rho_17__0);
+ __rho_27__0 := __rho_27__post;
+TO: 62;
+
+FROM: 64;
+ assume(__rho_16__0 <= 0);
+TO: 63;
+
+FROM: 64;
+ i4545_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ x4646_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(1 <= __rho_16__0 && keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i4545_post = OldIrql_0 && x4646_post = DeviceObject_0);
+ i4545_0 := i4545_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+ x4646_0 := x4646_post;
+TO: 1;
+
+FROM: 65;
+ i4141_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i4141_post = OldIrql_0);
+ i4141_0 := i4141_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 1;
+
+FROM: 66;
+ assume(__rho_26__0 <= 0);
+TO: 65;
+
+FROM: 66;
+ status_post := nondet();
+ assume(1 <= __rho_26__0 && status_post = 4);
+ status_0 := status_post;
+TO: 65;
+
+FROM: 67;
+ assume(__rho_15__0 <= 0);
+TO: 64;
+
+FROM: 67;
+ SerialStatus_post := nondet();
+ __rho_26__post := nondet();
+ assume(1 <= __rho_15__0);
+ SerialStatus_0 := SerialStatus_post;
+ __rho_26__0 := __rho_26__post;
+TO: 66;
+
+FROM: 21;
+ assume((0 <= 0));
+TO: 68;
+
+FROM: 68;
+ assume((0 <= 0));
+TO: 21;
+
+FROM: 69;
+ i3737_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i3737_post = OldIrql_0);
+ i3737_0 := i3737_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 1;
+
+FROM: 70;
+ assume(__rho_25__0 <= 0);
+TO: 69;
+
+FROM: 70;
+ status_post := nondet();
+ assume(1 <= __rho_25__0 && status_post = 4);
+ status_0 := status_post;
+TO: 69;
+
+FROM: 71;
+ assume(__rho_14__0 <= 0);
+TO: 67;
+
+FROM: 71;
+ __rho_25__post := nondet();
+ assume(1 <= __rho_14__0);
+ __rho_25__0 := __rho_25__post;
+TO: 70;
+
+FROM: 72;
+ i3333_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(keA_1 = 1 && keA_post = 0 && keR_1 = 1 && keR_post = 0 && i3333_post = OldIrql_0);
+ i3333_0 := i3333_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 1;
+
+FROM: 73;
+ assume(__rho_24__0 <= 0);
+TO: 72;
+
+FROM: 73;
+ status_post := nondet();
+ assume(1 <= __rho_24__0 && status_post = __const_15_0);
+ status_0 := status_post;
+TO: 72;
+
+FROM: 74;
+ __rho_24__post := nondet();
+ assume((0 <= 0));
+ __rho_24__0 := __rho_24__post;
+TO: 73;
+
+FROM: 75;
+ assume(__rho_23__0 <= 0);
+TO: 74;
+
+FROM: 75;
+ status_post := nondet();
+ assume(1 <= __rho_23__0 && status_post = 4);
+ status_0 := status_post;
+TO: 74;
+
+FROM: 76;
+ assume(__rho_13__0 <= 0);
+TO: 71;
+
+FROM: 76;
+ NewTimeouts_post := nondet();
+ __rho_23__post := nondet();
+ assume(1 <= __rho_13__0);
+ NewTimeouts_0 := NewTimeouts_post;
+ __rho_23__0 := __rho_23__post;
+TO: 75;
+
+FROM: 77;
+ assume(__rho_13__0 <= 0);
+TO: 1;
+
+FROM: 77;
+ status_post := nondet();
+ assume(1 <= __rho_13__0 && status_post = 4);
+ status_0 := status_post;
+TO: 1;
+
+FROM: 78;
+ assume(__rho_12__0 <= 0);
+TO: 76;
+
+FROM: 78;
+ __rho_13__post := nondet();
+ assume(1 <= __rho_12__0);
+ __rho_13__0 := __rho_13__post;
+TO: 77;
+
+FROM: 79;
+ x2828_post := nondet();
+ y2929_post := nondet();
+ assume(x2828_post = CancelIrp_0 && y2929_post = __const_11_0);
+ x2828_0 := x2828_post;
+ y2929_0 := y2929_post;
+TO: 1;
+
+FROM: 80;
+ assume(CancelIrp_0 <= 0 && 0 <= CancelIrp_0);
+TO: 1;
+
+FROM: 80;
+ assume(1 <= CancelIrp_0);
+TO: 79;
+
+FROM: 80;
+ assume(1+CancelIrp_0 <= 0);
+TO: 79;
+
+FROM: 81;
+ i2727_post := nondet();
+ keR_post := nondet();
+ keR_1 := nondet();
+ assume(keR_1 = 1 && keR_post = 0 && i2727_post = OldIrql_0);
+ i2727_0 := i2727_post;
+ keR_0 := keR_post;
+TO: 80;
+
+FROM: 82;
+ assume(__rho_11__0 <= 0);
+TO: 81;
+
+FROM: 82;
+ CancelIrp_post := nondet();
+ assume(1 <= __rho_11__0);
+ CancelIrp_0 := CancelIrp_post;
+TO: 81;
+
+FROM: 83;
+ i2121_post := nondet();
+ ip1919_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ x2222_post := nondet();
+ y2323_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ assume(__rho_10__0 <= 0 && ip1919_post = CancelIrql_0 && keR_1 = 1 && keR_post = 0 && i2121_post = OldIrql_0 && x2222_post = CancelIrp_0 && y2323_post = __const_11_0 && keA_1 = 1 && keA_post = 0);
+ i2121_0 := i2121_post;
+ ip1919_0 := ip1919_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+ x2222_0 := x2222_post;
+ y2323_0 := y2323_post;
+TO: 46;
+
+FROM: 83;
+ ip1818_post := nondet();
+ assume(1 <= __rho_10__0 && ip1818_post = CancelIrql_0);
+ ip1818_0 := ip1818_post;
+TO: 46;
+
+FROM: 47;
+ CancelIrp_post := nondet();
+ __rho_10__post := nondet();
+ length_post := nondet();
+ assume(1 <= length_0 && length_post = -1+length_0);
+ CancelIrp_0 := CancelIrp_post;
+ __rho_10__0 := __rho_10__post;
+ length_0 := length_post;
+TO: 83;
+
+FROM: 47;
+ CancelIrp_post := nondet();
+ __rho_11__post := nondet();
+ assume(length_0 <= 0 && CancelIrp_post = 0);
+ CancelIrp_0 := CancelIrp_post;
+ __rho_11__0 := __rho_11__post;
+TO: 82;
+
+FROM: 84;
+ assume(__rho_91__0 <= 0);
+TO: 1;
+
+FROM: 84;
+ keA_post := nondet();
+ length_post := nondet();
+ keA_1 := nondet();
+ assume(1 <= __rho_91__0 && keA_1 = 1 && keA_post = 0);
+ keA_0 := keA_post;
+ length_0 := length_post;
+TO: 46;
+
+FROM: 85;
+ __rho_91__post := nondet();
+ assume((0 <= 0));
+ __rho_91__0 := __rho_91__post;
+TO: 84;
+
+FROM: 86;
+ assume(__rho_9__0 <= 0);
+TO: 85;
+
+FROM: 86;
+ status_post := nondet();
+ assume(1 <= __rho_9__0 && status_post = 4);
+ status_0 := status_post;
+TO: 85;
+
+FROM: 8;
+ assume(__rho_8__0 <= 0);
+TO: 78;
+
+FROM: 8;
+ CancelIrp_post := nondet();
+ Mask_post := nondet();
+ __rho_9__post := nondet();
+ assume(1 <= __rho_8__0);
+ CancelIrp_0 := CancelIrp_post;
+ Mask_0 := Mask_post;
+ __rho_9__0 := __rho_9__post;
+TO: 86;
+
+FROM: 2;
+ x1313_post := nondet();
+ y1414_post := nondet();
+ assume(x1313_post = CurrentWaitIrp_0 && y1414_post = 2);
+ x1313_0 := x1313_post;
+ y1414_0 := y1414_post;
+TO: 1;
+
+FROM: 87;
+ CancelIrql_post := nondet();
+ DeviceObject_post := nondet();
+ Irp_post := nondet();
+ LData_post := nondet();
+ LParity_post := nondet();
+ LStop_post := nondet();
+ Mask_post := nondet();
+ NewTimeouts_post := nondet();
+ SerialStatus_post := nondet();
+ csl_post := nondet();
+ irql_post := nondet();
+ keA_post := nondet();
+ keR_post := nondet();
+ length_post := nondet();
+ lock_post := nondet();
+ pBaudRate_post := nondet();
+ pLineControl_post := nondet();
+ status_post := nondet();
+ keA_1 := nondet();
+ keR_1 := nondet();
+ status_1 := nondet();
+ assume(keR_1 = 0 && keA_1 = keR_1 && status_1 = 1 && keA_post = 0 && keR_post = 0 && LData_post = 0 && LStop_post = 0 && LParity_post = 0 && Mask_post = __const_255_0);
+ CancelIrql_0 := CancelIrql_post;
+ DeviceObject_0 := DeviceObject_post;
+ Irp_0 := Irp_post;
+ LData_0 := LData_post;
+ LParity_0 := LParity_post;
+ LStop_0 := LStop_post;
+ Mask_0 := Mask_post;
+ NewTimeouts_0 := NewTimeouts_post;
+ SerialStatus_0 := SerialStatus_post;
+ csl_0 := csl_post;
+ irql_0 := irql_post;
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+ length_0 := length_post;
+ lock_0 := lock_post;
+ pBaudRate_0 := pBaudRate_post;
+ pLineControl_0 := pLineControl_post;
+ status_0 := status_post;
+TO: 59;
+
+FROM: 88;
+ assume((0 <= 0));
+TO: 87;
+

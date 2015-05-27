@@ -1,0 +1,3459 @@
+START: 299;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 1;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ assume(KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 3);
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+TO: 2;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 4;
+ FH_DU__MFH_post := nondet();
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_DU__MFH_post = 0 && FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post = 2);
+ FH_DU__MFH_0 := FH_DU__MFH_post;
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 := FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post;
+ stable_0 := stable_post;
+TO: 0;
+
+FROM: 5;
+ assume(1 <= FH_DU__MFHA_0);
+TO: 3;
+
+FROM: 5;
+ assume(1+FH_DU__MFHA_0 <= 0);
+TO: 3;
+
+FROM: 5;
+ assume(FH_DU__MFHA_0 <= 0 && 0 <= FH_DU__MFHA_0);
+TO: 6;
+
+FROM: 6;
+ assume(FH_DU__MFHA_old_0 <= 0 && 0 <= FH_DU__MFHA_old_0);
+TO: 3;
+
+FROM: 6;
+ assume(1 <= FH_DU__MFHA_old_0);
+TO: 4;
+
+FROM: 6;
+ assume(1+FH_DU__MFHA_old_0 <= 0);
+TO: 4;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 8;
+ assume(1 <= FH_DU__MFHA_old_0);
+TO: 7;
+
+FROM: 8;
+ assume(1+FH_DU__MFHA_old_0 <= 0);
+TO: 7;
+
+FROM: 8;
+ FH_DU__MFH_post := nondet();
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_DU__MFHA_old_0 <= 0 && 0 <= FH_DU__MFHA_old_0 && stable_post = 0 && FH_DU__MFH_post = __const_100_0 && FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post = 3);
+ FH_DU__MFH_0 := FH_DU__MFH_post;
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 := FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post;
+ stable_0 := stable_post;
+TO: 0;
+
+FROM: 9;
+ assume(FH_DU__MFHA_0 <= 0 && 0 <= FH_DU__MFHA_0);
+TO: 7;
+
+FROM: 9;
+ assume(1 <= FH_DU__MFHA_0);
+TO: 8;
+
+FROM: 9;
+ assume(1+FH_DU__MFHA_0 <= 0);
+TO: 8;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 11;
+
+FROM: 11;
+ BLOCK_ERKENNUNG_CTRL__N_old_post := nondet();
+ FH_DU__BLOCK_post := nondet();
+ FH_DU__BLOCK_old_post := nondet();
+ FH_DU__EKS_LEISTE_AKTIV_post := nondet();
+ FH_DU__EKS_LEISTE_AKTIV_old_post := nondet();
+ FH_DU__FT_post := nondet();
+ FH_DU__I_EIN_post := nondet();
+ FH_DU__I_EIN_old_post := nondet();
+ FH_DU__KL_50_post := nondet();
+ FH_DU__MFHA_post := nondet();
+ FH_DU__MFHA_old_post := nondet();
+ FH_DU__MFHZ_post := nondet();
+ FH_DU__MFHZ_old_post := nondet();
+ FH_DU__MFH_post := nondet();
+ FH_DU__POSITION_post := nondet();
+ FH_DU__S_FH_AUFDISC_post := nondet();
+ FH_DU__S_FH_FTAUF_post := nondet();
+ FH_DU__S_FH_FTZU_post := nondet();
+ FH_DU__S_FH_TMBFAUFCAN_old_post := nondet();
+ FH_DU__S_FH_TMBFAUFDISC_old_post := nondet();
+ FH_DU__S_FH_TMBFZUCAN_old_post := nondet();
+ FH_DU__S_FH_TMBFZUDISC_old_post := nondet();
+ FH_DU__S_FH_ZUDISC_post := nondet();
+ FH_TUERMODUL_CTRL__N_old_post := nondet();
+ FH_TUERMODUL__BLOCK_post := nondet();
+ FH_TUERMODUL__BLOCK_old_post := nondet();
+ FH_TUERMODUL__EKS_LEISTE_AKTIV_old_post := nondet();
+ FH_TUERMODUL__I_EIN_old_post := nondet();
+ FH_TUERMODUL__MFHA_post := nondet();
+ FH_TUERMODUL__MFHA_old_post := nondet();
+ FH_TUERMODUL__MFHZ_post := nondet();
+ FH_TUERMODUL__MFHZ_old_post := nondet();
+ FH_TUERMODUL__SFHA_post := nondet();
+ FH_TUERMODUL__SFHA_MEC_old_post := nondet();
+ FH_TUERMODUL__SFHA_ZENTRAL_old_post := nondet();
+ FH_TUERMODUL__SFHA_old_post := nondet();
+ FH_TUERMODUL__SFHZ_post := nondet();
+ FH_TUERMODUL__SFHZ_MEC_old_post := nondet();
+ FH_TUERMODUL__SFHZ_ZENTRAL_old_post := nondet();
+ FH_TUERMODUL__SFHZ_old_post := nondet();
+ FH_DU__BLOCK_1 := nondet();
+ FH_DU__MFHA_1 := nondet();
+ FH_DU__MFHZ_1 := nondet();
+ assume(FH_DU__MFHA_1 = FH_TUERMODUL__MFHA_0 && FH_DU__MFHZ_1 = FH_TUERMODUL__MFHZ_0 && FH_DU__I_EIN_post = FH_TUERMODUL__I_EIN_0 && FH_DU__EKS_LEISTE_AKTIV_post = FH_TUERMODUL__EKS_LEISTE_AKTIV_0 && FH_DU__POSITION_post = FH_TUERMODUL__POSITION_0 && FH_DU__FT_post = FH_TUERMODUL__FT_0 && FH_DU__S_FH_AUFDISC_post = FH_TUERMODUL__SFHA_MEC_0 && FH_DU__S_FH_FTAUF_post = FH_TUERMODUL__SFHA_ZENTRAL_0 && FH_DU__S_FH_ZUDISC_post = FH_TUERMODUL__SFHZ_MEC_0 && FH_DU__S_FH_FTZU_post = FH_TUERMODUL__SFHZ_ZENTRAL_0 && FH_DU__KL_50_post = FH_TUERMODUL__KL_50_0 && FH_DU__BLOCK_1 = FH_TUERMODUL__BLOCK_0 && FH_TUERMODUL_CTRL__N_old_post = FH_TUERMODUL_CTRL__N_0 && FH_TUERMODUL__I_EIN_old_post = FH_TUERMODUL__I_EIN_0 && FH_DU__MFH_post = FH_DU__MFH_copy_0 && FH_DU__I_EIN_old_post = FH_DU__I_EIN_post && BLOCK_ERKENNUNG_CTRL__N_old_post = BLOCK_ERKENNUNG_CTRL__N_0 && FH_TUERMODUL__SFHZ_ZENTRAL_old_post = FH_TUERMODUL__SFHZ_ZENTRAL_0 && FH_TUERMODUL__SFHZ_MEC_old_post = FH_TUERMODUL__SFHZ_MEC_0 && FH_TUERMODUL__SFHA_ZENTRAL_old_post = FH_TUERMODUL__SFHA_ZENTRAL_0 && FH_TUERMODUL__SFHA_MEC_old_post = FH_TUERMODUL__SFHA_MEC_0 && FH_TUERMODUL__BLOCK_post = FH_TUERMODUL__BLOCK_copy_0 && FH_TUERMODUL__BLOCK_old_post = FH_TUERMODUL__BLOCK_post && FH_TUERMODUL__SFHZ_post = FH_TUERMODUL__SFHZ_copy_0 && FH_TUERMODUL__SFHZ_old_post = FH_TUERMODUL__SFHZ_post && FH_TUERMODUL__SFHA_post = FH_TUERMODUL__SFHA_copy_0 && FH_TUERMODUL__SFHA_old_post = FH_TUERMODUL__SFHA_post && FH_TUERMODUL__MFHZ_post = FH_TUERMODUL__MFHZ_copy_0 && FH_TUERMODUL__MFHZ_old_post = FH_TUERMODUL__MFHZ_post && FH_TUERMODUL__MFHA_post = FH_TUERMODUL__MFHA_copy_0 && FH_TUERMODUL__MFHA_old_post = FH_TUERMODUL__MFHA_post && FH_TUERMODUL__EKS_LEISTE_AKTIV_old_post = FH_TUERMODUL__EKS_LEISTE_AKTIV_0 && FH_DU__EKS_LEISTE_AKTIV_old_post = FH_DU__EKS_LEISTE_AKTIV_post && FH_DU__S_FH_TMBFAUFCAN_old_post = FH_DU__S_FH_TMBFAUFCAN_0 && FH_DU__S_FH_TMBFZUCAN_old_post = FH_DU__S_FH_TMBFZUCAN_0 && FH_DU__S_FH_TMBFZUDISC_old_post = FH_DU__S_FH_TMBFZUDISC_0 && FH_DU__S_FH_TMBFAUFDISC_old_post = FH_DU__S_FH_TMBFAUFDISC_0 && FH_DU__BLOCK_post = FH_DU__BLOCK_copy_0 && FH_DU__BLOCK_old_post = FH_DU__BLOCK_post && FH_DU__MFHZ_post = FH_DU__MFHZ_copy_0 && FH_DU__MFHZ_old_post = FH_DU__MFHZ_post && FH_DU__MFHA_post = FH_DU__MFHA_copy_0 && FH_DU__MFHA_old_post = FH_DU__MFHA_post);
+ BLOCK_ERKENNUNG_CTRL__N_old_0 := BLOCK_ERKENNUNG_CTRL__N_old_post;
+ FH_DU__BLOCK_0 := FH_DU__BLOCK_post;
+ FH_DU__BLOCK_old_0 := FH_DU__BLOCK_old_post;
+ FH_DU__EKS_LEISTE_AKTIV_0 := FH_DU__EKS_LEISTE_AKTIV_post;
+ FH_DU__EKS_LEISTE_AKTIV_old_0 := FH_DU__EKS_LEISTE_AKTIV_old_post;
+ FH_DU__FT_0 := FH_DU__FT_post;
+ FH_DU__I_EIN_0 := FH_DU__I_EIN_post;
+ FH_DU__I_EIN_old_0 := FH_DU__I_EIN_old_post;
+ FH_DU__KL_50_0 := FH_DU__KL_50_post;
+ FH_DU__MFHA_0 := FH_DU__MFHA_post;
+ FH_DU__MFHA_old_0 := FH_DU__MFHA_old_post;
+ FH_DU__MFHZ_0 := FH_DU__MFHZ_post;
+ FH_DU__MFHZ_old_0 := FH_DU__MFHZ_old_post;
+ FH_DU__MFH_0 := FH_DU__MFH_post;
+ FH_DU__POSITION_0 := FH_DU__POSITION_post;
+ FH_DU__S_FH_AUFDISC_0 := FH_DU__S_FH_AUFDISC_post;
+ FH_DU__S_FH_FTAUF_0 := FH_DU__S_FH_FTAUF_post;
+ FH_DU__S_FH_FTZU_0 := FH_DU__S_FH_FTZU_post;
+ FH_DU__S_FH_TMBFAUFCAN_old_0 := FH_DU__S_FH_TMBFAUFCAN_old_post;
+ FH_DU__S_FH_TMBFAUFDISC_old_0 := FH_DU__S_FH_TMBFAUFDISC_old_post;
+ FH_DU__S_FH_TMBFZUCAN_old_0 := FH_DU__S_FH_TMBFZUCAN_old_post;
+ FH_DU__S_FH_TMBFZUDISC_old_0 := FH_DU__S_FH_TMBFZUDISC_old_post;
+ FH_DU__S_FH_ZUDISC_0 := FH_DU__S_FH_ZUDISC_post;
+ FH_TUERMODUL_CTRL__N_old_0 := FH_TUERMODUL_CTRL__N_old_post;
+ FH_TUERMODUL__BLOCK_0 := FH_TUERMODUL__BLOCK_post;
+ FH_TUERMODUL__BLOCK_old_0 := FH_TUERMODUL__BLOCK_old_post;
+ FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0 := FH_TUERMODUL__EKS_LEISTE_AKTIV_old_post;
+ FH_TUERMODUL__I_EIN_old_0 := FH_TUERMODUL__I_EIN_old_post;
+ FH_TUERMODUL__MFHA_0 := FH_TUERMODUL__MFHA_post;
+ FH_TUERMODUL__MFHA_old_0 := FH_TUERMODUL__MFHA_old_post;
+ FH_TUERMODUL__MFHZ_0 := FH_TUERMODUL__MFHZ_post;
+ FH_TUERMODUL__MFHZ_old_0 := FH_TUERMODUL__MFHZ_old_post;
+ FH_TUERMODUL__SFHA_0 := FH_TUERMODUL__SFHA_post;
+ FH_TUERMODUL__SFHA_MEC_old_0 := FH_TUERMODUL__SFHA_MEC_old_post;
+ FH_TUERMODUL__SFHA_ZENTRAL_old_0 := FH_TUERMODUL__SFHA_ZENTRAL_old_post;
+ FH_TUERMODUL__SFHA_old_0 := FH_TUERMODUL__SFHA_old_post;
+ FH_TUERMODUL__SFHZ_0 := FH_TUERMODUL__SFHZ_post;
+ FH_TUERMODUL__SFHZ_MEC_old_0 := FH_TUERMODUL__SFHZ_MEC_old_post;
+ FH_TUERMODUL__SFHZ_ZENTRAL_old_0 := FH_TUERMODUL__SFHZ_ZENTRAL_old_post;
+ FH_TUERMODUL__SFHZ_old_0 := FH_TUERMODUL__SFHZ_old_post;
+TO: 12;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 10;
+
+FROM: 14;
+ assume((0 <= 0));
+TO: 13;
+
+FROM: 15;
+ assume(FH_TUERMODUL__I_EIN_0 <= BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_0);
+TO: 14;
+
+FROM: 15;
+ BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post := nondet();
+ assume(1+BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_0 <= FH_TUERMODUL__I_EIN_0 && BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post = FH_TUERMODUL__I_EIN_0);
+ BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_0 := BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post;
+TO: 14;
+
+FROM: 16;
+ assume(3 <= time_0-tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0);
+TO: 14;
+
+FROM: 16;
+ assume(1+time_0-tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0 <= 2);
+TO: 14;
+
+FROM: 16;
+ BLOCK_ERKENNUNG_CTRL__N_post := nondet();
+ assume(time_0-tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0 <= 2 && 2 <= time_0-tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0 && BLOCK_ERKENNUNG_CTRL__N_post = 1+BLOCK_ERKENNUNG_CTRL__N_0);
+ BLOCK_ERKENNUNG_CTRL__N_0 := BLOCK_ERKENNUNG_CTRL__N_post;
+TO: 15;
+
+FROM: 17;
+ assume(FH_DU__MFHZ_0 <= 0 && 0 <= FH_DU__MFHZ_0);
+TO: 9;
+
+FROM: 17;
+ assume(1 <= FH_DU__MFHZ_0);
+TO: 18;
+
+FROM: 17;
+ assume(1+FH_DU__MFHZ_0 <= 0);
+TO: 18;
+
+FROM: 19;
+ assume(tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0 <= 0 && 0 <= tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0);
+TO: 14;
+
+FROM: 19;
+ assume(1 <= tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0);
+TO: 16;
+
+FROM: 19;
+ assume(1+tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0 <= 0);
+TO: 16;
+
+FROM: 20;
+ assume(2 <= step_0);
+TO: 14;
+
+FROM: 20;
+ assume(1+step_0 <= 1);
+TO: 14;
+
+FROM: 20;
+ assume(step_0 <= 1 && 1 <= step_0);
+TO: 19;
+
+FROM: 21;
+ assume(4 <= BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 14;
+
+FROM: 21;
+ assume(1+BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 3);
+TO: 14;
+
+FROM: 21;
+ assume(BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 3 && 3 <= BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 20;
+
+FROM: 22;
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post = 2);
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 := BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 13;
+
+FROM: 23;
+ assume(BLOCK_ERKENNUNG_CTRL__N_old_0 <= __const_11_0 && __const_11_0 <= BLOCK_ERKENNUNG_CTRL__N_old_0);
+TO: 21;
+
+FROM: 23;
+ assume(1+__const_11_0 <= BLOCK_ERKENNUNG_CTRL__N_old_0);
+TO: 22;
+
+FROM: 23;
+ assume(1+BLOCK_ERKENNUNG_CTRL__N_old_0 <= __const_11_0);
+TO: 22;
+
+FROM: 24;
+ assume(1+__const_11_0 <= BLOCK_ERKENNUNG_CTRL__N_0);
+TO: 21;
+
+FROM: 24;
+ assume(1+BLOCK_ERKENNUNG_CTRL__N_0 <= __const_11_0);
+TO: 21;
+
+FROM: 24;
+ assume(BLOCK_ERKENNUNG_CTRL__N_0 <= __const_11_0 && __const_11_0 <= BLOCK_ERKENNUNG_CTRL__N_0);
+TO: 23;
+
+FROM: 18;
+ assume(1 <= FH_DU__MFHZ_old_0);
+TO: 9;
+
+FROM: 18;
+ assume(1+FH_DU__MFHZ_old_0 <= 0);
+TO: 9;
+
+FROM: 18;
+ FH_DU__MFH_post := nondet();
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_DU__MFHZ_old_0 <= 0 && 0 <= FH_DU__MFHZ_old_0 && stable_post = 0 && FH_DU__MFH_post = -1*__const_100_0 && FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post = 1);
+ FH_DU__MFH_0 := FH_DU__MFH_post;
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 := FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post;
+ stable_0 := stable_post;
+TO: 0;
+
+FROM: 25;
+ assume(FH_TUERMODUL__I_EIN_0 <= -2+BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_0);
+TO: 13;
+
+FROM: 25;
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ FH_TUERMODUL__BLOCK_copy_post := nondet();
+ stable_post := nondet();
+ assume(-1+BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_0 <= FH_TUERMODUL__I_EIN_0 && stable_post = 0 && FH_TUERMODUL__BLOCK_copy_post = 1 && BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post = 1);
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 := BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ FH_TUERMODUL__BLOCK_copy_0 := FH_TUERMODUL__BLOCK_copy_post;
+ stable_0 := stable_post;
+TO: 13;
+
+FROM: 26;
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post := nondet();
+ BLOCK_ERKENNUNG_CTRL__N_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && BLOCK_ERKENNUNG_CTRL__N_post = 0 && BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post = 2 && BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post = 3);
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 := BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_0 := BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post;
+ BLOCK_ERKENNUNG_CTRL__N_0 := BLOCK_ERKENNUNG_CTRL__N_post;
+ stable_0 := stable_post;
+TO: 13;
+
+FROM: 27;
+ assume(4 <= BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 26;
+
+FROM: 27;
+ assume(1+BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 3);
+TO: 26;
+
+FROM: 27;
+ assume(BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 3 && 3 <= BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 24;
+
+FROM: 28;
+ assume(3 <= BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 27;
+
+FROM: 28;
+ assume(1+BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 2);
+TO: 27;
+
+FROM: 28;
+ assume(BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 2 && 2 <= BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 25;
+
+FROM: 29;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 30;
+ assume(2 <= BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 28;
+
+FROM: 30;
+ assume(1+BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 1);
+TO: 28;
+
+FROM: 30;
+ assume(BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 1 && 1 <= BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 13;
+
+FROM: 31;
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post = 1 && BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post = 0);
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 := BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 := BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 10;
+
+FROM: 32;
+ assume(FH_TUERMODUL__MFHZ_old_0 <= 0 && 0 <= FH_TUERMODUL__MFHZ_old_0);
+TO: 30;
+
+FROM: 32;
+ assume(1 <= FH_TUERMODUL__MFHZ_old_0);
+TO: 31;
+
+FROM: 32;
+ assume(1+FH_TUERMODUL__MFHZ_old_0 <= 0);
+TO: 31;
+
+FROM: 33;
+ assume(1 <= FH_TUERMODUL__MFHZ_0);
+TO: 30;
+
+FROM: 33;
+ assume(1+FH_TUERMODUL__MFHZ_0 <= 0);
+TO: 30;
+
+FROM: 33;
+ assume(FH_TUERMODUL__MFHZ_0 <= 0 && 0 <= FH_TUERMODUL__MFHZ_0);
+TO: 32;
+
+FROM: 34;
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post = 1 && BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post = 0);
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 := BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 := BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 10;
+
+FROM: 35;
+ assume(1 <= FH_TUERMODUL__MFHA_0);
+TO: 33;
+
+FROM: 35;
+ assume(1+FH_TUERMODUL__MFHA_0 <= 0);
+TO: 33;
+
+FROM: 35;
+ assume(FH_TUERMODUL__MFHA_0 <= 0 && 0 <= FH_TUERMODUL__MFHA_0);
+TO: 36;
+
+FROM: 36;
+ assume(FH_TUERMODUL__MFHA_old_0 <= 0 && 0 <= FH_TUERMODUL__MFHA_old_0);
+TO: 33;
+
+FROM: 36;
+ assume(1 <= FH_TUERMODUL__MFHA_old_0);
+TO: 34;
+
+FROM: 36;
+ assume(1+FH_TUERMODUL__MFHA_old_0 <= 0);
+TO: 34;
+
+FROM: 37;
+ assume((0 <= 0));
+TO: 10;
+
+FROM: 38;
+ assume(FH_TUERMODUL__I_EIN_0 <= FH_TUERMODUL__I_EIN_old_0 && FH_TUERMODUL__I_EIN_old_0 <= FH_TUERMODUL__I_EIN_0);
+TO: 37;
+
+FROM: 38;
+ assume(1+FH_TUERMODUL__I_EIN_old_0 <= FH_TUERMODUL__I_EIN_0);
+TO: 39;
+
+FROM: 38;
+ assume(1+FH_TUERMODUL__I_EIN_0 <= FH_TUERMODUL__I_EIN_old_0);
+TO: 39;
+
+FROM: 39;
+ assume(FH_TUERMODUL__I_EIN_0 <= 0);
+TO: 37;
+
+FROM: 39;
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post := nondet();
+ BLOCK_ERKENNUNG_CTRL__N_post := nondet();
+ FH_TUERMODUL__BLOCK_copy_post := nondet();
+ stable_post := nondet();
+ assume(1 <= FH_TUERMODUL__I_EIN_0 && stable_post = 0 && FH_TUERMODUL__BLOCK_copy_post = 0 && BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post = 2 && BLOCK_ERKENNUNG_CTRL__N_post = 0 && BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post = 2 && BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post = 3);
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 := BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 := BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_0 := BLOCK_ERKENNUNG_CTRL__I_EIN_MAX_post;
+ BLOCK_ERKENNUNG_CTRL__N_0 := BLOCK_ERKENNUNG_CTRL__N_post;
+ FH_TUERMODUL__BLOCK_copy_0 := FH_TUERMODUL__BLOCK_copy_post;
+ stable_0 := stable_post;
+TO: 10;
+
+FROM: 40;
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post = 1);
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 := BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 10;
+
+FROM: 41;
+ assume(3 <= BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 40;
+
+FROM: 41;
+ assume(1+BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 2);
+TO: 40;
+
+FROM: 41;
+ assume(BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 2 && 2 <= BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 35;
+
+FROM: 42;
+ assume(2 <= BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 41;
+
+FROM: 42;
+ assume(1+BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 1);
+TO: 41;
+
+FROM: 42;
+ assume(BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 <= 1 && 1 <= BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0);
+TO: 38;
+
+FROM: 43;
+ assume((0 <= 0));
+TO: 42;
+
+FROM: 43;
+ assume((0 <= 0));
+TO: 11;
+
+FROM: 43;
+ assume((0 <= 0));
+TO: 42;
+
+FROM: 44;
+ assume((0 <= 0));
+TO: 43;
+
+FROM: 44;
+ assume((0 <= 0));
+TO: 43;
+
+FROM: 45;
+ assume((0 <= 0));
+TO: 44;
+
+FROM: 45;
+ assume((0 <= 0));
+TO: 43;
+
+FROM: 45;
+ assume((0 <= 0));
+TO: 44;
+
+FROM: 46;
+ assume((0 <= 0));
+TO: 43;
+
+FROM: 46;
+ assume((0 <= 0));
+TO: 43;
+
+FROM: 46;
+ assume((0 <= 0));
+TO: 45;
+
+FROM: 47;
+ FH_DU__MFH_post := nondet();
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_DU__MFH_post = 0 && FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post = 2);
+ FH_DU__MFH_0 := FH_DU__MFH_post;
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 := FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post;
+ stable_0 := stable_post;
+TO: 0;
+
+FROM: 48;
+ assume(1 <= FH_DU__MFHZ_0);
+TO: 29;
+
+FROM: 48;
+ assume(1+FH_DU__MFHZ_0 <= 0);
+TO: 29;
+
+FROM: 48;
+ assume(FH_DU__MFHZ_0 <= 0 && 0 <= FH_DU__MFHZ_0);
+TO: 49;
+
+FROM: 50;
+ assume((0 <= 0));
+TO: 51;
+
+FROM: 51;
+ FH_DU__BLOCK_post := nondet();
+ FH_DU__EKS_LEISTE_AKTIV_post := nondet();
+ FH_DU__FT_post := nondet();
+ FH_DU__I_EIN_post := nondet();
+ FH_DU__KL_50_post := nondet();
+ FH_DU__MFHA_post := nondet();
+ FH_DU__MFHZ_post := nondet();
+ FH_DU__POSITION_post := nondet();
+ FH_DU__S_FH_AUFDISC_post := nondet();
+ FH_DU__S_FH_FTAUF_post := nondet();
+ FH_DU__S_FH_FTZU_post := nondet();
+ FH_DU__S_FH_ZUDISC_post := nondet();
+ FH_TUERMODUL__SFHA_MEC_post := nondet();
+ FH_TUERMODUL__SFHA_ZENTRAL_post := nondet();
+ FH_TUERMODUL__SFHZ_MEC_post := nondet();
+ FH_TUERMODUL__SFHZ_ZENTRAL_post := nondet();
+ assume(FH_DU__MFHA_post = FH_TUERMODUL__MFHA_0 && FH_DU__MFHZ_post = FH_TUERMODUL__MFHZ_0 && FH_DU__I_EIN_post = FH_TUERMODUL__I_EIN_0 && FH_DU__EKS_LEISTE_AKTIV_post = FH_TUERMODUL__EKS_LEISTE_AKTIV_0 && FH_DU__POSITION_post = FH_TUERMODUL__POSITION_0 && FH_DU__FT_post = FH_TUERMODUL__FT_0 && FH_DU__S_FH_AUFDISC_post = FH_TUERMODUL__SFHA_MEC_0 && FH_DU__S_FH_FTAUF_post = FH_TUERMODUL__SFHA_ZENTRAL_0 && FH_DU__S_FH_ZUDISC_post = FH_TUERMODUL__SFHZ_MEC_0 && FH_DU__S_FH_FTZU_post = FH_TUERMODUL__SFHZ_ZENTRAL_0 && FH_DU__KL_50_post = FH_TUERMODUL__KL_50_0 && FH_DU__BLOCK_post = FH_TUERMODUL__BLOCK_0 && FH_TUERMODUL__SFHA_MEC_post = FH_DU__S_FH_AUFDISC_post && FH_TUERMODUL__SFHA_ZENTRAL_post = FH_DU__S_FH_FTAUF_post && FH_TUERMODUL__SFHZ_MEC_post = FH_DU__S_FH_ZUDISC_post && FH_TUERMODUL__SFHZ_ZENTRAL_post = FH_DU__S_FH_FTZU_post);
+ FH_DU__BLOCK_0 := FH_DU__BLOCK_post;
+ FH_DU__EKS_LEISTE_AKTIV_0 := FH_DU__EKS_LEISTE_AKTIV_post;
+ FH_DU__FT_0 := FH_DU__FT_post;
+ FH_DU__I_EIN_0 := FH_DU__I_EIN_post;
+ FH_DU__KL_50_0 := FH_DU__KL_50_post;
+ FH_DU__MFHA_0 := FH_DU__MFHA_post;
+ FH_DU__MFHZ_0 := FH_DU__MFHZ_post;
+ FH_DU__POSITION_0 := FH_DU__POSITION_post;
+ FH_DU__S_FH_AUFDISC_0 := FH_DU__S_FH_AUFDISC_post;
+ FH_DU__S_FH_FTAUF_0 := FH_DU__S_FH_FTAUF_post;
+ FH_DU__S_FH_FTZU_0 := FH_DU__S_FH_FTZU_post;
+ FH_DU__S_FH_ZUDISC_0 := FH_DU__S_FH_ZUDISC_post;
+ FH_TUERMODUL__SFHA_MEC_0 := FH_TUERMODUL__SFHA_MEC_post;
+ FH_TUERMODUL__SFHA_ZENTRAL_0 := FH_TUERMODUL__SFHA_ZENTRAL_post;
+ FH_TUERMODUL__SFHZ_MEC_0 := FH_TUERMODUL__SFHZ_MEC_post;
+ FH_TUERMODUL__SFHZ_ZENTRAL_0 := FH_TUERMODUL__SFHZ_ZENTRAL_post;
+TO: 46;
+
+FROM: 52;
+ assume((0 <= 0));
+TO: 50;
+
+FROM: 49;
+ assume(FH_DU__MFHZ_old_0 <= 0 && 0 <= FH_DU__MFHZ_old_0);
+TO: 29;
+
+FROM: 49;
+ assume(1 <= FH_DU__MFHZ_old_0);
+TO: 47;
+
+FROM: 49;
+ assume(1+FH_DU__MFHZ_old_0 <= 0);
+TO: 47;
+
+FROM: 53;
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post = 1);
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 := EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 50;
+
+FROM: 54;
+ assume(FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0 <= 0 && 0 <= FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0);
+TO: 52;
+
+FROM: 54;
+ assume(1 <= FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0);
+TO: 53;
+
+FROM: 54;
+ assume(1+FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0 <= 0);
+TO: 53;
+
+FROM: 55;
+ assume(1 <= FH_TUERMODUL__EKS_LEISTE_AKTIV_0);
+TO: 52;
+
+FROM: 55;
+ assume(1+FH_TUERMODUL__EKS_LEISTE_AKTIV_0 <= 0);
+TO: 52;
+
+FROM: 55;
+ assume(FH_TUERMODUL__EKS_LEISTE_AKTIV_0 <= 0 && 0 <= FH_TUERMODUL__EKS_LEISTE_AKTIV_0);
+TO: 54;
+
+FROM: 56;
+ FH_DU__MFH_post := nondet();
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_DU__MFH_post = 0 && FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post = 2);
+ FH_DU__MFH_0 := FH_DU__MFH_post;
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 := FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post;
+ stable_0 := stable_post;
+TO: 0;
+
+FROM: 57;
+ assume((0 <= 0));
+TO: 50;
+
+FROM: 58;
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHA_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_0 && stable_post = 0 && EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post = 2);
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 := EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 50;
+
+FROM: 58;
+ assume(1 <= FH_TUERMODUL__SFHA_0);
+TO: 57;
+
+FROM: 58;
+ assume(1+FH_TUERMODUL__SFHA_0 <= 0);
+TO: 57;
+
+FROM: 59;
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_0 && stable_post = 0 && EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post = 2);
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 := EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 50;
+
+FROM: 59;
+ assume(1 <= FH_TUERMODUL__SFHZ_0);
+TO: 58;
+
+FROM: 59;
+ assume(1+FH_TUERMODUL__SFHZ_0 <= 0);
+TO: 58;
+
+FROM: 60;
+ assume(FH_TUERMODUL__EKS_LEISTE_AKTIV_0 <= 0 && 0 <= FH_TUERMODUL__EKS_LEISTE_AKTIV_0);
+TO: 57;
+
+FROM: 60;
+ assume(1 <= FH_TUERMODUL__EKS_LEISTE_AKTIV_0);
+TO: 61;
+
+FROM: 60;
+ assume(1+FH_TUERMODUL__EKS_LEISTE_AKTIV_0 <= 0);
+TO: 61;
+
+FROM: 61;
+ assume(1 <= FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0);
+TO: 57;
+
+FROM: 61;
+ assume(1+FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0 <= 0);
+TO: 57;
+
+FROM: 61;
+ assume(FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0 <= 0 && 0 <= FH_TUERMODUL__EKS_LEISTE_AKTIV_old_0);
+TO: 59;
+
+FROM: 62;
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post = 1);
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 := EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 50;
+
+FROM: 63;
+ assume(3 <= EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0);
+TO: 62;
+
+FROM: 63;
+ assume(1+EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 <= 2);
+TO: 62;
+
+FROM: 63;
+ assume(EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 <= 2 && 2 <= EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0);
+TO: 55;
+
+FROM: 64;
+ assume(2 <= EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0);
+TO: 63;
+
+FROM: 64;
+ assume(1+EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 <= 1);
+TO: 63;
+
+FROM: 64;
+ assume(EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 <= 1 && 1 <= EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0);
+TO: 60;
+
+FROM: 65;
+ assume((0 <= 0));
+TO: 64;
+
+FROM: 65;
+ assume((0 <= 0));
+TO: 51;
+
+FROM: 65;
+ assume((0 <= 0));
+TO: 64;
+
+FROM: 66;
+ assume(4 <= FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0);
+TO: 56;
+
+FROM: 66;
+ assume(1+FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 <= 3);
+TO: 56;
+
+FROM: 66;
+ assume(FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 <= 3 && 3 <= FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0);
+TO: 5;
+
+FROM: 67;
+ FH_DU__BLOCK_post := nondet();
+ FH_DU__EKS_LEISTE_AKTIV_post := nondet();
+ FH_DU__FT_post := nondet();
+ FH_DU__I_EIN_post := nondet();
+ FH_DU__KL_50_post := nondet();
+ FH_DU__MFHA_post := nondet();
+ FH_DU__MFHZ_post := nondet();
+ FH_DU__POSITION_post := nondet();
+ FH_DU__S_FH_AUFDISC_post := nondet();
+ FH_DU__S_FH_FTAUF_post := nondet();
+ FH_DU__S_FH_FTZU_post := nondet();
+ FH_DU__S_FH_ZUDISC_post := nondet();
+ FH_TUERMODUL__SFHA_MEC_post := nondet();
+ FH_TUERMODUL__SFHA_ZENTRAL_post := nondet();
+ FH_TUERMODUL__SFHZ_MEC_post := nondet();
+ FH_TUERMODUL__SFHZ_ZENTRAL_post := nondet();
+ assume(FH_DU__MFHA_post = FH_TUERMODUL__MFHA_0 && FH_DU__MFHZ_post = FH_TUERMODUL__MFHZ_0 && FH_DU__I_EIN_post = FH_TUERMODUL__I_EIN_0 && FH_DU__EKS_LEISTE_AKTIV_post = FH_TUERMODUL__EKS_LEISTE_AKTIV_0 && FH_DU__POSITION_post = FH_TUERMODUL__POSITION_0 && FH_DU__FT_post = FH_TUERMODUL__FT_0 && FH_DU__S_FH_AUFDISC_post = FH_TUERMODUL__SFHA_MEC_0 && FH_DU__S_FH_FTAUF_post = FH_TUERMODUL__SFHA_ZENTRAL_0 && FH_DU__S_FH_ZUDISC_post = FH_TUERMODUL__SFHZ_MEC_0 && FH_DU__S_FH_FTZU_post = FH_TUERMODUL__SFHZ_ZENTRAL_0 && FH_DU__KL_50_post = FH_TUERMODUL__KL_50_0 && FH_DU__BLOCK_post = FH_TUERMODUL__BLOCK_0 && FH_TUERMODUL__SFHA_MEC_post = FH_DU__S_FH_AUFDISC_post && FH_TUERMODUL__SFHA_ZENTRAL_post = FH_DU__S_FH_FTAUF_post && FH_TUERMODUL__SFHZ_MEC_post = FH_DU__S_FH_ZUDISC_post && FH_TUERMODUL__SFHZ_ZENTRAL_post = FH_DU__S_FH_FTZU_post);
+ FH_DU__BLOCK_0 := FH_DU__BLOCK_post;
+ FH_DU__EKS_LEISTE_AKTIV_0 := FH_DU__EKS_LEISTE_AKTIV_post;
+ FH_DU__FT_0 := FH_DU__FT_post;
+ FH_DU__I_EIN_0 := FH_DU__I_EIN_post;
+ FH_DU__KL_50_0 := FH_DU__KL_50_post;
+ FH_DU__MFHA_0 := FH_DU__MFHA_post;
+ FH_DU__MFHZ_0 := FH_DU__MFHZ_post;
+ FH_DU__POSITION_0 := FH_DU__POSITION_post;
+ FH_DU__S_FH_AUFDISC_0 := FH_DU__S_FH_AUFDISC_post;
+ FH_DU__S_FH_FTAUF_0 := FH_DU__S_FH_FTAUF_post;
+ FH_DU__S_FH_FTZU_0 := FH_DU__S_FH_FTZU_post;
+ FH_DU__S_FH_ZUDISC_0 := FH_DU__S_FH_ZUDISC_post;
+ FH_TUERMODUL__SFHA_MEC_0 := FH_TUERMODUL__SFHA_MEC_post;
+ FH_TUERMODUL__SFHA_ZENTRAL_0 := FH_TUERMODUL__SFHA_ZENTRAL_post;
+ FH_TUERMODUL__SFHZ_MEC_0 := FH_TUERMODUL__SFHZ_MEC_post;
+ FH_TUERMODUL__SFHZ_ZENTRAL_0 := FH_TUERMODUL__SFHZ_ZENTRAL_post;
+TO: 65;
+
+FROM: 68;
+ assume((0 <= 0));
+TO: 67;
+
+FROM: 69;
+ assume(3 <= FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0);
+TO: 66;
+
+FROM: 69;
+ assume(1+FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 <= 2);
+TO: 66;
+
+FROM: 69;
+ assume(FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 <= 2 && 2 <= FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0);
+TO: 17;
+
+FROM: 70;
+ assume((0 <= 0));
+TO: 68;
+
+FROM: 71;
+ assume(FH_TUERMODUL_CTRL__N_0 <= 0);
+TO: 72;
+
+FROM: 71;
+ FH_TUERMODUL_CTRL__N_post := nondet();
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(1 <= FH_TUERMODUL_CTRL__N_0 && stable_post = 0 && FH_TUERMODUL_CTRL__N_post = -1+FH_TUERMODUL_CTRL__N_0 && WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post = 1);
+ FH_TUERMODUL_CTRL__N_0 := FH_TUERMODUL_CTRL__N_post;
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0 := WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 70;
+
+FROM: 73;
+ assume(FH_TUERMODUL__MFHA_0 <= 0 && 0 <= FH_TUERMODUL__MFHA_0);
+TO: 71;
+
+FROM: 73;
+ assume(1 <= FH_TUERMODUL__MFHA_0);
+TO: 72;
+
+FROM: 73;
+ assume(1+FH_TUERMODUL__MFHA_0 <= 0);
+TO: 72;
+
+FROM: 72;
+ assume((0 <= 0));
+TO: 70;
+
+FROM: 74;
+ assume(FH_TUERMODUL__MFHZ_0 <= 0 && 0 <= FH_TUERMODUL__MFHZ_0);
+TO: 73;
+
+FROM: 74;
+ assume(1 <= FH_TUERMODUL__MFHZ_0);
+TO: 72;
+
+FROM: 74;
+ assume(1+FH_TUERMODUL__MFHZ_0 <= 0);
+TO: 72;
+
+FROM: 75;
+ assume(4 <= time_0-tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0);
+TO: 72;
+
+FROM: 75;
+ assume(1+time_0-tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0 <= 3);
+TO: 72;
+
+FROM: 75;
+ assume(time_0-tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0 <= 3 && 3 <= time_0-tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0);
+TO: 74;
+
+FROM: 76;
+ assume(2 <= step_0);
+TO: 72;
+
+FROM: 76;
+ assume(1+step_0 <= 1);
+TO: 72;
+
+FROM: 76;
+ assume(step_0 <= 1 && 1 <= step_0);
+TO: 77;
+
+FROM: 77;
+ assume(tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0 <= 0 && 0 <= tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0);
+TO: 72;
+
+FROM: 77;
+ assume(1 <= tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0);
+TO: 75;
+
+FROM: 77;
+ assume(1+tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0 <= 0);
+TO: 75;
+
+FROM: 78;
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post = 1);
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0 := WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 70;
+
+FROM: 79;
+ assume(2 <= FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0);
+TO: 69;
+
+FROM: 79;
+ assume(1+FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 <= 1);
+TO: 69;
+
+FROM: 79;
+ assume(FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 <= 1 && 1 <= FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0);
+TO: 48;
+
+FROM: 80;
+ assume(2 <= WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0);
+TO: 78;
+
+FROM: 80;
+ assume(1+WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0 <= 1);
+TO: 78;
+
+FROM: 80;
+ assume(WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0 <= 1 && 1 <= WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0);
+TO: 76;
+
+FROM: 81;
+ A_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ FH_TUERMODUL_CTRL__N_post := nondet();
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL_CTRL__N_post = 1+FH_TUERMODUL_CTRL__N_0 && A_FH_TUERMODUL_CTRL_next_state_post = 1 && WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post = 1);
+ A_FH_TUERMODUL_CTRL_next_state_0 := A_FH_TUERMODUL_CTRL_next_state_post;
+ FH_TUERMODUL_CTRL__N_0 := FH_TUERMODUL_CTRL__N_post;
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0 := WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 68;
+
+FROM: 82;
+ assume(FH_TUERMODUL__MFHA_0 <= 0 && 0 <= FH_TUERMODUL__MFHA_0);
+TO: 80;
+
+FROM: 82;
+ assume(1 <= FH_TUERMODUL__MFHA_0);
+TO: 81;
+
+FROM: 82;
+ assume(1+FH_TUERMODUL__MFHA_0 <= 0);
+TO: 81;
+
+FROM: 83;
+ assume((0 <= 0));
+TO: 81;
+
+FROM: 84;
+ assume(FH_TUERMODUL__MFHZ_0 <= 0 && 0 <= FH_TUERMODUL__MFHZ_0);
+TO: 82;
+
+FROM: 84;
+ assume(1 <= FH_TUERMODUL__MFHZ_0);
+TO: 83;
+
+FROM: 84;
+ assume(1+FH_TUERMODUL__MFHZ_0 <= 0);
+TO: 83;
+
+FROM: 85;
+ assume(2 <= time_0-tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0);
+TO: 80;
+
+FROM: 85;
+ assume(1+time_0-tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0 <= 1);
+TO: 80;
+
+FROM: 85;
+ assume(time_0-tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0 <= 1 && 1 <= time_0-tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0);
+TO: 84;
+
+FROM: 86;
+ assume(tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0 <= 0 && 0 <= tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0);
+TO: 80;
+
+FROM: 86;
+ assume(1 <= tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0);
+TO: 85;
+
+FROM: 86;
+ assume(1+tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0 <= 0);
+TO: 85;
+
+FROM: 87;
+ assume(2 <= step_0);
+TO: 80;
+
+FROM: 87;
+ assume(1+step_0 <= 1);
+TO: 80;
+
+FROM: 87;
+ assume(step_0 <= 1 && 1 <= step_0);
+TO: 86;
+
+FROM: 88;
+ A_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ FH_TUERMODUL_CTRL__N_post := nondet();
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL_CTRL__N_post = 0 && A_FH_TUERMODUL_CTRL_next_state_post = 1 && WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post = 1);
+ A_FH_TUERMODUL_CTRL_next_state_0 := A_FH_TUERMODUL_CTRL_next_state_post;
+ FH_TUERMODUL_CTRL__N_0 := FH_TUERMODUL_CTRL__N_post;
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0 := WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 68;
+
+FROM: 89;
+ assume((0 <= 0));
+TO: 90;
+
+FROM: 90;
+ assume(2 <= A_FH_TUERMODUL_CTRL_next_state_0);
+TO: 88;
+
+FROM: 90;
+ assume(1+A_FH_TUERMODUL_CTRL_next_state_0 <= 1);
+TO: 88;
+
+FROM: 90;
+ assume(A_FH_TUERMODUL_CTRL_next_state_0 <= 1 && 1 <= A_FH_TUERMODUL_CTRL_next_state_0);
+TO: 87;
+
+FROM: 91;
+ assume((0 <= 0));
+TO: 92;
+
+FROM: 93;
+ assume((0 <= 0));
+TO: 89;
+
+FROM: 94;
+ assume((0 <= 0));
+TO: 93;
+
+FROM: 95;
+ assume(__const_405_0 <= FH_TUERMODUL__POSITION_0);
+TO: 94;
+
+FROM: 95;
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(1+FH_TUERMODUL__POSITION_0 <= __const_405_0 && stable_post = 0 && FH_TUERMODUL__MFHA_copy_post = 1 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 1 && OEFFNEN_FH_TUERMODUL_CTRL_next_state_post = 2);
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 := OEFFNEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 93;
+
+FROM: 96;
+ assume(1 <= FH_TUERMODUL__SFHA_old_0);
+TO: 94;
+
+FROM: 96;
+ assume(1+FH_TUERMODUL__SFHA_old_0 <= 0);
+TO: 94;
+
+FROM: 96;
+ assume(FH_TUERMODUL__SFHA_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_old_0);
+TO: 95;
+
+FROM: 97;
+ assume(FH_TUERMODUL__SFHA_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_0);
+TO: 94;
+
+FROM: 97;
+ assume(1 <= FH_TUERMODUL__SFHA_0);
+TO: 96;
+
+FROM: 97;
+ assume(1+FH_TUERMODUL__SFHA_0 <= 0);
+TO: 96;
+
+FROM: 98;
+ assume(1 <= stable_0);
+TO: 91;
+
+FROM: 98;
+ assume(1+stable_0 <= 0);
+TO: 91;
+
+FROM: 98;
+ stable_post := nondet();
+ step_post := nondet();
+ assume(stable_0 <= 0 && 0 <= stable_0 && stable_post = 1 && step_post = 1+step_0);
+ stable_0 := stable_post;
+ step_0 := step_post;
+TO: 79;
+
+FROM: 99;
+ assume(FH_TUERMODUL__POSITION_0 <= 0);
+TO: 97;
+
+FROM: 99;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(1 <= FH_TUERMODUL__POSITION_0 && stable_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 2 && SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 2 && MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 2 && FH_TUERMODUL__MFHZ_copy_post = 1);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 93;
+
+FROM: 100;
+ assume(FH_TUERMODUL__SFHZ_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_0);
+TO: 97;
+
+FROM: 100;
+ assume(1 <= FH_TUERMODUL__SFHZ_0);
+TO: 101;
+
+FROM: 100;
+ assume(1+FH_TUERMODUL__SFHZ_0 <= 0);
+TO: 101;
+
+FROM: 101;
+ assume(1 <= FH_TUERMODUL__SFHZ_old_0);
+TO: 97;
+
+FROM: 101;
+ assume(1+FH_TUERMODUL__SFHZ_old_0 <= 0);
+TO: 97;
+
+FROM: 101;
+ assume(FH_TUERMODUL__SFHZ_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_old_0);
+TO: 99;
+
+FROM: 102;
+ assume((0 <= 0));
+TO: 93;
+
+FROM: 103;
+ assume((0 <= 0));
+TO: 102;
+
+FROM: 104;
+ assume((0 <= 0));
+TO: 103;
+
+FROM: 105;
+ assume(1 <= FH_TUERMODUL__SFHA_old_0);
+TO: 104;
+
+FROM: 105;
+ assume(1+FH_TUERMODUL__SFHA_old_0 <= 0);
+TO: 104;
+
+FROM: 105;
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHA_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_old_0 && stable_post = 0 && SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 1 && MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 0);
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 103;
+
+FROM: 106;
+ assume(FH_TUERMODUL__SFHA_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_0);
+TO: 104;
+
+FROM: 106;
+ assume(1 <= FH_TUERMODUL__SFHA_0);
+TO: 105;
+
+FROM: 106;
+ assume(1+FH_TUERMODUL__SFHA_0 <= 0);
+TO: 105;
+
+FROM: 107;
+ assume((0 <= 0));
+TO: 108;
+
+FROM: 107;
+ assume((0 <= 0));
+TO: 106;
+
+FROM: 107;
+ assume((0 <= 0));
+TO: 108;
+
+FROM: 108;
+ FH_TUERMODUL_CTRL__INREVERS1_copy_post := nondet();
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ sc_FH_TUERMODUL_CTRL_1739_10_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && FH_TUERMODUL_CTRL__INREVERS1_copy_post = 1 && MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 1 && sc_FH_TUERMODUL_CTRL_1739_10_post = time_0 && FH_TUERMODUL__MFHA_copy_post = 1);
+ FH_TUERMODUL_CTRL__INREVERS1_copy_0 := FH_TUERMODUL_CTRL__INREVERS1_copy_post;
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ sc_FH_TUERMODUL_CTRL_1739_10_0 := sc_FH_TUERMODUL_CTRL_1739_10_post;
+ stable_0 := stable_post;
+TO: 103;
+
+FROM: 109;
+ FH_TUERMODUL_CTRL__INREVERS1_copy_post := nondet();
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL_CTRL__INREVERS1_copy_post = 0 && MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 2 && FH_TUERMODUL__MFHA_copy_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 1);
+ FH_TUERMODUL_CTRL__INREVERS1_copy_0 := FH_TUERMODUL_CTRL__INREVERS1_copy_post;
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 103;
+
+FROM: 110;
+ assume((0 <= 0));
+TO: 109;
+
+FROM: 110;
+ assume((0 <= 0));
+TO: 103;
+
+FROM: 110;
+ assume((0 <= 0));
+TO: 109;
+
+FROM: 111;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 2 && FH_TUERMODUL__MFHZ_copy_post = 1);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 103;
+
+FROM: 112;
+ assume(3 <= MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 111;
+
+FROM: 112;
+ assume(1+MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 2);
+TO: 111;
+
+FROM: 112;
+ assume(MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 2 && 2 <= MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 107;
+
+FROM: 113;
+ tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post := nondet();
+ assume(tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post = time_0);
+ tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0 := tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post;
+TO: 114;
+
+FROM: 115;
+ assume(2 <= MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 112;
+
+FROM: 115;
+ assume(1+MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 1);
+TO: 112;
+
+FROM: 115;
+ assume(MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 1 && 1 <= MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 110;
+
+FROM: 116;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 102;
+
+FROM: 117;
+ assume(1 <= FH_TUERMODUL__SFHZ_0);
+TO: 115;
+
+FROM: 117;
+ assume(1+FH_TUERMODUL__SFHZ_0 <= 0);
+TO: 115;
+
+FROM: 117;
+ assume(FH_TUERMODUL__SFHZ_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_0);
+TO: 118;
+
+FROM: 118;
+ assume(FH_TUERMODUL__SFHZ_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_old_0);
+TO: 115;
+
+FROM: 118;
+ assume(1 <= FH_TUERMODUL__SFHZ_old_0);
+TO: 116;
+
+FROM: 118;
+ assume(1+FH_TUERMODUL__SFHZ_old_0 <= 0);
+TO: 116;
+
+FROM: 119;
+ assume((0 <= 0));
+TO: 102;
+
+FROM: 120;
+ assume(BLOCK_ERKENNUNG_CTRL__N_0 <= BLOCK_ERKENNUNG_CTRL__N_old_0 && BLOCK_ERKENNUNG_CTRL__N_old_0 <= BLOCK_ERKENNUNG_CTRL__N_0);
+TO: 114;
+
+FROM: 120;
+ assume(1+BLOCK_ERKENNUNG_CTRL__N_old_0 <= BLOCK_ERKENNUNG_CTRL__N_0);
+TO: 113;
+
+FROM: 120;
+ assume(1+BLOCK_ERKENNUNG_CTRL__N_0 <= BLOCK_ERKENNUNG_CTRL__N_old_0);
+TO: 113;
+
+FROM: 114;
+ stable_post := nondet();
+ step_post := nondet();
+ time_post := nondet();
+ assume(time_post = 1 && stable_post = 0 && step_post = 0);
+ stable_0 := stable_post;
+ step_0 := step_post;
+ time_0 := time_post;
+TO: 12;
+
+FROM: 121;
+ assume((0 <= 0));
+TO: 122;
+
+FROM: 121;
+ assume((0 <= 0));
+TO: 119;
+
+FROM: 121;
+ assume((0 <= 0));
+TO: 122;
+
+FROM: 122;
+ FH_TUERMODUL_CTRL__INREVERS2_copy_post := nondet();
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ sc_FH_TUERMODUL_CTRL_1781_10_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL_CTRL__INREVERS2_copy_post = 1 && TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 1 && FH_TUERMODUL__MFHZ_copy_post = 0 && sc_FH_TUERMODUL_CTRL_1781_10_post = time_0 && FH_TUERMODUL__MFHA_copy_post = 1);
+ FH_TUERMODUL_CTRL__INREVERS2_copy_0 := FH_TUERMODUL_CTRL__INREVERS2_copy_post;
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ sc_FH_TUERMODUL_CTRL_1781_10_0 := sc_FH_TUERMODUL_CTRL_1781_10_post;
+ stable_0 := stable_post;
+TO: 119;
+
+FROM: 123;
+ tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post := nondet();
+ assume(tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post = time_0);
+ tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0 := tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post;
+TO: 114;
+
+FROM: 124;
+ FH_TUERMODUL_CTRL__INREVERS2_copy_post := nondet();
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 1 && FH_TUERMODUL_CTRL__INREVERS2_copy_post = 0 && TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 2 && FH_TUERMODUL__MFHA_copy_post = 0);
+ FH_TUERMODUL_CTRL__INREVERS2_copy_0 := FH_TUERMODUL_CTRL__INREVERS2_copy_post;
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 119;
+
+FROM: 125;
+ assume((0 <= 0));
+TO: 124;
+
+FROM: 125;
+ assume((0 <= 0));
+TO: 119;
+
+FROM: 125;
+ assume((0 <= 0));
+TO: 124;
+
+FROM: 126;
+ TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 2);
+ TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 119;
+
+FROM: 127;
+ assume(3 <= TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 126;
+
+FROM: 127;
+ assume(1+TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 2);
+TO: 126;
+
+FROM: 127;
+ assume(TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 2 && 2 <= TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 121;
+
+FROM: 128;
+ assume(2 <= TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 127;
+
+FROM: 128;
+ assume(1+TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 1);
+TO: 127;
+
+FROM: 128;
+ assume(TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 1 && 1 <= TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 125;
+
+FROM: 129;
+ assume((0 <= 0));
+TO: 123;
+
+FROM: 129;
+ assume((0 <= 0));
+TO: 120;
+
+FROM: 129;
+ assume((0 <= 0));
+TO: 123;
+
+FROM: 130;
+ assume(1 <= FH_TUERMODUL__SFHZ_old_0);
+TO: 128;
+
+FROM: 130;
+ assume(1+FH_TUERMODUL__SFHZ_old_0 <= 0);
+TO: 128;
+
+FROM: 130;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_old_0 && stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 102;
+
+FROM: 131;
+ assume(FH_TUERMODUL__SFHZ_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_0);
+TO: 128;
+
+FROM: 131;
+ assume(1 <= FH_TUERMODUL__SFHZ_0);
+TO: 130;
+
+FROM: 131;
+ assume(1+FH_TUERMODUL__SFHZ_0 <= 0);
+TO: 130;
+
+FROM: 132;
+ assume((0 <= 0));
+TO: 131;
+
+FROM: 133;
+ assume(FH_TUERMODUL__SFHA_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_0);
+TO: 131;
+
+FROM: 133;
+ assume(1 <= FH_TUERMODUL__SFHA_0);
+TO: 134;
+
+FROM: 133;
+ assume(1+FH_TUERMODUL__SFHA_0 <= 0);
+TO: 134;
+
+FROM: 134;
+ assume(1 <= FH_TUERMODUL__SFHA_old_0);
+TO: 132;
+
+FROM: 134;
+ assume(1+FH_TUERMODUL__SFHA_old_0 <= 0);
+TO: 132;
+
+FROM: 134;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHA_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_old_0 && stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 102;
+
+FROM: 135;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 2 && MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 2 && FH_TUERMODUL__MFHZ_copy_post = 1);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 102;
+
+FROM: 136;
+ assume(3 <= SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 135;
+
+FROM: 136;
+ assume(1+SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 2);
+TO: 135;
+
+FROM: 136;
+ assume(SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 2 && 2 <= SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 117;
+
+FROM: 137;
+ assume(2 <= SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 136;
+
+FROM: 137;
+ assume(1+SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 1);
+TO: 136;
+
+FROM: 137;
+ assume(SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 <= 1 && 1 <= SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 133;
+
+FROM: 138;
+ assume((0 <= 0));
+TO: 129;
+
+FROM: 138;
+ sc_FH_TUERMODUL_CTRL_1739_10_post := nondet();
+ assume(sc_FH_TUERMODUL_CTRL_1739_10_post = 0);
+ sc_FH_TUERMODUL_CTRL_1739_10_0 := sc_FH_TUERMODUL_CTRL_1739_10_post;
+TO: 129;
+
+FROM: 139;
+ assume(1 <= FH_TUERMODUL__POSITION_0);
+TO: 137;
+
+FROM: 139;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__POSITION_0 <= 0 && stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 93;
+
+FROM: 140;
+ assume((0 <= 0));
+TO: 93;
+
+FROM: 141;
+ assume((0 <= 0));
+TO: 140;
+
+FROM: 142;
+ assume(sc_FH_TUERMODUL_CTRL_1739_10_0 <= 0 && 0 <= sc_FH_TUERMODUL_CTRL_1739_10_0);
+TO: 129;
+
+FROM: 142;
+ assume(1 <= sc_FH_TUERMODUL_CTRL_1739_10_0);
+TO: 138;
+
+FROM: 142;
+ assume(1+sc_FH_TUERMODUL_CTRL_1739_10_0 <= 0);
+TO: 138;
+
+FROM: 143;
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHA_copy_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3 && OEFFNEN_FH_TUERMODUL_CTRL_next_state_post = 0);
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 := OEFFNEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 140;
+
+FROM: 144;
+ assume(FH_TUERMODUL__SFHA_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_old_0);
+TO: 141;
+
+FROM: 144;
+ assume(1 <= FH_TUERMODUL__SFHA_old_0);
+TO: 143;
+
+FROM: 144;
+ assume(1+FH_TUERMODUL__SFHA_old_0 <= 0);
+TO: 143;
+
+FROM: 145;
+ assume(1 <= FH_TUERMODUL__SFHA_0);
+TO: 141;
+
+FROM: 145;
+ assume(1+FH_TUERMODUL__SFHA_0 <= 0);
+TO: 141;
+
+FROM: 145;
+ assume(FH_TUERMODUL__SFHA_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_0);
+TO: 144;
+
+FROM: 146;
+ assume(FH_TUERMODUL__SFHZ_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_0);
+TO: 145;
+
+FROM: 146;
+ assume(1 <= FH_TUERMODUL__SFHZ_0);
+TO: 147;
+
+FROM: 146;
+ assume(1+FH_TUERMODUL__SFHZ_0 <= 0);
+TO: 147;
+
+FROM: 147;
+ assume(1 <= FH_TUERMODUL__SFHZ_old_0);
+TO: 145;
+
+FROM: 147;
+ assume(1+FH_TUERMODUL__SFHZ_old_0 <= 0);
+TO: 145;
+
+FROM: 147;
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_old_0 && stable_post = 0 && OEFFNEN_FH_TUERMODUL_CTRL_next_state_post = 1);
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 := OEFFNEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 140;
+
+FROM: 148;
+ assume((0 <= 0));
+TO: 140;
+
+FROM: 149;
+ assume(1 <= FH_TUERMODUL__SFHA_old_0);
+TO: 148;
+
+FROM: 149;
+ assume(1+FH_TUERMODUL__SFHA_old_0 <= 0);
+TO: 148;
+
+FROM: 149;
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHA_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_old_0 && stable_post = 0 && FH_TUERMODUL__MFHA_copy_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3 && OEFFNEN_FH_TUERMODUL_CTRL_next_state_post = 0);
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 := OEFFNEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 140;
+
+FROM: 150;
+ assume(FH_TUERMODUL__SFHA_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_0);
+TO: 148;
+
+FROM: 150;
+ assume(1 <= FH_TUERMODUL__SFHA_0);
+TO: 149;
+
+FROM: 150;
+ assume(1+FH_TUERMODUL__SFHA_0 <= 0);
+TO: 149;
+
+FROM: 151;
+ assume((0 <= 0));
+TO: 150;
+
+FROM: 152;
+ assume((0 <= 0));
+TO: 142;
+
+FROM: 152;
+ sc_FH_TUERMODUL_CTRL_1781_10_post := nondet();
+ assume(sc_FH_TUERMODUL_CTRL_1781_10_post = 0);
+ sc_FH_TUERMODUL_CTRL_1781_10_0 := sc_FH_TUERMODUL_CTRL_1781_10_post;
+TO: 142;
+
+FROM: 153;
+ assume(FH_TUERMODUL__SFHZ_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_0);
+TO: 150;
+
+FROM: 153;
+ assume(1 <= FH_TUERMODUL__SFHZ_0);
+TO: 154;
+
+FROM: 153;
+ assume(1+FH_TUERMODUL__SFHZ_0 <= 0);
+TO: 154;
+
+FROM: 154;
+ assume(1 <= FH_TUERMODUL__SFHZ_old_0);
+TO: 151;
+
+FROM: 154;
+ assume(1+FH_TUERMODUL__SFHZ_old_0 <= 0);
+TO: 151;
+
+FROM: 154;
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_old_0 && stable_post = 0 && FH_TUERMODUL__MFHA_copy_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3 && OEFFNEN_FH_TUERMODUL_CTRL_next_state_post = 0);
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 := OEFFNEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 140;
+
+FROM: 155;
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && OEFFNEN_FH_TUERMODUL_CTRL_next_state_post = 2);
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 := OEFFNEN_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 140;
+
+FROM: 156;
+ assume(3 <= OEFFNEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 155;
+
+FROM: 156;
+ assume(1+OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 <= 2);
+TO: 155;
+
+FROM: 156;
+ assume(OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 <= 2 && 2 <= OEFFNEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 146;
+
+FROM: 157;
+ assume(sc_FH_TUERMODUL_CTRL_1781_10_0 <= 0 && 0 <= sc_FH_TUERMODUL_CTRL_1781_10_0);
+TO: 142;
+
+FROM: 157;
+ assume(1 <= sc_FH_TUERMODUL_CTRL_1781_10_0);
+TO: 152;
+
+FROM: 157;
+ assume(1+sc_FH_TUERMODUL_CTRL_1781_10_0 <= 0);
+TO: 152;
+
+FROM: 158;
+ assume(2 <= OEFFNEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 156;
+
+FROM: 158;
+ assume(1+OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 <= 1);
+TO: 156;
+
+FROM: 158;
+ assume(OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 <= 1 && 1 <= OEFFNEN_FH_TUERMODUL_CTRL_next_state_0);
+TO: 153;
+
+FROM: 159;
+ assume(1+FH_TUERMODUL__POSITION_0 <= __const_405_0);
+TO: 158;
+
+FROM: 159;
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(__const_405_0 <= FH_TUERMODUL__POSITION_0 && stable_post = 0 && FH_TUERMODUL__MFHA_copy_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3);
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 93;
+
+FROM: 160;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3);
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 93;
+
+FROM: 161;
+ assume(4 <= INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0);
+TO: 160;
+
+FROM: 161;
+ assume(1+INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 <= 3);
+TO: 160;
+
+FROM: 161;
+ assume(INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 <= 3 && 3 <= INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0);
+TO: 100;
+
+FROM: 162;
+ assume(3 <= INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0);
+TO: 161;
+
+FROM: 162;
+ assume(1+INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 <= 2);
+TO: 161;
+
+FROM: 162;
+ assume(INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 <= 2 && 2 <= INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0);
+TO: 139;
+
+FROM: 163;
+ assume(2 <= INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0);
+TO: 162;
+
+FROM: 163;
+ assume(1+INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 <= 1);
+TO: 162;
+
+FROM: 163;
+ assume(INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 <= 1 && 1 <= INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0);
+TO: 159;
+
+FROM: 164;
+ B_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post := nondet();
+ sc_FH_TUERMODUL_CTRL_2352_1_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && sc_FH_TUERMODUL_CTRL_2352_1_post = time_0 && B_FH_TUERMODUL_CTRL_next_state_post = 2 && NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post = 3);
+ B_FH_TUERMODUL_CTRL_next_state_0 := B_FH_TUERMODUL_CTRL_next_state_post;
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 := NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post;
+ sc_FH_TUERMODUL_CTRL_2352_1_0 := sc_FH_TUERMODUL_CTRL_2352_1_post;
+ stable_0 := stable_post;
+TO: 89;
+
+FROM: 165;
+ assume(FH_TUERMODUL__MFHZ_0 <= 0 && 0 <= FH_TUERMODUL__MFHZ_0);
+TO: 163;
+
+FROM: 165;
+ assume(1 <= FH_TUERMODUL__MFHZ_0);
+TO: 164;
+
+FROM: 165;
+ assume(1+FH_TUERMODUL__MFHZ_0 <= 0);
+TO: 164;
+
+FROM: 166;
+ assume(1 <= FH_TUERMODUL__BLOCK_old_0);
+TO: 163;
+
+FROM: 166;
+ assume(1+FH_TUERMODUL__BLOCK_old_0 <= 0);
+TO: 163;
+
+FROM: 166;
+ assume(FH_TUERMODUL__BLOCK_old_0 <= 0 && 0 <= FH_TUERMODUL__BLOCK_old_0);
+TO: 165;
+
+FROM: 167;
+ assume(FH_TUERMODUL__BLOCK_0 <= 0 && 0 <= FH_TUERMODUL__BLOCK_0);
+TO: 163;
+
+FROM: 167;
+ assume(1 <= FH_TUERMODUL__BLOCK_0);
+TO: 166;
+
+FROM: 167;
+ assume(1+FH_TUERMODUL__BLOCK_0 <= 0);
+TO: 166;
+
+FROM: 168;
+ B_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post := nondet();
+ sc_FH_TUERMODUL_CTRL_2375_2_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHA_copy_post = 0 && sc_FH_TUERMODUL_CTRL_2375_2_post = time_0 && B_FH_TUERMODUL_CTRL_next_state_post = 2 && NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post = 3);
+ B_FH_TUERMODUL_CTRL_next_state_0 := B_FH_TUERMODUL_CTRL_next_state_post;
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 := NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post;
+ sc_FH_TUERMODUL_CTRL_2375_2_0 := sc_FH_TUERMODUL_CTRL_2375_2_post;
+ stable_0 := stable_post;
+TO: 89;
+
+FROM: 169;
+ assume(FH_TUERMODUL__MFHA_0 <= 0 && 0 <= FH_TUERMODUL__MFHA_0);
+TO: 167;
+
+FROM: 169;
+ assume(1 <= FH_TUERMODUL__MFHA_0);
+TO: 168;
+
+FROM: 169;
+ assume(1+FH_TUERMODUL__MFHA_0 <= 0);
+TO: 168;
+
+FROM: 170;
+ assume((0 <= 0));
+TO: 157;
+
+FROM: 170;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ sc_FH_TUERMODUL_CTRL_2329_1_post := nondet();
+ assume(FH_TUERMODUL__MFHZ_copy_post = 0 && sc_FH_TUERMODUL_CTRL_2329_1_post = 0);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ sc_FH_TUERMODUL_CTRL_2329_1_0 := sc_FH_TUERMODUL_CTRL_2329_1_post;
+TO: 157;
+
+FROM: 171;
+ assume(1 <= FH_TUERMODUL__BLOCK_old_0);
+TO: 167;
+
+FROM: 171;
+ assume(1+FH_TUERMODUL__BLOCK_old_0 <= 0);
+TO: 167;
+
+FROM: 171;
+ assume(FH_TUERMODUL__BLOCK_old_0 <= 0 && 0 <= FH_TUERMODUL__BLOCK_old_0);
+TO: 169;
+
+FROM: 172;
+ B_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL_CTRL__INREVERS2_0 <= 0 && 0 <= FH_TUERMODUL_CTRL__INREVERS2_0 && stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && FH_TUERMODUL__MFHA_copy_post = 0 && B_FH_TUERMODUL_CTRL_next_state_post = 1);
+ B_FH_TUERMODUL_CTRL_next_state_0 := B_FH_TUERMODUL_CTRL_next_state_post;
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ stable_0 := stable_post;
+TO: 89;
+
+FROM: 172;
+ assume(1 <= FH_TUERMODUL_CTRL__INREVERS2_0);
+TO: 173;
+
+FROM: 172;
+ assume(1+FH_TUERMODUL_CTRL__INREVERS2_0 <= 0);
+TO: 173;
+
+FROM: 173;
+ assume(FH_TUERMODUL__BLOCK_0 <= 0 && 0 <= FH_TUERMODUL__BLOCK_0);
+TO: 167;
+
+FROM: 173;
+ assume(1 <= FH_TUERMODUL__BLOCK_0);
+TO: 171;
+
+FROM: 173;
+ assume(1+FH_TUERMODUL__BLOCK_0 <= 0);
+TO: 171;
+
+FROM: 174;
+ assume(FH_TUERMODUL_CTRL__INREVERS1_0 <= 0 && 0 <= FH_TUERMODUL_CTRL__INREVERS1_0);
+TO: 172;
+
+FROM: 174;
+ assume(1 <= FH_TUERMODUL_CTRL__INREVERS1_0);
+TO: 173;
+
+FROM: 174;
+ assume(1+FH_TUERMODUL_CTRL__INREVERS1_0 <= 0);
+TO: 173;
+
+FROM: 175;
+ assume(FH_TUERMODUL_CTRL__N_0 <= __const_60_0);
+TO: 173;
+
+FROM: 175;
+ assume(1+__const_60_0 <= FH_TUERMODUL_CTRL__N_0);
+TO: 176;
+
+FROM: 177;
+ assume(sc_FH_TUERMODUL_CTRL_2329_1_0 <= 0 && 0 <= sc_FH_TUERMODUL_CTRL_2329_1_0);
+TO: 157;
+
+FROM: 177;
+ assume(1 <= sc_FH_TUERMODUL_CTRL_2329_1_0);
+TO: 170;
+
+FROM: 177;
+ assume(1+sc_FH_TUERMODUL_CTRL_2329_1_0 <= 0);
+TO: 170;
+
+FROM: 176;
+ assume(1+__const_60_0 <= FH_TUERMODUL_CTRL__N_old_0);
+TO: 173;
+
+FROM: 176;
+ assume(FH_TUERMODUL_CTRL__N_old_0 <= __const_60_0);
+TO: 174;
+
+FROM: 178;
+ assume((0 <= 0));
+TO: 89;
+
+FROM: 179;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 1 && NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post = 1);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 := NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post;
+ stable_0 := stable_post;
+TO: 178;
+
+FROM: 180;
+ assume(FH_TUERMODUL__SFHZ_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_0);
+TO: 178;
+
+FROM: 180;
+ assume(1 <= FH_TUERMODUL__SFHZ_0);
+TO: 179;
+
+FROM: 180;
+ assume(1+FH_TUERMODUL__SFHZ_0 <= 0);
+TO: 179;
+
+FROM: 181;
+ assume(FH_TUERMODUL__SFHA_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_0);
+TO: 180;
+
+FROM: 181;
+ assume(1 <= FH_TUERMODUL__SFHA_0);
+TO: 182;
+
+FROM: 181;
+ assume(1+FH_TUERMODUL__SFHA_0 <= 0);
+TO: 182;
+
+FROM: 182;
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHA_copy_post = 1 && NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post = 2);
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 := NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post;
+ stable_0 := stable_post;
+TO: 178;
+
+FROM: 183;
+ assume((0 <= 0));
+TO: 178;
+
+FROM: 184;
+ assume(1 <= FH_TUERMODUL__SFHA_0);
+TO: 183;
+
+FROM: 184;
+ assume(1+FH_TUERMODUL__SFHA_0 <= 0);
+TO: 183;
+
+FROM: 184;
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHA_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_0 && stable_post = 0 && FH_TUERMODUL__MFHA_copy_post = 0 && NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post = 3);
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 := NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post;
+ stable_0 := stable_post;
+TO: 178;
+
+FROM: 185;
+ assume((0 <= 0));
+TO: 178;
+
+FROM: 186;
+ assume(1 <= FH_TUERMODUL__SFHZ_0);
+TO: 185;
+
+FROM: 186;
+ assume(1+FH_TUERMODUL__SFHZ_0 <= 0);
+TO: 185;
+
+FROM: 186;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_0 && stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post = 3);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 := NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post;
+ stable_0 := stable_post;
+TO: 178;
+
+FROM: 187;
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post = 3);
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 := NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post;
+ stable_0 := stable_post;
+TO: 178;
+
+FROM: 188;
+ assume((0 <= 0));
+TO: 177;
+
+FROM: 188;
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ sc_FH_TUERMODUL_CTRL_2352_1_post := nondet();
+ assume(FH_TUERMODUL__MFHZ_copy_post = 0 && sc_FH_TUERMODUL_CTRL_2352_1_post = 0);
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ sc_FH_TUERMODUL_CTRL_2352_1_0 := sc_FH_TUERMODUL_CTRL_2352_1_post;
+TO: 177;
+
+FROM: 189;
+ assume(4 <= NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0);
+TO: 187;
+
+FROM: 189;
+ assume(1+NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 <= 3);
+TO: 187;
+
+FROM: 189;
+ assume(NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 <= 3 && 3 <= NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0);
+TO: 181;
+
+FROM: 190;
+ assume(3 <= NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0);
+TO: 189;
+
+FROM: 190;
+ assume(1+NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 <= 2);
+TO: 189;
+
+FROM: 190;
+ assume(NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 <= 2 && 2 <= NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0);
+TO: 184;
+
+FROM: 191;
+ assume(2 <= NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0);
+TO: 190;
+
+FROM: 191;
+ assume(1+NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 <= 1);
+TO: 190;
+
+FROM: 191;
+ assume(NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 <= 1 && 1 <= NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0);
+TO: 186;
+
+FROM: 192;
+ assume(sc_FH_TUERMODUL_CTRL_2352_1_0 <= 0 && 0 <= sc_FH_TUERMODUL_CTRL_2352_1_0);
+TO: 177;
+
+FROM: 192;
+ assume(1 <= sc_FH_TUERMODUL_CTRL_2352_1_0);
+TO: 188;
+
+FROM: 192;
+ assume(1+sc_FH_TUERMODUL_CTRL_2352_1_0 <= 0);
+TO: 188;
+
+FROM: 193;
+ B_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ FH_TUERMODUL__MFHZ_copy_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ sc_FH_TUERMODUL_CTRL_2329_1_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__MFHZ_copy_post = 0 && sc_FH_TUERMODUL_CTRL_2329_1_post = time_0 && B_FH_TUERMODUL_CTRL_next_state_post = 3 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3);
+ B_FH_TUERMODUL_CTRL_next_state_0 := B_FH_TUERMODUL_CTRL_next_state_post;
+ FH_TUERMODUL__MFHZ_copy_0 := FH_TUERMODUL__MFHZ_copy_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ sc_FH_TUERMODUL_CTRL_2329_1_0 := sc_FH_TUERMODUL_CTRL_2329_1_post;
+ stable_0 := stable_post;
+TO: 89;
+
+FROM: 194;
+ assume(FH_TUERMODUL__MFHZ_0 <= 0 && 0 <= FH_TUERMODUL__MFHZ_0);
+TO: 191;
+
+FROM: 194;
+ assume(1 <= FH_TUERMODUL__MFHZ_0);
+TO: 193;
+
+FROM: 194;
+ assume(1+FH_TUERMODUL__MFHZ_0 <= 0);
+TO: 193;
+
+FROM: 195;
+ assume(FH_TUERMODUL__BLOCK_0 <= 0 && 0 <= FH_TUERMODUL__BLOCK_0);
+TO: 191;
+
+FROM: 195;
+ assume(1 <= FH_TUERMODUL__BLOCK_0);
+TO: 196;
+
+FROM: 195;
+ assume(1+FH_TUERMODUL__BLOCK_0 <= 0);
+TO: 196;
+
+FROM: 196;
+ assume(1 <= FH_TUERMODUL__BLOCK_old_0);
+TO: 191;
+
+FROM: 196;
+ assume(1+FH_TUERMODUL__BLOCK_old_0 <= 0);
+TO: 191;
+
+FROM: 196;
+ assume(FH_TUERMODUL__BLOCK_old_0 <= 0 && 0 <= FH_TUERMODUL__BLOCK_old_0);
+TO: 194;
+
+FROM: 197;
+ assume((0 <= 0));
+TO: 89;
+
+FROM: 198;
+ B_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && B_FH_TUERMODUL_CTRL_next_state_post = 3 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 3);
+ B_FH_TUERMODUL_CTRL_next_state_0 := B_FH_TUERMODUL_CTRL_next_state_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 89;
+
+FROM: 199;
+ assume(1+__const_59_0 <= FH_TUERMODUL_CTRL__N_0);
+TO: 197;
+
+FROM: 199;
+ assume(1+FH_TUERMODUL_CTRL__N_0 <= __const_59_0);
+TO: 197;
+
+FROM: 199;
+ assume(FH_TUERMODUL_CTRL__N_0 <= __const_59_0 && __const_59_0 <= FH_TUERMODUL_CTRL__N_0);
+TO: 200;
+
+FROM: 200;
+ assume(FH_TUERMODUL_CTRL__N_old_0 <= __const_59_0 && __const_59_0 <= FH_TUERMODUL_CTRL__N_old_0);
+TO: 197;
+
+FROM: 200;
+ assume(1+__const_59_0 <= FH_TUERMODUL_CTRL__N_old_0);
+TO: 198;
+
+FROM: 200;
+ assume(1+FH_TUERMODUL_CTRL__N_old_0 <= __const_59_0);
+TO: 198;
+
+FROM: 201;
+ B_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && B_FH_TUERMODUL_CTRL_next_state_post = 2);
+ B_FH_TUERMODUL_CTRL_next_state_0 := B_FH_TUERMODUL_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 89;
+
+FROM: 202;
+ assume(4 <= B_FH_TUERMODUL_CTRL_next_state_0);
+TO: 201;
+
+FROM: 202;
+ assume(1+B_FH_TUERMODUL_CTRL_next_state_0 <= 3);
+TO: 201;
+
+FROM: 202;
+ assume(B_FH_TUERMODUL_CTRL_next_state_0 <= 3 && 3 <= B_FH_TUERMODUL_CTRL_next_state_0);
+TO: 175;
+
+FROM: 203;
+ assume(3 <= B_FH_TUERMODUL_CTRL_next_state_0);
+TO: 202;
+
+FROM: 203;
+ assume(1+B_FH_TUERMODUL_CTRL_next_state_0 <= 2);
+TO: 202;
+
+FROM: 203;
+ assume(B_FH_TUERMODUL_CTRL_next_state_0 <= 2 && 2 <= B_FH_TUERMODUL_CTRL_next_state_0);
+TO: 195;
+
+FROM: 204;
+ assume(2 <= B_FH_TUERMODUL_CTRL_next_state_0);
+TO: 203;
+
+FROM: 204;
+ assume(1+B_FH_TUERMODUL_CTRL_next_state_0 <= 1);
+TO: 203;
+
+FROM: 204;
+ assume(B_FH_TUERMODUL_CTRL_next_state_0 <= 1 && 1 <= B_FH_TUERMODUL_CTRL_next_state_0);
+TO: 199;
+
+FROM: 205;
+ assume((0 <= 0));
+TO: 204;
+
+FROM: 206;
+ assume((0 <= 0));
+TO: 205;
+
+FROM: 206;
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ assume(BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post = 1);
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 := BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post;
+TO: 205;
+
+FROM: 206;
+ assume((0 <= 0));
+TO: 205;
+
+FROM: 207;
+ assume((0 <= 0));
+TO: 206;
+
+FROM: 208;
+ assume((0 <= 0));
+TO: 207;
+
+FROM: 208;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ assume(KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 3);
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+TO: 207;
+
+FROM: 208;
+ assume((0 <= 0));
+TO: 207;
+
+FROM: 209;
+ assume((0 <= 0));
+TO: 208;
+
+FROM: 209;
+ assume((0 <= 0));
+TO: 67;
+
+FROM: 209;
+ assume((0 <= 0));
+TO: 208;
+
+FROM: 210;
+ assume((0 <= 0));
+TO: 192;
+
+FROM: 210;
+ FH_TUERMODUL__MFHA_copy_post := nondet();
+ sc_FH_TUERMODUL_CTRL_2375_2_post := nondet();
+ assume(FH_TUERMODUL__MFHA_copy_post = 0 && sc_FH_TUERMODUL_CTRL_2375_2_post = 0);
+ FH_TUERMODUL__MFHA_copy_0 := FH_TUERMODUL__MFHA_copy_post;
+ sc_FH_TUERMODUL_CTRL_2375_2_0 := sc_FH_TUERMODUL_CTRL_2375_2_post;
+TO: 192;
+
+FROM: 211;
+ assume((0 <= 0));
+TO: 209;
+
+FROM: 211;
+ assume((0 <= 0));
+TO: 209;
+
+FROM: 212;
+ assume((0 <= 0));
+TO: 211;
+
+FROM: 212;
+ assume((0 <= 0));
+TO: 209;
+
+FROM: 212;
+ assume((0 <= 0));
+TO: 211;
+
+FROM: 213;
+ assume((0 <= 0));
+TO: 209;
+
+FROM: 213;
+ assume((0 <= 0));
+TO: 209;
+
+FROM: 213;
+ assume((0 <= 0));
+TO: 212;
+
+FROM: 214;
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post := nondet();
+ assume(tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post = time_0);
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0 := tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post;
+TO: 215;
+
+FROM: 216;
+ assume((0 <= 0));
+TO: 214;
+
+FROM: 216;
+ assume((0 <= 0));
+TO: 214;
+
+FROM: 216;
+ assume((0 <= 0));
+TO: 215;
+
+FROM: 217;
+ assume((0 <= 0));
+TO: 218;
+
+FROM: 218;
+ FH_DU__BLOCK_post := nondet();
+ FH_DU__EKS_LEISTE_AKTIV_post := nondet();
+ FH_DU__FT_post := nondet();
+ FH_DU__I_EIN_post := nondet();
+ FH_DU__KL_50_post := nondet();
+ FH_DU__MFHA_post := nondet();
+ FH_DU__MFHZ_post := nondet();
+ FH_DU__POSITION_post := nondet();
+ FH_DU__S_FH_AUFDISC_post := nondet();
+ FH_DU__S_FH_FTAUF_post := nondet();
+ FH_DU__S_FH_FTZU_post := nondet();
+ FH_DU__S_FH_ZUDISC_post := nondet();
+ FH_TUERMODUL__SFHA_MEC_post := nondet();
+ FH_TUERMODUL__SFHA_ZENTRAL_post := nondet();
+ FH_TUERMODUL__SFHZ_MEC_post := nondet();
+ FH_TUERMODUL__SFHZ_ZENTRAL_post := nondet();
+ assume(FH_DU__MFHA_post = FH_TUERMODUL__MFHA_0 && FH_DU__MFHZ_post = FH_TUERMODUL__MFHZ_0 && FH_DU__I_EIN_post = FH_TUERMODUL__I_EIN_0 && FH_DU__EKS_LEISTE_AKTIV_post = FH_TUERMODUL__EKS_LEISTE_AKTIV_0 && FH_DU__POSITION_post = FH_TUERMODUL__POSITION_0 && FH_DU__FT_post = FH_TUERMODUL__FT_0 && FH_DU__S_FH_AUFDISC_post = FH_TUERMODUL__SFHA_MEC_0 && FH_DU__S_FH_FTAUF_post = FH_TUERMODUL__SFHA_ZENTRAL_0 && FH_DU__S_FH_ZUDISC_post = FH_TUERMODUL__SFHZ_MEC_0 && FH_DU__S_FH_FTZU_post = FH_TUERMODUL__SFHZ_ZENTRAL_0 && FH_DU__KL_50_post = FH_TUERMODUL__KL_50_0 && FH_DU__BLOCK_post = FH_TUERMODUL__BLOCK_0 && FH_TUERMODUL__SFHA_MEC_post = FH_DU__S_FH_AUFDISC_post && FH_TUERMODUL__SFHA_ZENTRAL_post = FH_DU__S_FH_FTAUF_post && FH_TUERMODUL__SFHZ_MEC_post = FH_DU__S_FH_ZUDISC_post && FH_TUERMODUL__SFHZ_ZENTRAL_post = FH_DU__S_FH_FTZU_post);
+ FH_DU__BLOCK_0 := FH_DU__BLOCK_post;
+ FH_DU__EKS_LEISTE_AKTIV_0 := FH_DU__EKS_LEISTE_AKTIV_post;
+ FH_DU__FT_0 := FH_DU__FT_post;
+ FH_DU__I_EIN_0 := FH_DU__I_EIN_post;
+ FH_DU__KL_50_0 := FH_DU__KL_50_post;
+ FH_DU__MFHA_0 := FH_DU__MFHA_post;
+ FH_DU__MFHZ_0 := FH_DU__MFHZ_post;
+ FH_DU__POSITION_0 := FH_DU__POSITION_post;
+ FH_DU__S_FH_AUFDISC_0 := FH_DU__S_FH_AUFDISC_post;
+ FH_DU__S_FH_FTAUF_0 := FH_DU__S_FH_FTAUF_post;
+ FH_DU__S_FH_FTZU_0 := FH_DU__S_FH_FTZU_post;
+ FH_DU__S_FH_ZUDISC_0 := FH_DU__S_FH_ZUDISC_post;
+ FH_TUERMODUL__SFHA_MEC_0 := FH_TUERMODUL__SFHA_MEC_post;
+ FH_TUERMODUL__SFHA_ZENTRAL_0 := FH_TUERMODUL__SFHA_ZENTRAL_post;
+ FH_TUERMODUL__SFHZ_MEC_0 := FH_TUERMODUL__SFHZ_MEC_post;
+ FH_TUERMODUL__SFHZ_ZENTRAL_0 := FH_TUERMODUL__SFHZ_ZENTRAL_post;
+TO: 213;
+
+FROM: 219;
+ assume((0 <= 0));
+TO: 217;
+
+FROM: 215;
+ assume(sc_FH_TUERMODUL_CTRL_2375_2_0 <= 0 && 0 <= sc_FH_TUERMODUL_CTRL_2375_2_0);
+TO: 192;
+
+FROM: 215;
+ assume(1 <= sc_FH_TUERMODUL_CTRL_2375_2_0);
+TO: 210;
+
+FROM: 215;
+ assume(1+sc_FH_TUERMODUL_CTRL_2375_2_0 <= 0);
+TO: 210;
+
+FROM: 220;
+ assume(1 <= FH_TUERMODUL__KL_50_0);
+TO: 219;
+
+FROM: 220;
+ assume(1+FH_TUERMODUL__KL_50_0 <= 0);
+TO: 219;
+
+FROM: 220;
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__KL_50_0 <= 0 && 0 <= FH_TUERMODUL__KL_50_0 && stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 1 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 221;
+ assume(1 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 219;
+
+FROM: 221;
+ assume(1+FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0);
+TO: 219;
+
+FROM: 221;
+ assume(FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 220;
+
+FROM: 222;
+ assume(FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 219;
+
+FROM: 222;
+ assume(1 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 221;
+
+FROM: 222;
+ assume(1+FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0);
+TO: 221;
+
+FROM: 223;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__SFHA_copy_post = 1 && FH_TUERMODUL__SFHZ_copy_post = 1 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 224;
+ assume(FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 222;
+
+FROM: 224;
+ assume(1 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 223;
+
+FROM: 224;
+ assume(1+FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0);
+TO: 223;
+
+FROM: 225;
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post := nondet();
+ assume(tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post = time_0);
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0 := tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post;
+TO: 215;
+
+FROM: 226;
+ assume(FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 222;
+
+FROM: 226;
+ assume(1 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 224;
+
+FROM: 226;
+ assume(1+FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0);
+TO: 224;
+
+FROM: 227;
+ assume(1 <= FH_TUERMODUL__KL_50_0);
+TO: 226;
+
+FROM: 227;
+ assume(1+FH_TUERMODUL__KL_50_0 <= 0);
+TO: 226;
+
+FROM: 227;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__KL_50_0 <= 0 && 0 <= FH_TUERMODUL__KL_50_0 && stable_post = 0 && FH_TUERMODUL__SFHA_copy_post = 1 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 228;
+ assume(FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 226;
+
+FROM: 228;
+ assume(1 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 227;
+
+FROM: 228;
+ assume(1+FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0);
+TO: 227;
+
+FROM: 229;
+ assume(1 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 226;
+
+FROM: 229;
+ assume(1+FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0);
+TO: 226;
+
+FROM: 229;
+ assume(FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 228;
+
+FROM: 230;
+ assume((0 <= 0));
+TO: 225;
+
+FROM: 230;
+ assume((0 <= 0));
+TO: 216;
+
+FROM: 230;
+ assume((0 <= 0));
+TO: 225;
+
+FROM: 231;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__SFHA_copy_post = 1 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 2);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 232;
+ assume(FH_TUERMODUL__SFHA_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 229;
+
+FROM: 232;
+ assume(1 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 231;
+
+FROM: 232;
+ assume(1+FH_TUERMODUL__SFHA_MEC_0 <= 0);
+TO: 231;
+
+FROM: 233;
+ assume(1 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 229;
+
+FROM: 233;
+ assume(1+FH_TUERMODUL__SFHZ_MEC_0 <= 0);
+TO: 229;
+
+FROM: 233;
+ assume(FH_TUERMODUL__SFHZ_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 232;
+
+FROM: 234;
+ assume(1 <= FH_TUERMODUL__KL_50_0);
+TO: 229;
+
+FROM: 234;
+ assume(1+FH_TUERMODUL__KL_50_0 <= 0);
+TO: 229;
+
+FROM: 234;
+ assume(FH_TUERMODUL__KL_50_0 <= 0 && 0 <= FH_TUERMODUL__KL_50_0);
+TO: 233;
+
+FROM: 235;
+ assume(1 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 234;
+
+FROM: 235;
+ assume(1+FH_TUERMODUL__SFHA_MEC_0 <= 0);
+TO: 234;
+
+FROM: 235;
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHA_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_MEC_0 && stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 1 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 2);
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 236;
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_post := nondet();
+ assume(tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_post = time_0);
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0 := tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_post;
+TO: 230;
+
+FROM: 237;
+ assume(FH_TUERMODUL__SFHZ_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 234;
+
+FROM: 237;
+ assume(1 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 235;
+
+FROM: 237;
+ assume(1+FH_TUERMODUL__SFHZ_MEC_0 <= 0);
+TO: 235;
+
+FROM: 238;
+ assume(1 <= FH_TUERMODUL__KL_50_0);
+TO: 234;
+
+FROM: 238;
+ assume(1+FH_TUERMODUL__KL_50_0 <= 0);
+TO: 234;
+
+FROM: 238;
+ assume(FH_TUERMODUL__KL_50_0 <= 0 && 0 <= FH_TUERMODUL__KL_50_0);
+TO: 237;
+
+FROM: 239;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 1 && FH_TUERMODUL__SFHA_copy_post = 1 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 2);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 240;
+ assume(FH_TUERMODUL__SFHA_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 238;
+
+FROM: 240;
+ assume(1 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 239;
+
+FROM: 240;
+ assume(1+FH_TUERMODUL__SFHA_MEC_0 <= 0);
+TO: 239;
+
+FROM: 241;
+ assume(1 <= FH_TUERMODUL__KL_50_0);
+TO: 238;
+
+FROM: 241;
+ assume(1+FH_TUERMODUL__KL_50_0 <= 0);
+TO: 238;
+
+FROM: 241;
+ assume(FH_TUERMODUL__KL_50_0 <= 0 && 0 <= FH_TUERMODUL__KL_50_0);
+TO: 242;
+
+FROM: 242;
+ assume(FH_TUERMODUL__SFHZ_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 238;
+
+FROM: 242;
+ assume(1 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 240;
+
+FROM: 242;
+ assume(1+FH_TUERMODUL__SFHZ_MEC_0 <= 0);
+TO: 240;
+
+FROM: 243;
+ assume((0 <= 0));
+TO: 217;
+
+FROM: 244;
+ assume((0 <= 0));
+TO: 243;
+
+FROM: 245;
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ MEC_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 0 && MEC_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ MEC_KINDERSICHERUNG_CTRL_next_state_0 := MEC_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 243;
+
+FROM: 246;
+ assume(FH_TUERMODUL__SFHZ_MEC_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_MEC_old_0);
+TO: 244;
+
+FROM: 246;
+ assume(1 <= FH_TUERMODUL__SFHZ_MEC_old_0);
+TO: 245;
+
+FROM: 246;
+ assume(1+FH_TUERMODUL__SFHZ_MEC_old_0 <= 0);
+TO: 245;
+
+FROM: 247;
+ assume((0 <= 0));
+TO: 236;
+
+FROM: 247;
+ assume((0 <= 0));
+TO: 230;
+
+FROM: 247;
+ assume((0 <= 0));
+TO: 236;
+
+FROM: 248;
+ assume(1 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 244;
+
+FROM: 248;
+ assume(1+FH_TUERMODUL__SFHZ_MEC_0 <= 0);
+TO: 244;
+
+FROM: 248;
+ assume(FH_TUERMODUL__SFHZ_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 246;
+
+FROM: 249;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ MEC_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__SFHA_copy_post = 0 && MEC_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ MEC_KINDERSICHERUNG_CTRL_next_state_0 := MEC_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 243;
+
+FROM: 250;
+ assume(FH_TUERMODUL__SFHA_MEC_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_MEC_old_0);
+TO: 248;
+
+FROM: 250;
+ assume(1 <= FH_TUERMODUL__SFHA_MEC_old_0);
+TO: 249;
+
+FROM: 250;
+ assume(1+FH_TUERMODUL__SFHA_MEC_old_0 <= 0);
+TO: 249;
+
+FROM: 251;
+ assume(1 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 248;
+
+FROM: 251;
+ assume(1+FH_TUERMODUL__SFHA_MEC_0 <= 0);
+TO: 248;
+
+FROM: 251;
+ assume(FH_TUERMODUL__SFHA_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 250;
+
+FROM: 252;
+ assume(1 <= FH_TUERMODUL__SFHZ_MEC_old_0);
+TO: 251;
+
+FROM: 252;
+ assume(1+FH_TUERMODUL__SFHZ_MEC_old_0 <= 0);
+TO: 251;
+
+FROM: 252;
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ MEC_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_MEC_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_MEC_old_0 && stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 1 && MEC_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ MEC_KINDERSICHERUNG_CTRL_next_state_0 := MEC_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 243;
+
+FROM: 253;
+ assume(FH_TUERMODUL__SFHZ_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 251;
+
+FROM: 253;
+ assume(1 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 252;
+
+FROM: 253;
+ assume(1+FH_TUERMODUL__SFHZ_MEC_0 <= 0);
+TO: 252;
+
+FROM: 254;
+ assume(FH_TUERMODUL__SFHA_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 253;
+
+FROM: 254;
+ assume(1 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 255;
+
+FROM: 254;
+ assume(1+FH_TUERMODUL__SFHA_MEC_0 <= 0);
+TO: 255;
+
+FROM: 255;
+ assume(1 <= FH_TUERMODUL__SFHA_MEC_old_0);
+TO: 253;
+
+FROM: 255;
+ assume(1+FH_TUERMODUL__SFHA_MEC_old_0 <= 0);
+TO: 253;
+
+FROM: 255;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ MEC_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHA_MEC_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_MEC_old_0 && stable_post = 0 && FH_TUERMODUL__SFHA_copy_post = 1 && MEC_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ MEC_KINDERSICHERUNG_CTRL_next_state_0 := MEC_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 243;
+
+FROM: 256;
+ stable_post := nondet();
+ assume(stable_post = 0);
+ stable_0 := stable_post;
+TO: 243;
+
+FROM: 12;
+ assume((0 <= 0));
+TO: 98;
+
+FROM: 257;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ MEC_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_MEC_0 && stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 0 && FH_TUERMODUL__SFHA_copy_post = 0 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 3 && MEC_KINDERSICHERUNG_CTRL_next_state_post = 0);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ MEC_KINDERSICHERUNG_CTRL_next_state_0 := MEC_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 257;
+ assume(1 <= FH_TUERMODUL__SFHZ_MEC_0);
+TO: 258;
+
+FROM: 257;
+ assume(1+FH_TUERMODUL__SFHZ_MEC_0 <= 0);
+TO: 258;
+
+FROM: 259;
+ assume(FH_TUERMODUL__SFHA_MEC_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 257;
+
+FROM: 259;
+ assume(1 <= FH_TUERMODUL__SFHA_MEC_0);
+TO: 258;
+
+FROM: 259;
+ assume(1+FH_TUERMODUL__SFHA_MEC_0 <= 0);
+TO: 258;
+
+FROM: 258;
+ assume(2 <= MEC_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 256;
+
+FROM: 258;
+ assume(1+MEC_KINDERSICHERUNG_CTRL_next_state_0 <= 1);
+TO: 256;
+
+FROM: 258;
+ assume(MEC_KINDERSICHERUNG_CTRL_next_state_0 <= 1 && 1 <= MEC_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 254;
+
+FROM: 260;
+ assume((0 <= 0));
+TO: 217;
+
+FROM: 261;
+ assume((0 <= 0));
+TO: 260;
+
+FROM: 262;
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 0 && ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0 := ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 260;
+
+FROM: 263;
+ assume(FH_TUERMODUL__SFHZ_ZENTRAL_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_ZENTRAL_old_0);
+TO: 261;
+
+FROM: 263;
+ assume(1 <= FH_TUERMODUL__SFHZ_ZENTRAL_old_0);
+TO: 262;
+
+FROM: 263;
+ assume(1+FH_TUERMODUL__SFHZ_ZENTRAL_old_0 <= 0);
+TO: 262;
+
+FROM: 264;
+ assume(1 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 261;
+
+FROM: 264;
+ assume(1+FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0);
+TO: 261;
+
+FROM: 264;
+ assume(FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 263;
+
+FROM: 265;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && FH_TUERMODUL__SFHA_copy_post = 0 && ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0 := ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 260;
+
+FROM: 266;
+ assume(FH_TUERMODUL__SFHA_ZENTRAL_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_ZENTRAL_old_0);
+TO: 264;
+
+FROM: 266;
+ assume(1 <= FH_TUERMODUL__SFHA_ZENTRAL_old_0);
+TO: 265;
+
+FROM: 266;
+ assume(1+FH_TUERMODUL__SFHA_ZENTRAL_old_0 <= 0);
+TO: 265;
+
+FROM: 267;
+ assume(1 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 264;
+
+FROM: 267;
+ assume(1+FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0);
+TO: 264;
+
+FROM: 267;
+ assume(FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 266;
+
+FROM: 268;
+ assume(1 <= FH_TUERMODUL__SFHZ_ZENTRAL_old_0);
+TO: 267;
+
+FROM: 268;
+ assume(1+FH_TUERMODUL__SFHZ_ZENTRAL_old_0 <= 0);
+TO: 267;
+
+FROM: 268;
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_ZENTRAL_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_ZENTRAL_old_0 && stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 1 && ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0 := ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 260;
+
+FROM: 269;
+ assume(FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 267;
+
+FROM: 269;
+ assume(1 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 268;
+
+FROM: 269;
+ assume(1+FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0);
+TO: 268;
+
+FROM: 270;
+ assume(FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 269;
+
+FROM: 270;
+ assume(1 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 271;
+
+FROM: 270;
+ assume(1+FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0);
+TO: 271;
+
+FROM: 271;
+ assume(1 <= FH_TUERMODUL__SFHA_ZENTRAL_old_0);
+TO: 269;
+
+FROM: 271;
+ assume(1+FH_TUERMODUL__SFHA_ZENTRAL_old_0 <= 0);
+TO: 269;
+
+FROM: 271;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHA_ZENTRAL_old_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_ZENTRAL_old_0 && stable_post = 0 && FH_TUERMODUL__SFHA_copy_post = 1 && ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post = 1);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0 := ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 260;
+
+FROM: 272;
+ stable_post := nondet();
+ assume(stable_post = 0);
+ stable_0 := stable_post;
+TO: 260;
+
+FROM: 273;
+ FH_TUERMODUL__SFHA_copy_post := nondet();
+ FH_TUERMODUL__SFHZ_copy_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHZ_ZENTRAL_0 && stable_post = 0 && FH_TUERMODUL__SFHZ_copy_post = 0 && FH_TUERMODUL__SFHA_copy_post = 0 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 3 && ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post = 0);
+ FH_TUERMODUL__SFHA_copy_0 := FH_TUERMODUL__SFHA_copy_post;
+ FH_TUERMODUL__SFHZ_copy_0 := FH_TUERMODUL__SFHZ_copy_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0 := ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 273;
+ assume(1 <= FH_TUERMODUL__SFHZ_ZENTRAL_0);
+TO: 274;
+
+FROM: 273;
+ assume(1+FH_TUERMODUL__SFHZ_ZENTRAL_0 <= 0);
+TO: 274;
+
+FROM: 275;
+ assume(FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0 && 0 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 273;
+
+FROM: 275;
+ assume(1 <= FH_TUERMODUL__SFHA_ZENTRAL_0);
+TO: 274;
+
+FROM: 275;
+ assume(1+FH_TUERMODUL__SFHA_ZENTRAL_0 <= 0);
+TO: 274;
+
+FROM: 274;
+ assume(2 <= ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 272;
+
+FROM: 274;
+ assume(1+ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0 <= 1);
+TO: 272;
+
+FROM: 274;
+ assume(ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0 <= 1 && 1 <= ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 270;
+
+FROM: 276;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ stable_post := nondet();
+ assume(stable_post = 0 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 3);
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ stable_0 := stable_post;
+TO: 217;
+
+FROM: 277;
+ assume(4 <= KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 276;
+
+FROM: 277;
+ assume(1+KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 <= 3);
+TO: 276;
+
+FROM: 277;
+ assume(KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 <= 3 && 3 <= KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 241;
+
+FROM: 278;
+ assume(3 <= KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 277;
+
+FROM: 278;
+ assume(1+KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 <= 2);
+TO: 277;
+
+FROM: 278;
+ assume(KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 <= 2 && 2 <= KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 259;
+
+FROM: 279;
+ assume(2 <= KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 278;
+
+FROM: 279;
+ assume(1+KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 <= 1);
+TO: 278;
+
+FROM: 279;
+ assume(KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 <= 1 && 1 <= KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0);
+TO: 275;
+
+FROM: 280;
+ assume((0 <= 0));
+TO: 279;
+
+FROM: 280;
+ assume((0 <= 0));
+TO: 218;
+
+FROM: 280;
+ assume((0 <= 0));
+TO: 279;
+
+FROM: 281;
+ FH_TUERMODUL__SFHA_MEC_post := nondet();
+ FH_TUERMODUL__SFHA_ZENTRAL_post := nondet();
+ FH_TUERMODUL__SFHZ_MEC_post := nondet();
+ FH_TUERMODUL__SFHZ_ZENTRAL_post := nondet();
+ assume(FH_TUERMODUL__SFHA_MEC_post = FH_DU__S_FH_AUFDISC_0 && FH_TUERMODUL__SFHA_ZENTRAL_post = FH_DU__S_FH_FTAUF_0 && FH_TUERMODUL__SFHZ_MEC_post = FH_DU__S_FH_ZUDISC_0 && FH_TUERMODUL__SFHZ_ZENTRAL_post = FH_DU__S_FH_FTZU_0);
+ FH_TUERMODUL__SFHA_MEC_0 := FH_TUERMODUL__SFHA_MEC_post;
+ FH_TUERMODUL__SFHA_ZENTRAL_0 := FH_TUERMODUL__SFHA_ZENTRAL_post;
+ FH_TUERMODUL__SFHZ_MEC_0 := FH_TUERMODUL__SFHZ_MEC_post;
+ FH_TUERMODUL__SFHZ_ZENTRAL_0 := FH_TUERMODUL__SFHZ_ZENTRAL_post;
+TO: 280;
+
+FROM: 282;
+ FH_DU__S_FH_TMBFAUFCAN_post := nondet();
+ assume(FH_DU__S_FH_TMBFAUFCAN_post = FH_DU__S_FH_TMBFAUFDISC_0);
+ FH_DU__S_FH_TMBFAUFCAN_0 := FH_DU__S_FH_TMBFAUFCAN_post;
+TO: 281;
+
+FROM: 283;
+ assume(FH_DU__DOOR_ID_0 <= 0 && 0 <= FH_DU__DOOR_ID_0);
+TO: 281;
+
+FROM: 283;
+ assume(1 <= FH_DU__DOOR_ID_0);
+TO: 282;
+
+FROM: 283;
+ assume(1+FH_DU__DOOR_ID_0 <= 0);
+TO: 282;
+
+FROM: 284;
+ assume(FH_DU__S_FH_TMBFAUFDISC_0 <= FH_DU__S_FH_TMBFAUFDISC_old_0 && FH_DU__S_FH_TMBFAUFDISC_old_0 <= FH_DU__S_FH_TMBFAUFDISC_0);
+TO: 281;
+
+FROM: 284;
+ assume(1+FH_DU__S_FH_TMBFAUFDISC_old_0 <= FH_DU__S_FH_TMBFAUFDISC_0);
+TO: 283;
+
+FROM: 284;
+ assume(1+FH_DU__S_FH_TMBFAUFDISC_0 <= FH_DU__S_FH_TMBFAUFDISC_old_0);
+TO: 283;
+
+FROM: 285;
+ assume(1 <= FH_DU__DOOR_ID_0);
+TO: 284;
+
+FROM: 285;
+ assume(1+FH_DU__DOOR_ID_0 <= 0);
+TO: 284;
+
+FROM: 285;
+ FH_DU__S_FH_FTAUF_post := nondet();
+ assume(FH_DU__DOOR_ID_0 <= 0 && 0 <= FH_DU__DOOR_ID_0 && FH_DU__S_FH_FTAUF_post = FH_DU__S_FH_TMBFAUFCAN_0);
+ FH_DU__S_FH_FTAUF_0 := FH_DU__S_FH_FTAUF_post;
+TO: 284;
+
+FROM: 286;
+ assume(FH_DU__S_FH_TMBFAUFCAN_0 <= FH_DU__S_FH_TMBFAUFCAN_old_0 && FH_DU__S_FH_TMBFAUFCAN_old_0 <= FH_DU__S_FH_TMBFAUFCAN_0);
+TO: 284;
+
+FROM: 286;
+ assume(1+FH_DU__S_FH_TMBFAUFCAN_old_0 <= FH_DU__S_FH_TMBFAUFCAN_0);
+TO: 285;
+
+FROM: 286;
+ assume(1+FH_DU__S_FH_TMBFAUFCAN_0 <= FH_DU__S_FH_TMBFAUFCAN_old_0);
+TO: 285;
+
+FROM: 287;
+ FH_DU__S_FH_TMBFZUCAN_post := nondet();
+ assume(FH_DU__S_FH_TMBFZUCAN_post = FH_DU__S_FH_TMBFZUDISC_0);
+ FH_DU__S_FH_TMBFZUCAN_0 := FH_DU__S_FH_TMBFZUCAN_post;
+TO: 286;
+
+FROM: 288;
+ assume(FH_DU__DOOR_ID_0 <= 0 && 0 <= FH_DU__DOOR_ID_0);
+TO: 286;
+
+FROM: 288;
+ assume(1 <= FH_DU__DOOR_ID_0);
+TO: 287;
+
+FROM: 288;
+ assume(1+FH_DU__DOOR_ID_0 <= 0);
+TO: 287;
+
+FROM: 289;
+ assume(FH_DU__S_FH_TMBFZUDISC_0 <= FH_DU__S_FH_TMBFZUDISC_old_0 && FH_DU__S_FH_TMBFZUDISC_old_0 <= FH_DU__S_FH_TMBFZUDISC_0);
+TO: 286;
+
+FROM: 289;
+ assume(1+FH_DU__S_FH_TMBFZUDISC_old_0 <= FH_DU__S_FH_TMBFZUDISC_0);
+TO: 288;
+
+FROM: 289;
+ assume(1+FH_DU__S_FH_TMBFZUDISC_0 <= FH_DU__S_FH_TMBFZUDISC_old_0);
+TO: 288;
+
+FROM: 290;
+ assume(1 <= FH_DU__DOOR_ID_0);
+TO: 289;
+
+FROM: 290;
+ assume(1+FH_DU__DOOR_ID_0 <= 0);
+TO: 289;
+
+FROM: 290;
+ FH_DU__S_FH_FTZU_post := nondet();
+ assume(FH_DU__DOOR_ID_0 <= 0 && 0 <= FH_DU__DOOR_ID_0 && FH_DU__S_FH_FTZU_post = FH_DU__S_FH_TMBFZUCAN_0);
+ FH_DU__S_FH_FTZU_0 := FH_DU__S_FH_FTZU_post;
+TO: 289;
+
+FROM: 291;
+ assume(FH_DU__S_FH_TMBFZUCAN_0 <= FH_DU__S_FH_TMBFZUCAN_old_0 && FH_DU__S_FH_TMBFZUCAN_old_0 <= FH_DU__S_FH_TMBFZUCAN_0);
+TO: 289;
+
+FROM: 291;
+ assume(1+FH_DU__S_FH_TMBFZUCAN_old_0 <= FH_DU__S_FH_TMBFZUCAN_0);
+TO: 290;
+
+FROM: 291;
+ assume(1+FH_DU__S_FH_TMBFZUCAN_0 <= FH_DU__S_FH_TMBFZUCAN_old_0);
+TO: 290;
+
+FROM: 292;
+ assume((0 <= 0));
+TO: 291;
+
+FROM: 293;
+ assume((0 <= 0));
+TO: 292;
+
+FROM: 293;
+ A_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ B_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ FH_TUERMODUL_CTRL__N_post := nondet();
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ assume(B_FH_TUERMODUL_CTRL_next_state_post = 2 && FH_TUERMODUL_CTRL__N_post = 0 && A_FH_TUERMODUL_CTRL_next_state_post = 1 && WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post = 1);
+ A_FH_TUERMODUL_CTRL_next_state_0 := A_FH_TUERMODUL_CTRL_next_state_post;
+ B_FH_TUERMODUL_CTRL_next_state_0 := B_FH_TUERMODUL_CTRL_next_state_post;
+ FH_TUERMODUL_CTRL__N_0 := FH_TUERMODUL_CTRL__N_post;
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0 := WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post;
+TO: 292;
+
+FROM: 293;
+ assume((0 <= 0));
+TO: 292;
+
+FROM: 294;
+ assume((0 <= 0));
+TO: 293;
+
+FROM: 295;
+ assume((0 <= 0));
+TO: 294;
+
+FROM: 295;
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ assume(BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post = 1);
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 := BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post;
+TO: 294;
+
+FROM: 295;
+ assume((0 <= 0));
+TO: 294;
+
+FROM: 296;
+ assume((0 <= 0));
+TO: 295;
+
+FROM: 297;
+ assume((0 <= 0));
+TO: 296;
+
+FROM: 297;
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post := nondet();
+ assume(EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post = 1);
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 := EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post;
+TO: 296;
+
+FROM: 297;
+ assume((0 <= 0));
+TO: 296;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 297;
+
+FROM: 298;
+ A_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post := nondet();
+ B_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post := nondet();
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post := nondet();
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ MEC_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post := nondet();
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post := nondet();
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post := nondet();
+ tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post := nondet();
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_post := nondet();
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post := nondet();
+ assume(tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post = 0 && tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post = 0 && tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_post = 0 && NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post = 0 && ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post = 0 && MEC_KINDERSICHERUNG_CTRL_next_state_post = 0 && KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post = 0 && B_FH_TUERMODUL_CTRL_next_state_post = 0 && A_FH_TUERMODUL_CTRL_next_state_post = 0 && WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post = 0 && INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post = 0 && TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 0 && MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 0 && OEFFNEN_FH_TUERMODUL_CTRL_next_state_post = 0 && SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post = 0 && FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post = 0 && EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post = 0 && BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post = 0 && BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post = 0);
+ A_FH_TUERMODUL_CTRL_next_state_0 := A_FH_TUERMODUL_CTRL_next_state_post;
+ BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_0 := BEWEGUNG_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_0 := BLOCK_ERKENNUNG_CTRL_BLOCK_ERKENNUNG_CTRL_next_state_post;
+ B_FH_TUERMODUL_CTRL_next_state_0 := B_FH_TUERMODUL_CTRL_next_state_post;
+ EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_0 := EINKLEMMSCHUTZ_CTRL_EINKLEMMSCHUTZ_CTRL_next_state_post;
+ FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_0 := FH_STEUERUNG_DUMMY_FH_STEUERUNG_DUMMY_next_state_post;
+ INITIALISIERT_FH_TUERMODUL_CTRL_next_state_0 := INITIALISIERT_FH_TUERMODUL_CTRL_next_state_post;
+ KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_0 := KINDERSICHERUNG_CTRL_KINDERSICHERUNG_CTRL_next_state_post;
+ MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := MANUELL_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ MEC_KINDERSICHERUNG_CTRL_next_state_0 := MEC_KINDERSICHERUNG_CTRL_next_state_post;
+ NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_0 := NICHT_INITIALISIERT_NICHT_INITIALISIERT_next_state_post;
+ OEFFNEN_FH_TUERMODUL_CTRL_next_state_0 := OEFFNEN_FH_TUERMODUL_CTRL_next_state_post;
+ SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_0 := TIPP_SCHLIESSEN_FH_TUERMODUL_CTRL_next_state_post;
+ WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_0 := WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_next_state_post;
+ ZENTRAL_KINDERSICHERUNG_CTRL_next_state_0 := ZENTRAL_KINDERSICHERUNG_CTRL_next_state_post;
+ tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_0 := tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy_post;
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_0 := tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRL_post;
+ tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_0 := tm_entered_WIEDERHOLSPERRE_FH_TUERMODUL_CTRLexited_BEREIT_FH_TUERMODUL_CTRL_post;
+TO: 247;
+
+FROM: 299;
+ assume((0 <= 0));
+TO: 298;
+

@@ -1,0 +1,724 @@
+START: 73;
+
+FROM: 0;
+ assume(i21_0 <= 0);
+TO: 1;
+
+FROM: 0;
+ i21_post := nondet();
+ assume(1 <= i21_0 && i21_post = -1+i21_0);
+ i21_0 := i21_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ i21_post := nondet();
+ assume(1+i21_0 <= 0 && i21_post = __const_16_0+i21_0);
+ i21_0 := i21_post;
+TO: 2;
+
+FROM: 3;
+ assume(0 <= i21_0);
+TO: 4;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 5;
+
+FROM: 6;
+ i6_post := nondet();
+ assume(i6_post = -1*disp9_0+i6_0);
+ i6_0 := i6_post;
+TO: 7;
+
+FROM: 8;
+ hshift11_post := nondet();
+ hsize___019_post := nondet();
+ hsize_reg10_post := nondet();
+ i21_post := nondet();
+ m122_post := nondet();
+ assume(__const_65536_0 <= fcode5_0 && hshift11_post = __const_8_0-hshift11_0 && hsize_reg10_post = hsize_0 && hsize___019_post = hsize_reg10_post && m122_post = -1 && i21_post = -1*__const_16_0+hsize___019_post);
+ hshift11_0 := hshift11_post;
+ hsize___019_0 := hsize___019_post;
+ hsize_reg10_0 := hsize_reg10_post;
+ i21_0 := i21_post;
+ m122_0 := m122_post;
+TO: 4;
+
+FROM: 8;
+ fcode5_post := nondet();
+ hshift11_post := nondet();
+ assume(1+fcode5_0 <= __const_65536_0 && hshift11_post = 1+hshift11_0);
+ fcode5_0 := fcode5_post;
+ hshift11_0 := hshift11_post;
+TO: 9;
+
+FROM: 10;
+ i29_post := nondet();
+ assume(i29_post = -1*__const_16_0+i29_0);
+ i29_0 := i29_post;
+TO: 11;
+
+FROM: 12;
+ ent8_post := nondet();
+ fcode5_post := nondet();
+ hshift11_post := nondet();
+ tmp12_post := nondet();
+ assume(tmp12_post = ret_getbyte18_0 && ent8_post = tmp12_post && hshift11_post = 0 && fcode5_post = hsize_0);
+ ent8_0 := ent8_post;
+ fcode5_0 := fcode5_post;
+ hshift11_0 := hshift11_post;
+ tmp12_0 := tmp12_post;
+TO: 9;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 14;
+
+FROM: 15;
+ ret_getbyte18_post := nondet();
+ assume(tmp___017_0 <= 0 && ret_getbyte18_post = __const_429496_0);
+ ret_getbyte18_0 := ret_getbyte18_post;
+TO: 12;
+
+FROM: 15;
+ InCnt_post := nondet();
+ ret_getbyte18_post := nondet();
+ assume(1 <= tmp___017_0 && InCnt_post = -1+InCnt_0);
+ InCnt_0 := InCnt_post;
+ ret_getbyte18_0 := ret_getbyte18_post;
+TO: 12;
+
+FROM: 16;
+ ret_getbyte18_post := nondet();
+ assume(InCnt_0 <= 0 && ret_getbyte18_post = __const_429496_0);
+ ret_getbyte18_0 := ret_getbyte18_post;
+TO: 12;
+
+FROM: 16;
+ apsim_InCnt_post := nondet();
+ tmp___017_post := nondet();
+ assume(1 <= InCnt_0 && tmp___017_post = apsim_InCnt_0 && apsim_InCnt_post = -1+apsim_InCnt_0);
+ apsim_InCnt_0 := apsim_InCnt_post;
+ tmp___017_0 := tmp___017_post;
+TO: 15;
+
+FROM: 17;
+ free_ent_post := nondet();
+ assume(free_ent_post = __const_257_0);
+ free_ent_0 := free_ent_post;
+TO: 16;
+
+FROM: 18;
+ free_ent_post := nondet();
+ assume(block_compress_0 <= 0 && 0 <= block_compress_0 && free_ent_post = __const_256_0);
+ free_ent_0 := free_ent_post;
+TO: 16;
+
+FROM: 18;
+ assume(1 <= block_compress_0);
+TO: 17;
+
+FROM: 18;
+ assume(1+block_compress_0 <= 0);
+TO: 17;
+
+FROM: 19;
+ bits33_post := nondet();
+ c37_post := nondet();
+ assume(bits33_post = -1+bits33_0);
+ bits33_0 := bits33_post;
+ c37_0 := c37_post;
+TO: 20;
+
+FROM: 21;
+ assume((0 <= 0));
+TO: 22;
+
+FROM: 23;
+ assume((0 <= 0));
+TO: 24;
+
+FROM: 25;
+ assume(bytes_out_0 <= in_count_0);
+TO: 23;
+
+FROM: 25;
+ exit_stat_post := nondet();
+ assume(1+in_count_0 <= bytes_out_0 && exit_stat_post = 2);
+ exit_stat_0 := exit_stat_post;
+TO: 23;
+
+FROM: 26;
+ bytes_out_post := nondet();
+ offset_post := nondet();
+ assume(offset_post = 0);
+ bytes_out_0 := bytes_out_post;
+ offset_0 := offset_post;
+TO: 27;
+
+FROM: 28;
+ assume((0 <= 0));
+TO: 26;
+
+FROM: 29;
+ assume(__const_16_0 <= i45_0);
+TO: 28;
+
+FROM: 29;
+ i45_post := nondet();
+ assume(1+i45_0 <= __const_16_0 && i45_post = 1+i45_0);
+ i45_0 := i45_post;
+TO: 30;
+
+FROM: 31;
+ assume(n44_0 <= i45_0);
+TO: 28;
+
+FROM: 31;
+ assume(1+i45_0 <= n44_0);
+TO: 29;
+
+FROM: 32;
+ assume(offset_0 <= 0);
+TO: 26;
+
+FROM: 32;
+ i45_post := nondet();
+ n44_post := nondet();
+ assume(1 <= offset_0 && i45_post = 0);
+ i45_0 := i45_post;
+ n44_0 := n44_post;
+TO: 30;
+
+FROM: 33;
+ maxcode_post := nondet();
+ assume((0 <= 0));
+ maxcode_0 := maxcode_post;
+TO: 27;
+
+FROM: 34;
+ assume(1+maxbits_0 <= n_bits_0);
+TO: 33;
+
+FROM: 34;
+ assume(1+n_bits_0 <= maxbits_0);
+TO: 33;
+
+FROM: 34;
+ maxcode_post := nondet();
+ assume(n_bits_0 <= maxbits_0 && maxbits_0 <= n_bits_0 && maxcode_post = maxmaxcode_0);
+ maxcode_0 := maxcode_post;
+TO: 27;
+
+FROM: 27;
+ assume((0 <= 0));
+TO: 35;
+
+FROM: 36;
+ clear_flg_post := nondet();
+ maxcode_post := nondet();
+ n_bits_post := nondet();
+ assume(n_bits_post = __const_9_0 && clear_flg_post = 0);
+ clear_flg_0 := clear_flg_post;
+ maxcode_0 := maxcode_post;
+ n_bits_0 := n_bits_post;
+TO: 27;
+
+FROM: 37;
+ n_bits_post := nondet();
+ assume(clear_flg_0 <= 0 && 0 <= clear_flg_0 && n_bits_post = 1+n_bits_0);
+ n_bits_0 := n_bits_post;
+TO: 34;
+
+FROM: 37;
+ assume(1 <= clear_flg_0);
+TO: 36;
+
+FROM: 37;
+ assume(1+clear_flg_0 <= 0);
+TO: 36;
+
+FROM: 38;
+ offset_post := nondet();
+ assume(offset_post = 0);
+ offset_0 := offset_post;
+TO: 37;
+
+FROM: 39;
+ bytes_out_post := nondet();
+ assume(bytes_out_post = bytes_out_0+n_bits_0);
+ bytes_out_0 := bytes_out_post;
+TO: 38;
+
+FROM: 40;
+ assume(__const_16_0 <= i41_0);
+TO: 39;
+
+FROM: 40;
+ i41_post := nondet();
+ assume(1+i41_0 <= __const_16_0 && i41_post = 1+i41_0);
+ i41_0 := i41_post;
+TO: 21;
+
+FROM: 22;
+ assume(n40_0 <= i41_0);
+TO: 39;
+
+FROM: 22;
+ assume(1+i41_0 <= n40_0);
+TO: 40;
+
+FROM: 41;
+ assume(offset_0 <= 0);
+TO: 38;
+
+FROM: 41;
+ i41_post := nondet();
+ n40_post := nondet();
+ assume(1 <= offset_0 && n40_post = n_bits_0 && i41_post = 0);
+ i41_0 := i41_post;
+ n40_0 := n40_post;
+TO: 21;
+
+FROM: 42;
+ assume(clear_flg_0 <= 0);
+TO: 27;
+
+FROM: 42;
+ assume(1 <= clear_flg_0);
+TO: 41;
+
+FROM: 43;
+ assume(free_ent_0 <= maxcode_0);
+TO: 42;
+
+FROM: 43;
+ assume(1+maxcode_0 <= free_ent_0);
+TO: 41;
+
+FROM: 44;
+ offset_post := nondet();
+ assume(offset_post = 0);
+ offset_0 := offset_post;
+TO: 43;
+
+FROM: 45;
+ assume((0 <= 0));
+TO: 19;
+
+FROM: 45;
+ assume((0 <= 0));
+TO: 44;
+
+FROM: 20;
+ assume(bits33_0 <= 0 && 0 <= bits33_0);
+TO: 44;
+
+FROM: 20;
+ assume(1 <= bits33_0);
+TO: 45;
+
+FROM: 20;
+ assume(1+bits33_0 <= 0);
+TO: 45;
+
+FROM: 46;
+ bits33_post := nondet();
+ bytes_out_post := nondet();
+ assume(bits33_post = n_bits_0 && bytes_out_post = bits33_post+bytes_out_0);
+ bits33_0 := bits33_post;
+ bytes_out_0 := bytes_out_post;
+TO: 19;
+
+FROM: 46;
+ assume((0 <= 0));
+TO: 43;
+
+FROM: 47;
+ offset_post := nondet();
+ assume(offset_post = n_bits_0+offset_0);
+ offset_0 := offset_post;
+TO: 46;
+
+FROM: 48;
+ assume((0 <= 0));
+TO: 47;
+
+FROM: 49;
+ assume(bits33_0 <= 0 && 0 <= bits33_0);
+TO: 47;
+
+FROM: 49;
+ assume(1 <= bits33_0);
+TO: 48;
+
+FROM: 49;
+ assume(1+bits33_0 <= 0);
+TO: 48;
+
+FROM: 50;
+ assume(1+bits33_0 <= __const_8_0);
+TO: 49;
+
+FROM: 50;
+ bits33_post := nondet();
+ code31_post := nondet();
+ assume(__const_8_0 <= bits33_0 && bits33_post = -1*__const_8_0+bits33_0);
+ bits33_0 := bits33_post;
+ code31_0 := code31_post;
+TO: 49;
+
+FROM: 30;
+ assume((0 <= 0));
+TO: 31;
+
+FROM: 51;
+ assume(1+code31_0 <= 0);
+TO: 32;
+
+FROM: 51;
+ bits33_post := nondet();
+ code31_post := nondet();
+ r_off32_post := nondet();
+ assume(0 <= code31_0 && bits33_post = -1*__const_8_0+bits33_0+r_off32_post);
+ bits33_0 := bits33_post;
+ code31_0 := code31_post;
+ r_off32_0 := r_off32_post;
+TO: 50;
+
+FROM: 14;
+ bits33_post := nondet();
+ clear_flg_post := nondet();
+ code31_post := nondet();
+ free_ent_post := nondet();
+ r_off32_post := nondet();
+ assume(i29_0 <= 0 && free_ent_post = __const_257_0 && clear_flg_post = 1 && code31_post = __const_256_0 && r_off32_post = offset_0 && bits33_post = n_bits_0);
+ bits33_0 := bits33_post;
+ clear_flg_0 := clear_flg_post;
+ code31_0 := code31_post;
+ free_ent_0 := free_ent_post;
+ r_off32_0 := r_off32_post;
+TO: 51;
+
+FROM: 14;
+ i29_post := nondet();
+ assume(1 <= i29_0 && i29_post = -1+i29_0);
+ i29_0 := i29_post;
+TO: 13;
+
+FROM: 11;
+ i29_post := nondet();
+ assume(1+i29_0 <= 0 && i29_post = __const_16_0+i29_0);
+ i29_0 := i29_post;
+TO: 13;
+
+FROM: 11;
+ assume(0 <= i29_0);
+TO: 10;
+
+FROM: 35;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 52;
+ rat26_post := nondet();
+ assume((0 <= 0));
+ rat26_0 := rat26_post;
+TO: 53;
+
+FROM: 53;
+ hsize___027_post := nondet();
+ i29_post := nondet();
+ m130_post := nondet();
+ ratio_post := nondet();
+ assume(rat26_0 <= ratio_0 && ratio_post = 0 && hsize___027_post = hsize_0 && m130_post = -1 && i29_post = -1*__const_16_0+hsize___027_post);
+ hsize___027_0 := hsize___027_post;
+ i29_0 := i29_post;
+ m130_0 := m130_post;
+ ratio_0 := ratio_post;
+TO: 10;
+
+FROM: 53;
+ ratio_post := nondet();
+ assume(1+ratio_0 <= rat26_0 && ratio_post = rat26_0);
+ ratio_0 := ratio_post;
+TO: 35;
+
+FROM: 54;
+ assume(1 <= rat26_0);
+TO: 52;
+
+FROM: 54;
+ assume(1+rat26_0 <= 0);
+TO: 52;
+
+FROM: 54;
+ rat26_post := nondet();
+ assume(rat26_0 <= 0 && 0 <= rat26_0 && rat26_post = __const_2147483647_0);
+ rat26_0 := rat26_post;
+TO: 53;
+
+FROM: 55;
+ InCnt_post := nondet();
+ apsim_InCnt_post := nondet();
+ bytes_out_post := nondet();
+ checkpoint_post := nondet();
+ clear_flg_post := nondet();
+ i6_post := nondet();
+ in_count_post := nondet();
+ maxbits_post := nondet();
+ maxcode_post := nondet();
+ maxmaxcode_post := nondet();
+ n_bits_post := nondet();
+ offset_post := nondet();
+ out_count_post := nondet();
+ ratio_post := nondet();
+ assume(__const_50_0 <= i3_0 && maxbits_post = __const_16_0 && InCnt_post = count_0 && apsim_InCnt_post = __const_53_0 && i6_post = 0 && offset_post = 0 && bytes_out_post = 3 && out_count_post = 0 && clear_flg_post = 0 && ratio_post = 0 && in_count_post = 1 && checkpoint_post = __const_10000_0 && n_bits_post = __const_9_0);
+ InCnt_0 := InCnt_post;
+ apsim_InCnt_0 := apsim_InCnt_post;
+ bytes_out_0 := bytes_out_post;
+ checkpoint_0 := checkpoint_post;
+ clear_flg_0 := clear_flg_post;
+ i6_0 := i6_post;
+ in_count_0 := in_count_post;
+ maxbits_0 := maxbits_post;
+ maxcode_0 := maxcode_post;
+ maxmaxcode_0 := maxmaxcode_post;
+ n_bits_0 := n_bits_post;
+ offset_0 := offset_post;
+ out_count_0 := out_count_post;
+ ratio_0 := ratio_post;
+TO: 18;
+
+FROM: 55;
+ i3_post := nondet();
+ seed2_post := nondet();
+ tabort4_post := nondet();
+ assume(1+i3_0 <= __const_50_0 && tabort4_post = i3_0 && i3_post = 1+i3_0);
+ i3_0 := i3_post;
+ seed2_0 := seed2_post;
+ tabort4_0 := tabort4_post;
+TO: 56;
+
+FROM: 57;
+ rat26_post := nondet();
+ assume(in_count_0 <= __const_8388607_0);
+ rat26_0 := rat26_post;
+TO: 53;
+
+FROM: 57;
+ rat26_post := nondet();
+ assume(1+__const_8388607_0 <= in_count_0);
+ rat26_0 := rat26_post;
+TO: 54;
+
+FROM: 58;
+ checkpoint_post := nondet();
+ assume(checkpoint_post = __const_10000_0+in_count_0);
+ checkpoint_0 := checkpoint_post;
+TO: 57;
+
+FROM: 59;
+ assume(block_compress_0 <= 0 && 0 <= block_compress_0);
+TO: 1;
+
+FROM: 59;
+ assume(1 <= block_compress_0);
+TO: 58;
+
+FROM: 59;
+ assume(1+block_compress_0 <= 0);
+TO: 58;
+
+FROM: 60;
+ assume(1+in_count_0 <= checkpoint_0);
+TO: 1;
+
+FROM: 60;
+ assume(checkpoint_0 <= in_count_0);
+TO: 59;
+
+FROM: 61;
+ assume(maxmaxcode_0 <= free_ent_0);
+TO: 60;
+
+FROM: 61;
+ free_ent_post := nondet();
+ tmp___115_post := nondet();
+ assume(1+free_ent_0 <= maxmaxcode_0 && tmp___115_post = free_ent_0 && free_ent_post = 1+free_ent_0);
+ free_ent_0 := free_ent_post;
+ tmp___115_0 := tmp___115_post;
+TO: 1;
+
+FROM: 62;
+ ent8_post := nondet();
+ out_count_post := nondet();
+ assume(out_count_post = 1+out_count_0 && ent8_post = c7_0);
+ ent8_0 := ent8_post;
+ out_count_0 := out_count_post;
+TO: 61;
+
+FROM: 63;
+ assume(in_count_0 <= apsim_bound11113_0);
+TO: 62;
+
+FROM: 63;
+ assume(1+apsim_bound11113_0 <= in_count_0);
+TO: 6;
+
+FROM: 64;
+ apsim_bound11113_post := nondet();
+ assume(apsim_bound11113_post = 1+apsim_bound11113_0);
+ apsim_bound11113_0 := apsim_bound11113_post;
+TO: 63;
+
+FROM: 64;
+ assume((0 <= 0));
+TO: 62;
+
+FROM: 65;
+ assume((0 <= 0));
+TO: 64;
+
+FROM: 65;
+ ent8_post := nondet();
+ assume((0 <= 0));
+ ent8_0 := ent8_post;
+TO: 1;
+
+FROM: 65;
+ assume((0 <= 0));
+TO: 64;
+
+FROM: 7;
+ assume(0 <= i6_0);
+TO: 65;
+
+FROM: 7;
+ i6_post := nondet();
+ assume(1+i6_0 <= 0 && i6_post = hsize_reg10_0+i6_0);
+ i6_0 := i6_post;
+TO: 65;
+
+FROM: 66;
+ assume(1 <= i6_0);
+TO: 6;
+
+FROM: 66;
+ assume(1+i6_0 <= 0);
+TO: 6;
+
+FROM: 66;
+ disp9_post := nondet();
+ assume(i6_0 <= 0 && 0 <= i6_0 && disp9_post = 1);
+ disp9_0 := disp9_post;
+TO: 6;
+
+FROM: 67;
+ assume((0 <= 0));
+TO: 62;
+
+FROM: 67;
+ disp9_post := nondet();
+ assume(disp9_post = hsize_reg10_0-i6_0);
+ disp9_0 := disp9_post;
+TO: 66;
+
+FROM: 68;
+ assume((0 <= 0));
+TO: 67;
+
+FROM: 68;
+ ent8_post := nondet();
+ assume((0 <= 0));
+ ent8_0 := ent8_post;
+TO: 1;
+
+FROM: 68;
+ assume((0 <= 0));
+TO: 67;
+
+FROM: 56;
+ assume((0 <= 0));
+TO: 55;
+
+FROM: 69;
+ c7_post := nondet();
+ fcode5_post := nondet();
+ i6_post := nondet();
+ in_count_post := nondet();
+ tmp___014_post := nondet();
+ assume(tmp___014_post = ret_getbyte25_0 && c7_post = tmp___014_post && in_count_post = 1+in_count_0);
+ c7_0 := c7_post;
+ fcode5_0 := fcode5_post;
+ i6_0 := i6_post;
+ in_count_0 := in_count_post;
+ tmp___014_0 := tmp___014_post;
+TO: 68;
+
+FROM: 9;
+ assume((0 <= 0));
+TO: 8;
+
+FROM: 70;
+ ret_getbyte25_post := nondet();
+ assume(tmp___024_0 <= 0 && ret_getbyte25_post = __const_429496_0);
+ ret_getbyte25_0 := ret_getbyte25_post;
+TO: 69;
+
+FROM: 70;
+ InCnt_post := nondet();
+ ret_getbyte25_post := nondet();
+ assume(1 <= tmp___024_0 && InCnt_post = -1+InCnt_0);
+ InCnt_0 := InCnt_post;
+ ret_getbyte25_0 := ret_getbyte25_post;
+TO: 69;
+
+FROM: 71;
+ ret_getbyte25_post := nondet();
+ assume(InCnt_0 <= 0 && ret_getbyte25_post = __const_429496_0);
+ ret_getbyte25_0 := ret_getbyte25_post;
+TO: 69;
+
+FROM: 71;
+ apsim_InCnt_post := nondet();
+ tmp___024_post := nondet();
+ assume(1 <= InCnt_0 && tmp___024_post = apsim_InCnt_0 && apsim_InCnt_post = -1+apsim_InCnt_0);
+ apsim_InCnt_0 := apsim_InCnt_post;
+ tmp___024_0 := tmp___024_post;
+TO: 70;
+
+FROM: 5;
+ assume(InCnt_0 <= 0);
+TO: 25;
+
+FROM: 5;
+ apsim_bound11113_post := nondet();
+ assume(1 <= InCnt_0 && apsim_bound11113_post = 0);
+ apsim_bound11113_0 := apsim_bound11113_post;
+TO: 71;
+
+FROM: 4;
+ i21_post := nondet();
+ assume(i21_post = -1*__const_16_0+i21_0);
+ i21_0 := i21_post;
+TO: 3;
+
+FROM: 72;
+ count_post := nondet();
+ i3_post := nondet();
+ seed2_post := nondet();
+ assume(count_post = __const_50_0 && seed2_post = 1 && i3_post = 0);
+ count_0 := count_post;
+ i3_0 := i3_post;
+ seed2_0 := seed2_post;
+TO: 56;
+
+FROM: 73;
+ assume((0 <= 0));
+TO: 72;
+

@@ -1,0 +1,48 @@
+START: 6;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ assume(__const_10_0 <= i911_0);
+TO: 3;
+
+FROM: 2;
+ i911_post := nondet();
+ assume(1+i911_0 <= __const_10_0 && i911_post = 1+i911_0);
+ i911_0 := i911_post;
+TO: 4;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 1;
+ i911_post := nondet();
+ x79_post := nondet();
+ assume(__const_10_0 <= i57_0 && i911_post = 0);
+ i911_0 := i911_post;
+ x79_0 := x79_post;
+TO: 4;
+
+FROM: 1;
+ i57_post := nondet();
+ assume(1+i57_0 <= __const_10_0 && i57_post = 1+i57_0);
+ i57_0 := i57_post;
+TO: 0;
+
+FROM: 5;
+ i57_post := nondet();
+ tmp_post := nondet();
+ x35_post := nondet();
+ assume((0 <= 0) && i57_post = 0);
+ i57_0 := i57_post;
+ tmp_0 := tmp_post;
+ x35_0 := x35_post;
+TO: 0;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

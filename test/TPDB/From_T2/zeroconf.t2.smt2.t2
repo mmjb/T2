@@ -1,0 +1,242 @@
+START: 23;
+
+FROM: 0;
+ assume(1 <= b_arp_0);
+TO: 1;
+
+FROM: 0;
+ b_configured_post := nondet();
+ assume(b_arp_0 <= 0 && b_configured_post = 1);
+ b_configured_0 := b_configured_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ k_post := nondet();
+ assume(k_post = 1+k_0);
+ k_0 := k_post;
+TO: 4;
+
+FROM: 5;
+ assume(seq_0 <= 1+N_0);
+TO: 3;
+
+FROM: 6;
+ i_post := nondet();
+ pos_post := nondet();
+ assume(1 <= pos_0 && i_post = -1+i_0 && pos_post = 0);
+ i_0 := i_post;
+ pos_0 := pos_post;
+TO: 5;
+
+FROM: 6;
+ pos_post := nondet();
+ assume(pos_0 <= 0 && b_arp_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 5;
+
+FROM: 7;
+ i_post := nondet();
+ pos_post := nondet();
+ seq_post := nondet();
+ z_post := nondet();
+ assume(i_0 <= 0 && seq_post = 1+seq_0 && i_post = 3+seq_post && 0 <= z_post && pos_post = 0);
+ i_0 := i_post;
+ pos_0 := pos_post;
+ seq_0 := seq_post;
+ z_0 := z_post;
+TO: 5;
+
+FROM: 7;
+ assume(1 <= i_0);
+TO: 6;
+
+FROM: 8;
+ z_post := nondet();
+ assume(1 <= z_0 && z_post = -1+z_0);
+ z_0 := z_post;
+TO: 5;
+
+FROM: 8;
+ assume(z_0 <= 0);
+TO: 7;
+
+FROM: 9;
+ assume(1 <= b_ip_0);
+TO: 3;
+
+FROM: 9;
+ b_arp_post := nondet();
+ assume(b_ip_0 <= 0 && 0 <= b_arp_post && b_arp_post <= 1);
+ b_arp_0 := b_arp_post;
+TO: 8;
+
+FROM: 10;
+ assume(1+b_probe_0 <= 1);
+TO: 3;
+
+FROM: 10;
+ assume(1 <= b_probe_0);
+TO: 9;
+
+FROM: 11;
+ i_post := nondet();
+ pos_post := nondet();
+ assume(1 <= pos_0 && i_post = -1+i_0 && pos_post = 0);
+ i_0 := i_post;
+ pos_0 := pos_post;
+TO: 10;
+
+FROM: 11;
+ pos_post := nondet();
+ assume(pos_0 <= 0 && b_probe_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 10;
+
+FROM: 12;
+ i_post := nondet();
+ pos_post := nondet();
+ seq_post := nondet();
+ z_post := nondet();
+ assume(i_0 <= 0 && seq_post = 1+seq_0 && i_post = 3+seq_post && 0 <= z_post && pos_post = 0);
+ i_0 := i_post;
+ pos_0 := pos_post;
+ seq_0 := seq_post;
+ z_0 := z_post;
+TO: 10;
+
+FROM: 12;
+ assume(1 <= i_0);
+TO: 11;
+
+FROM: 13;
+ z_post := nondet();
+ assume(1 <= z_0 && z_post = -1+z_0);
+ z_0 := z_post;
+TO: 10;
+
+FROM: 13;
+ assume(z_0 <= 0);
+TO: 12;
+
+FROM: 14;
+ assume(1+N_0 <= k_0);
+TO: 2;
+
+FROM: 14;
+ b_probe_post := nondet();
+ assume(k_0 <= N_0 && 0 <= b_probe_post && b_probe_post <= 1);
+ b_probe_0 := b_probe_post;
+TO: 13;
+
+FROM: 15;
+ assume(1 <= b_arp_0);
+TO: 2;
+
+FROM: 15;
+ assume(b_arp_0 <= 0);
+TO: 14;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 15;
+
+FROM: 16;
+ i_post := nondet();
+ pos_post := nondet();
+ assume(1 <= pos_0 && i_post = -1+i_0 && pos_post = 0);
+ i_0 := i_post;
+ pos_0 := pos_post;
+TO: 4;
+
+FROM: 16;
+ pos_post := nondet();
+ assume(pos_0 <= 0 && b_ip_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 4;
+
+FROM: 17;
+ i_post := nondet();
+ pos_post := nondet();
+ seq_post := nondet();
+ z_post := nondet();
+ assume(i_0 <= 0 && seq_post = 1+seq_0 && i_post = 3+seq_post && 0 <= z_post && pos_post = 0);
+ i_0 := i_post;
+ pos_0 := pos_post;
+ seq_0 := seq_post;
+ z_0 := z_post;
+TO: 4;
+
+FROM: 17;
+ assume(1 <= i_0);
+TO: 16;
+
+FROM: 18;
+ z_post := nondet();
+ assume(1 <= z_0 && z_post = -1+z_0);
+ z_0 := z_post;
+TO: 4;
+
+FROM: 18;
+ assume(z_0 <= 0);
+TO: 17;
+
+FROM: 19;
+ N_post := nondet();
+ b_arp_post := nondet();
+ b_configured_post := nondet();
+ b_ip_post := nondet();
+ b_probe_post := nondet();
+ i_post := nondet();
+ k_post := nondet();
+ pos_post := nondet();
+ seq_post := nondet();
+ z_post := nondet();
+ assume(seq_post = 1 && i_post = 3+seq_post && 0 <= z_post && pos_post = 0 && 0 <= N_post && b_ip_post = 0 && b_probe_post = 0 && b_arp_post = 0 && b_configured_post = 0 && k_post = 0);
+ N_0 := N_post;
+ b_arp_0 := b_arp_post;
+ b_configured_0 := b_configured_post;
+ b_ip_0 := b_ip_post;
+ b_probe_0 := b_probe_post;
+ i_0 := i_post;
+ k_0 := k_post;
+ pos_0 := pos_post;
+ seq_0 := seq_post;
+ z_0 := z_post;
+TO: 1;
+
+FROM: 20;
+ assume((0 <= 0));
+TO: 21;
+
+FROM: 22;
+ assume(1 <= b_configured_0);
+TO: 20;
+
+FROM: 22;
+ assume(1+b_configured_0 <= 0);
+TO: 20;
+
+FROM: 22;
+ b_arp_post := nondet();
+ b_ip_post := nondet();
+ b_probe_post := nondet();
+ k_post := nondet();
+ assume(b_configured_0 <= 0 && 0 <= b_configured_0 && b_arp_post = 0 && b_probe_post = 0 && k_post = 0 && 0 <= b_ip_post && b_ip_post <= 1);
+ b_arp_0 := b_arp_post;
+ b_ip_0 := b_ip_post;
+ b_probe_0 := b_probe_post;
+ k_0 := k_post;
+TO: 18;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 22;
+
+FROM: 23;
+ assume((0 <= 0));
+TO: 19;
+

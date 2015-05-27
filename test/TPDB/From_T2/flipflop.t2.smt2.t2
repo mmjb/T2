@@ -1,0 +1,20 @@
+START: 3;
+
+FROM: 0;
+ x_post := nondet();
+ assume(0 <= x_0 && x_0 <= 1 && x_post = 1-x_0);
+ x_0 := x_post;
+TO: 1;
+
+FROM: 1;
+ assume(x_0 = x_0);
+TO: 0;
+
+FROM: 2;
+ assume(x_0 = x_0);
+TO: 0;
+
+FROM: 3;
+ assume(x_0 = x_0);
+TO: 2;
+

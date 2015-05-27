@@ -1,0 +1,77 @@
+START: 8;
+
+FROM: 0;
+ Result_4_post := nondet();
+ __cil_tmp2_6_post := nondet();
+ selected_11_post := nondet();
+ Result_4_1 := nondet();
+ assume(__cil_tmp2_6_post = x_5_0 && Result_4_1 = __cil_tmp2_6_post && selected_11_post = Result_4_1);
+ Result_4_0 := Result_4_post;
+ __cil_tmp2_6_0 := __cil_tmp2_6_post;
+ selected_11_0 := selected_11_post;
+TO: 1;
+
+FROM: 2;
+ Result_4_post := nondet();
+ __cil_tmp2_6_post := nondet();
+ retryCount_10_post := nondet();
+ selected_11_post := nondet();
+ Result_4_1 := nondet();
+ assume(__cil_tmp2_6_post = x_5_0 && Result_4_1 = __cil_tmp2_6_post && selected_11_post = Result_4_1 && retryCount_10_post = 1+retryCount_10_0);
+ Result_4_0 := Result_4_post;
+ __cil_tmp2_6_0 := __cil_tmp2_6_post;
+ retryCount_10_0 := retryCount_10_post;
+ selected_11_0 := selected_11_post;
+TO: 3;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 4;
+ Result_4_post := nondet();
+ __cil_tmp6_12_post := nondet();
+ assume(__cil_tmp6_12_post = selected_11_0 && Result_4_post = __cil_tmp6_12_post);
+ Result_4_0 := Result_4_post;
+ __cil_tmp6_12_0 := __cil_tmp6_12_post;
+TO: 5;
+
+FROM: 3;
+ Result_4_post := nondet();
+ __cil_tmp6_12_post := nondet();
+ assume(selected_11_0 <= 0 && 0 <= selected_11_0 && maxRetries_9_0-retryCount_10_0 <= 0 && __cil_tmp6_12_post = selected_11_0 && Result_4_post = __cil_tmp6_12_post);
+ Result_4_0 := Result_4_post;
+ __cil_tmp6_12_0 := __cil_tmp6_12_post;
+TO: 6;
+
+FROM: 3;
+ Result_4_post := nondet();
+ __cil_tmp2_6_post := nondet();
+ selected_11_post := nondet();
+ Result_4_1 := nondet();
+ assume(selected_11_0 <= 0 && 0 <= selected_11_0 && 0 <= -1+maxRetries_9_0-retryCount_10_0 && __cil_tmp2_6_post = x_5_0 && Result_4_1 = __cil_tmp2_6_post && selected_11_post = Result_4_1);
+ Result_4_0 := Result_4_post;
+ __cil_tmp2_6_0 := __cil_tmp2_6_post;
+ selected_11_0 := selected_11_post;
+TO: 1;
+
+FROM: 1;
+ retryCount_10_post := nondet();
+ assume(retryCount_10_post = 1+retryCount_10_0);
+ retryCount_10_0 := retryCount_10_post;
+TO: 3;
+
+FROM: 7;
+ maxRetries_9_post := nondet();
+ retryCount_10_post := nondet();
+ selected_11_post := nondet();
+ assume(maxRetries_9_post = 4 && retryCount_10_post = 0 && selected_11_post = 0);
+ maxRetries_9_0 := maxRetries_9_post;
+ retryCount_10_0 := retryCount_10_post;
+ selected_11_0 := selected_11_post;
+TO: 3;
+
+FROM: 8;
+ assume((0 <= 0));
+TO: 7;
+

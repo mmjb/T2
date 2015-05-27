@@ -1,0 +1,65 @@
+START: 6;
+
+FROM: 0;
+ nI6_post := nondet();
+ res5_post := nondet();
+ assume(res5_post = res5_0+tmp7_0 && nI6_post = 1+nI6_0);
+ nI6_0 := nI6_post;
+ res5_0 := res5_post;
+TO: 1;
+
+FROM: 2;
+ tmp7_post := nondet();
+ assume(tmp7_post = 0);
+ tmp7_0 := tmp7_post;
+TO: 0;
+
+FROM: 2;
+ tmp7_post := nondet();
+ assume(tmp7_post = 1);
+ tmp7_0 := tmp7_post;
+TO: 0;
+
+FROM: 3;
+ nX9_post := nondet();
+ res10_post := nondet();
+ ret_nBC18_post := nondet();
+ ret_nBC211_post := nondet();
+ tmp_post := nondet();
+ tmp___0_post := nondet();
+ res10_1 := nondet();
+ res10_2 := nondet();
+ res10_3 := nondet();
+ res10_4 := nondet();
+ res10_5 := nondet();
+ assume(4*__const_8_0 <= nI6_0 && ret_nBC18_post = res5_0 && tmp_post = ret_nBC18_post && nX9_post = nX_0 && res10_1 = nX9_post && ret_nBC211_post = res10_post && tmp___0_post = ret_nBC211_post);
+ nX9_0 := nX9_post;
+ res10_0 := res10_post;
+ ret_nBC18_0 := ret_nBC18_post;
+ ret_nBC211_0 := ret_nBC211_post;
+ tmp_0 := tmp_post;
+ tmp___0_0 := tmp___0_post;
+TO: 4;
+
+FROM: 3;
+ assume(1+nI6_0 <= 4*__const_8_0);
+TO: 2;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 5;
+ nI6_post := nondet();
+ nX4_post := nondet();
+ res5_post := nondet();
+ assume(nX4_post = nX_0 && res5_post = 0 && nI6_post = 0);
+ nI6_0 := nI6_post;
+ nX4_0 := nX4_post;
+ res5_0 := res5_post;
+TO: 1;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

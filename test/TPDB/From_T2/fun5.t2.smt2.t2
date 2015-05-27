@@ -1,0 +1,82 @@
+START: 6;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ delta_post := nondet();
+ deltaext_post := nondet();
+ assume(deltaext_post = deltaext_new_0 && delta_post = delta_new_0);
+ delta_0 := delta_post;
+ deltaext_0 := deltaext_post;
+TO: 2;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 3;
+ delta_post := nondet();
+ deltaext_post := nondet();
+ assume(deltaext_post = deltaext_new_0 && delta_post = delta_new_0);
+ delta_0 := delta_post;
+ deltaext_0 := deltaext_post;
+TO: 2;
+
+FROM: 4;
+ delta_new_post := nondet();
+ assume(deltaext_0+wntext_0 <= -1+2*delta_0 && -1+2*delta_0 <= deltaext_0+wntext_0 && delta_new_post = delta_0);
+ delta_new_0 := delta_new_post;
+TO: 0;
+
+FROM: 4;
+ delta_new_post := nondet();
+ assume(deltaext_0+wntext_0 <= 2*delta_0 && 2*delta_0 <= deltaext_0+wntext_0 && delta_new_post = delta_0);
+ delta_new_0 := delta_new_post;
+TO: 0;
+
+FROM: 4;
+ delta_new_post := nondet();
+ assume(1+deltaext_0+wntext_0 <= -1+2*delta_0 && delta_new_post = -1+delta_0);
+ delta_new_0 := delta_new_post;
+TO: 0;
+
+FROM: 4;
+ delta_new_post := nondet();
+ assume(1+2*delta_0 <= deltaext_0+wntext_0 && delta_new_post = 1+delta_0);
+ delta_new_0 := delta_new_post;
+TO: 0;
+
+FROM: 2;
+ deltaext_new_post := nondet();
+ assume(2+wnt_0 <= -1+2*deltaext_0 && -1+2*deltaext_0 <= 2+wnt_0 && deltaext_new_post = deltaext_0);
+ deltaext_new_0 := deltaext_new_post;
+TO: 4;
+
+FROM: 2;
+ deltaext_new_post := nondet();
+ assume(2+wnt_0 <= 2*deltaext_0 && 2*deltaext_0 <= 2+wnt_0 && deltaext_new_post = deltaext_0);
+ deltaext_new_0 := deltaext_new_post;
+TO: 4;
+
+FROM: 2;
+ deltaext_new_post := nondet();
+ assume(3+wnt_0 <= -1+2*deltaext_0 && deltaext_new_post = -1+deltaext_0);
+ deltaext_new_0 := deltaext_new_post;
+TO: 4;
+
+FROM: 2;
+ deltaext_new_post := nondet();
+ assume(1+2*deltaext_0 <= 2+wnt_0 && deltaext_new_post = 1+deltaext_0);
+ deltaext_new_0 := deltaext_new_post;
+TO: 4;
+
+FROM: 5;
+ assume(0 <= wnt_0 && wnt_0 <= 3 && 0 <= deltaext_0 && deltext_0 <= 3 && 0 <= wntext_0 && wntext_0 <= 3 && 0 <= delta_0 && delta_0 <= 3);
+TO: 2;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

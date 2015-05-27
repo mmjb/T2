@@ -1,0 +1,92 @@
+START: 10;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 4;
+ ntStatus_post := nondet();
+ assume(1 <= pIrb_0);
+ ntStatus_0 := ntStatus_post;
+TO: 2;
+
+FROM: 4;
+ assume(pIrb_0 <= 0);
+TO: 2;
+
+FROM: 5;
+ pIrb_post := nondet();
+ assume((0 <= 0));
+ pIrb_0 := pIrb_post;
+TO: 4;
+
+FROM: 6;
+ assume(1+ResourceIrp_0 <= 0);
+TO: 5;
+
+FROM: 6;
+ assume(1 <= ResourceIrp_0);
+TO: 5;
+
+FROM: 6;
+ assume(ResourceIrp_0 <= 0 && 0 <= ResourceIrp_0);
+TO: 2;
+
+FROM: 7;
+ assume(IsochResourceData_0 <= 0);
+TO: 2;
+
+FROM: 7;
+ ResourceIrp_post := nondet();
+ StackSize_post := nondet();
+ __rho_99__post := nondet();
+ ResourceIrp_1 := nondet();
+ assume(1 <= IsochResourceData_0 && ResourceIrp_post = __rho_99__post);
+ ResourceIrp_0 := ResourceIrp_post;
+ StackSize_0 := StackSize_post;
+ __rho_99__0 := __rho_99__post;
+TO: 6;
+
+FROM: 8;
+ keR_post := nondet();
+ keR_1 := nondet();
+ assume(k4_0 <= 0 && keR_1 = 1 && keR_post = 0);
+ keR_0 := keR_post;
+TO: 0;
+
+FROM: 8;
+ k4_post := nondet();
+ keR_post := nondet();
+ keR_1 := nondet();
+ assume(1 <= k4_0 && k4_post = -1+k4_0 && keR_1 = 1 && keR_post = 0);
+ k4_0 := k4_post;
+ keR_0 := keR_post;
+TO: 7;
+
+FROM: 3;
+ keA_post := nondet();
+ keA_1 := nondet();
+ assume(keA_1 = 1 && keA_post = 0);
+ keA_0 := keA_post;
+TO: 8;
+
+FROM: 9;
+ keA_post := nondet();
+ keR_post := nondet();
+ assume(keA_post = 0 && keR_post = 0);
+ keA_0 := keA_post;
+ keR_0 := keR_post;
+TO: 3;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 9;
+

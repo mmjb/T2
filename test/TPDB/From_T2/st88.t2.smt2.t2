@@ -1,0 +1,85 @@
+START: 13;
+
+FROM: 0;
+ tmp1_post := nondet();
+ assume(1+__const_5_0 <= WItemsNum_0);
+ tmp1_0 := tmp1_post;
+TO: 1;
+
+FROM: 0;
+ assume(WItemsNum_0 <= __const_5_0);
+TO: 2;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 8;
+
+FROM: 9;
+ assume((0 <= 0));
+TO: 10;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 11;
+
+FROM: 11;
+ assume((0 <= 0));
+TO: 10;
+
+FROM: 6;
+ assume(WItemsNum_0 <= 2);
+TO: 3;
+
+FROM: 6;
+ WItemsNum_post := nondet();
+ assume(3 <= WItemsNum_0 && WItemsNum_post = -1+WItemsNum_0);
+ WItemsNum_0 := WItemsNum_post;
+TO: 5;
+
+FROM: 1;
+ assume(tmp1_0 <= 0 && 0 <= tmp1_0);
+TO: 5;
+
+FROM: 1;
+ assume(1 <= tmp1_0);
+TO: 2;
+
+FROM: 1;
+ assume(1+tmp1_0 <= 0);
+TO: 2;
+
+FROM: 2;
+ WItemsNum_post := nondet();
+ assume(1+__const_5_0 <= WItemsNum_0 && WItemsNum_post = 1+WItemsNum_0);
+ WItemsNum_0 := WItemsNum_post;
+TO: 4;
+
+FROM: 2;
+ WItemsNum_post := nondet();
+ assume(WItemsNum_0 <= __const_5_0 && WItemsNum_post = 1+WItemsNum_0);
+ WItemsNum_0 := WItemsNum_post;
+TO: 4;
+
+FROM: 12;
+ WItemsNum_post := nondet();
+ WItemsNum_1 := nondet();
+ assume((0 <= 0));
+ WItemsNum_0 := WItemsNum_post;
+TO: 3;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 12;
+

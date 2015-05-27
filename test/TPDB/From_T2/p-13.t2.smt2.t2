@@ -1,0 +1,20 @@
+START: 2;
+
+FROM: 0;
+ rt_11_post := nondet();
+ x_13_post := nondet();
+ assume(0 <= x_13_0 && x_13_post = -1+x_13_0 && rt_11_post = st_14_0);
+ rt_11_0 := rt_11_post;
+ x_13_0 := x_13_post;
+TO: 1;
+
+FROM: 0;
+ rt_11_post := nondet();
+ assume(1+x_13_0 <= 0 && rt_11_post = st_14_0);
+ rt_11_0 := rt_11_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

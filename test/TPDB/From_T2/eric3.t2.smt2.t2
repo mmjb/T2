@@ -1,0 +1,62 @@
+START: 6;
+
+FROM: 0;
+ xp_post := nondet();
+ assume(1 <= rhop_0 && xp_post = 1+xp_0);
+ xp_0 := xp_post;
+TO: 1;
+
+FROM: 0;
+ xp_post := nondet();
+ assume(rhop_0 <= 0 && xp_post = -1+xp_0);
+ xp_0 := xp_post;
+TO: 1;
+
+FROM: 2;
+ retp_post := nondet();
+ assume(retpp_0 <= 0 && retp_post = 0);
+ retp_0 := retp_post;
+TO: 3;
+
+FROM: 2;
+ retp_post := nondet();
+ assume(retp_post = 1);
+ retp_0 := retp_post;
+TO: 3;
+
+FROM: 2;
+ rhop_post := nondet();
+ assume(1 <= rhop_post);
+ rhop_0 := rhop_post;
+TO: 0;
+
+FROM: 1;
+ retpp_post := nondet();
+ assume(xp_0 <= 1 && retpp_post = 0);
+ retpp_0 := retpp_post;
+TO: 2;
+
+FROM: 1;
+ retpp_post := nondet();
+ assume(2 <= xp_0 && retpp_post = 1);
+ retpp_0 := retpp_post;
+TO: 2;
+
+FROM: 4;
+ rhop_post := nondet();
+ x_post := nondet();
+ xp_post := nondet();
+ assume(x_post = 2 && xp_post = x_post && rhop_post = rho_0);
+ rhop_0 := rhop_post;
+ x_0 := x_post;
+ xp_0 := xp_post;
+TO: 1;
+
+FROM: 3;
+ assume(retp_0 <= 0);
+TO: 5;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 4;
+

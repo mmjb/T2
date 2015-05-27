@@ -1,0 +1,116 @@
+START: 15;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 5;
+ assume(1+loop_count_0 <= loop_max_0);
+TO: 4;
+
+FROM: 5;
+ assume(loop_max_0 <= loop_count_0);
+TO: 6;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 7;
+
+FROM: 3;
+ assume(1+nPacketsOld_0 <= nPackets_0);
+TO: 8;
+
+FROM: 3;
+ assume(1+nPackets_0 <= nPacketsOld_0);
+TO: 8;
+
+FROM: 3;
+ assume(nPackets_0 <= nPacketsOld_0 && nPacketsOld_0 <= nPackets_0);
+TO: 6;
+
+FROM: 9;
+ loop_count_post := nondet();
+ assume(loop_count_post = 1+loop_count_0);
+ loop_count_0 := loop_count_post;
+TO: 3;
+
+FROM: 10;
+ assume(tmp___0_0 <= 0 && 0 <= tmp___0_0);
+TO: 3;
+
+FROM: 10;
+ assume(1 <= tmp___0_0);
+TO: 9;
+
+FROM: 10;
+ assume(1+tmp___0_0 <= 0);
+TO: 9;
+
+FROM: 11;
+ tmp___0_post := nondet();
+ assume((0 <= 0));
+ tmp___0_0 := tmp___0_post;
+TO: 10;
+
+FROM: 12;
+ nPackets_post := nondet();
+ assume(nPackets_post = 1+nPackets_0);
+ nPackets_0 := nPackets_post;
+TO: 11;
+
+FROM: 13;
+ assume(tmp_0 <= 0 && 0 <= tmp_0);
+TO: 11;
+
+FROM: 13;
+ assume(1 <= tmp_0);
+TO: 12;
+
+FROM: 13;
+ assume(1+tmp_0 <= 0);
+TO: 12;
+
+FROM: 14;
+ tmp_post := nondet();
+ assume((0 <= 0));
+ tmp_0 := tmp_post;
+TO: 13;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 14;
+
+FROM: 8;
+ nPacketsOld_post := nondet();
+ assume(nPacketsOld_post = nPackets_0);
+ nPacketsOld_0 := nPacketsOld_post;
+TO: 5;
+
+FROM: 15;
+ assume((0 <= 0));
+TO: 8;
+

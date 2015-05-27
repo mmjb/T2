@@ -1,0 +1,37 @@
+START: 5;
+
+FROM: 0;
+ x_post := nondet();
+ assume(x_0 <= 0 && x_post = 1);
+ x_0 := x_post;
+TO: 1;
+
+FROM: 0;
+ x_post := nondet();
+ assume(1 <= x_0 && x_post = 1+x_0);
+ x_0 := x_post;
+TO: 1;
+
+FROM: 2;
+ assume(4 <= x_0);
+TO: 3;
+
+FROM: 2;
+ assume(1+x_0 <= 4);
+TO: 0;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 4;
+ x_post := nondet();
+ x_1 := nondet();
+ assume(x_1 = __const_5_0);
+ x_0 := x_post;
+TO: 1;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 4;
+

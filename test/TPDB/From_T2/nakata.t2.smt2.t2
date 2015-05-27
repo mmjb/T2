@@ -1,0 +1,214 @@
+START: 21;
+
+FROM: 0;
+ assume(max_0 <= m_0);
+TO: 1;
+
+FROM: 0;
+ m_post := nondet();
+ assume(1+m_0 <= max_0 && m_post = 1+m_0);
+ m_0 := m_post;
+TO: 1;
+
+FROM: 2;
+ pi_post := nondet();
+ pos_post := nondet();
+ seq_post := nondet();
+ wpos_post := nondet();
+ z_post := nondet();
+ assume(seq_post = 1+seq_0 && wpos_post = 0 && pos_post = 0 && pi_post = seq_post && 0 <= z_post);
+ pi_0 := pi_post;
+ pos_0 := pos_post;
+ seq_0 := seq_post;
+ wpos_0 := wpos_post;
+ z_0 := z_post;
+TO: 3;
+
+FROM: 4;
+ assume(pi_0 <= 0);
+TO: 2;
+
+FROM: 4;
+ pi_post := nondet();
+ wpos_post := nondet();
+ assume(1 <= pi_0 && c2_0 <= 0 && wpos_post = 0 && pi_post = -1+pi_0);
+ pi_0 := pi_post;
+ wpos_0 := wpos_post;
+TO: 3;
+
+FROM: 5;
+ assume(2 <= wpos_0);
+TO: 2;
+
+FROM: 5;
+ assume(wpos_0 <= 1);
+TO: 4;
+
+FROM: 6;
+ assume(1 <= wpos_0);
+TO: 5;
+
+FROM: 6;
+ wpos_post := nondet();
+ assume(wpos_0 <= 0 && 1 <= c2_0 && wpos_post = 1+wpos_0);
+ wpos_0 := wpos_post;
+TO: 3;
+
+FROM: 7;
+ assume(2 <= pos_0);
+TO: 3;
+
+FROM: 7;
+ assume(pos_0 <= 1);
+TO: 6;
+
+FROM: 3;
+ m_post := nondet();
+ assume(1+c2_0 <= 1 && m_post = -1+m_0);
+ m_0 := m_post;
+TO: 1;
+
+FROM: 3;
+ assume(1 <= c2_0);
+TO: 0;
+
+FROM: 8;
+ assume(1 <= pos_0);
+TO: 7;
+
+FROM: 8;
+ pos_post := nondet();
+ assume(pos_0 <= 0 && c2_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 3;
+
+FROM: 9;
+ z_post := nondet();
+ assume(1 <= z_0 && z_post = -1+z_0);
+ z_0 := z_post;
+TO: 3;
+
+FROM: 9;
+ assume(z_0 <= 0);
+TO: 8;
+
+FROM: 10;
+ pi_post := nondet();
+ pos_post := nondet();
+ seq_post := nondet();
+ wpos_post := nondet();
+ z_post := nondet();
+ assume(seq_post = 1+seq_0 && wpos_post = 0 && pos_post = 0 && pi_post = seq_post && 0 <= z_post);
+ pi_0 := pi_post;
+ pos_0 := pos_post;
+ seq_0 := seq_post;
+ wpos_0 := wpos_post;
+ z_0 := z_post;
+TO: 11;
+
+FROM: 12;
+ assume(pi_0 <= 0);
+TO: 10;
+
+FROM: 12;
+ pi_post := nondet();
+ wpos_post := nondet();
+ assume(1 <= pi_0 && c1_0 <= 0 && wpos_post = 0 && pi_post = -1+pi_0);
+ pi_0 := pi_post;
+ wpos_0 := wpos_post;
+TO: 11;
+
+FROM: 13;
+ assume(2 <= wpos_0);
+TO: 10;
+
+FROM: 13;
+ assume(wpos_0 <= 1);
+TO: 12;
+
+FROM: 14;
+ assume(1 <= wpos_0);
+TO: 13;
+
+FROM: 14;
+ wpos_post := nondet();
+ assume(wpos_0 <= 0 && 1 <= c1_0 && wpos_post = 1+wpos_0);
+ wpos_0 := wpos_post;
+TO: 11;
+
+FROM: 15;
+ assume(2 <= pos_0);
+TO: 11;
+
+FROM: 15;
+ assume(pos_0 <= 1);
+TO: 14;
+
+FROM: 11;
+ assume(1+c1_0 <= 1);
+TO: 1;
+
+FROM: 11;
+ c2_post := nondet();
+ assume(1 <= c1_0 && 0 <= c2_post && c2_post <= 1);
+ c2_0 := c2_post;
+TO: 9;
+
+FROM: 16;
+ assume(1 <= pos_0);
+TO: 15;
+
+FROM: 16;
+ pos_post := nondet();
+ assume(pos_0 <= 0 && c1_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 11;
+
+FROM: 17;
+ z_post := nondet();
+ assume(1 <= z_0 && z_post = -1+z_0);
+ z_0 := z_post;
+TO: 11;
+
+FROM: 17;
+ assume(z_0 <= 0);
+TO: 16;
+
+FROM: 18;
+ m_post := nondet();
+ max_post := nondet();
+ n_post := nondet();
+ pi_post := nondet();
+ pos_post := nondet();
+ seq_post := nondet();
+ wpos_post := nondet();
+ z_post := nondet();
+ assume(seq_post = 1 && wpos_post = 0 && pi_post = seq_post && 0 <= z_post && pos_post = 0 && 0 <= n_post && 0 <= max_post && max_post <= n_post && m_post <= max_post && 0 <= m_post);
+ m_0 := m_post;
+ max_0 := max_post;
+ n_0 := n_post;
+ pi_0 := pi_post;
+ pos_0 := pos_post;
+ seq_0 := seq_post;
+ wpos_0 := wpos_post;
+ z_0 := z_post;
+TO: 1;
+
+FROM: 19;
+ assume(m_0 <= 0);
+TO: 20;
+
+FROM: 19;
+ c1_post := nondet();
+ assume(1 <= m_0 && 0 <= c1_post && c1_post <= 1);
+ c1_0 := c1_post;
+TO: 17;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 19;
+
+FROM: 21;
+ assume((0 <= 0));
+TO: 18;
+

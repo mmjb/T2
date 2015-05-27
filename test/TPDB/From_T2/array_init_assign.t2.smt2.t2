@@ -1,0 +1,54 @@
+START: 8;
+
+FROM: 0;
+ j_post := nondet();
+ assume(2 <= i_0 && j_post = 0);
+ j_0 := j_post;
+TO: 1;
+
+FROM: 0;
+ i_post := nondet();
+ assume(1+i_0 <= 2 && i_post = 1+i_0);
+ i_0 := i_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 5;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 3;
+ assume(2 <= j_0);
+TO: 6;
+
+FROM: 3;
+ j_post := nondet();
+ assume(1+j_0 <= 2 && j_post = 1+j_0);
+ j_0 := j_post;
+TO: 1;
+
+FROM: 7;
+ i_post := nondet();
+ assume(i_post = 0);
+ i_0 := i_post;
+TO: 2;
+
+FROM: 8;
+ assume((0 <= 0));
+TO: 7;
+

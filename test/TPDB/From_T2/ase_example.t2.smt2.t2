@@ -1,0 +1,68 @@
+START: 8;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ assume(size1_0 <= i2_0);
+TO: 3;
+
+FROM: 2;
+ i2_post := nondet();
+ assume(1+i2_0 <= size1_0 && i2_post = 1+i2_0);
+ i2_0 := i2_post;
+TO: 4;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 6;
+ i2_post := nondet();
+ assume(size1_0 <= i2_0 && i2_post = 0);
+ i2_0 := i2_post;
+TO: 4;
+
+FROM: 6;
+ i2_post := nondet();
+ assume(1+i2_0 <= size1_0 && i2_post = 1+i2_0);
+ i2_0 := i2_post;
+TO: 5;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 1;
+ i2_post := nondet();
+ assume(size1_0 <= i2_0 && i2_post = 0);
+ i2_0 := i2_post;
+TO: 5;
+
+FROM: 1;
+ i2_post := nondet();
+ assume(1+i2_0 <= size1_0 && i2_post = 1+i2_0);
+ i2_0 := i2_post;
+TO: 0;
+
+FROM: 7;
+ i2_post := nondet();
+ size1010_post := nondet();
+ size1_post := nondet();
+ size77_post := nondet();
+ tmp1111_post := nondet();
+ tmp88_post := nondet();
+ assume(size1_post = __const_10_0 && size77_post = size1_post && size1010_post = size1_post && i2_post = 0);
+ i2_0 := i2_post;
+ size1010_0 := size1010_post;
+ size1_0 := size1_post;
+ size77_0 := size77_post;
+ tmp1111_0 := tmp1111_post;
+ tmp88_0 := tmp88_post;
+TO: 0;
+
+FROM: 8;
+ assume((0 <= 0));
+TO: 7;
+

@@ -1,0 +1,134 @@
+START: 13;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ ret_max24_post := nondet();
+ tmp___0_post := nondet();
+ z_post := nondet();
+ assume(ret_max24_post = a15_0 && tmp___0_post = ret_max24_post);
+ ret_max24_0 := ret_max24_post;
+ tmp___0_0 := tmp___0_post;
+ z_0 := z_post;
+TO: 3;
+
+FROM: 4;
+ assume(1+y_promoted_2_0 <= x_promoted_1_0);
+TO: 5;
+
+FROM: 4;
+ tmp9_post := nondet();
+ assume(x_promoted_1_0 <= y_promoted_2_0);
+ tmp9_0 := tmp9_post;
+TO: 3;
+
+FROM: 6;
+ assume(1+c17_0 <= a15_0);
+TO: 2;
+
+FROM: 6;
+ tmp923_post := nondet();
+ assume(a15_0 <= c17_0);
+ tmp923_0 := tmp923_post;
+TO: 2;
+
+FROM: 7;
+ assume(1+b16_0 <= a15_0);
+TO: 6;
+
+FROM: 7;
+ tmp620_post := nondet();
+ assume(a15_0 <= b16_0);
+ tmp620_0 := tmp620_post;
+TO: 6;
+
+FROM: 8;
+ m13_post := nondet();
+ assume(1+c12_0 <= b11_0 && m13_post = c12_0);
+ m13_0 := m13_post;
+TO: 9;
+
+FROM: 8;
+ m13_post := nondet();
+ assume(b11_0 <= c12_0 && m13_post = b11_0);
+ m13_0 := m13_post;
+TO: 9;
+
+FROM: 9;
+ ret_min14_post := nondet();
+ tmp_post := nondet();
+ x_promoted_1_post := nondet();
+ assume(ret_min14_post = m13_0 && tmp_post = ret_min14_post && x_promoted_1_post = tmp_post+x_promoted_1_0);
+ ret_min14_0 := ret_min14_post;
+ tmp_0 := tmp_post;
+ x_promoted_1_0 := x_promoted_1_post;
+TO: 3;
+
+FROM: 10;
+ m13_post := nondet();
+ assume(1+c12_0 <= a10_0 && m13_post = c12_0);
+ m13_0 := m13_post;
+TO: 9;
+
+FROM: 10;
+ m13_post := nondet();
+ assume(a10_0 <= c12_0 && m13_post = a10_0);
+ m13_0 := m13_post;
+TO: 9;
+
+FROM: 11;
+ assume(1+b11_0 <= a10_0);
+TO: 8;
+
+FROM: 11;
+ assume(a10_0 <= b11_0);
+TO: 10;
+
+FROM: 5;
+ a15_post := nondet();
+ b16_post := nondet();
+ c17_post := nondet();
+ assume(1+z_0 <= x_promoted_1_0 && a15_post = z_0 && b16_post = y_promoted_2_0 && c17_post = x_promoted_1_0);
+ a15_0 := a15_post;
+ b16_0 := b16_post;
+ c17_0 := c17_post;
+TO: 7;
+
+FROM: 5;
+ a10_post := nondet();
+ b11_post := nondet();
+ c12_post := nondet();
+ assume(x_promoted_1_0 <= z_0 && a10_post = x_promoted_1_0 && b11_post = y_promoted_2_0 && c12_post = z_0);
+ a10_0 := a10_post;
+ b11_0 := b11_post;
+ c12_0 := c12_post;
+TO: 11;
+
+FROM: 3;
+ tmp___1_post := nondet();
+ assume(1+z_0 <= y_promoted_2_0 && tmp___1_post = y_promoted_2_0-z_0);
+ tmp___1_0 := tmp___1_post;
+TO: 0;
+
+FROM: 3;
+ tmp___1_post := nondet();
+ assume(y_promoted_2_0 <= z_0 && tmp___1_post = y_promoted_2_0+z_0);
+ tmp___1_0 := tmp___1_post;
+TO: 0;
+
+FROM: 12;
+ x_promoted_1_post := nondet();
+ y_promoted_2_post := nondet();
+ z_post := nondet();
+ assume(x_promoted_1_post = __const_10_0 && y_promoted_2_post = 2 && z_post = 1);
+ x_promoted_1_0 := x_promoted_1_post;
+ y_promoted_2_0 := y_promoted_2_post;
+ z_0 := z_post;
+TO: 4;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 12;
+

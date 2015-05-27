@@ -1,0 +1,44 @@
+START: 6;
+
+FROM: 0;
+ assume(1+x_0 <= ox_0);
+TO: 1;
+
+FROM: 0;
+ assume(ox_0 <= x_0);
+TO: 2;
+
+FROM: 3;
+ assume(c_0 <= 0);
+TO: 1;
+
+FROM: 3;
+ c_post := nondet();
+ ox_post := nondet();
+ assume(ox_post = x_0 && c_post = 1);
+ c_0 := c_post;
+ ox_0 := ox_post;
+TO: 1;
+
+FROM: 4;
+ assume(c_0 <= 0);
+TO: 3;
+
+FROM: 4;
+ assume(1 <= c_0);
+TO: 0;
+
+FROM: 1;
+ x_post := nondet();
+ assume(1 <= x_0 && x_post = -1+x_0);
+ x_0 := x_post;
+TO: 4;
+
+FROM: 5;
+ assume(c_0 <= 0);
+TO: 1;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

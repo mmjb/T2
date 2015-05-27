@@ -1,0 +1,122 @@
+START: 6;
+
+FROM: 0;
+ conditional_post := nondet();
+ assume(conditional_0 <= 1);
+ conditional_0 := conditional_post;
+TO: 1;
+
+FROM: 0;
+ INCREASE_post := nondet();
+ conditional_post := nondet();
+ j_min_post := nondet();
+ assume(2 <= conditional_0 && 1 <= INCREASE_post && j_min_post = INCREASE_post+j_min_0);
+ INCREASE_0 := INCREASE_post;
+ conditional_0 := conditional_post;
+ j_min_0 := j_min_post;
+TO: 1;
+
+FROM: 2;
+ P_post := nondet();
+ conditional_post := nondet();
+ assume(conditional_0 <= 1 && P_post = 1);
+ P_0 := P_post;
+ conditional_0 := conditional_post;
+TO: 0;
+
+FROM: 2;
+ INCREASE_post := nondet();
+ MAX_MIN_post := nondet();
+ MIN_post := nondet();
+ NUM_MIN_post := nondet();
+ Q_post := nondet();
+ conditional_post := nondet();
+ j_min_post := nondet();
+ assume(2 <= conditional_0 && MAX_MIN_post = MAX_0-MIN_0 && NUM_MIN_post = -1*MIN_0+num_0 && num_0 <= INCREASE_post && INCREASE_post <= MAX_0-MIN_0 && INCREASE_post <= NUM_MIN_post && MIN_post = INCREASE_post+MIN_0 && Q_post = 1 && 1 <= j_min_post);
+ INCREASE_0 := INCREASE_post;
+ MAX_MIN_0 := MAX_MIN_post;
+ MIN_0 := MIN_post;
+ NUM_MIN_0 := NUM_MIN_post;
+ Q_0 := Q_post;
+ conditional_0 := conditional_post;
+ j_min_0 := j_min_post;
+TO: 1;
+
+FROM: 3;
+ conditional_post := nondet();
+ assume(conditional_0 <= 1);
+ conditional_0 := conditional_post;
+TO: 2;
+
+FROM: 3;
+ INCREASE_post := nondet();
+ MAX_post := nondet();
+ conditional_post := nondet();
+ assume(2 <= conditional_0 && 1 <= INCREASE_post && MAX_post = INCREASE_post+MAX_0);
+ INCREASE_0 := INCREASE_post;
+ MAX_0 := MAX_post;
+ conditional_0 := conditional_post;
+TO: 2;
+
+FROM: 1;
+ conditional_post := nondet();
+ assume(MIN_0 <= num_0 && 1+j_min_0 <= pid_0);
+ conditional_0 := conditional_post;
+TO: 3;
+
+FROM: 1;
+ CRITICAL_post := nondet();
+ P_post := nondet();
+ Q_post := nondet();
+ assume(Q_post = 0 && P_post = 0 && pid_0 <= j_min_0 && CRITICAL_post = 0);
+ CRITICAL_0 := CRITICAL_post;
+ P_0 := P_post;
+ Q_0 := Q_post;
+TO: 4;
+
+FROM: 1;
+ CRITICAL_post := nondet();
+ P_post := nondet();
+ Q_post := nondet();
+ assume(Q_post = 0 && P_post = 0 && 1+num_0 <= MIN_0 && CRITICAL_post = 0);
+ CRITICAL_0 := CRITICAL_post;
+ P_0 := P_post;
+ Q_0 := Q_post;
+TO: 4;
+
+FROM: 4;
+ CRITICAL_post := nondet();
+ MAX_post := nondet();
+ NONCRITICAL_post := nondet();
+ num_post := nondet();
+ assume(num_post = 1+MAX_0 && MAX_post = 1+MAX_0 && NONCRITICAL_post = 1 && CRITICAL_post = 0);
+ CRITICAL_0 := CRITICAL_post;
+ MAX_0 := MAX_post;
+ NONCRITICAL_0 := NONCRITICAL_post;
+ num_0 := num_post;
+TO: 1;
+
+FROM: 5;
+ CRITICAL_post := nondet();
+ MAX_post := nondet();
+ MIN_post := nondet();
+ NONCRITICAL_post := nondet();
+ P_post := nondet();
+ Q_post := nondet();
+ j_min_post := nondet();
+ pid_post := nondet();
+ assume(P_post = 0 && Q_post = 0 && 1 <= pid_post && 1 <= j_min_post && 1 <= MIN_post && MIN_post <= MAX_post && NONCRITICAL_post = 1 && CRITICAL_post = 0);
+ CRITICAL_0 := CRITICAL_post;
+ MAX_0 := MAX_post;
+ MIN_0 := MIN_post;
+ NONCRITICAL_0 := NONCRITICAL_post;
+ P_0 := P_post;
+ Q_0 := Q_post;
+ j_min_0 := j_min_post;
+ pid_0 := pid_post;
+TO: 4;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

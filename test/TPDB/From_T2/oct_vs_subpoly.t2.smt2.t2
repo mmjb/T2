@@ -1,0 +1,30 @@
+START: 4;
+
+FROM: 0;
+ x_post := nondet();
+ y_post := nondet();
+ assume(x_post = 0 && y_post = 0);
+ x_0 := x_post;
+ y_0 := y_post;
+TO: 1;
+
+FROM: 1;
+ assume(1+y_0 <= x_0);
+TO: 2;
+
+FROM: 1;
+ x_post := nondet();
+ y_post := nondet();
+ assume(x_post = 1+x_0 && y_post = 1+y_0);
+ x_0 := x_post;
+ y_0 := y_post;
+TO: 3;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 0;
+

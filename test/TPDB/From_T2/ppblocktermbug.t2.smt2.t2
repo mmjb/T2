@@ -1,0 +1,98 @@
+START: 8;
+
+FROM: 0;
+ assume(conditional_0 <= 1);
+TO: 1;
+
+FROM: 0;
+ num_post := nondet();
+ assume(2 <= conditional_0 && num_post = 1+num_0);
+ num_0 := num_post;
+TO: 2;
+
+FROM: 3;
+ IoCreateDevice_post := nondet();
+ i_post := nondet();
+ status_post := nondet();
+ assume(conditional_0 <= 1 && IoCreateDevice_post = 0 && status_post = 1 && i_post = 1+i_0);
+ IoCreateDevice_0 := IoCreateDevice_post;
+ i_0 := i_post;
+ status_0 := status_post;
+TO: 2;
+
+FROM: 3;
+ IoCreateDevice_post := nondet();
+ Pdo_post := nondet();
+ conditional_post := nondet();
+ assume(2 <= conditional_0 && IoCreateDevice_post = 0 && Pdo_post = 0);
+ IoCreateDevice_0 := IoCreateDevice_post;
+ Pdo_0 := Pdo_post;
+ conditional_0 := conditional_post;
+TO: 0;
+
+FROM: 1;
+ rho_1_post := nondet();
+ assume(1 <= rho_1_0 && rho_1_post = -1+rho_1_0);
+ rho_1_0 := rho_1_post;
+TO: 4;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ PPBunlockInits_post := nondet();
+ num_post := nondet();
+ assume(rho_1_0 <= 0 && num_post = 0 && PPBunlockInits_post = 1);
+ PPBunlockInits_0 := PPBunlockInits_post;
+ num_0 := num_post;
+TO: 5;
+
+FROM: 6;
+ assume(DName_0 <= 0);
+TO: 1;
+
+FROM: 6;
+ IoCreateDevice_post := nondet();
+ conditional_post := nondet();
+ assume(1 <= DName_0 && IoCreateDevice_post = 1);
+ IoCreateDevice_0 := IoCreateDevice_post;
+ conditional_0 := conditional_post;
+TO: 3;
+
+FROM: 2;
+ status_post := nondet();
+ assume(Pdolen_0 <= i_0 && status_post = 0);
+ status_0 := status_post;
+TO: 1;
+
+FROM: 2;
+ DName_post := nondet();
+ PPBlockInits_post := nondet();
+ status_post := nondet();
+ assume(PPBlockInits_post = 1 && 1+i_0 <= Pdolen_0 && status_post = 0);
+ DName_0 := DName_post;
+ PPBlockInits_0 := PPBlockInits_post;
+ status_0 := status_post;
+TO: 6;
+
+FROM: 7;
+ IoCreateDevice_post := nondet();
+ PPBlockInits_post := nondet();
+ PPBunlockInits_post := nondet();
+ Pdolen_post := nondet();
+ i_post := nondet();
+ status_post := nondet();
+ assume((0 <= 0) && PPBunlockInits_post = 0 && PPBlockInits_post = 1 && status_post = 0 && IoCreateDevice_post = 0);
+ IoCreateDevice_0 := IoCreateDevice_post;
+ PPBlockInits_0 := PPBlockInits_post;
+ PPBunlockInits_0 := PPBunlockInits_post;
+ Pdolen_0 := Pdolen_post;
+ i_0 := i_post;
+ status_0 := status_post;
+TO: 2;
+
+FROM: 8;
+ assume((0 <= 0));
+TO: 7;
+

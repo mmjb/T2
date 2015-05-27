@@ -1,0 +1,25 @@
+START: 3;
+
+FROM: 0;
+ elem_13_post := nondet();
+ l_11_post := nondet();
+ len_98_post := nondet();
+ len_98_1 := nondet();
+ assume(1 <= 1+len_98_0 && 1 <= len_98_0 && elem_13_post = l_11_0 && 1 <= 1+len_98_1 && 1 <= len_98_1 && 0 <= -1*elem_13_post && -1*elem_13_post <= 0 && l_11_post = x_12_0);
+ elem_13_0 := elem_13_post;
+ l_11_0 := l_11_post;
+ len_98_0 := len_98_post;
+TO: 1;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 2;
+

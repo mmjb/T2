@@ -1,0 +1,26 @@
+START: 2;
+
+FROM: 0;
+ arg1P := nondet();
+ assume(0 = arg1P);
+ arg1 := arg1P;
+TO: 1;
+
+FROM: 1;
+ arg1P := nondet();
+ assume(arg1 < 11 && arg1 < 20 && arg1+2 = arg1P);
+ arg1 := arg1P;
+TO: 1;
+
+FROM: 1;
+ arg1P := nondet();
+ assume(arg1 > 10 && arg1 < 20 && arg1+2 = arg1P);
+ arg1 := arg1P;
+TO: 1;
+
+FROM: 2;
+ arg1P := nondet();
+ assume((0 <= 0));
+ arg1 := arg1P;
+TO: 0;
+

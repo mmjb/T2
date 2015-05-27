@@ -1,0 +1,104 @@
+START: 12;
+
+FROM: 0;
+ nondet_7_post := nondet();
+ temp6_11_post := nondet();
+ x_10_post := nondet();
+ assume(temp6_11_post = nondet_7_post && x_10_post = temp6_11_post);
+ nondet_7_0 := nondet_7_post;
+ temp6_11_0 := temp6_11_post;
+ x_10_0 := x_10_post;
+TO: 1;
+
+FROM: 2;
+ Result_6_post := nondet();
+ nondet_8_post := nondet();
+ temp5_9_post := nondet();
+ assume(temp5_9_post = nondet_8_post && temp5_9_post <= 0 && 0 <= temp5_9_post);
+ Result_6_0 := Result_6_post;
+ nondet_8_0 := nondet_8_post;
+ temp5_9_0 := temp5_9_post;
+TO: 3;
+
+FROM: 2;
+ nondet_8_post := nondet();
+ temp5_9_post := nondet();
+ assume(temp5_9_post = nondet_8_post);
+ nondet_8_0 := nondet_8_post;
+ temp5_9_0 := temp5_9_post;
+TO: 4;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 5;
+
+FROM: 5;
+ x_10_post := nondet();
+ assume(0 <= -1+x_10_0 && x_10_post = 1+x_10_0);
+ x_10_0 := x_10_post;
+TO: 6;
+
+FROM: 6;
+ Result_6_post := nondet();
+ nondet_8_post := nondet();
+ temp5_9_post := nondet();
+ assume(temp5_9_post = nondet_8_post && temp5_9_post <= 0 && 0 <= temp5_9_post);
+ Result_6_0 := Result_6_post;
+ nondet_8_0 := nondet_8_post;
+ temp5_9_0 := temp5_9_post;
+TO: 3;
+
+FROM: 6;
+ nondet_8_post := nondet();
+ temp5_9_post := nondet();
+ assume(temp5_9_post = nondet_8_post);
+ nondet_8_0 := nondet_8_post;
+ temp5_9_0 := temp5_9_post;
+TO: 7;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 8;
+
+FROM: 8;
+ x_10_post := nondet();
+ assume(0 <= -1+x_10_0 && x_10_post = 1+x_10_0);
+ x_10_0 := x_10_post;
+TO: 9;
+
+FROM: 9;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 1;
+ Result_6_post := nondet();
+ nondet_8_post := nondet();
+ temp5_9_post := nondet();
+ assume(temp5_9_post = nondet_8_post && temp5_9_post <= 0 && 0 <= temp5_9_post);
+ Result_6_0 := Result_6_post;
+ nondet_8_0 := nondet_8_post;
+ temp5_9_0 := temp5_9_post;
+TO: 3;
+
+FROM: 1;
+ nondet_8_post := nondet();
+ temp5_9_post := nondet();
+ assume(temp5_9_post = nondet_8_post);
+ nondet_8_0 := nondet_8_post;
+ temp5_9_0 := temp5_9_post;
+TO: 10;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 11;
+
+FROM: 11;
+ x_10_post := nondet();
+ assume(0 <= -1+x_10_0 && x_10_post = 1+x_10_0);
+ x_10_0 := x_10_post;
+TO: 6;
+
+FROM: 12;
+ assume((0 <= 0));
+TO: 0;
+

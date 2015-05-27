@@ -1,0 +1,40 @@
+START: 5;
+
+FROM: 0;
+ Result_4_post := nondet();
+ assume(2-x_6_0 <= 0 && 3-w_5_0 <= 0);
+ Result_4_0 := Result_4_post;
+TO: 1;
+
+FROM: 0;
+ w_5_post := nondet();
+ x_6_post := nondet();
+ assume(2-x_6_0 <= 0 && 0 <= 2-w_5_0 && x_6_post = 1+x_6_0 && w_5_post = 1+w_5_0);
+ w_5_0 := w_5_post;
+ x_6_0 := x_6_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 0;
+ w_5_post := nondet();
+ x_6_post := nondet();
+ assume(0 <= 1-x_6_0 && x_6_post = 1+x_6_0 && w_5_post = 1+w_5_0);
+ w_5_0 := w_5_post;
+ x_6_0 := x_6_post;
+TO: 3;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 4;
+

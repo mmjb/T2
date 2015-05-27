@@ -1,0 +1,28 @@
+START: 4;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ x_5_post := nondet();
+ assume(x_5_post = -1+x_5_0 && -1*x_5_post <= 0);
+ x_5_0 := x_5_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ Result_4_post := nondet();
+ x_5_post := nondet();
+ assume(x_5_post = -1+x_5_0 && 0 <= -1-x_5_post);
+ Result_4_0 := Result_4_post;
+ x_5_0 := x_5_post;
+TO: 3;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 0;
+

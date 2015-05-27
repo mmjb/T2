@@ -1,0 +1,96 @@
+START: 8;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ ret_nPow22_post := nondet();
+ tmp___1_post := nondet();
+ assume(np19_0 <= ni21_0 && ret_nPow22_post = nPow___020_0 && tmp___1_post = ret_nPow22_post);
+ ret_nPow22_0 := ret_nPow22_post;
+ tmp___1_0 := tmp___1_post;
+TO: 3;
+
+FROM: 2;
+ nPow___020_post := nondet();
+ ni21_post := nondet();
+ assume(1+ni21_0 <= np19_0 && ni21_post = 1+ni21_0);
+ nPow___020_0 := nPow___020_post;
+ ni21_0 := ni21_post;
+TO: 4;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 6;
+ nPow___020_post := nondet();
+ ni21_post := nondet();
+ np19_post := nondet();
+ nx18_post := nondet();
+ ret_nPow17_post := nondet();
+ tmp___0_post := nondet();
+ assume(np14_0 <= ni16_0 && ret_nPow17_post = nPow___015_0 && tmp___0_post = ret_nPow17_post && nx18_post = nc_0 && np19_post = nN_0 && nPow___020_post = 1 && ni21_post = 0);
+ nPow___020_0 := nPow___020_post;
+ ni21_0 := ni21_post;
+ np19_0 := np19_post;
+ nx18_0 := nx18_post;
+ ret_nPow17_0 := ret_nPow17_post;
+ tmp___0_0 := tmp___0_post;
+TO: 4;
+
+FROM: 6;
+ nPow___015_post := nondet();
+ ni16_post := nondet();
+ assume(1+ni16_0 <= np14_0 && ni16_post = 1+ni16_0);
+ nPow___015_0 := nPow___015_post;
+ ni16_0 := ni16_post;
+TO: 5;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 1;
+ nPow___015_post := nondet();
+ ni16_post := nondet();
+ np14_post := nondet();
+ nx13_post := nondet();
+ ret_nPow12_post := nondet();
+ tmp_post := nondet();
+ assume(np9_0 <= ni11_0 && ret_nPow12_post = nPow___010_0 && tmp_post = ret_nPow12_post && nx13_post = nb_0 && np14_post = nN_0 && nPow___015_post = 1 && ni16_post = 0);
+ nPow___015_0 := nPow___015_post;
+ ni16_0 := ni16_post;
+ np14_0 := np14_post;
+ nx13_0 := nx13_post;
+ ret_nPow12_0 := ret_nPow12_post;
+ tmp_0 := tmp_post;
+TO: 5;
+
+FROM: 1;
+ nPow___010_post := nondet();
+ ni11_post := nondet();
+ assume(1+ni11_0 <= np9_0 && ni11_post = 1+ni11_0);
+ nPow___010_0 := nPow___010_post;
+ ni11_0 := ni11_post;
+TO: 0;
+
+FROM: 7;
+ nN_post := nondet();
+ nPow___010_post := nondet();
+ ni11_post := nondet();
+ np9_post := nondet();
+ nx8_post := nondet();
+ assume(nN_post = 3 && nx8_post = na_0 && np9_post = nN_post && nPow___010_post = 1 && ni11_post = 0);
+ nN_0 := nN_post;
+ nPow___010_0 := nPow___010_post;
+ ni11_0 := ni11_post;
+ np9_0 := np9_post;
+ nx8_0 := nx8_post;
+TO: 0;
+
+FROM: 8;
+ assume((0 <= 0));
+TO: 7;
+

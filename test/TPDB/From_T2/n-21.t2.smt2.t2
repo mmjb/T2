@@ -1,0 +1,36 @@
+START: 5;
+
+FROM: 0;
+ Result_4_post := nondet();
+ assume(1+__const_19_0-x_5_0 <= 0);
+ Result_4_0 := Result_4_post;
+TO: 1;
+
+FROM: 0;
+ assume(0 <= __const_19_0-x_5_0);
+TO: 2;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 2;
+ x_5_post := nondet();
+ assume(1+__const_29_0-y_6_0 <= 0 && x_5_post = -1+x_5_0);
+ x_5_0 := x_5_post;
+TO: 0;
+
+FROM: 2;
+ x_5_post := nondet();
+ assume(0 <= __const_29_0-y_6_0 && x_5_post = -1+x_5_0);
+ x_5_0 := x_5_post;
+TO: 4;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 3;
+

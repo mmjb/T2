@@ -1,0 +1,14 @@
+START: 2;
+
+FROM: 0;
+ tmp_post := nondet();
+ x_post := nondet();
+ assume(x_post = tmp_post);
+ tmp_0 := tmp_post;
+ x_0 := x_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

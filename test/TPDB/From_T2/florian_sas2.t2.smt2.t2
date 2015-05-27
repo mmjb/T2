@@ -1,0 +1,160 @@
+START: 17;
+
+FROM: 0;
+ assume(n_0 <= r_0);
+TO: 1;
+
+FROM: 0;
+ assume(1+r_0 <= n_0);
+TO: 2;
+
+FROM: 3;
+ c_post := nondet();
+ assume(c_post = -1+c_0);
+ c_0 := c_post;
+TO: 0;
+
+FROM: 4;
+ assume(f_0 <= 0 && 0 <= f_0);
+TO: 0;
+
+FROM: 4;
+ assume(1 <= f_0);
+TO: 3;
+
+FROM: 4;
+ assume(1+f_0 <= 0);
+TO: 3;
+
+FROM: 5;
+ assume(2 <= c_0);
+TO: 4;
+
+FROM: 5;
+ assume(1+c_0 <= 1);
+TO: 4;
+
+FROM: 5;
+ assume(c_0 <= 1 && 1 <= c_0);
+TO: 6;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 7;
+
+FROM: 8;
+ assume(0 <= s_0);
+TO: 9;
+
+FROM: 8;
+ assume(1+s_0 <= 0);
+TO: 6;
+
+FROM: 10;
+ d_post := nondet();
+ s_post := nondet();
+ assume(d_post = 1 && s_post = -1*c_0+s_0);
+ d_0 := d_post;
+ s_0 := s_post;
+TO: 8;
+
+FROM: 11;
+ assume(1 <= f_0);
+TO: 10;
+
+FROM: 11;
+ assume(1+f_0 <= 0);
+TO: 10;
+
+FROM: 11;
+ c_post := nondet();
+ f_post := nondet();
+ assume(f_0 <= 0 && 0 <= f_0 && f_post = 1 && c_post = -1+c_0);
+ c_0 := c_post;
+ f_0 := f_post;
+TO: 10;
+
+FROM: 9;
+ n_post := nondet();
+ assume((0 <= 0));
+ n_0 := n_post;
+TO: 5;
+
+FROM: 12;
+ assume(3 <= d_0);
+TO: 10;
+
+FROM: 12;
+ assume(1+d_0 <= 2);
+TO: 10;
+
+FROM: 12;
+ assume(d_0 <= 2 && 2 <= d_0);
+TO: 11;
+
+FROM: 1;
+ assume(r_0 <= n_0);
+TO: 6;
+
+FROM: 1;
+ assume(1+n_0 <= r_0);
+TO: 12;
+
+FROM: 13;
+ assume(s_0 <= __const_255_0);
+TO: 9;
+
+FROM: 13;
+ assume(1+__const_255_0 <= s_0);
+TO: 6;
+
+FROM: 14;
+ d_post := nondet();
+ s_post := nondet();
+ assume(d_post = 2 && s_post = c_0+s_0);
+ d_0 := d_post;
+ s_0 := s_post;
+TO: 13;
+
+FROM: 15;
+ assume(1 <= f_0);
+TO: 14;
+
+FROM: 15;
+ assume(1+f_0 <= 0);
+TO: 14;
+
+FROM: 15;
+ c_post := nondet();
+ f_post := nondet();
+ assume(f_0 <= 0 && 0 <= f_0 && f_post = 1 && c_post = -1+c_0);
+ c_0 := c_post;
+ f_0 := f_post;
+TO: 14;
+
+FROM: 2;
+ assume(2 <= d_0);
+TO: 14;
+
+FROM: 2;
+ assume(1+d_0 <= 1);
+TO: 14;
+
+FROM: 2;
+ assume(d_0 <= 1 && 1 <= d_0);
+TO: 15;
+
+FROM: 16;
+ c_post := nondet();
+ d_post := nondet();
+ f_post := nondet();
+ assume(c_post = 4 && f_post = 0 && d_post = 0);
+ c_0 := c_post;
+ d_0 := d_post;
+ f_0 := f_post;
+TO: 9;
+
+FROM: 17;
+ assume((0 <= 0));
+TO: 16;
+

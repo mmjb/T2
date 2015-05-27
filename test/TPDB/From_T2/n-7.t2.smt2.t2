@@ -1,0 +1,48 @@
+START: 6;
+
+FROM: 0;
+ assume(0 <= -1-x_5_0+y_6_0);
+TO: 1;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 2;
+ b_7_post := nondet();
+ y_6_post := nondet();
+ assume(b_7_post = 0 && y_6_post = 1+y_6_0);
+ b_7_0 := b_7_post;
+ y_6_0 := y_6_post;
+TO: 3;
+
+FROM: 0;
+ Result_4_post := nondet();
+ assume(-1*x_5_0+y_6_0 <= 0);
+ Result_4_0 := Result_4_post;
+TO: 4;
+
+FROM: 5;
+ b_7_post := nondet();
+ assume(b_7_post = 0);
+ b_7_0 := b_7_post;
+TO: 3;
+
+FROM: 3;
+ b_7_post := nondet();
+ x_5_post := nondet();
+ assume(0 <= -1-x_5_0+y_6_0 && b_7_0 <= 0 && 0 <= b_7_0 && b_7_post = 1 && x_5_post = 1+x_5_0);
+ b_7_0 := b_7_post;
+ x_5_0 := x_5_post;
+TO: 0;
+
+FROM: 3;
+ Result_4_post := nondet();
+ assume(-1*x_5_0+y_6_0 <= 0);
+ Result_4_0 := Result_4_post;
+TO: 4;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

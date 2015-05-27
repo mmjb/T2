@@ -1,0 +1,154 @@
+START: 15;
+
+FROM: 0;
+ K_post := nondet();
+ assume(K_post = -1+K_0);
+ K_0 := K_post;
+TO: 1;
+
+FROM: 2;
+ next_post := nondet();
+ pos_post := nondet();
+ z_post := nondet();
+ assume(3 <= pos_0 && next_post = 1+next_0 && 0 <= z_post && pos_post = 0);
+ next_0 := next_post;
+ pos_0 := pos_post;
+ z_0 := z_post;
+TO: 3;
+
+FROM: 2;
+ pos_post := nondet();
+ assume(pos_0 <= 2 && yy_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 3;
+
+FROM: 4;
+ assume(2 <= pos_0);
+TO: 2;
+
+FROM: 4;
+ pos_post := nondet();
+ assume(pos_0 <= 1 && 1 <= yy_0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 3;
+
+FROM: 3;
+ assume(xx_0 <= yy_0 && yy_0 <= xx_0);
+TO: 1;
+
+FROM: 3;
+ assume(1+yy_0 <= xx_0);
+TO: 0;
+
+FROM: 3;
+ assume(1+xx_0 <= yy_0);
+TO: 0;
+
+FROM: 5;
+ assume(1 <= pos_0);
+TO: 4;
+
+FROM: 5;
+ pos_post := nondet();
+ assume(pos_0 <= 0 && yy_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 3;
+
+FROM: 6;
+ z_post := nondet();
+ assume(1 <= z_0 && z_post = -1+z_0);
+ z_0 := z_post;
+TO: 3;
+
+FROM: 6;
+ assume(z_0 <= 0);
+TO: 5;
+
+FROM: 7;
+ next_post := nondet();
+ pos_post := nondet();
+ z_post := nondet();
+ assume(3 <= pos_0 && next_post = 1+next_0 && 0 <= z_post && pos_post = 0);
+ next_0 := next_post;
+ pos_0 := pos_post;
+ z_0 := z_post;
+TO: 8;
+
+FROM: 7;
+ pos_post := nondet();
+ assume(pos_0 <= 2 && xx_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 8;
+
+FROM: 9;
+ assume(2 <= pos_0);
+TO: 7;
+
+FROM: 9;
+ pos_post := nondet();
+ assume(pos_0 <= 1 && 1 <= xx_0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 8;
+
+FROM: 8;
+ yy_post := nondet();
+ assume(0 <= yy_post && yy_post <= 1);
+ yy_0 := yy_post;
+TO: 6;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 10;
+
+FROM: 11;
+ assume(1 <= pos_0);
+TO: 9;
+
+FROM: 11;
+ pos_post := nondet();
+ assume(pos_0 <= 0 && xx_0 <= 0 && pos_post = 1+pos_0);
+ pos_0 := pos_post;
+TO: 8;
+
+FROM: 12;
+ z_post := nondet();
+ assume(1 <= z_0 && z_post = -1+z_0);
+ z_0 := z_post;
+TO: 8;
+
+FROM: 12;
+ assume(z_0 <= 0);
+TO: 11;
+
+FROM: 10;
+ assume(K_0 <= 0);
+TO: 13;
+
+FROM: 10;
+ xx_post := nondet();
+ assume(1 <= K_0 && 0 <= xx_post && xx_post <= 1);
+ xx_0 := xx_post;
+TO: 12;
+
+FROM: 14;
+ K_post := nondet();
+ N_post := nondet();
+ next_post := nondet();
+ pos_post := nondet();
+ xx_post := nondet();
+ yy_post := nondet();
+ z_post := nondet();
+ assume(0 <= z_post && pos_post = 0 && next_post = 1 && 1 <= N_post && K_post = N_post && xx_post = 0 && yy_post = 0);
+ K_0 := K_post;
+ N_0 := N_post;
+ next_0 := next_post;
+ pos_0 := pos_post;
+ xx_0 := xx_post;
+ yy_0 := yy_post;
+ z_0 := z_post;
+TO: 1;
+
+FROM: 15;
+ assume((0 <= 0));
+TO: 14;
+

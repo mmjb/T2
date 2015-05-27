@@ -1,0 +1,15 @@
+START: 2;
+
+FROM: 0;
+ a_post := nondet();
+ ret_returnOne2_post := nondet();
+ a_1 := nondet();
+ assume(a_1 = -1 && ret_returnOne2_post = 1 && a_post = ret_returnOne2_post);
+ a_0 := a_post;
+ ret_returnOne2_0 := ret_returnOne2_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

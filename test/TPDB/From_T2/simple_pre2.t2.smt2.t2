@@ -1,0 +1,17 @@
+START: 2;
+
+FROM: 0;
+ a_post := nondet();
+ ret_incr3_post := nondet();
+ x2_post := nondet();
+ a_1 := nondet();
+ assume(a_1 = 1 && x2_post = a_1 && ret_incr3_post = 1+x2_post && a_post = ret_incr3_post);
+ a_0 := a_post;
+ ret_incr3_0 := ret_incr3_post;
+ x2_0 := x2_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

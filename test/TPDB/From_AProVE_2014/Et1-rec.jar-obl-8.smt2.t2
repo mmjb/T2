@@ -1,0 +1,55 @@
+START: 2;
+
+FROM: 0;
+ arg1P := nondet();
+ arg2P := nondet();
+ arg3P := nondet();
+ assume(arg1 > 0 && 0 = arg2 && 0 = arg1P && 0 = arg2P && 0 = arg3P);
+ arg1 := arg1P;
+ arg2 := arg2P;
+ arg3 := arg3P;
+TO: 1;
+
+FROM: 0;
+ arg1P := nondet();
+ arg2P := nondet();
+ arg3P := nondet();
+ x2 := nondet();
+ assume(arg1 > 0 && x2 > -1 && 1 = arg2 && 0 = arg1P && 0-x2 = arg2P && 0 = arg3P);
+ arg1 := arg1P;
+ arg2 := arg2P;
+ arg3 := arg3P;
+TO: 1;
+
+FROM: 0;
+ arg1P := nondet();
+ arg2P := nondet();
+ arg3P := nondet();
+ x5 := nondet();
+ x6 := nondet();
+ assume(x5 > -1 && arg2 > 1 && x6 > -1 && arg1 > 0 && 0-x6 = arg1P && 0-x5 = arg2P && 0-x6 = arg3P);
+ arg1 := arg1P;
+ arg2 := arg2P;
+ arg3 := arg3P;
+TO: 1;
+
+FROM: 1;
+ arg1P := nondet();
+ arg2P := nondet();
+ arg3P := nondet();
+ assume(arg1 < arg2 && arg2+1 > arg2 && arg1 < arg2+1 && arg1 = arg3 && arg1+arg2 = arg1P && arg2+1 = arg2P && arg1+arg2 = arg3P);
+ arg1 := arg1P;
+ arg2 := arg2P;
+ arg3 := arg3P;
+TO: 1;
+
+FROM: 2;
+ arg1P := nondet();
+ arg2P := nondet();
+ arg3P := nondet();
+ assume((0 <= 0));
+ arg1 := arg1P;
+ arg2 := arg2P;
+ arg3 := arg3P;
+TO: 0;
+

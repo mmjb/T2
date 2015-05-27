@@ -1,0 +1,29 @@
+START: 4;
+
+FROM: 0;
+ assume(__const_50_0 <= i_0);
+TO: 1;
+
+FROM: 0;
+ i_post := nondet();
+ assume(1+i_0 <= __const_50_0 && i_post = 1+i_0);
+ i_0 := i_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ i_post := nondet();
+ tmp_post := nondet();
+ i_1 := nondet();
+ assume(i_1 = 0 && i_post = 0);
+ i_0 := i_post;
+ tmp_0 := tmp_post;
+TO: 2;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 3;
+

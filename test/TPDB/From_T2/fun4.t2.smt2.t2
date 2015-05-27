@@ -1,0 +1,40 @@
+START: 4;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 1;
+ deltaext_post := nondet();
+ assume(deltaext_post = deltaext_new_0);
+ deltaext_0 := deltaext_post;
+TO: 2;
+
+FROM: 2;
+ deltaext_new_post := nondet();
+ assume(-1+2*deltaext_0 <= c0_0+wnt_0 && c0_0+wnt_0 <= 2*deltaext_0 && deltaext_new_post = deltaext_0);
+ deltaext_new_0 := deltaext_new_post;
+TO: 0;
+
+FROM: 2;
+ deltaext_new_post := nondet();
+ assume(1+c0_0+wnt_0 <= -1+2*deltaext_0 && deltaext_new_post = -1+deltaext_0);
+ deltaext_new_0 := deltaext_new_post;
+TO: 0;
+
+FROM: 2;
+ deltaext_new_post := nondet();
+ assume(1+2*deltaext_0 <= c0_0+wnt_0 && deltaext_new_post = 1+deltaext_0);
+ deltaext_new_0 := deltaext_new_post;
+TO: 0;
+
+FROM: 3;
+ c0_post := nondet();
+ assume(0 <= wnt_0 && wnt_0 <= 3 && 0 <= deltaext_0 && deltaext_0 <= 3 && c0_post = 2);
+ c0_0 := c0_post;
+TO: 2;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 3;
+

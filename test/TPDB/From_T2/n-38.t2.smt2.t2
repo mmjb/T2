@@ -1,0 +1,30 @@
+START: 2;
+
+FROM: 0;
+ Result_4_post := nondet();
+ devExt_7_post := nondet();
+ i_12_post := nondet();
+ irp_11_post := nondet();
+ loop_count_14_post := nondet();
+ loop_max_13_post := nondet();
+ lt_48_post := nondet();
+ nPacketsOld_9_post := nondet();
+ nPackets_10_post := nondet();
+ request_8_post := nondet();
+ assume((0 <= 0) && lt_48_post = cnt_60_0);
+ Result_4_0 := Result_4_post;
+ devExt_7_0 := devExt_7_post;
+ i_12_0 := i_12_post;
+ irp_11_0 := irp_11_post;
+ loop_count_14_0 := loop_count_14_post;
+ loop_max_13_0 := loop_max_13_post;
+ lt_48_0 := lt_48_post;
+ nPacketsOld_9_0 := nPacketsOld_9_post;
+ nPackets_10_0 := nPackets_10_post;
+ request_8_0 := request_8_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

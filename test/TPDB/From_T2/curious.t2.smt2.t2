@@ -1,0 +1,30 @@
+START: 5;
+
+FROM: 0;
+ b_post := nondet();
+ assume(0 <= b_0 && b_post = 1);
+ b_0 := b_post;
+TO: 1;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 2;
+ b_post := nondet();
+ assume(b_post = 0);
+ b_0 := b_post;
+TO: 3;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 4;
+

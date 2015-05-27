@@ -1,0 +1,28 @@
+START: 4;
+
+FROM: 0;
+ assume(__const_10_0 <= i4_0);
+TO: 1;
+
+FROM: 0;
+ i4_post := nondet();
+ assume(1+i4_0 <= __const_10_0 && i4_post = 1+i4_0);
+ i4_0 := i4_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ i4_post := nondet();
+ tmp_post := nondet();
+ assume(i4_post = 0);
+ i4_0 := i4_post;
+ tmp_0 := tmp_post;
+TO: 2;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 3;
+

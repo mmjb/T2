@@ -1,0 +1,56 @@
+START: 5;
+
+FROM: 0;
+ p_post := nondet();
+ assume(__rho_2_0 <= 0 && p_post = 0);
+ p_0 := p_post;
+TO: 1;
+
+FROM: 0;
+ p_post := nondet();
+ assume(1 <= __rho_2_0 && p_post = 1);
+ p_0 := p_post;
+TO: 1;
+
+FROM: 1;
+ __rho_2_post := nondet();
+ assume((0 <= 0));
+ __rho_2_0 := __rho_2_post;
+TO: 0;
+
+FROM: 2;
+ x_post := nondet();
+ assume(__rho_1_0 <= 0 && x_post = -2+x_0);
+ x_0 := x_post;
+TO: 3;
+
+FROM: 2;
+ x_post := nondet();
+ assume(1 <= __rho_1_0 && x_post = -1+x_0);
+ x_0 := x_post;
+TO: 3;
+
+FROM: 3;
+ assume(x_0 <= 0);
+TO: 1;
+
+FROM: 3;
+ __rho_1_post := nondet();
+ assume(1 <= x_0);
+ __rho_1_0 := __rho_1_post;
+TO: 2;
+
+FROM: 4;
+ p_post := nondet();
+ start_post := nondet();
+ start_1 := nondet();
+ start_2 := nondet();
+ assume(p_post = 0 && start_1 = 0 && start_2 = 1 && start_post = 0);
+ p_0 := p_post;
+ start_0 := start_post;
+TO: 3;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 4;
+

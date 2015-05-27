@@ -1,0 +1,237 @@
+START: 21;
+
+FROM: 0;
+ Result_6_post := nondet();
+ __cil_tmp6_12_post := nondet();
+ c_15_post := nondet();
+ x_13_post := nondet();
+ x_13_1 := nondet();
+ assume(0 <= len_48_0 && -1*i_8_0+length_7_0 <= 0 && __cil_tmp6_12_post = head_9_0 && Result_6_post = __cil_tmp6_12_post && 0 <= len_48_0 && 0 <= len_48_0 && x_13_1 = Result_6_post && c_15_post = x_13_1 && x_13_post = 0 && 0 <= len_48_0);
+ Result_6_0 := Result_6_post;
+ __cil_tmp6_12_0 := __cil_tmp6_12_post;
+ c_15_0 := c_15_post;
+ x_13_0 := x_13_post;
+TO: 1;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 2;
+ a_128_post := nondet();
+ c_15_post := nondet();
+ elem_16_post := nondet();
+ lt_21_post := nondet();
+ prev_17_post := nondet();
+ x_13_post := nondet();
+ y_14_post := nondet();
+ lt_21_1 := nondet();
+ assume(y_14_post = c_15_0 && lt_21_1 = y_80_0 && c_15_post = lt_21_1 && elem_16_post = x_13_0 && prev_17_post = 0 && 0 <= -1+len_48_0 && elem_16_post <= 0 && 0 <= elem_16_post && prev_17_post <= 0 && 0 <= prev_17_post && x_13_post = y_14_post && 0 <= -1+len_48_0 && a_128_post = -2+len_48_0);
+ a_128_0 := a_128_post;
+ c_15_0 := c_15_post;
+ elem_16_0 := elem_16_post;
+ lt_21_0 := lt_21_post;
+ prev_17_0 := prev_17_post;
+ x_13_0 := x_13_post;
+ y_14_0 := y_14_post;
+TO: 3;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 4;
+ c_15_post := nondet();
+ cnt_133_post := nondet();
+ cnt_139_post := nondet();
+ elem_16_post := nondet();
+ lt_21_post := nondet();
+ prev_17_post := nondet();
+ y_14_post := nondet();
+ lt_21_1 := nondet();
+ assume(y_14_post = c_15_0 && lt_21_1 = y_110_0 && c_15_post = lt_21_1 && elem_16_post = x_13_0 && prev_17_post = 0 && 0 <= a_128_0);
+ c_15_0 := c_15_post;
+ cnt_133_0 := cnt_133_post;
+ cnt_139_0 := cnt_139_post;
+ elem_16_0 := elem_16_post;
+ lt_21_0 := lt_21_post;
+ prev_17_0 := prev_17_post;
+ y_14_0 := y_14_post;
+TO: 5;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 6;
+ __patmp1_post := nondet();
+ __patmp2_post := nondet();
+ a_243_post := nondet();
+ len_246_post := nondet();
+ lt_19_post := nondet();
+ lt_20_post := nondet();
+ x_13_post := nondet();
+ lt_19_1 := nondet();
+ lt_20_1 := nondet();
+ assume(lt_19_1 = cnt_133_0 && lt_20_1 = cnt_139_0 && 0 <= lt_19_1-lt_20_1 && prev_17_0 <= 0 && 0 <= prev_17_0 && x_13_post = y_14_0 && 0 <= a_128_0 && __patmp1_post = 1 && __patmp2_post = -1+a_128_0 && len_246_post = __patmp1_post && a_243_post = __patmp2_post);
+ __patmp1_0 := __patmp1_post;
+ __patmp2_0 := __patmp2_post;
+ a_243_0 := a_243_post;
+ len_246_0 := len_246_post;
+ lt_19_0 := lt_19_post;
+ lt_20_0 := lt_20_post;
+ x_13_0 := x_13_post;
+TO: 7;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 8;
+
+FROM: 8;
+ c_15_post := nondet();
+ elem_16_post := nondet();
+ lt_21_post := nondet();
+ prev_17_post := nondet();
+ y_14_post := nondet();
+ lt_21_1 := nondet();
+ assume(y_14_post = c_15_0 && lt_21_1 = y_158_0 && c_15_post = lt_21_1 && elem_16_post = x_13_0 && prev_17_post = 0);
+ c_15_0 := c_15_post;
+ elem_16_0 := elem_16_post;
+ lt_21_0 := lt_21_post;
+ prev_17_0 := prev_17_post;
+ y_14_0 := y_14_post;
+TO: 9;
+
+FROM: 0;
+ head_9_post := nondet();
+ i_8_post := nondet();
+ len_48_post := nondet();
+ tmp_10_post := nondet();
+ tmp___0_11_post := nondet();
+ assume(0 <= len_48_0 && len_48_post = 1+len_48_0 && 0 <= -1-i_8_0+length_7_0 && tmp_10_post = tmp___0_11_post && head_9_post = tmp_10_post && i_8_post = 1+i_8_0);
+ head_9_0 := head_9_post;
+ i_8_0 := i_8_post;
+ len_48_0 := len_48_post;
+ tmp_10_0 := tmp_10_post;
+ tmp___0_11_0 := tmp___0_11_post;
+TO: 10;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 11;
+ head_9_post := nondet();
+ i_8_post := nondet();
+ len_48_post := nondet();
+ length_7_post := nondet();
+ tmp_10_post := nondet();
+ tmp___0_11_post := nondet();
+ x_13_post := nondet();
+ head_9_1 := nondet();
+ i_8_1 := nondet();
+ x_13_1 := nondet();
+ assume(x_13_1 = 0 && length_7_post = __const_17_0 && x_13_post = x_23_0 && head_9_1 = 0 && i_8_1 = 0 && len_48_post = i_8_1 && 0 <= -1-i_8_1+length_7_post && tmp_10_post = tmp___0_11_post && head_9_post = tmp_10_post && i_8_post = 1+i_8_1);
+ head_9_0 := head_9_post;
+ i_8_0 := i_8_post;
+ len_48_0 := len_48_post;
+ length_7_0 := length_7_post;
+ tmp_10_0 := tmp_10_post;
+ tmp___0_11_0 := tmp___0_11_post;
+ x_13_0 := x_13_post;
+TO: 0;
+
+FROM: 9;
+ cnt_276_post := nondet();
+ k_296_post := nondet();
+ assume(0 <= a_243_0 && 0 <= len_246_0 && k_296_post = len_246_0);
+ cnt_276_0 := cnt_276_post;
+ k_296_0 := k_296_post;
+TO: 12;
+
+FROM: 12;
+ assume((0 <= 0));
+TO: 13;
+
+FROM: 13;
+ lt_19_post := nondet();
+ lt_20_post := nondet();
+ x_13_post := nondet();
+ lt_19_1 := nondet();
+ lt_20_1 := nondet();
+ assume(lt_19_1 = cnt_269_0 && lt_20_1 = cnt_276_0 && 0 <= lt_19_1-lt_20_1 && prev_17_0 <= 0 && 0 <= prev_17_0 && x_13_post = y_14_0);
+ lt_19_0 := lt_19_post;
+ lt_20_0 := lt_20_post;
+ x_13_0 := x_13_post;
+TO: 14;
+
+FROM: 9;
+ cnt_269_post := nondet();
+ cnt_276_post := nondet();
+ assume(0 <= a_243_0 && 0 <= len_246_0);
+ cnt_269_0 := cnt_269_post;
+ cnt_276_0 := cnt_276_post;
+TO: 15;
+
+FROM: 15;
+ assume((0 <= 0));
+TO: 16;
+
+FROM: 16;
+ elem_16_post := nondet();
+ lt_18_post := nondet();
+ lt_19_post := nondet();
+ lt_20_post := nondet();
+ prev_17_post := nondet();
+ lt_18_1 := nondet();
+ lt_19_1 := nondet();
+ lt_20_1 := nondet();
+ assume(lt_19_1 = cnt_269_0 && lt_20_1 = cnt_276_0 && 1+lt_19_1-lt_20_1 <= 0 && prev_17_post = elem_16_0 && lt_18_1 = y_259_0 && elem_16_post = lt_18_1 && 0 <= a_243_0 && 0 <= -1+len_246_0);
+ elem_16_0 := elem_16_post;
+ lt_18_0 := lt_18_post;
+ lt_19_0 := lt_19_post;
+ lt_20_0 := lt_20_post;
+ prev_17_0 := prev_17_post;
+TO: 17;
+
+FROM: 14;
+ Result_6_post := nondet();
+ assume(0 <= a_243_0 && 0 <= k_296_0 && c_15_0 <= 0 && 0 <= c_15_0);
+ Result_6_0 := Result_6_post;
+TO: 18;
+
+FROM: 14;
+ __patmp1_post := nondet();
+ __patmp2_post := nondet();
+ a_243_post := nondet();
+ len_246_post := nondet();
+ assume(0 <= a_243_0 && 0 <= k_296_0 && __patmp1_post = 1+k_296_0 && __patmp2_post = -1+a_243_0 && len_246_post = __patmp1_post && a_243_post = __patmp2_post);
+ __patmp1_0 := __patmp1_post;
+ __patmp2_0 := __patmp2_post;
+ a_243_0 := a_243_post;
+ len_246_0 := len_246_post;
+TO: 19;
+
+FROM: 19;
+ assume((0 <= 0));
+TO: 20;
+
+FROM: 20;
+ c_15_post := nondet();
+ elem_16_post := nondet();
+ lt_21_post := nondet();
+ prev_17_post := nondet();
+ y_14_post := nondet();
+ lt_21_1 := nondet();
+ assume(y_14_post = c_15_0 && lt_21_1 = y_309_0 && c_15_post = lt_21_1 && elem_16_post = x_13_0 && prev_17_post = 0);
+ c_15_0 := c_15_post;
+ elem_16_0 := elem_16_post;
+ lt_21_0 := lt_21_post;
+ prev_17_0 := prev_17_post;
+ y_14_0 := y_14_post;
+TO: 9;
+
+FROM: 21;
+ assume((0 <= 0));
+TO: 11;
+

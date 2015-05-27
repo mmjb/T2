@@ -1,0 +1,22 @@
+START: 3;
+
+FROM: 0;
+ x_post := nondet();
+ assume(1+y_0 <= __const_4000_0 && x_post = __const_1000_0+x_0 && 1+__const_110_0 <= x_post);
+ x_0 := x_post;
+TO: 1;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 2;
+ y_post := nondet();
+ assume(y_post = __const_3000_0);
+ y_0 := y_post;
+TO: 0;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 2;
+

@@ -1,0 +1,44 @@
+START: 6;
+
+FROM: 0;
+ assume(1+o_0 <= n_0);
+TO: 1;
+
+FROM: 0;
+ assume(n_0 <= o_0);
+TO: 2;
+
+FROM: 3;
+ assume(n_0 <= n_0);
+TO: 0;
+
+FROM: 3;
+ L_post := nondet();
+ n_post := nondet();
+ assume(L_post = 0 && n_post = 1+n_0);
+ L_0 := L_post;
+ n_0 := n_post;
+TO: 0;
+
+FROM: 1;
+ assume(L_0 <= 1 && 1 <= L_0);
+TO: 4;
+
+FROM: 1;
+ L_post := nondet();
+ o_post := nondet();
+ assume(L_post = 1 && o_post = n_0);
+ L_0 := L_post;
+ o_0 := o_post;
+TO: 3;
+
+FROM: 5;
+ L_post := nondet();
+ assume(L_post = 0);
+ L_0 := L_post;
+TO: 1;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

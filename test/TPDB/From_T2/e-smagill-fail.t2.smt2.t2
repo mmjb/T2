@@ -1,0 +1,70 @@
+START: 9;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 5;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 6;
+ curr_serv_post := nondet();
+ assume(__rho_1__0 <= 0 && 1+c_0 <= curr_serv_0 && curr_serv_post = -1+curr_serv_0);
+ curr_serv_0 := curr_serv_post;
+TO: 0;
+
+FROM: 6;
+ c_post := nondet();
+ curr_serv_post := nondet();
+ resp_post := nondet();
+ assume(1 <= __rho_1__0 && c_post = -1+c_0 && curr_serv_post = -1+curr_serv_0 && resp_post = 1+resp_0);
+ c_0 := c_post;
+ curr_serv_0 := curr_serv_post;
+ resp_0 := resp_post;
+TO: 0;
+
+FROM: 1;
+ __rho_1__post := nondet();
+ assume(1 <= curr_serv_0);
+ __rho_1__0 := __rho_1__post;
+TO: 6;
+
+FROM: 1;
+ assume(curr_serv_0 <= 0);
+TO: 4;
+
+FROM: 7;
+ assume(1+__const_5_0 <= c_0);
+TO: 4;
+
+FROM: 7;
+ assume(c_0 <= __const_5_0);
+TO: 0;
+
+FROM: 8;
+ __rho_2__post := nondet();
+ c_post := nondet();
+ curr_serv_post := nondet();
+ resp_post := nondet();
+ servers_post := nondet();
+ assume(c_post = __rho_2__post && 1 <= c_post && servers_post = 4 && resp_post = 0 && curr_serv_post = servers_post);
+ __rho_2__0 := __rho_2__post;
+ c_0 := c_post;
+ curr_serv_0 := curr_serv_post;
+ resp_0 := resp_post;
+ servers_0 := servers_post;
+TO: 7;
+
+FROM: 9;
+ assume((0 <= 0));
+TO: 8;
+

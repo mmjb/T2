@@ -1,0 +1,232 @@
+START: 28;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 5;
+
+FROM: 6;
+ k_1_post := nondet();
+ assume(k_1_post = 1+k_1_0);
+ k_1_0 := k_1_post;
+TO: 7;
+
+FROM: 8;
+ assume(1 <= destflag_0);
+TO: 6;
+
+FROM: 8;
+ assume(1+destflag_0 <= 0);
+TO: 6;
+
+FROM: 8;
+ assume(destflag_0 <= 0 && 0 <= destflag_0);
+TO: 6;
+
+FROM: 9;
+ assume(1 <= sourceflag_0);
+TO: 6;
+
+FROM: 9;
+ assume(1+sourceflag_0 <= 0);
+TO: 6;
+
+FROM: 9;
+ assume(sourceflag_0 <= 0 && 0 <= sourceflag_0);
+TO: 8;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 11;
+
+FROM: 12;
+ j_post := nondet();
+ assume(j_post = 1+j_0);
+ j_0 := j_post;
+TO: 13;
+
+FROM: 14;
+ assume((0 <= 0));
+TO: 12;
+
+FROM: 14;
+ destflag_post := nondet();
+ assume(destflag_post = 0);
+ destflag_0 := destflag_post;
+TO: 12;
+
+FROM: 14;
+ assume((0 <= 0));
+TO: 12;
+
+FROM: 15;
+ assume(nodecount_0 <= j_0);
+TO: 9;
+
+FROM: 15;
+ assume(1+j_0 <= nodecount_0);
+TO: 14;
+
+FROM: 16;
+ j_post := nondet();
+ assume(j_post = 1+j_0);
+ j_0 := j_post;
+TO: 17;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 18;
+
+FROM: 19;
+ assume((0 <= 0));
+TO: 16;
+
+FROM: 19;
+ sourceflag_post := nondet();
+ assume(sourceflag_post = 1);
+ sourceflag_0 := sourceflag_post;
+TO: 16;
+
+FROM: 19;
+ assume((0 <= 0));
+TO: 16;
+
+FROM: 20;
+ destflag_post := nondet();
+ j_post := nondet();
+ assume(nodecount_0 <= j_0 && destflag_post = 1 && j_post = 0);
+ destflag_0 := destflag_post;
+ j_0 := j_post;
+TO: 13;
+
+FROM: 20;
+ assume(1+j_0 <= nodecount_0);
+TO: 19;
+
+FROM: 21;
+ h_post := nondet();
+ assume(h_post = 1+h_0);
+ h_0 := h_post;
+TO: 22;
+
+FROM: 23;
+ min_post := nondet();
+ assume(min_post = h_0);
+ min_0 := min_post;
+TO: 21;
+
+FROM: 23;
+ assume((0 <= 0));
+TO: 21;
+
+FROM: 22;
+ assume((0 <= 0));
+TO: 24;
+
+FROM: 24;
+ j_post := nondet();
+ sourceflag_post := nondet();
+ assume(edgecount_0 <= h_0 && sourceflag_post = 0 && j_post = 0);
+ j_0 := j_post;
+ sourceflag_0 := sourceflag_post;
+TO: 17;
+
+FROM: 24;
+ assume(1+h_0 <= edgecount_0);
+TO: 23;
+
+FROM: 18;
+ k_post := nondet();
+ assume(edgecount_0 <= k_1_0 && k_post = 1+k_0);
+ k_0 := k_post;
+TO: 4;
+
+FROM: 18;
+ h_post := nondet();
+ assume(1+k_1_0 <= edgecount_0 && h_post = 0);
+ h_0 := h_post;
+TO: 22;
+
+FROM: 11;
+ k_1_post := nondet();
+ assume(edgecount_0 <= i_0 && k_1_post = 0);
+ k_1_0 := k_1_post;
+TO: 7;
+
+FROM: 11;
+ i_post := nondet();
+ assume(1+i_0 <= edgecount_0 && i_post = 1+i_0);
+ i_0 := i_post;
+TO: 10;
+
+FROM: 17;
+ assume((0 <= 0));
+TO: 20;
+
+FROM: 25;
+ i_post := nondet();
+ min_post := nondet();
+ assume(min_post = 0 && i_post = 0);
+ i_0 := i_post;
+ min_0 := min_post;
+TO: 10;
+
+FROM: 5;
+ assume(k_0 <= -1+nodecount_0 && -1+nodecount_0 <= k_0);
+TO: 26;
+
+FROM: 5;
+ assume(nodecount_0 <= k_0);
+TO: 25;
+
+FROM: 5;
+ assume(1+k_0 <= -1+nodecount_0);
+TO: 25;
+
+FROM: 3;
+ k_post := nondet();
+ assume(-1+nodecount_0 <= i_0 && k_post = 0);
+ k_0 := k_post;
+TO: 4;
+
+FROM: 3;
+ i_post := nondet();
+ assume(1+i_0 <= -1+nodecount_0 && i_post = 1+i_0);
+ i_0 := i_post;
+TO: 2;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 15;
+
+FROM: 1;
+ i_post := nondet();
+ assume(nodecount_0 <= i_0 && i_post = 0);
+ i_0 := i_post;
+TO: 2;
+
+FROM: 1;
+ i_post := nondet();
+ assume(1+i_0 <= nodecount_0 && i_post = 1+i_0);
+ i_0 := i_post;
+TO: 0;
+
+FROM: 27;
+ __lengthofvisited_post := nondet();
+ i_post := nondet();
+ assume(__lengthofvisited_post = edgecount_0 && i_post = 1);
+ __lengthofvisited_0 := __lengthofvisited_post;
+ i_0 := i_post;
+TO: 0;
+
+FROM: 28;
+ assume((0 <= 0));
+TO: 27;
+

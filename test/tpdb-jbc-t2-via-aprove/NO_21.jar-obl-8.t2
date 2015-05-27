@@ -1,8 +1,0 @@
-START: 2;
-
-FROM: 1;
-TO: 1;
-
-FROM: 2;
-TO: 1;
-

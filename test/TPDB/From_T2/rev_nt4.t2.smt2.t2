@@ -1,0 +1,22 @@
+START: 4;
+
+FROM: 0;
+ __patmp1_post := nondet();
+ __patmp2_post := nondet();
+ k_243_post := nondet();
+ len_263_post := nondet();
+ assume(0 <= k_208_0 && __patmp1_post = 1 && __patmp2_post = k_208_0 && len_263_post = __patmp1_post && k_243_post = __patmp2_post && 0 <= -1+k_243_post);
+ __patmp1_0 := __patmp1_post;
+ __patmp2_0 := __patmp2_post;
+ k_243_0 := k_243_post;
+ len_263_0 := len_263_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 0;
+

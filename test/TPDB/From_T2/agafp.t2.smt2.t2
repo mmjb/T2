@@ -1,0 +1,1706 @@
+START: 139;
+
+FROM: 0;
+ assume(ndi6_0 <= 0);
+TO: 1;
+
+FROM: 0;
+ __rho_1____old6_post := nondet();
+ __rho_2____old6_post := nondet();
+ copied6_post := nondet();
+ p___old6_post := nondet();
+ rv_init___old6_post := nondet();
+ start___old6_post := nondet();
+ x___old6_post := nondet();
+ y___old6_post := nondet();
+ assume(1 <= ndi6_0 && copied6_post = 1 && __rho_2____old6_post = var_Le_AFp_2___rho_2__0 && __rho_1____old6_post = var_Le_AFp_2___rho_1__0 && start___old6_post = var_Le_AFp_2_start_0 && p___old6_post = var_Le_AFp_2_p_0 && y___old6_post = var_Le_AFp_2_y_0 && x___old6_post = var_Le_AFp_2_x_0 && rv_init___old6_post = var_Le_AFp_2_rv_init_0);
+ __rho_1____old6_0 := __rho_1____old6_post;
+ __rho_2____old6_0 := __rho_2____old6_post;
+ copied6_0 := copied6_post;
+ p___old6_0 := p___old6_post;
+ rv_init___old6_0 := rv_init___old6_post;
+ start___old6_0 := start___old6_post;
+ x___old6_0 := x___old6_post;
+ y___old6_0 := y___old6_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ ret_enc_Le_AFp_29_post := nondet();
+ assume(ret_enc_Le_AFp_29_post = 0);
+ ret_enc_Le_AFp_29_0 := ret_enc_Le_AFp_29_post;
+TO: 3;
+
+FROM: 4;
+ ndi6_post := nondet();
+ assume(copied6_0 <= 0);
+ ndi6_0 := ndi6_post;
+TO: 0;
+
+FROM: 4;
+ assume(1 <= copied6_0);
+TO: 2;
+
+FROM: 5;
+ var_Le_AFp_2_y_post := nondet();
+ assume(var_Le_AFp_2_y_0 <= 0 && var_Le_AFp_2_y_post = -1+var_Le_AFp_2_y_0);
+ var_Le_AFp_2_y_0 := var_Le_AFp_2_y_post;
+TO: 4;
+
+FROM: 5;
+ var_LLe_p_7___rho_1__post := nondet();
+ var_LLe_p_7___rho_2__post := nondet();
+ var_LLe_p_7_p_post := nondet();
+ var_LLe_p_7_rv_init_post := nondet();
+ var_LLe_p_7_start_post := nondet();
+ var_LLe_p_7_x_post := nondet();
+ var_LLe_p_7_y_post := nondet();
+ var_Le_AFp_2_p_post := nondet();
+ assume(var_Le_AFp_2_y_0 <= 0 && var_Le_AFp_2_p_post = 1 && var_LLe_p_7___rho_2__post = var_Le_AFp_2___rho_2__0 && var_LLe_p_7___rho_1__post = var_Le_AFp_2___rho_1__0 && var_LLe_p_7_start_post = var_Le_AFp_2_start_0 && var_LLe_p_7_p_post = var_Le_AFp_2_p_post && var_LLe_p_7_y_post = var_Le_AFp_2_y_0 && var_LLe_p_7_x_post = var_Le_AFp_2_x_0 && var_LLe_p_7_rv_init_post = var_Le_AFp_2_rv_init_0);
+ var_LLe_p_7___rho_1__0 := var_LLe_p_7___rho_1__post;
+ var_LLe_p_7___rho_2__0 := var_LLe_p_7___rho_2__post;
+ var_LLe_p_7_p_0 := var_LLe_p_7_p_post;
+ var_LLe_p_7_rv_init_0 := var_LLe_p_7_rv_init_post;
+ var_LLe_p_7_start_0 := var_LLe_p_7_start_post;
+ var_LLe_p_7_x_0 := var_LLe_p_7_x_post;
+ var_LLe_p_7_y_0 := var_LLe_p_7_y_post;
+ var_Le_AFp_2_p_0 := var_Le_AFp_2_p_post;
+TO: 6;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 5;
+
+FROM: 7;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 8;
+
+FROM: 7;
+ ret_enc_Le_AFp_29_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_29_post = 1);
+ ret_enc_Le_AFp_29_0 := ret_enc_Le_AFp_29_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 3;
+
+FROM: 9;
+ ret_enc_LLe_p_240_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_240_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_240_post);
+ ret_enc_LLe_p_240_0 := ret_enc_LLe_p_240_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 7;
+
+FROM: 10;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_2_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 9;
+
+FROM: 10;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_2_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 9;
+
+FROM: 11;
+ var_LLe_p_2___rho_1__post := nondet();
+ var_LLe_p_2___rho_2__post := nondet();
+ var_LLe_p_2_p_post := nondet();
+ var_LLe_p_2_rv_init_post := nondet();
+ var_LLe_p_2_start_post := nondet();
+ var_LLe_p_2_x_post := nondet();
+ var_LLe_p_2_y_post := nondet();
+ assume(var_LLe_p_2___rho_2__post = var_Le_AFp_2___rho_2__0 && var_LLe_p_2___rho_1__post = var_Le_AFp_2___rho_1__0 && var_LLe_p_2_start_post = var_Le_AFp_2_start_0 && var_LLe_p_2_p_post = var_Le_AFp_2_p_0 && var_LLe_p_2_y_post = var_Le_AFp_2_y_0 && var_LLe_p_2_x_post = var_Le_AFp_2_x_0 && var_LLe_p_2_rv_init_post = var_Le_AFp_2_rv_init_0);
+ var_LLe_p_2___rho_1__0 := var_LLe_p_2___rho_1__post;
+ var_LLe_p_2___rho_2__0 := var_LLe_p_2___rho_2__post;
+ var_LLe_p_2_p_0 := var_LLe_p_2_p_post;
+ var_LLe_p_2_rv_init_0 := var_LLe_p_2_rv_init_post;
+ var_LLe_p_2_start_0 := var_LLe_p_2_start_post;
+ var_LLe_p_2_x_0 := var_LLe_p_2_x_post;
+ var_LLe_p_2_y_0 := var_LLe_p_2_y_post;
+TO: 10;
+
+FROM: 12;
+ rv_e_AGAFp_post := nondet();
+ assume(rv_e_AGAFp_post = ret_enc_e_AGAFp_01_0);
+ rv_e_AGAFp_0 := rv_e_AGAFp_post;
+TO: 13;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 14;
+
+FROM: 15;
+ var_e_AGAFp_0_x_post := nondet();
+ assume(var_e_AGAFp_0_x_post = 1);
+ var_e_AGAFp_0_x_0 := var_e_AGAFp_0_x_post;
+TO: 16;
+
+FROM: 16;
+ assume((0 <= 0));
+TO: 15;
+
+FROM: 17;
+ assume(1 <= rv_Le_AFp_0);
+TO: 15;
+
+FROM: 17;
+ ret_enc_e_AGAFp_01_post := nondet();
+ rv_e_AGAFp_post := nondet();
+ assume(1+rv_Le_AFp_0 <= 1 && rv_e_AGAFp_post = rv_Le_AFp_0 && ret_enc_e_AGAFp_01_post = 0);
+ ret_enc_e_AGAFp_01_0 := ret_enc_e_AGAFp_01_post;
+ rv_e_AGAFp_0 := rv_e_AGAFp_post;
+TO: 12;
+
+FROM: 18;
+ rv_Le_AFp_post := nondet();
+ assume(rv_Le_AFp_post = ret_enc_Le_AFp_012_0);
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 17;
+
+FROM: 19;
+ assume(ndi4_0 <= 0);
+TO: 20;
+
+FROM: 19;
+ __rho_1____old4_post := nondet();
+ __rho_2____old4_post := nondet();
+ copied4_post := nondet();
+ p___old4_post := nondet();
+ rv_init___old4_post := nondet();
+ start___old4_post := nondet();
+ x___old4_post := nondet();
+ y___old4_post := nondet();
+ assume(1 <= ndi4_0 && copied4_post = 1 && __rho_2____old4_post = var_Le_AFp_0___rho_2__0 && __rho_1____old4_post = var_Le_AFp_0___rho_1__0 && start___old4_post = var_Le_AFp_0_start_0 && p___old4_post = var_Le_AFp_0_p_0 && y___old4_post = var_Le_AFp_0_y_0 && x___old4_post = var_Le_AFp_0_x_0 && rv_init___old4_post = var_Le_AFp_0_rv_init_0);
+ __rho_1____old4_0 := __rho_1____old4_post;
+ __rho_2____old4_0 := __rho_2____old4_post;
+ copied4_0 := copied4_post;
+ p___old4_0 := p___old4_post;
+ rv_init___old4_0 := rv_init___old4_post;
+ start___old4_0 := start___old4_post;
+ x___old4_0 := x___old4_post;
+ y___old4_0 := y___old4_post;
+TO: 20;
+
+FROM: 21;
+ assume((0 <= 0));
+TO: 20;
+
+FROM: 21;
+ ret_enc_Le_AFp_012_post := nondet();
+ assume(ret_enc_Le_AFp_012_post = 0);
+ ret_enc_Le_AFp_012_0 := ret_enc_Le_AFp_012_post;
+TO: 18;
+
+FROM: 22;
+ ndi4_post := nondet();
+ assume(copied4_0 <= 0);
+ ndi4_0 := ndi4_post;
+TO: 19;
+
+FROM: 22;
+ assume(1 <= copied4_0);
+TO: 21;
+
+FROM: 20;
+ var_Le_AFp_0_x_post := nondet();
+ assume(var_Le_AFp_0_x_post = 1);
+ var_Le_AFp_0_x_0 := var_Le_AFp_0_x_post;
+TO: 22;
+
+FROM: 23;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 20;
+
+FROM: 23;
+ ret_enc_Le_AFp_012_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_012_post = 1);
+ ret_enc_Le_AFp_012_0 := ret_enc_Le_AFp_012_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 18;
+
+FROM: 24;
+ ret_enc_LLe_p_042_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_042_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_042_post);
+ ret_enc_LLe_p_042_0 := ret_enc_LLe_p_042_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 23;
+
+FROM: 25;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_0_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 24;
+
+FROM: 25;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_0_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 24;
+
+FROM: 26;
+ var_LLe_p_0___rho_1__post := nondet();
+ var_LLe_p_0___rho_2__post := nondet();
+ var_LLe_p_0_p_post := nondet();
+ var_LLe_p_0_rv_init_post := nondet();
+ var_LLe_p_0_start_post := nondet();
+ var_LLe_p_0_x_post := nondet();
+ var_LLe_p_0_y_post := nondet();
+ assume(var_LLe_p_0___rho_2__post = var_Le_AFp_0___rho_2__0 && var_LLe_p_0___rho_1__post = var_Le_AFp_0___rho_1__0 && var_LLe_p_0_start_post = var_Le_AFp_0_start_0 && var_LLe_p_0_p_post = var_Le_AFp_0_p_0 && var_LLe_p_0_y_post = var_Le_AFp_0_y_0 && var_LLe_p_0_x_post = var_Le_AFp_0_x_0 && var_LLe_p_0_rv_init_post = var_Le_AFp_0_rv_init_0);
+ var_LLe_p_0___rho_1__0 := var_LLe_p_0___rho_1__post;
+ var_LLe_p_0___rho_2__0 := var_LLe_p_0___rho_2__post;
+ var_LLe_p_0_p_0 := var_LLe_p_0_p_post;
+ var_LLe_p_0_rv_init_0 := var_LLe_p_0_rv_init_post;
+ var_LLe_p_0_start_0 := var_LLe_p_0_start_post;
+ var_LLe_p_0_x_0 := var_LLe_p_0_x_post;
+ var_LLe_p_0_y_0 := var_LLe_p_0_y_post;
+TO: 25;
+
+FROM: 27;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 26;
+
+FROM: 27;
+ ret_enc_Le_AFp_012_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_012_post = 1);
+ ret_enc_Le_AFp_012_0 := ret_enc_Le_AFp_012_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 18;
+
+FROM: 28;
+ ret_enc_LLe_p_741_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_741_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_741_post);
+ ret_enc_LLe_p_741_0 := ret_enc_LLe_p_741_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 27;
+
+FROM: 29;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_7_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 28;
+
+FROM: 29;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_7_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 28;
+
+FROM: 30;
+ assume(ndi5_0 <= 0);
+TO: 31;
+
+FROM: 30;
+ __rho_1____old5_post := nondet();
+ __rho_2____old5_post := nondet();
+ copied5_post := nondet();
+ p___old5_post := nondet();
+ rv_init___old5_post := nondet();
+ start___old5_post := nondet();
+ x___old5_post := nondet();
+ y___old5_post := nondet();
+ assume(1 <= ndi5_0 && copied5_post = 1 && __rho_2____old5_post = var_Le_AFp_2___rho_2__0 && __rho_1____old5_post = var_Le_AFp_2___rho_1__0 && start___old5_post = var_Le_AFp_2_start_0 && p___old5_post = var_Le_AFp_2_p_0 && y___old5_post = var_Le_AFp_2_y_0 && x___old5_post = var_Le_AFp_2_x_0 && rv_init___old5_post = var_Le_AFp_2_rv_init_0);
+ __rho_1____old5_0 := __rho_1____old5_post;
+ __rho_2____old5_0 := __rho_2____old5_post;
+ copied5_0 := copied5_post;
+ p___old5_0 := p___old5_post;
+ rv_init___old5_0 := rv_init___old5_post;
+ start___old5_0 := start___old5_post;
+ x___old5_0 := x___old5_post;
+ y___old5_0 := y___old5_post;
+TO: 31;
+
+FROM: 32;
+ assume(ndi3_0 <= 0);
+TO: 33;
+
+FROM: 32;
+ __rho_1____old3_post := nondet();
+ __rho_2____old3_post := nondet();
+ copied3_post := nondet();
+ p___old3_post := nondet();
+ rv_init___old3_post := nondet();
+ start___old3_post := nondet();
+ x___old3_post := nondet();
+ y___old3_post := nondet();
+ assume(1 <= ndi3_0 && copied3_post = 1 && __rho_2____old3_post = var_Le_AFp_0___rho_2__0 && __rho_1____old3_post = var_Le_AFp_0___rho_1__0 && start___old3_post = var_Le_AFp_0_start_0 && p___old3_post = var_Le_AFp_0_p_0 && y___old3_post = var_Le_AFp_0_y_0 && x___old3_post = var_Le_AFp_0_x_0 && rv_init___old3_post = var_Le_AFp_0_rv_init_0);
+ __rho_1____old3_0 := __rho_1____old3_post;
+ __rho_2____old3_0 := __rho_2____old3_post;
+ copied3_0 := copied3_post;
+ p___old3_0 := p___old3_post;
+ rv_init___old3_0 := rv_init___old3_post;
+ start___old3_0 := start___old3_post;
+ x___old3_0 := x___old3_post;
+ y___old3_0 := y___old3_post;
+TO: 33;
+
+FROM: 34;
+ assume((0 <= 0));
+TO: 33;
+
+FROM: 34;
+ ret_enc_Le_AFp_012_post := nondet();
+ assume(ret_enc_Le_AFp_012_post = 0);
+ ret_enc_Le_AFp_012_0 := ret_enc_Le_AFp_012_post;
+TO: 18;
+
+FROM: 35;
+ ndi3_post := nondet();
+ assume(copied3_0 <= 0);
+ ndi3_0 := ndi3_post;
+TO: 32;
+
+FROM: 35;
+ assume(1 <= copied3_0);
+TO: 34;
+
+FROM: 36;
+ var_Le_AFp_0_y_post := nondet();
+ assume(var_Le_AFp_0_y_0 <= 0 && var_Le_AFp_0_y_post = -1+var_Le_AFp_0_y_0);
+ var_Le_AFp_0_y_0 := var_Le_AFp_0_y_post;
+TO: 35;
+
+FROM: 36;
+ var_LLe_p_7___rho_1__post := nondet();
+ var_LLe_p_7___rho_2__post := nondet();
+ var_LLe_p_7_p_post := nondet();
+ var_LLe_p_7_rv_init_post := nondet();
+ var_LLe_p_7_start_post := nondet();
+ var_LLe_p_7_x_post := nondet();
+ var_LLe_p_7_y_post := nondet();
+ var_Le_AFp_0_p_post := nondet();
+ assume(var_Le_AFp_0_y_0 <= 0 && var_Le_AFp_0_p_post = 1 && var_LLe_p_7___rho_2__post = var_Le_AFp_0___rho_2__0 && var_LLe_p_7___rho_1__post = var_Le_AFp_0___rho_1__0 && var_LLe_p_7_start_post = var_Le_AFp_0_start_0 && var_LLe_p_7_p_post = var_Le_AFp_0_p_post && var_LLe_p_7_y_post = var_Le_AFp_0_y_0 && var_LLe_p_7_x_post = var_Le_AFp_0_x_0 && var_LLe_p_7_rv_init_post = var_Le_AFp_0_rv_init_0);
+ var_LLe_p_7___rho_1__0 := var_LLe_p_7___rho_1__post;
+ var_LLe_p_7___rho_2__0 := var_LLe_p_7___rho_2__post;
+ var_LLe_p_7_p_0 := var_LLe_p_7_p_post;
+ var_LLe_p_7_rv_init_0 := var_LLe_p_7_rv_init_post;
+ var_LLe_p_7_start_0 := var_LLe_p_7_start_post;
+ var_LLe_p_7_x_0 := var_LLe_p_7_x_post;
+ var_LLe_p_7_y_0 := var_LLe_p_7_y_post;
+ var_Le_AFp_0_p_0 := var_Le_AFp_0_p_post;
+TO: 29;
+
+FROM: 33;
+ assume((0 <= 0));
+TO: 36;
+
+FROM: 37;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 26;
+
+FROM: 37;
+ ret_enc_Le_AFp_012_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_012_post = 1);
+ ret_enc_Le_AFp_012_0 := ret_enc_Le_AFp_012_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 18;
+
+FROM: 38;
+ ret_enc_LLe_p_040_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_040_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_040_post);
+ ret_enc_LLe_p_040_0 := ret_enc_LLe_p_040_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 37;
+
+FROM: 39;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_0_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 38;
+
+FROM: 39;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_0_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 38;
+
+FROM: 40;
+ var_LLe_p_0___rho_1__post := nondet();
+ var_LLe_p_0___rho_2__post := nondet();
+ var_LLe_p_0_p_post := nondet();
+ var_LLe_p_0_rv_init_post := nondet();
+ var_LLe_p_0_start_post := nondet();
+ var_LLe_p_0_x_post := nondet();
+ var_LLe_p_0_y_post := nondet();
+ assume(var_LLe_p_0___rho_2__post = var_Le_AFp_0___rho_2__0 && var_LLe_p_0___rho_1__post = var_Le_AFp_0___rho_1__0 && var_LLe_p_0_start_post = var_Le_AFp_0_start_0 && var_LLe_p_0_p_post = var_Le_AFp_0_p_0 && var_LLe_p_0_y_post = var_Le_AFp_0_y_0 && var_LLe_p_0_x_post = var_Le_AFp_0_x_0 && var_LLe_p_0_rv_init_post = var_Le_AFp_0_rv_init_0);
+ var_LLe_p_0___rho_1__0 := var_LLe_p_0___rho_1__post;
+ var_LLe_p_0___rho_2__0 := var_LLe_p_0___rho_2__post;
+ var_LLe_p_0_p_0 := var_LLe_p_0_p_post;
+ var_LLe_p_0_rv_init_0 := var_LLe_p_0_rv_init_post;
+ var_LLe_p_0_start_0 := var_LLe_p_0_start_post;
+ var_LLe_p_0_x_0 := var_LLe_p_0_x_post;
+ var_LLe_p_0_y_0 := var_LLe_p_0_y_post;
+TO: 39;
+
+FROM: 41;
+ assume(ndi2_0 <= 0);
+TO: 42;
+
+FROM: 41;
+ __rho_1____old2_post := nondet();
+ __rho_2____old2_post := nondet();
+ copied2_post := nondet();
+ p___old2_post := nondet();
+ rv_init___old2_post := nondet();
+ start___old2_post := nondet();
+ x___old2_post := nondet();
+ y___old2_post := nondet();
+ assume(1 <= ndi2_0 && copied2_post = 1 && __rho_2____old2_post = var_Le_AFp_0___rho_2__0 && __rho_1____old2_post = var_Le_AFp_0___rho_1__0 && start___old2_post = var_Le_AFp_0_start_0 && p___old2_post = var_Le_AFp_0_p_0 && y___old2_post = var_Le_AFp_0_y_0 && x___old2_post = var_Le_AFp_0_x_0 && rv_init___old2_post = var_Le_AFp_0_rv_init_0);
+ __rho_1____old2_0 := __rho_1____old2_post;
+ __rho_2____old2_0 := __rho_2____old2_post;
+ copied2_0 := copied2_post;
+ p___old2_0 := p___old2_post;
+ rv_init___old2_0 := rv_init___old2_post;
+ start___old2_0 := start___old2_post;
+ x___old2_0 := x___old2_post;
+ y___old2_0 := y___old2_post;
+TO: 42;
+
+FROM: 43;
+ assume((0 <= 0));
+TO: 42;
+
+FROM: 43;
+ ret_enc_Le_AFp_012_post := nondet();
+ assume(ret_enc_Le_AFp_012_post = 0);
+ ret_enc_Le_AFp_012_0 := ret_enc_Le_AFp_012_post;
+TO: 18;
+
+FROM: 44;
+ ndi2_post := nondet();
+ assume(copied2_0 <= 0);
+ ndi2_0 := ndi2_post;
+TO: 41;
+
+FROM: 44;
+ assume(1 <= copied2_0);
+TO: 43;
+
+FROM: 45;
+ assume((0 <= 0));
+TO: 31;
+
+FROM: 45;
+ ret_enc_Le_AFp_29_post := nondet();
+ assume(ret_enc_Le_AFp_29_post = 0);
+ ret_enc_Le_AFp_29_0 := ret_enc_Le_AFp_29_post;
+TO: 3;
+
+FROM: 46;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 44;
+
+FROM: 46;
+ ret_enc_Le_AFp_012_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_012_post = 1);
+ ret_enc_Le_AFp_012_0 := ret_enc_Le_AFp_012_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 18;
+
+FROM: 47;
+ ret_enc_LLe_p_239_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_239_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_239_post);
+ ret_enc_LLe_p_239_0 := ret_enc_LLe_p_239_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 46;
+
+FROM: 48;
+ ndi5_post := nondet();
+ assume(copied5_0 <= 0);
+ ndi5_0 := ndi5_post;
+TO: 30;
+
+FROM: 48;
+ assume(1 <= copied5_0);
+TO: 45;
+
+FROM: 49;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_2_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 47;
+
+FROM: 49;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_2_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 47;
+
+FROM: 42;
+ var_LLe_p_2___rho_1__post := nondet();
+ var_LLe_p_2___rho_2__post := nondet();
+ var_LLe_p_2_p_post := nondet();
+ var_LLe_p_2_rv_init_post := nondet();
+ var_LLe_p_2_start_post := nondet();
+ var_LLe_p_2_x_post := nondet();
+ var_LLe_p_2_y_post := nondet();
+ var_Le_AFp_0_p_post := nondet();
+ assume(var_Le_AFp_0_p_post = 1+var_Le_AFp_0_p_0 && var_LLe_p_2___rho_2__post = var_Le_AFp_0___rho_2__0 && var_LLe_p_2___rho_1__post = var_Le_AFp_0___rho_1__0 && var_LLe_p_2_start_post = var_Le_AFp_0_start_0 && var_LLe_p_2_p_post = var_Le_AFp_0_p_post && var_LLe_p_2_y_post = var_Le_AFp_0_y_0 && var_LLe_p_2_x_post = var_Le_AFp_0_x_0 && var_LLe_p_2_rv_init_post = var_Le_AFp_0_rv_init_0);
+ var_LLe_p_2___rho_1__0 := var_LLe_p_2___rho_1__post;
+ var_LLe_p_2___rho_2__0 := var_LLe_p_2___rho_2__post;
+ var_LLe_p_2_p_0 := var_LLe_p_2_p_post;
+ var_LLe_p_2_rv_init_0 := var_LLe_p_2_rv_init_post;
+ var_LLe_p_2_start_0 := var_LLe_p_2_start_post;
+ var_LLe_p_2_x_0 := var_LLe_p_2_x_post;
+ var_LLe_p_2_y_0 := var_LLe_p_2_y_post;
+ var_Le_AFp_0_p_0 := var_Le_AFp_0_p_post;
+TO: 49;
+
+FROM: 50;
+ assume(var_Le_AFp_0_x_0 <= 0);
+TO: 33;
+
+FROM: 50;
+ assume(1 <= var_Le_AFp_0_x_0);
+TO: 42;
+
+FROM: 51;
+ assume((0 <= 0));
+TO: 50;
+
+FROM: 52;
+ copied2_post := nondet();
+ copied3_post := nondet();
+ copied4_post := nondet();
+ var_Le_AFp_0___rho_1__post := nondet();
+ var_Le_AFp_0___rho_2__post := nondet();
+ var_Le_AFp_0_p_post := nondet();
+ var_Le_AFp_0_rv_init_post := nondet();
+ var_Le_AFp_0_start_post := nondet();
+ var_Le_AFp_0_x_post := nondet();
+ var_Le_AFp_0_y_post := nondet();
+ assume(var_Le_AFp_0___rho_2__post = var_e_AGAFp_0___rho_2__0 && var_Le_AFp_0___rho_1__post = var_e_AGAFp_0___rho_1__0 && var_Le_AFp_0_start_post = var_e_AGAFp_0_start_0 && var_Le_AFp_0_p_post = var_e_AGAFp_0_p_0 && var_Le_AFp_0_y_post = var_e_AGAFp_0_y_0 && var_Le_AFp_0_x_post = var_e_AGAFp_0_x_0 && var_Le_AFp_0_rv_init_post = var_e_AGAFp_0_rv_init_0 && copied4_post = 0 && copied3_post = 0 && copied2_post = 0);
+ copied2_0 := copied2_post;
+ copied3_0 := copied3_post;
+ copied4_0 := copied4_post;
+ var_Le_AFp_0___rho_1__0 := var_Le_AFp_0___rho_1__post;
+ var_Le_AFp_0___rho_2__0 := var_Le_AFp_0___rho_2__post;
+ var_Le_AFp_0_p_0 := var_Le_AFp_0_p_post;
+ var_Le_AFp_0_rv_init_0 := var_Le_AFp_0_rv_init_post;
+ var_Le_AFp_0_start_0 := var_Le_AFp_0_start_post;
+ var_Le_AFp_0_x_0 := var_Le_AFp_0_x_post;
+ var_Le_AFp_0_y_0 := var_Le_AFp_0_y_post;
+TO: 50;
+
+FROM: 53;
+ assume(1 <= rv_Le_AFp_0);
+TO: 52;
+
+FROM: 53;
+ ret_enc_e_AGAFp_01_post := nondet();
+ rv_e_AGAFp_post := nondet();
+ assume(1+rv_Le_AFp_0 <= 1 && rv_e_AGAFp_post = rv_Le_AFp_0 && ret_enc_e_AGAFp_01_post = 0);
+ ret_enc_e_AGAFp_01_0 := ret_enc_e_AGAFp_01_post;
+ rv_e_AGAFp_0 := rv_e_AGAFp_post;
+TO: 12;
+
+FROM: 54;
+ rv_Le_AFp_post := nondet();
+ assume(rv_Le_AFp_post = ret_enc_Le_AFp_711_0);
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 53;
+
+FROM: 55;
+ assume(ndi16_0 <= 0);
+TO: 56;
+
+FROM: 55;
+ __rho_1____old16_post := nondet();
+ __rho_2____old16_post := nondet();
+ copied16_post := nondet();
+ p___old16_post := nondet();
+ rv_init___old16_post := nondet();
+ start___old16_post := nondet();
+ x___old16_post := nondet();
+ y___old16_post := nondet();
+ assume(1 <= ndi16_0 && copied16_post = 1 && __rho_2____old16_post = var_Le_AFp_7___rho_2__0 && __rho_1____old16_post = var_Le_AFp_7___rho_1__0 && start___old16_post = var_Le_AFp_7_start_0 && p___old16_post = var_Le_AFp_7_p_0 && y___old16_post = var_Le_AFp_7_y_0 && x___old16_post = var_Le_AFp_7_x_0 && rv_init___old16_post = var_Le_AFp_7_rv_init_0);
+ __rho_1____old16_0 := __rho_1____old16_post;
+ __rho_2____old16_0 := __rho_2____old16_post;
+ copied16_0 := copied16_post;
+ p___old16_0 := p___old16_post;
+ rv_init___old16_0 := rv_init___old16_post;
+ start___old16_0 := start___old16_post;
+ x___old16_0 := x___old16_post;
+ y___old16_0 := y___old16_post;
+TO: 56;
+
+FROM: 57;
+ assume((0 <= 0));
+TO: 56;
+
+FROM: 57;
+ ret_enc_Le_AFp_711_post := nondet();
+ assume(ret_enc_Le_AFp_711_post = 0);
+ ret_enc_Le_AFp_711_0 := ret_enc_Le_AFp_711_post;
+TO: 54;
+
+FROM: 58;
+ ndi16_post := nondet();
+ assume(copied16_0 <= 0);
+ ndi16_0 := ndi16_post;
+TO: 55;
+
+FROM: 58;
+ assume(1 <= copied16_0);
+TO: 57;
+
+FROM: 56;
+ var_Le_AFp_7_x_post := nondet();
+ assume(var_Le_AFp_7_x_post = 1);
+ var_Le_AFp_7_x_0 := var_Le_AFp_7_x_post;
+TO: 58;
+
+FROM: 59;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 56;
+
+FROM: 59;
+ ret_enc_Le_AFp_711_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_711_post = 1);
+ ret_enc_Le_AFp_711_0 := ret_enc_Le_AFp_711_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 54;
+
+FROM: 60;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 48;
+
+FROM: 60;
+ ret_enc_Le_AFp_29_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_29_post = 1);
+ ret_enc_Le_AFp_29_0 := ret_enc_Le_AFp_29_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 3;
+
+FROM: 61;
+ ret_enc_LLe_p_042_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_042_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_042_post);
+ ret_enc_LLe_p_042_0 := ret_enc_LLe_p_042_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 59;
+
+FROM: 62;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_0_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 61;
+
+FROM: 62;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_0_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 61;
+
+FROM: 63;
+ var_LLe_p_0___rho_1__post := nondet();
+ var_LLe_p_0___rho_2__post := nondet();
+ var_LLe_p_0_p_post := nondet();
+ var_LLe_p_0_rv_init_post := nondet();
+ var_LLe_p_0_start_post := nondet();
+ var_LLe_p_0_x_post := nondet();
+ var_LLe_p_0_y_post := nondet();
+ assume(var_LLe_p_0___rho_2__post = var_Le_AFp_7___rho_2__0 && var_LLe_p_0___rho_1__post = var_Le_AFp_7___rho_1__0 && var_LLe_p_0_start_post = var_Le_AFp_7_start_0 && var_LLe_p_0_p_post = var_Le_AFp_7_p_0 && var_LLe_p_0_y_post = var_Le_AFp_7_y_0 && var_LLe_p_0_x_post = var_Le_AFp_7_x_0 && var_LLe_p_0_rv_init_post = var_Le_AFp_7_rv_init_0);
+ var_LLe_p_0___rho_1__0 := var_LLe_p_0___rho_1__post;
+ var_LLe_p_0___rho_2__0 := var_LLe_p_0___rho_2__post;
+ var_LLe_p_0_p_0 := var_LLe_p_0_p_post;
+ var_LLe_p_0_rv_init_0 := var_LLe_p_0_rv_init_post;
+ var_LLe_p_0_start_0 := var_LLe_p_0_start_post;
+ var_LLe_p_0_x_0 := var_LLe_p_0_x_post;
+ var_LLe_p_0_y_0 := var_LLe_p_0_y_post;
+TO: 62;
+
+FROM: 64;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 63;
+
+FROM: 64;
+ ret_enc_Le_AFp_711_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_711_post = 1);
+ ret_enc_Le_AFp_711_0 := ret_enc_Le_AFp_711_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 54;
+
+FROM: 65;
+ ret_enc_LLe_p_741_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_741_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_741_post);
+ ret_enc_LLe_p_741_0 := ret_enc_LLe_p_741_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 64;
+
+FROM: 66;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_7_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 65;
+
+FROM: 66;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_7_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 65;
+
+FROM: 67;
+ var_LLe_p_7___rho_1__post := nondet();
+ var_LLe_p_7___rho_2__post := nondet();
+ var_LLe_p_7_p_post := nondet();
+ var_LLe_p_7_rv_init_post := nondet();
+ var_LLe_p_7_start_post := nondet();
+ var_LLe_p_7_x_post := nondet();
+ var_LLe_p_7_y_post := nondet();
+ var_Le_AFp_7_p_post := nondet();
+ assume(var_Le_AFp_7_p_post = 1 && var_LLe_p_7___rho_2__post = var_Le_AFp_7___rho_2__0 && var_LLe_p_7___rho_1__post = var_Le_AFp_7___rho_1__0 && var_LLe_p_7_start_post = var_Le_AFp_7_start_0 && var_LLe_p_7_p_post = var_Le_AFp_7_p_post && var_LLe_p_7_y_post = var_Le_AFp_7_y_0 && var_LLe_p_7_x_post = var_Le_AFp_7_x_0 && var_LLe_p_7_rv_init_post = var_Le_AFp_7_rv_init_0);
+ var_LLe_p_7___rho_1__0 := var_LLe_p_7___rho_1__post;
+ var_LLe_p_7___rho_2__0 := var_LLe_p_7___rho_2__post;
+ var_LLe_p_7_p_0 := var_LLe_p_7_p_post;
+ var_LLe_p_7_rv_init_0 := var_LLe_p_7_rv_init_post;
+ var_LLe_p_7_start_0 := var_LLe_p_7_start_post;
+ var_LLe_p_7_x_0 := var_LLe_p_7_x_post;
+ var_LLe_p_7_y_0 := var_LLe_p_7_y_post;
+ var_Le_AFp_7_p_0 := var_Le_AFp_7_p_post;
+TO: 66;
+
+FROM: 68;
+ assume(ndi15_0 <= 0);
+TO: 69;
+
+FROM: 68;
+ __rho_1____old15_post := nondet();
+ __rho_2____old15_post := nondet();
+ copied15_post := nondet();
+ p___old15_post := nondet();
+ rv_init___old15_post := nondet();
+ start___old15_post := nondet();
+ x___old15_post := nondet();
+ y___old15_post := nondet();
+ assume(1 <= ndi15_0 && copied15_post = 1 && __rho_2____old15_post = var_Le_AFp_7___rho_2__0 && __rho_1____old15_post = var_Le_AFp_7___rho_1__0 && start___old15_post = var_Le_AFp_7_start_0 && p___old15_post = var_Le_AFp_7_p_0 && y___old15_post = var_Le_AFp_7_y_0 && x___old15_post = var_Le_AFp_7_x_0 && rv_init___old15_post = var_Le_AFp_7_rv_init_0);
+ __rho_1____old15_0 := __rho_1____old15_post;
+ __rho_2____old15_0 := __rho_2____old15_post;
+ copied15_0 := copied15_post;
+ p___old15_0 := p___old15_post;
+ rv_init___old15_0 := rv_init___old15_post;
+ start___old15_0 := start___old15_post;
+ x___old15_0 := x___old15_post;
+ y___old15_0 := y___old15_post;
+TO: 69;
+
+FROM: 70;
+ ret_enc_LLe_p_239_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_239_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_239_post);
+ ret_enc_LLe_p_239_0 := ret_enc_LLe_p_239_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 60;
+
+FROM: 71;
+ assume((0 <= 0));
+TO: 69;
+
+FROM: 71;
+ ret_enc_Le_AFp_711_post := nondet();
+ assume(ret_enc_Le_AFp_711_post = 0);
+ ret_enc_Le_AFp_711_0 := ret_enc_Le_AFp_711_post;
+TO: 54;
+
+FROM: 72;
+ ndi15_post := nondet();
+ assume(copied15_0 <= 0);
+ ndi15_0 := ndi15_post;
+TO: 68;
+
+FROM: 72;
+ assume(1 <= copied15_0);
+TO: 71;
+
+FROM: 73;
+ var_Le_AFp_7_y_post := nondet();
+ assume(var_Le_AFp_7_y_0 <= 0 && var_Le_AFp_7_y_post = -1+var_Le_AFp_7_y_0);
+ var_Le_AFp_7_y_0 := var_Le_AFp_7_y_post;
+TO: 72;
+
+FROM: 73;
+ assume(var_Le_AFp_7_y_0 <= 0);
+TO: 67;
+
+FROM: 69;
+ assume((0 <= 0));
+TO: 73;
+
+FROM: 74;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 63;
+
+FROM: 74;
+ ret_enc_Le_AFp_711_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_711_post = 1);
+ ret_enc_Le_AFp_711_0 := ret_enc_Le_AFp_711_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 54;
+
+FROM: 75;
+ ret_enc_LLe_p_740_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_740_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_740_post);
+ ret_enc_LLe_p_740_0 := ret_enc_LLe_p_740_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 74;
+
+FROM: 76;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_7_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 75;
+
+FROM: 76;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_7_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 75;
+
+FROM: 77;
+ var_LLe_p_7___rho_1__post := nondet();
+ var_LLe_p_7___rho_2__post := nondet();
+ var_LLe_p_7_p_post := nondet();
+ var_LLe_p_7_rv_init_post := nondet();
+ var_LLe_p_7_start_post := nondet();
+ var_LLe_p_7_x_post := nondet();
+ var_LLe_p_7_y_post := nondet();
+ assume(var_LLe_p_7___rho_2__post = var_Le_AFp_7___rho_2__0 && var_LLe_p_7___rho_1__post = var_Le_AFp_7___rho_1__0 && var_LLe_p_7_start_post = var_Le_AFp_7_start_0 && var_LLe_p_7_p_post = var_Le_AFp_7_p_0 && var_LLe_p_7_y_post = var_Le_AFp_7_y_0 && var_LLe_p_7_x_post = var_Le_AFp_7_x_0 && var_LLe_p_7_rv_init_post = var_Le_AFp_7_rv_init_0);
+ var_LLe_p_7___rho_1__0 := var_LLe_p_7___rho_1__post;
+ var_LLe_p_7___rho_2__0 := var_LLe_p_7___rho_2__post;
+ var_LLe_p_7_p_0 := var_LLe_p_7_p_post;
+ var_LLe_p_7_rv_init_0 := var_LLe_p_7_rv_init_post;
+ var_LLe_p_7_start_0 := var_LLe_p_7_start_post;
+ var_LLe_p_7_x_0 := var_LLe_p_7_x_post;
+ var_LLe_p_7_y_0 := var_LLe_p_7_y_post;
+TO: 76;
+
+FROM: 78;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_2_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 70;
+
+FROM: 78;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_2_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 70;
+
+FROM: 79;
+ assume(ndi14_0 <= 0);
+TO: 80;
+
+FROM: 79;
+ __rho_1____old14_post := nondet();
+ __rho_2____old14_post := nondet();
+ copied14_post := nondet();
+ p___old14_post := nondet();
+ rv_init___old14_post := nondet();
+ start___old14_post := nondet();
+ x___old14_post := nondet();
+ y___old14_post := nondet();
+ assume(1 <= ndi14_0 && copied14_post = 1 && __rho_2____old14_post = var_Le_AFp_7___rho_2__0 && __rho_1____old14_post = var_Le_AFp_7___rho_1__0 && start___old14_post = var_Le_AFp_7_start_0 && p___old14_post = var_Le_AFp_7_p_0 && y___old14_post = var_Le_AFp_7_y_0 && x___old14_post = var_Le_AFp_7_x_0 && rv_init___old14_post = var_Le_AFp_7_rv_init_0);
+ __rho_1____old14_0 := __rho_1____old14_post;
+ __rho_2____old14_0 := __rho_2____old14_post;
+ copied14_0 := copied14_post;
+ p___old14_0 := p___old14_post;
+ rv_init___old14_0 := rv_init___old14_post;
+ start___old14_0 := start___old14_post;
+ x___old14_0 := x___old14_post;
+ y___old14_0 := y___old14_post;
+TO: 80;
+
+FROM: 81;
+ assume((0 <= 0));
+TO: 80;
+
+FROM: 81;
+ ret_enc_Le_AFp_711_post := nondet();
+ assume(ret_enc_Le_AFp_711_post = 0);
+ ret_enc_Le_AFp_711_0 := ret_enc_Le_AFp_711_post;
+TO: 54;
+
+FROM: 82;
+ ndi14_post := nondet();
+ assume(copied14_0 <= 0);
+ ndi14_0 := ndi14_post;
+TO: 79;
+
+FROM: 82;
+ assume(1 <= copied14_0);
+TO: 81;
+
+FROM: 83;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 82;
+
+FROM: 83;
+ ret_enc_Le_AFp_711_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_711_post = 1);
+ ret_enc_Le_AFp_711_0 := ret_enc_Le_AFp_711_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 54;
+
+FROM: 84;
+ ret_enc_LLe_p_239_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_239_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_239_post);
+ ret_enc_LLe_p_239_0 := ret_enc_LLe_p_239_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 83;
+
+FROM: 85;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_2_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 84;
+
+FROM: 85;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_2_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 84;
+
+FROM: 80;
+ var_LLe_p_2___rho_1__post := nondet();
+ var_LLe_p_2___rho_2__post := nondet();
+ var_LLe_p_2_p_post := nondet();
+ var_LLe_p_2_rv_init_post := nondet();
+ var_LLe_p_2_start_post := nondet();
+ var_LLe_p_2_x_post := nondet();
+ var_LLe_p_2_y_post := nondet();
+ var_Le_AFp_7_p_post := nondet();
+ assume(var_Le_AFp_7_p_post = 1+var_Le_AFp_7_p_0 && var_LLe_p_2___rho_2__post = var_Le_AFp_7___rho_2__0 && var_LLe_p_2___rho_1__post = var_Le_AFp_7___rho_1__0 && var_LLe_p_2_start_post = var_Le_AFp_7_start_0 && var_LLe_p_2_p_post = var_Le_AFp_7_p_post && var_LLe_p_2_y_post = var_Le_AFp_7_y_0 && var_LLe_p_2_x_post = var_Le_AFp_7_x_0 && var_LLe_p_2_rv_init_post = var_Le_AFp_7_rv_init_0);
+ var_LLe_p_2___rho_1__0 := var_LLe_p_2___rho_1__post;
+ var_LLe_p_2___rho_2__0 := var_LLe_p_2___rho_2__post;
+ var_LLe_p_2_p_0 := var_LLe_p_2_p_post;
+ var_LLe_p_2_rv_init_0 := var_LLe_p_2_rv_init_post;
+ var_LLe_p_2_start_0 := var_LLe_p_2_start_post;
+ var_LLe_p_2_x_0 := var_LLe_p_2_x_post;
+ var_LLe_p_2_y_0 := var_LLe_p_2_y_post;
+ var_Le_AFp_7_p_0 := var_Le_AFp_7_p_post;
+TO: 85;
+
+FROM: 86;
+ assume(var_Le_AFp_7_x_0 <= 0);
+TO: 69;
+
+FROM: 86;
+ assume(1 <= var_Le_AFp_7_x_0);
+TO: 80;
+
+FROM: 87;
+ assume((0 <= 0));
+TO: 86;
+
+FROM: 88;
+ var_LLe_p_2___rho_1__post := nondet();
+ var_LLe_p_2___rho_2__post := nondet();
+ var_LLe_p_2_p_post := nondet();
+ var_LLe_p_2_rv_init_post := nondet();
+ var_LLe_p_2_start_post := nondet();
+ var_LLe_p_2_x_post := nondet();
+ var_LLe_p_2_y_post := nondet();
+ var_Le_AFp_2_p_post := nondet();
+ assume(var_Le_AFp_2_p_post = 1+var_Le_AFp_2_p_0 && var_LLe_p_2___rho_2__post = var_Le_AFp_2___rho_2__0 && var_LLe_p_2___rho_1__post = var_Le_AFp_2___rho_1__0 && var_LLe_p_2_start_post = var_Le_AFp_2_start_0 && var_LLe_p_2_p_post = var_Le_AFp_2_p_post && var_LLe_p_2_y_post = var_Le_AFp_2_y_0 && var_LLe_p_2_x_post = var_Le_AFp_2_x_0 && var_LLe_p_2_rv_init_post = var_Le_AFp_2_rv_init_0);
+ var_LLe_p_2___rho_1__0 := var_LLe_p_2___rho_1__post;
+ var_LLe_p_2___rho_2__0 := var_LLe_p_2___rho_2__post;
+ var_LLe_p_2_p_0 := var_LLe_p_2_p_post;
+ var_LLe_p_2_rv_init_0 := var_LLe_p_2_rv_init_post;
+ var_LLe_p_2_start_0 := var_LLe_p_2_start_post;
+ var_LLe_p_2_x_0 := var_LLe_p_2_x_post;
+ var_LLe_p_2_y_0 := var_LLe_p_2_y_post;
+ var_Le_AFp_2_p_0 := var_Le_AFp_2_p_post;
+TO: 78;
+
+FROM: 89;
+ var_e_AGAFp_0_y_post := nondet();
+ assume(var_e_AGAFp_0_y_0 <= 0 && var_e_AGAFp_0_y_post = -1+var_e_AGAFp_0_y_0);
+ var_e_AGAFp_0_y_0 := var_e_AGAFp_0_y_post;
+TO: 90;
+
+FROM: 89;
+ copied14_post := nondet();
+ copied15_post := nondet();
+ copied16_post := nondet();
+ var_Le_AFp_7___rho_1__post := nondet();
+ var_Le_AFp_7___rho_2__post := nondet();
+ var_Le_AFp_7_p_post := nondet();
+ var_Le_AFp_7_rv_init_post := nondet();
+ var_Le_AFp_7_start_post := nondet();
+ var_Le_AFp_7_x_post := nondet();
+ var_Le_AFp_7_y_post := nondet();
+ var_e_AGAFp_0_p_post := nondet();
+ assume(var_e_AGAFp_0_y_0 <= 0 && var_e_AGAFp_0_p_post = 1 && var_Le_AFp_7___rho_2__post = var_e_AGAFp_0___rho_2__0 && var_Le_AFp_7___rho_1__post = var_e_AGAFp_0___rho_1__0 && var_Le_AFp_7_start_post = var_e_AGAFp_0_start_0 && var_Le_AFp_7_p_post = var_e_AGAFp_0_p_post && var_Le_AFp_7_y_post = var_e_AGAFp_0_y_0 && var_Le_AFp_7_x_post = var_e_AGAFp_0_x_0 && var_Le_AFp_7_rv_init_post = var_e_AGAFp_0_rv_init_0 && copied16_post = 0 && copied15_post = 0 && copied14_post = 0);
+ copied14_0 := copied14_post;
+ copied15_0 := copied15_post;
+ copied16_0 := copied16_post;
+ var_Le_AFp_7___rho_1__0 := var_Le_AFp_7___rho_1__post;
+ var_Le_AFp_7___rho_2__0 := var_Le_AFp_7___rho_2__post;
+ var_Le_AFp_7_p_0 := var_Le_AFp_7_p_post;
+ var_Le_AFp_7_rv_init_0 := var_Le_AFp_7_rv_init_post;
+ var_Le_AFp_7_start_0 := var_Le_AFp_7_start_post;
+ var_Le_AFp_7_x_0 := var_Le_AFp_7_x_post;
+ var_Le_AFp_7_y_0 := var_Le_AFp_7_y_post;
+ var_e_AGAFp_0_p_0 := var_e_AGAFp_0_p_post;
+TO: 67;
+
+FROM: 90;
+ assume((0 <= 0));
+TO: 89;
+
+FROM: 91;
+ p_post := nondet();
+ pc_post := nondet();
+ var_e_AGAFp_0___rho_1__post := nondet();
+ var_e_AGAFp_0___rho_2__post := nondet();
+ var_e_AGAFp_0_p_post := nondet();
+ var_e_AGAFp_0_rv_init_post := nondet();
+ var_e_AGAFp_0_start_post := nondet();
+ var_e_AGAFp_0_x_post := nondet();
+ var_e_AGAFp_0_y_post := nondet();
+ assume(p_post = 0 && pc_post = 0 && var_e_AGAFp_0___rho_2__post = __rho_2__0 && var_e_AGAFp_0___rho_1__post = __rho_1__0 && var_e_AGAFp_0_start_post = start_0 && var_e_AGAFp_0_p_post = p_post && var_e_AGAFp_0_y_post = y_0 && var_e_AGAFp_0_x_post = x_0 && var_e_AGAFp_0_rv_init_post = rv_init_0);
+ p_0 := p_post;
+ pc_0 := pc_post;
+ var_e_AGAFp_0___rho_1__0 := var_e_AGAFp_0___rho_1__post;
+ var_e_AGAFp_0___rho_2__0 := var_e_AGAFp_0___rho_2__post;
+ var_e_AGAFp_0_p_0 := var_e_AGAFp_0_p_post;
+ var_e_AGAFp_0_rv_init_0 := var_e_AGAFp_0_rv_init_post;
+ var_e_AGAFp_0_start_0 := var_e_AGAFp_0_start_post;
+ var_e_AGAFp_0_x_0 := var_e_AGAFp_0_x_post;
+ var_e_AGAFp_0_y_0 := var_e_AGAFp_0_y_post;
+TO: 92;
+
+FROM: 93;
+ assume(1 <= rv_Le_AFp_0);
+TO: 52;
+
+FROM: 93;
+ ret_enc_e_AGAFp_01_post := nondet();
+ rv_e_AGAFp_post := nondet();
+ assume(1+rv_Le_AFp_0 <= 1 && rv_e_AGAFp_post = rv_Le_AFp_0 && ret_enc_e_AGAFp_01_post = 0);
+ ret_enc_e_AGAFp_01_0 := ret_enc_e_AGAFp_01_post;
+ rv_e_AGAFp_0 := rv_e_AGAFp_post;
+TO: 12;
+
+FROM: 94;
+ rv_Le_AFp_post := nondet();
+ assume(rv_Le_AFp_post = ret_enc_Le_AFp_010_0);
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 93;
+
+FROM: 31;
+ assume((0 <= 0));
+TO: 88;
+
+FROM: 95;
+ assume(ndi4_0 <= 0);
+TO: 96;
+
+FROM: 95;
+ __rho_1____old4_post := nondet();
+ __rho_2____old4_post := nondet();
+ copied4_post := nondet();
+ p___old4_post := nondet();
+ rv_init___old4_post := nondet();
+ start___old4_post := nondet();
+ x___old4_post := nondet();
+ y___old4_post := nondet();
+ assume(1 <= ndi4_0 && copied4_post = 1 && __rho_2____old4_post = var_Le_AFp_0___rho_2__0 && __rho_1____old4_post = var_Le_AFp_0___rho_1__0 && start___old4_post = var_Le_AFp_0_start_0 && p___old4_post = var_Le_AFp_0_p_0 && y___old4_post = var_Le_AFp_0_y_0 && x___old4_post = var_Le_AFp_0_x_0 && rv_init___old4_post = var_Le_AFp_0_rv_init_0);
+ __rho_1____old4_0 := __rho_1____old4_post;
+ __rho_2____old4_0 := __rho_2____old4_post;
+ copied4_0 := copied4_post;
+ p___old4_0 := p___old4_post;
+ rv_init___old4_0 := rv_init___old4_post;
+ start___old4_0 := start___old4_post;
+ x___old4_0 := x___old4_post;
+ y___old4_0 := y___old4_post;
+TO: 96;
+
+FROM: 97;
+ assume((0 <= 0));
+TO: 96;
+
+FROM: 97;
+ ret_enc_Le_AFp_010_post := nondet();
+ assume(ret_enc_Le_AFp_010_post = 0);
+ ret_enc_Le_AFp_010_0 := ret_enc_Le_AFp_010_post;
+TO: 94;
+
+FROM: 98;
+ ndi4_post := nondet();
+ assume(copied4_0 <= 0);
+ ndi4_0 := ndi4_post;
+TO: 95;
+
+FROM: 98;
+ assume(1 <= copied4_0);
+TO: 97;
+
+FROM: 96;
+ var_Le_AFp_0_x_post := nondet();
+ assume(var_Le_AFp_0_x_post = 1);
+ var_Le_AFp_0_x_0 := var_Le_AFp_0_x_post;
+TO: 98;
+
+FROM: 99;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 96;
+
+FROM: 99;
+ ret_enc_Le_AFp_010_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_010_post = 1);
+ ret_enc_Le_AFp_010_0 := ret_enc_Le_AFp_010_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 94;
+
+FROM: 100;
+ assume(var_Le_AFp_2_x_0 <= 0);
+TO: 1;
+
+FROM: 100;
+ assume(1 <= var_Le_AFp_2_x_0);
+TO: 31;
+
+FROM: 101;
+ ret_enc_LLe_p_042_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_042_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_042_post);
+ ret_enc_LLe_p_042_0 := ret_enc_LLe_p_042_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 99;
+
+FROM: 102;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_0_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 101;
+
+FROM: 102;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_0_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 101;
+
+FROM: 103;
+ var_LLe_p_0___rho_1__post := nondet();
+ var_LLe_p_0___rho_2__post := nondet();
+ var_LLe_p_0_p_post := nondet();
+ var_LLe_p_0_rv_init_post := nondet();
+ var_LLe_p_0_start_post := nondet();
+ var_LLe_p_0_x_post := nondet();
+ var_LLe_p_0_y_post := nondet();
+ assume(var_LLe_p_0___rho_2__post = var_Le_AFp_0___rho_2__0 && var_LLe_p_0___rho_1__post = var_Le_AFp_0___rho_1__0 && var_LLe_p_0_start_post = var_Le_AFp_0_start_0 && var_LLe_p_0_p_post = var_Le_AFp_0_p_0 && var_LLe_p_0_y_post = var_Le_AFp_0_y_0 && var_LLe_p_0_x_post = var_Le_AFp_0_x_0 && var_LLe_p_0_rv_init_post = var_Le_AFp_0_rv_init_0);
+ var_LLe_p_0___rho_1__0 := var_LLe_p_0___rho_1__post;
+ var_LLe_p_0___rho_2__0 := var_LLe_p_0___rho_2__post;
+ var_LLe_p_0_p_0 := var_LLe_p_0_p_post;
+ var_LLe_p_0_rv_init_0 := var_LLe_p_0_rv_init_post;
+ var_LLe_p_0_start_0 := var_LLe_p_0_start_post;
+ var_LLe_p_0_x_0 := var_LLe_p_0_x_post;
+ var_LLe_p_0_y_0 := var_LLe_p_0_y_post;
+TO: 102;
+
+FROM: 104;
+ assume((0 <= 0));
+TO: 100;
+
+FROM: 105;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 103;
+
+FROM: 105;
+ ret_enc_Le_AFp_010_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_010_post = 1);
+ ret_enc_Le_AFp_010_0 := ret_enc_Le_AFp_010_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 94;
+
+FROM: 106;
+ ret_enc_LLe_p_741_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_741_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_741_post);
+ ret_enc_LLe_p_741_0 := ret_enc_LLe_p_741_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 105;
+
+FROM: 107;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_7_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 106;
+
+FROM: 107;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_7_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 106;
+
+FROM: 108;
+ assume(ndi3_0 <= 0);
+TO: 109;
+
+FROM: 108;
+ __rho_1____old3_post := nondet();
+ __rho_2____old3_post := nondet();
+ copied3_post := nondet();
+ p___old3_post := nondet();
+ rv_init___old3_post := nondet();
+ start___old3_post := nondet();
+ x___old3_post := nondet();
+ y___old3_post := nondet();
+ assume(1 <= ndi3_0 && copied3_post = 1 && __rho_2____old3_post = var_Le_AFp_0___rho_2__0 && __rho_1____old3_post = var_Le_AFp_0___rho_1__0 && start___old3_post = var_Le_AFp_0_start_0 && p___old3_post = var_Le_AFp_0_p_0 && y___old3_post = var_Le_AFp_0_y_0 && x___old3_post = var_Le_AFp_0_x_0 && rv_init___old3_post = var_Le_AFp_0_rv_init_0);
+ __rho_1____old3_0 := __rho_1____old3_post;
+ __rho_2____old3_0 := __rho_2____old3_post;
+ copied3_0 := copied3_post;
+ p___old3_0 := p___old3_post;
+ rv_init___old3_0 := rv_init___old3_post;
+ start___old3_0 := start___old3_post;
+ x___old3_0 := x___old3_post;
+ y___old3_0 := y___old3_post;
+TO: 109;
+
+FROM: 110;
+ assume((0 <= 0));
+TO: 109;
+
+FROM: 110;
+ ret_enc_Le_AFp_010_post := nondet();
+ assume(ret_enc_Le_AFp_010_post = 0);
+ ret_enc_Le_AFp_010_0 := ret_enc_Le_AFp_010_post;
+TO: 94;
+
+FROM: 111;
+ ndi3_post := nondet();
+ assume(copied3_0 <= 0);
+ ndi3_0 := ndi3_post;
+TO: 108;
+
+FROM: 111;
+ assume(1 <= copied3_0);
+TO: 110;
+
+FROM: 112;
+ var_Le_AFp_0_y_post := nondet();
+ assume(var_Le_AFp_0_y_0 <= 0 && var_Le_AFp_0_y_post = -1+var_Le_AFp_0_y_0);
+ var_Le_AFp_0_y_0 := var_Le_AFp_0_y_post;
+TO: 111;
+
+FROM: 112;
+ var_LLe_p_7___rho_1__post := nondet();
+ var_LLe_p_7___rho_2__post := nondet();
+ var_LLe_p_7_p_post := nondet();
+ var_LLe_p_7_rv_init_post := nondet();
+ var_LLe_p_7_start_post := nondet();
+ var_LLe_p_7_x_post := nondet();
+ var_LLe_p_7_y_post := nondet();
+ var_Le_AFp_0_p_post := nondet();
+ assume(var_Le_AFp_0_y_0 <= 0 && var_Le_AFp_0_p_post = 1 && var_LLe_p_7___rho_2__post = var_Le_AFp_0___rho_2__0 && var_LLe_p_7___rho_1__post = var_Le_AFp_0___rho_1__0 && var_LLe_p_7_start_post = var_Le_AFp_0_start_0 && var_LLe_p_7_p_post = var_Le_AFp_0_p_post && var_LLe_p_7_y_post = var_Le_AFp_0_y_0 && var_LLe_p_7_x_post = var_Le_AFp_0_x_0 && var_LLe_p_7_rv_init_post = var_Le_AFp_0_rv_init_0);
+ var_LLe_p_7___rho_1__0 := var_LLe_p_7___rho_1__post;
+ var_LLe_p_7___rho_2__0 := var_LLe_p_7___rho_2__post;
+ var_LLe_p_7_p_0 := var_LLe_p_7_p_post;
+ var_LLe_p_7_rv_init_0 := var_LLe_p_7_rv_init_post;
+ var_LLe_p_7_start_0 := var_LLe_p_7_start_post;
+ var_LLe_p_7_x_0 := var_LLe_p_7_x_post;
+ var_LLe_p_7_y_0 := var_LLe_p_7_y_post;
+ var_Le_AFp_0_p_0 := var_Le_AFp_0_p_post;
+TO: 107;
+
+FROM: 109;
+ assume((0 <= 0));
+TO: 112;
+
+FROM: 113;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 103;
+
+FROM: 113;
+ ret_enc_Le_AFp_010_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_010_post = 1);
+ ret_enc_Le_AFp_010_0 := ret_enc_Le_AFp_010_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 94;
+
+FROM: 114;
+ ret_enc_LLe_p_040_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_040_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_040_post);
+ ret_enc_LLe_p_040_0 := ret_enc_LLe_p_040_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 113;
+
+FROM: 115;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_0_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 114;
+
+FROM: 115;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_0_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 114;
+
+FROM: 116;
+ var_LLe_p_0___rho_1__post := nondet();
+ var_LLe_p_0___rho_2__post := nondet();
+ var_LLe_p_0_p_post := nondet();
+ var_LLe_p_0_rv_init_post := nondet();
+ var_LLe_p_0_start_post := nondet();
+ var_LLe_p_0_x_post := nondet();
+ var_LLe_p_0_y_post := nondet();
+ assume(var_LLe_p_0___rho_2__post = var_Le_AFp_0___rho_2__0 && var_LLe_p_0___rho_1__post = var_Le_AFp_0___rho_1__0 && var_LLe_p_0_start_post = var_Le_AFp_0_start_0 && var_LLe_p_0_p_post = var_Le_AFp_0_p_0 && var_LLe_p_0_y_post = var_Le_AFp_0_y_0 && var_LLe_p_0_x_post = var_Le_AFp_0_x_0 && var_LLe_p_0_rv_init_post = var_Le_AFp_0_rv_init_0);
+ var_LLe_p_0___rho_1__0 := var_LLe_p_0___rho_1__post;
+ var_LLe_p_0___rho_2__0 := var_LLe_p_0___rho_2__post;
+ var_LLe_p_0_p_0 := var_LLe_p_0_p_post;
+ var_LLe_p_0_rv_init_0 := var_LLe_p_0_rv_init_post;
+ var_LLe_p_0_start_0 := var_LLe_p_0_start_post;
+ var_LLe_p_0_x_0 := var_LLe_p_0_x_post;
+ var_LLe_p_0_y_0 := var_LLe_p_0_y_post;
+TO: 115;
+
+FROM: 117;
+ assume(ndi2_0 <= 0);
+TO: 118;
+
+FROM: 117;
+ __rho_1____old2_post := nondet();
+ __rho_2____old2_post := nondet();
+ copied2_post := nondet();
+ p___old2_post := nondet();
+ rv_init___old2_post := nondet();
+ start___old2_post := nondet();
+ x___old2_post := nondet();
+ y___old2_post := nondet();
+ assume(1 <= ndi2_0 && copied2_post = 1 && __rho_2____old2_post = var_Le_AFp_0___rho_2__0 && __rho_1____old2_post = var_Le_AFp_0___rho_1__0 && start___old2_post = var_Le_AFp_0_start_0 && p___old2_post = var_Le_AFp_0_p_0 && y___old2_post = var_Le_AFp_0_y_0 && x___old2_post = var_Le_AFp_0_x_0 && rv_init___old2_post = var_Le_AFp_0_rv_init_0);
+ __rho_1____old2_0 := __rho_1____old2_post;
+ __rho_2____old2_0 := __rho_2____old2_post;
+ copied2_0 := copied2_post;
+ p___old2_0 := p___old2_post;
+ rv_init___old2_0 := rv_init___old2_post;
+ start___old2_0 := start___old2_post;
+ x___old2_0 := x___old2_post;
+ y___old2_0 := y___old2_post;
+TO: 118;
+
+FROM: 119;
+ assume((0 <= 0));
+TO: 118;
+
+FROM: 119;
+ ret_enc_Le_AFp_010_post := nondet();
+ assume(ret_enc_Le_AFp_010_post = 0);
+ ret_enc_Le_AFp_010_0 := ret_enc_Le_AFp_010_post;
+TO: 94;
+
+FROM: 120;
+ ndi2_post := nondet();
+ assume(copied2_0 <= 0);
+ ndi2_0 := ndi2_post;
+TO: 117;
+
+FROM: 120;
+ assume(1 <= copied2_0);
+TO: 119;
+
+FROM: 121;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 120;
+
+FROM: 121;
+ ret_enc_Le_AFp_010_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_010_post = 1);
+ ret_enc_Le_AFp_010_0 := ret_enc_Le_AFp_010_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 94;
+
+FROM: 122;
+ ret_enc_LLe_p_239_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_239_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_239_post);
+ ret_enc_LLe_p_239_0 := ret_enc_LLe_p_239_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 121;
+
+FROM: 123;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_2_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 122;
+
+FROM: 123;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_2_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 122;
+
+FROM: 118;
+ var_LLe_p_2___rho_1__post := nondet();
+ var_LLe_p_2___rho_2__post := nondet();
+ var_LLe_p_2_p_post := nondet();
+ var_LLe_p_2_rv_init_post := nondet();
+ var_LLe_p_2_start_post := nondet();
+ var_LLe_p_2_x_post := nondet();
+ var_LLe_p_2_y_post := nondet();
+ var_Le_AFp_0_p_post := nondet();
+ assume(var_Le_AFp_0_p_post = 1+var_Le_AFp_0_p_0 && var_LLe_p_2___rho_2__post = var_Le_AFp_0___rho_2__0 && var_LLe_p_2___rho_1__post = var_Le_AFp_0___rho_1__0 && var_LLe_p_2_start_post = var_Le_AFp_0_start_0 && var_LLe_p_2_p_post = var_Le_AFp_0_p_post && var_LLe_p_2_y_post = var_Le_AFp_0_y_0 && var_LLe_p_2_x_post = var_Le_AFp_0_x_0 && var_LLe_p_2_rv_init_post = var_Le_AFp_0_rv_init_0);
+ var_LLe_p_2___rho_1__0 := var_LLe_p_2___rho_1__post;
+ var_LLe_p_2___rho_2__0 := var_LLe_p_2___rho_2__post;
+ var_LLe_p_2_p_0 := var_LLe_p_2_p_post;
+ var_LLe_p_2_rv_init_0 := var_LLe_p_2_rv_init_post;
+ var_LLe_p_2_start_0 := var_LLe_p_2_start_post;
+ var_LLe_p_2_x_0 := var_LLe_p_2_x_post;
+ var_LLe_p_2_y_0 := var_LLe_p_2_y_post;
+ var_Le_AFp_0_p_0 := var_Le_AFp_0_p_post;
+TO: 123;
+
+FROM: 124;
+ assume(var_Le_AFp_0_x_0 <= 0);
+TO: 109;
+
+FROM: 124;
+ assume(1 <= var_Le_AFp_0_x_0);
+TO: 118;
+
+FROM: 125;
+ assume((0 <= 0));
+TO: 124;
+
+FROM: 126;
+ copied2_post := nondet();
+ copied3_post := nondet();
+ copied4_post := nondet();
+ var_Le_AFp_0___rho_1__post := nondet();
+ var_Le_AFp_0___rho_2__post := nondet();
+ var_Le_AFp_0_p_post := nondet();
+ var_Le_AFp_0_rv_init_post := nondet();
+ var_Le_AFp_0_start_post := nondet();
+ var_Le_AFp_0_x_post := nondet();
+ var_Le_AFp_0_y_post := nondet();
+ assume(var_Le_AFp_0___rho_2__post = var_e_AGAFp_0___rho_2__0 && var_Le_AFp_0___rho_1__post = var_e_AGAFp_0___rho_1__0 && var_Le_AFp_0_start_post = var_e_AGAFp_0_start_0 && var_Le_AFp_0_p_post = var_e_AGAFp_0_p_0 && var_Le_AFp_0_y_post = var_e_AGAFp_0_y_0 && var_Le_AFp_0_x_post = var_e_AGAFp_0_x_0 && var_Le_AFp_0_rv_init_post = var_e_AGAFp_0_rv_init_0 && copied4_post = 0 && copied3_post = 0 && copied2_post = 0);
+ copied2_0 := copied2_post;
+ copied3_0 := copied3_post;
+ copied4_0 := copied4_post;
+ var_Le_AFp_0___rho_1__0 := var_Le_AFp_0___rho_1__post;
+ var_Le_AFp_0___rho_2__0 := var_Le_AFp_0___rho_2__post;
+ var_Le_AFp_0_p_0 := var_Le_AFp_0_p_post;
+ var_Le_AFp_0_rv_init_0 := var_Le_AFp_0_rv_init_post;
+ var_Le_AFp_0_start_0 := var_Le_AFp_0_start_post;
+ var_Le_AFp_0_x_0 := var_Le_AFp_0_x_post;
+ var_Le_AFp_0_y_0 := var_Le_AFp_0_y_post;
+TO: 124;
+
+FROM: 127;
+ copied5_post := nondet();
+ copied6_post := nondet();
+ copied7_post := nondet();
+ var_Le_AFp_2___rho_1__post := nondet();
+ var_Le_AFp_2___rho_2__post := nondet();
+ var_Le_AFp_2_p_post := nondet();
+ var_Le_AFp_2_rv_init_post := nondet();
+ var_Le_AFp_2_start_post := nondet();
+ var_Le_AFp_2_x_post := nondet();
+ var_Le_AFp_2_y_post := nondet();
+ var_e_AGAFp_0_p_post := nondet();
+ assume(var_e_AGAFp_0_p_post = 1+var_e_AGAFp_0_p_0 && var_Le_AFp_2___rho_2__post = var_e_AGAFp_0___rho_2__0 && var_Le_AFp_2___rho_1__post = var_e_AGAFp_0___rho_1__0 && var_Le_AFp_2_start_post = var_e_AGAFp_0_start_0 && var_Le_AFp_2_p_post = var_e_AGAFp_0_p_post && var_Le_AFp_2_y_post = var_e_AGAFp_0_y_0 && var_Le_AFp_2_x_post = var_e_AGAFp_0_x_0 && var_Le_AFp_2_rv_init_post = var_e_AGAFp_0_rv_init_0 && copied7_post = 0 && copied6_post = 0 && copied5_post = 0);
+ copied5_0 := copied5_post;
+ copied6_0 := copied6_post;
+ copied7_0 := copied7_post;
+ var_Le_AFp_2___rho_1__0 := var_Le_AFp_2___rho_1__post;
+ var_Le_AFp_2___rho_2__0 := var_Le_AFp_2___rho_2__post;
+ var_Le_AFp_2_p_0 := var_Le_AFp_2_p_post;
+ var_Le_AFp_2_rv_init_0 := var_Le_AFp_2_rv_init_post;
+ var_Le_AFp_2_start_0 := var_Le_AFp_2_start_post;
+ var_Le_AFp_2_x_0 := var_Le_AFp_2_x_post;
+ var_Le_AFp_2_y_0 := var_Le_AFp_2_y_post;
+ var_e_AGAFp_0_p_0 := var_e_AGAFp_0_p_post;
+TO: 88;
+
+FROM: 128;
+ assume(1 <= rv_Le_AFp_0);
+TO: 127;
+
+FROM: 128;
+ ret_enc_e_AGAFp_01_post := nondet();
+ rv_e_AGAFp_post := nondet();
+ assume(1+rv_Le_AFp_0 <= 1 && rv_e_AGAFp_post = rv_Le_AFp_0 && ret_enc_e_AGAFp_01_post = 0);
+ ret_enc_e_AGAFp_01_0 := ret_enc_e_AGAFp_01_post;
+ rv_e_AGAFp_0 := rv_e_AGAFp_post;
+TO: 12;
+
+FROM: 3;
+ rv_Le_AFp_post := nondet();
+ assume(rv_Le_AFp_post = ret_enc_Le_AFp_29_0);
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 128;
+
+FROM: 129;
+ assume(ndi7_0 <= 0);
+TO: 130;
+
+FROM: 129;
+ __rho_1____old7_post := nondet();
+ __rho_2____old7_post := nondet();
+ copied7_post := nondet();
+ p___old7_post := nondet();
+ rv_init___old7_post := nondet();
+ start___old7_post := nondet();
+ x___old7_post := nondet();
+ y___old7_post := nondet();
+ assume(1 <= ndi7_0 && copied7_post = 1 && __rho_2____old7_post = var_Le_AFp_2___rho_2__0 && __rho_1____old7_post = var_Le_AFp_2___rho_1__0 && start___old7_post = var_Le_AFp_2_start_0 && p___old7_post = var_Le_AFp_2_p_0 && y___old7_post = var_Le_AFp_2_y_0 && x___old7_post = var_Le_AFp_2_x_0 && rv_init___old7_post = var_Le_AFp_2_rv_init_0);
+ __rho_1____old7_0 := __rho_1____old7_post;
+ __rho_2____old7_0 := __rho_2____old7_post;
+ copied7_0 := copied7_post;
+ p___old7_0 := p___old7_post;
+ rv_init___old7_0 := rv_init___old7_post;
+ start___old7_0 := start___old7_post;
+ x___old7_0 := x___old7_post;
+ y___old7_0 := y___old7_post;
+TO: 130;
+
+FROM: 92;
+ assume(var_e_AGAFp_0_x_0 <= 0);
+TO: 90;
+
+FROM: 92;
+ assume(1 <= var_e_AGAFp_0_x_0);
+TO: 127;
+
+FROM: 131;
+ assume((0 <= 0));
+TO: 130;
+
+FROM: 131;
+ ret_enc_Le_AFp_29_post := nondet();
+ assume(ret_enc_Le_AFp_29_post = 0);
+ ret_enc_Le_AFp_29_0 := ret_enc_Le_AFp_29_post;
+TO: 3;
+
+FROM: 132;
+ ndi7_post := nondet();
+ assume(copied7_0 <= 0);
+ ndi7_0 := ndi7_post;
+TO: 129;
+
+FROM: 132;
+ assume(1 <= copied7_0);
+TO: 131;
+
+FROM: 130;
+ var_Le_AFp_2_x_post := nondet();
+ assume(var_Le_AFp_2_x_post = 1);
+ var_Le_AFp_2_x_0 := var_Le_AFp_2_x_post;
+TO: 132;
+
+FROM: 133;
+ assume((0 <= 0));
+TO: 92;
+
+FROM: 134;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 130;
+
+FROM: 134;
+ ret_enc_Le_AFp_29_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_29_post = 1);
+ ret_enc_Le_AFp_29_0 := ret_enc_Le_AFp_29_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 3;
+
+FROM: 135;
+ ret_enc_LLe_p_042_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_042_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_042_post);
+ ret_enc_LLe_p_042_0 := ret_enc_LLe_p_042_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 134;
+
+FROM: 136;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_0_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 135;
+
+FROM: 136;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_0_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 135;
+
+FROM: 8;
+ var_LLe_p_0___rho_1__post := nondet();
+ var_LLe_p_0___rho_2__post := nondet();
+ var_LLe_p_0_p_post := nondet();
+ var_LLe_p_0_rv_init_post := nondet();
+ var_LLe_p_0_start_post := nondet();
+ var_LLe_p_0_x_post := nondet();
+ var_LLe_p_0_y_post := nondet();
+ assume(var_LLe_p_0___rho_2__post = var_Le_AFp_2___rho_2__0 && var_LLe_p_0___rho_1__post = var_Le_AFp_2___rho_1__0 && var_LLe_p_0_start_post = var_Le_AFp_2_start_0 && var_LLe_p_0_p_post = var_Le_AFp_2_p_0 && var_LLe_p_0_y_post = var_Le_AFp_2_y_0 && var_LLe_p_0_x_post = var_Le_AFp_2_x_0 && var_LLe_p_0_rv_init_post = var_Le_AFp_2_rv_init_0);
+ var_LLe_p_0___rho_1__0 := var_LLe_p_0___rho_1__post;
+ var_LLe_p_0___rho_2__0 := var_LLe_p_0___rho_2__post;
+ var_LLe_p_0_p_0 := var_LLe_p_0_p_post;
+ var_LLe_p_0_rv_init_0 := var_LLe_p_0_rv_init_post;
+ var_LLe_p_0_start_0 := var_LLe_p_0_start_post;
+ var_LLe_p_0_x_0 := var_LLe_p_0_x_post;
+ var_LLe_p_0_y_0 := var_LLe_p_0_y_post;
+TO: 136;
+
+FROM: 137;
+ assume(1+rv_LLe_p_0 <= 1);
+TO: 8;
+
+FROM: 137;
+ ret_enc_Le_AFp_29_post := nondet();
+ rv_Le_AFp_post := nondet();
+ assume(1 <= rv_LLe_p_0 && rv_Le_AFp_post = rv_LLe_p_0 && ret_enc_Le_AFp_29_post = 1);
+ ret_enc_Le_AFp_29_0 := ret_enc_Le_AFp_29_post;
+ rv_Le_AFp_0 := rv_Le_AFp_post;
+TO: 3;
+
+FROM: 138;
+ ret_enc_LLe_p_741_post := nondet();
+ rv_LLe_p_post := nondet();
+ assume(ret_enc_LLe_p_741_post = rv_LLe_p_0 && rv_LLe_p_post = ret_enc_LLe_p_741_post);
+ ret_enc_LLe_p_741_0 := ret_enc_LLe_p_741_post;
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 137;
+
+FROM: 6;
+ rv_LLe_p_post := nondet();
+ assume(var_LLe_p_7_p_0 <= 0 && rv_LLe_p_post = 0);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 138;
+
+FROM: 6;
+ rv_LLe_p_post := nondet();
+ assume(1 <= var_LLe_p_7_p_0 && rv_LLe_p_post = 1);
+ rv_LLe_p_0 := rv_LLe_p_post;
+TO: 138;
+
+FROM: 139;
+ assume((0 <= 0));
+TO: 91;
+

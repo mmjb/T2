@@ -1,0 +1,14 @@
+START: 2;
+
+FROM: 0;
+ a22_post := nondet();
+ a44_post := nondet();
+ assume((0 <= 0));
+ a22_0 := a22_post;
+ a44_0 := a44_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

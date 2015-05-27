@@ -1,0 +1,254 @@
+START: 32;
+
+FROM: 0;
+ assume(1+n_0 <= j_0);
+TO: 1;
+
+FROM: 0;
+ temp_post := nondet();
+ tmp_post := nondet();
+ assume(j_0 <= n_0 && temp_post = tmp_post);
+ temp_0 := temp_post;
+ tmp_0 := tmp_post;
+TO: 2;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 4;
+ j_post := nondet();
+ assume(j_post = 1+j_0);
+ j_0 := j_post;
+TO: 5;
+
+FROM: 6;
+ assume(1+n_0 <= i_0);
+TO: 4;
+
+FROM: 6;
+ i_post := nondet();
+ assume(i_0 <= n_0 && i_post = 1+i_0);
+ i_0 := i_post;
+TO: 7;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 8;
+ dum_post := nondet();
+ assume((0 <= 0));
+ dum_0 := dum_post;
+TO: 7;
+
+FROM: 9;
+ assume(j_0 <= n_0 && n_0 <= j_0);
+TO: 4;
+
+FROM: 9;
+ assume(1+n_0 <= j_0);
+TO: 8;
+
+FROM: 9;
+ assume(1+j_0 <= n_0);
+TO: 8;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 9;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 9;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 9;
+
+FROM: 11;
+ assume((0 <= 0));
+TO: 10;
+
+FROM: 12;
+ assume(1+n_0 <= k_0);
+TO: 11;
+
+FROM: 12;
+ dum_post := nondet();
+ k_post := nondet();
+ assume(k_0 <= n_0 && k_post = 1+k_0);
+ dum_0 := dum_post;
+ k_0 := k_post;
+TO: 13;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 12;
+
+FROM: 14;
+ assume(j_0 <= imax_0 && imax_0 <= j_0);
+TO: 11;
+
+FROM: 14;
+ assume(1+imax_0 <= j_0);
+TO: 13;
+
+FROM: 14;
+ assume(1+j_0 <= imax_0);
+TO: 13;
+
+FROM: 15;
+ i_post := nondet();
+ assume(i_post = 1+i_0);
+ i_0 := i_post;
+TO: 16;
+
+FROM: 17;
+ assume(1+dum_0 <= big_0);
+TO: 15;
+
+FROM: 17;
+ big_post := nondet();
+ imax_post := nondet();
+ assume(big_0 <= dum_0 && big_post = dum_0 && imax_post = i_0);
+ big_0 := big_post;
+ imax_0 := imax_post;
+TO: 15;
+
+FROM: 18;
+ assume(1+n_0 <= i_0);
+TO: 5;
+
+FROM: 18;
+ big_post := nondet();
+ assume(i_0 <= n_0 && big_post = 0);
+ big_0 := big_post;
+TO: 3;
+
+FROM: 19;
+ dum_post := nondet();
+ tmp___0_post := nondet();
+ assume(j_0 <= k_0);
+ dum_0 := dum_post;
+ tmp___0_0 := tmp___0_post;
+TO: 17;
+
+FROM: 19;
+ k_post := nondet();
+ sum_post := nondet();
+ assume(1+k_0 <= j_0 && k_post = 1+k_0);
+ k_0 := k_post;
+ sum_0 := sum_post;
+TO: 20;
+
+FROM: 20;
+ assume((0 <= 0));
+TO: 19;
+
+FROM: 21;
+ assume(1+n_0 <= i_0);
+TO: 14;
+
+FROM: 21;
+ sum_post := nondet();
+ assume(i_0 <= n_0);
+ sum_0 := sum_post;
+TO: 20;
+
+FROM: 22;
+ assume((0 <= 0));
+TO: 18;
+
+FROM: 16;
+ assume((0 <= 0));
+TO: 21;
+
+FROM: 23;
+ i_post := nondet();
+ assume(i_0 <= k_0 && i_post = 1+i_0);
+ i_0 := i_post;
+TO: 24;
+
+FROM: 23;
+ k_post := nondet();
+ sum_post := nondet();
+ assume(1+k_0 <= i_0 && k_post = 1+k_0);
+ k_0 := k_post;
+ sum_0 := sum_post;
+TO: 25;
+
+FROM: 25;
+ assume((0 <= 0));
+TO: 23;
+
+FROM: 26;
+ big_post := nondet();
+ assume(j_0 <= i_0 && big_post = 0);
+ big_0 := big_post;
+TO: 16;
+
+FROM: 26;
+ sum_post := nondet();
+ assume(1+i_0 <= j_0);
+ sum_0 := sum_post;
+TO: 25;
+
+FROM: 24;
+ assume((0 <= 0));
+TO: 26;
+
+FROM: 27;
+ assume(1+n_0 <= j_0);
+TO: 28;
+
+FROM: 27;
+ assume(j_0 <= n_0);
+TO: 24;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 27;
+
+FROM: 29;
+ assume((0 <= 0));
+TO: 22;
+
+FROM: 30;
+ i_post := nondet();
+ assume(i_post = 1+i_0);
+ i_0 := i_post;
+TO: 22;
+
+FROM: 1;
+ assume(1 <= big_0);
+TO: 30;
+
+FROM: 1;
+ assume(1+big_0 <= 0);
+TO: 30;
+
+FROM: 1;
+ assume(big_0 <= 0 && 0 <= big_0);
+TO: 30;
+
+FROM: 31;
+ j_post := nondet();
+ assume(j_post = 1+j_0);
+ j_0 := j_post;
+TO: 3;
+
+FROM: 2;
+ assume(temp_0 <= big_0);
+TO: 31;
+
+FROM: 2;
+ big_post := nondet();
+ assume(1+big_0 <= temp_0 && big_post = temp_0);
+ big_0 := big_post;
+TO: 31;
+
+FROM: 32;
+ assume((0 <= 0));
+TO: 29;
+

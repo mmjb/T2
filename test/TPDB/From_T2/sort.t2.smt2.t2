@@ -1,0 +1,240 @@
+START: 26;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ tmp___4_post := nondet();
+ assume(tmp___4_post = 0);
+ tmp___4_0 := tmp___4_post;
+TO: 0;
+
+FROM: 3;
+ tmp___4_post := nondet();
+ assume(bSorted_0 <= 0 && 0 <= bSorted_0 && tmp___4_post = 1);
+ tmp___4_0 := tmp___4_post;
+TO: 0;
+
+FROM: 3;
+ assume(1 <= bSorted_0);
+TO: 2;
+
+FROM: 3;
+ assume(1+bSorted_0 <= 0);
+TO: 2;
+
+FROM: 4;
+ tmp___4_post := nondet();
+ assume(bDomain_0 <= 0 && 0 <= bDomain_0 && tmp___4_post = 1);
+ tmp___4_0 := tmp___4_post;
+TO: 0;
+
+FROM: 4;
+ assume(1 <= bDomain_0);
+TO: 3;
+
+FROM: 4;
+ assume(1+bDomain_0 <= 0);
+TO: 3;
+
+FROM: 5;
+ bSorted_post := nondet();
+ ni_post := nondet();
+ assume(bSorted_post = tmp___3_0 && ni_post = 1+ni_0);
+ bSorted_0 := bSorted_post;
+ ni_0 := ni_post;
+TO: 6;
+
+FROM: 7;
+ tmp___3_post := nondet();
+ assume(tmp___3_post = 1);
+ tmp___3_0 := tmp___3_post;
+TO: 5;
+
+FROM: 7;
+ tmp___3_post := nondet();
+ assume(tmp___3_post = 0);
+ tmp___3_0 := tmp___3_post;
+TO: 5;
+
+FROM: 8;
+ tmp___3_post := nondet();
+ assume(bSorted_0 <= 0 && 0 <= bSorted_0 && tmp___3_post = 0);
+ tmp___3_0 := tmp___3_post;
+TO: 5;
+
+FROM: 8;
+ assume(1 <= bSorted_0);
+TO: 7;
+
+FROM: 8;
+ assume(1+bSorted_0 <= 0);
+TO: 7;
+
+FROM: 9;
+ assume(-1+nDim_0 <= ni_0);
+TO: 4;
+
+FROM: 9;
+ assume(1+ni_0 <= -1+nDim_0);
+TO: 8;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 11;
+
+FROM: 12;
+ bDomain_post := nondet();
+ ni_post := nondet();
+ assume(bDomain_post = tmp___2_0 && ni_post = 1+ni_0);
+ bDomain_0 := bDomain_post;
+ ni_0 := ni_post;
+TO: 13;
+
+FROM: 14;
+ tmp___2_post := nondet();
+ assume(tmp___2_post = 1);
+ tmp___2_0 := tmp___2_post;
+TO: 12;
+
+FROM: 15;
+ tmp___2_post := nondet();
+ assume(bExists_0 <= 0 && 0 <= bExists_0 && tmp___2_post = 0);
+ tmp___2_0 := tmp___2_post;
+TO: 12;
+
+FROM: 15;
+ assume(1 <= bExists_0);
+TO: 14;
+
+FROM: 15;
+ assume(1+bExists_0 <= 0);
+TO: 14;
+
+FROM: 16;
+ tmp___2_post := nondet();
+ assume(bDomain_0 <= 0 && 0 <= bDomain_0 && tmp___2_post = 0);
+ tmp___2_0 := tmp___2_post;
+TO: 12;
+
+FROM: 16;
+ assume(1 <= bDomain_0);
+TO: 15;
+
+FROM: 16;
+ assume(1+bDomain_0 <= 0);
+TO: 15;
+
+FROM: 17;
+ tmp___1_post := nondet();
+ assume(tmp___1_post = 0);
+ tmp___1_0 := tmp___1_post;
+TO: 18;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 19;
+
+FROM: 20;
+ assume((0 <= 0));
+TO: 17;
+
+FROM: 20;
+ tmp___1_post := nondet();
+ assume(tmp___1_post = 1);
+ tmp___1_0 := tmp___1_post;
+TO: 18;
+
+FROM: 20;
+ assume((0 <= 0));
+TO: 17;
+
+FROM: 18;
+ bExists_post := nondet();
+ nj_post := nondet();
+ assume(bExists_post = tmp___1_0 && nj_post = 1+nj_0);
+ bExists_0 := bExists_post;
+ nj_0 := nj_post;
+TO: 21;
+
+FROM: 22;
+ tmp___1_post := nondet();
+ assume(tmp___1_post = 1);
+ tmp___1_0 := tmp___1_post;
+TO: 18;
+
+FROM: 23;
+ assume(bExists_0 <= 0 && 0 <= bExists_0);
+TO: 20;
+
+FROM: 23;
+ assume(1 <= bExists_0);
+TO: 22;
+
+FROM: 23;
+ assume(1+bExists_0 <= 0);
+TO: 22;
+
+FROM: 24;
+ assume(nDim_0 <= nj_0);
+TO: 16;
+
+FROM: 24;
+ assume(1+nj_0 <= nDim_0);
+TO: 23;
+
+FROM: 21;
+ assume((0 <= 0));
+TO: 24;
+
+FROM: 19;
+ ni_post := nondet();
+ assume(nDim_0 <= ni_0 && ni_post = 0);
+ ni_0 := ni_post;
+TO: 6;
+
+FROM: 19;
+ bExists_post := nondet();
+ nj_post := nondet();
+ assume(1+ni_0 <= nDim_0 && bExists_post = 0 && nj_post = 0);
+ bExists_0 := bExists_post;
+ nj_0 := nj_post;
+TO: 21;
+
+FROM: 11;
+ ni_post := nondet();
+ assume(nDim_0 <= ni_0 && ni_post = 0);
+ ni_0 := ni_post;
+TO: 13;
+
+FROM: 11;
+ ni_post := nondet();
+ assume(1+ni_0 <= nDim_0 && ni_post = 1+ni_0);
+ ni_0 := ni_post;
+TO: 10;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 9;
+
+FROM: 25;
+ bDomain_post := nondet();
+ bSorted_post := nondet();
+ nDim_post := nondet();
+ ni_post := nondet();
+ tmp_post := nondet();
+ tmp___0_post := nondet();
+ assume(bDomain_post = 1 && bSorted_post = 1 && nDim_post = __const_10_0 && ni_post = 0);
+ bDomain_0 := bDomain_post;
+ bSorted_0 := bSorted_post;
+ nDim_0 := nDim_post;
+ ni_0 := ni_post;
+ tmp_0 := tmp_post;
+ tmp___0_0 := tmp___0_post;
+TO: 10;
+
+FROM: 26;
+ assume((0 <= 0));
+TO: 25;
+

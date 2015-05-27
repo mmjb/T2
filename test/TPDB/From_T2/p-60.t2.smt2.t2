@@ -1,0 +1,48 @@
+START: 5;
+
+FROM: 0;
+ Result_4_post := nondet();
+ __cil_tmp4_8_post := nondet();
+ __retres3_7_post := nondet();
+ assume(1+__const_100_0-i_5_0 <= 0 && __retres3_7_post = 0 && __cil_tmp4_8_post = __retres3_7_post && Result_4_post = __cil_tmp4_8_post);
+ Result_4_0 := Result_4_post;
+ __cil_tmp4_8_0 := __cil_tmp4_8_post;
+ __retres3_7_0 := __retres3_7_post;
+TO: 1;
+
+FROM: 0;
+ i_5_post := nondet();
+ assume(0 <= __const_100_0-i_5_0 && 0 <= -1+x_6_0 && i_5_post = 1+i_5_0);
+ i_5_0 := i_5_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ i_5_post := nondet();
+ assume(i_5_post = 0);
+ i_5_0 := i_5_post;
+TO: 4;
+
+FROM: 4;
+ Result_4_post := nondet();
+ __cil_tmp4_8_post := nondet();
+ __retres3_7_post := nondet();
+ assume(0 <= __const_100_0-i_5_0 && x_6_0 <= 0 && __retres3_7_post = 0 && __cil_tmp4_8_post = __retres3_7_post && Result_4_post = __cil_tmp4_8_post);
+ Result_4_0 := Result_4_post;
+ __cil_tmp4_8_0 := __cil_tmp4_8_post;
+ __retres3_7_0 := __retres3_7_post;
+TO: 1;
+
+FROM: 4;
+ i_5_post := nondet();
+ assume(0 <= __const_100_0-i_5_0 && 0 <= -1+x_6_0 && i_5_post = 1+i_5_0);
+ i_5_0 := i_5_post;
+TO: 0;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 3;
+

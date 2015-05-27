@@ -1,0 +1,1274 @@
+START: 62;
+
+FROM: 0;
+ cell0_p21_new_post := nondet();
+ assume(cell0_p21_0 <= cell0_notchic_0 && cell0_notchic_0 <= cell0_p21_0 && cell0_p21_new_post = cell0_p21_0);
+ cell0_p21_new_0 := cell0_p21_new_post;
+TO: 1;
+
+FROM: 0;
+ cell0_p21_new_post := nondet();
+ assume(1+cell0_notchic_0 <= cell0_p21_0 && cell0_p21_new_post = -1+cell0_p21_0);
+ cell0_p21_new_0 := cell0_p21_new_post;
+TO: 1;
+
+FROM: 0;
+ cell0_p21_new_post := nondet();
+ assume(1+cell0_p21_0 <= cell0_notchic_0 && cell0_p21_new_post = 1+cell0_p21_0);
+ cell0_p21_new_0 := cell0_p21_new_post;
+TO: 1;
+
+FROM: 2;
+ cell0_delta_new_post := nondet();
+ assume(cell0_gt1_0+cell0_gt2_0 <= 2*cell0_delta_0 && -1+2*cell0_delta_0 <= cell0_gt1_0+cell0_gt2_0 && cell0_delta_new_post = cell0_delta_0);
+ cell0_delta_new_0 := cell0_delta_new_post;
+TO: 0;
+
+FROM: 2;
+ cell0_delta_new_post := nondet();
+ assume(1+cell0_gt1_0+cell0_gt2_0 <= -1+2*cell0_delta_0 && cell0_delta_new_post = -1+cell0_delta_0);
+ cell0_delta_new_0 := cell0_delta_new_post;
+TO: 0;
+
+FROM: 2;
+ cell0_delta_new_post := nondet();
+ assume(1+2*cell0_delta_0 <= cell0_gt1_0+cell0_gt2_0 && cell0_delta_new_post = 1+cell0_delta_0);
+ cell0_delta_new_0 := cell0_delta_new_post;
+TO: 0;
+
+FROM: 3;
+ cell0_gt2_new_post := nondet();
+ assume(cell0_gt2_0 <= cell0_notchic_0 && cell0_notchic_0 <= cell0_gt2_0 && cell0_gt2_new_post = cell0_gt2_0);
+ cell0_gt2_new_0 := cell0_gt2_new_post;
+TO: 2;
+
+FROM: 3;
+ cell0_gt2_new_post := nondet();
+ assume(1+cell0_notchic_0 <= cell0_gt2_0 && cell0_gt2_new_post = -1+cell0_gt2_0);
+ cell0_gt2_new_0 := cell0_gt2_new_post;
+TO: 2;
+
+FROM: 3;
+ cell0_gt2_new_post := nondet();
+ assume(1+cell0_gt2_0 <= cell0_notchic_0 && cell0_gt2_new_post = 1+cell0_gt2_0);
+ cell0_gt2_new_0 := cell0_gt2_new_post;
+TO: 2;
+
+FROM: 4;
+ cell0_axin_post := nondet();
+ cell0_bcat_post := nondet();
+ cell0_delta_post := nondet();
+ cell0_deltaext_post := nondet();
+ cell0_dsh_post := nondet();
+ cell0_frizzled_post := nondet();
+ cell0_gt1_post := nondet();
+ cell0_gt2_post := nondet();
+ cell0_notchic_post := nondet();
+ cell0_p21_post := nondet();
+ cell0_wnt_post := nondet();
+ cell0_wntext_post := nondet();
+ cell1_axin_post := nondet();
+ cell1_bcat_post := nondet();
+ cell1_delta_post := nondet();
+ cell1_deltaext_post := nondet();
+ cell1_dsh_post := nondet();
+ cell1_frizzled_post := nondet();
+ cell1_gt1_post := nondet();
+ cell1_gt2_post := nondet();
+ cell1_notchic_post := nondet();
+ cell1_p21_post := nondet();
+ cell1_wnt_post := nondet();
+ cell1_wntext_post := nondet();
+ cell2_axin_post := nondet();
+ cell2_bcat_post := nondet();
+ cell2_delta_post := nondet();
+ cell2_deltaext_post := nondet();
+ cell2_dsh_post := nondet();
+ cell2_frizzled_post := nondet();
+ cell2_gt1_post := nondet();
+ cell2_gt2_post := nondet();
+ cell2_notchic_post := nondet();
+ cell2_p21_post := nondet();
+ cell2_wnt_post := nondet();
+ cell2_wntext_post := nondet();
+ cell3_axin_post := nondet();
+ cell3_bcat_post := nondet();
+ cell3_delta_post := nondet();
+ cell3_deltaext_post := nondet();
+ cell3_dsh_post := nondet();
+ cell3_frizzled_post := nondet();
+ cell3_gt1_post := nondet();
+ cell3_gt2_post := nondet();
+ cell3_notchic_post := nondet();
+ cell3_p21_post := nondet();
+ cell3_wnt_post := nondet();
+ cell3_wntext_post := nondet();
+ cell4_axin_post := nondet();
+ cell4_bcat_post := nondet();
+ cell4_delta_post := nondet();
+ cell4_deltaext_post := nondet();
+ cell4_dsh_post := nondet();
+ cell4_frizzled_post := nondet();
+ cell4_gt1_post := nondet();
+ cell4_gt2_post := nondet();
+ cell4_notchic_post := nondet();
+ cell4_p21_post := nondet();
+ cell4_wnt_post := nondet();
+ cell4_wntext_post := nondet();
+ assume(cell0_frizzled_post = cell0_frizzled_new_0 && cell0_dsh_post = cell0_dsh_new_0 && cell0_axin_post = cell0_axin_new_0 && cell0_bcat_post = cell0_bcat_new_0 && cell0_gt1_post = cell0_gt1_new_0 && cell0_notchic_post = cell0_notchic_new_0 && cell0_gt2_post = cell0_gt2_new_0 && cell0_delta_post = cell0_delta_new_0 && cell0_p21_post = cell0_p21_new_0 && cell0_wnt_post = cell0_wnt_new_0 && cell0_wntext_post = cell0_wntext_new_0 && cell0_deltaext_post = cell0_deltaext_new_0 && cell1_frizzled_post = cell1_frizzled_new_0 && cell1_dsh_post = cell1_dsh_new_0 && cell1_axin_post = cell1_axin_new_0 && cell1_bcat_post = cell1_bcat_new_0 && cell1_gt1_post = cell1_gt1_new_0 && cell1_notchic_post = cell1_notchic_new_0 && cell1_gt2_post = cell1_gt2_new_0 && cell1_delta_post = cell1_delta_new_0 && cell1_p21_post = cell1_p21_new_0 && cell1_wnt_post = cell1_wnt_new_0 && cell1_wntext_post = cell1_wntext_new_0 && cell1_deltaext_post = cell1_deltaext_new_0 && cell2_frizzled_post = cell2_frizzled_new_0 && cell2_dsh_post = cell2_dsh_new_0 && cell2_axin_post = cell2_axin_new_0 && cell2_bcat_post = cell2_bcat_new_0 && cell2_gt1_post = cell2_gt1_new_0 && cell2_notchic_post = cell2_notchic_new_0 && cell2_gt2_post = cell2_gt2_new_0 && cell2_delta_post = cell2_delta_new_0 && cell2_p21_post = cell2_p21_new_0 && cell2_wnt_post = cell2_wnt_new_0 && cell2_wntext_post = cell2_wntext_new_0 && cell2_deltaext_post = cell2_deltaext_new_0 && cell3_frizzled_post = cell3_frizzled_new_0 && cell3_dsh_post = cell3_dsh_new_0 && cell3_axin_post = cell3_axin_new_0 && cell3_bcat_post = cell3_bcat_new_0 && cell3_gt1_post = cell3_gt1_new_0 && cell3_notchic_post = cell3_notchic_new_0 && cell3_gt2_post = cell3_gt2_new_0 && cell3_delta_post = cell3_delta_new_0 && cell3_p21_post = cell3_p21_new_0 && cell3_wnt_post = cell3_wnt_new_0 && cell3_wntext_post = cell3_wntext_new_0 && cell3_deltaext_post = cell3_deltaext_new_0 && cell4_frizzled_post = cell4_frizzled_new_0 && cell4_dsh_post = cell4_dsh_new_0 && cell4_axin_post = cell4_axin_new_0 && cell4_bcat_post = cell4_bcat_new_0 && cell4_gt1_post = cell4_gt1_new_0 && cell4_notchic_post = cell4_notchic_new_0 && cell4_gt2_post = cell4_gt2_new_0 && cell4_delta_post = cell4_delta_new_0 && cell4_p21_post = cell4_p21_new_0 && cell4_wnt_post = cell4_wnt_new_0 && cell4_wntext_post = cell4_wntext_new_0 && cell4_deltaext_post = cell4_deltaext_new_0);
+ cell0_axin_0 := cell0_axin_post;
+ cell0_bcat_0 := cell0_bcat_post;
+ cell0_delta_0 := cell0_delta_post;
+ cell0_deltaext_0 := cell0_deltaext_post;
+ cell0_dsh_0 := cell0_dsh_post;
+ cell0_frizzled_0 := cell0_frizzled_post;
+ cell0_gt1_0 := cell0_gt1_post;
+ cell0_gt2_0 := cell0_gt2_post;
+ cell0_notchic_0 := cell0_notchic_post;
+ cell0_p21_0 := cell0_p21_post;
+ cell0_wnt_0 := cell0_wnt_post;
+ cell0_wntext_0 := cell0_wntext_post;
+ cell1_axin_0 := cell1_axin_post;
+ cell1_bcat_0 := cell1_bcat_post;
+ cell1_delta_0 := cell1_delta_post;
+ cell1_deltaext_0 := cell1_deltaext_post;
+ cell1_dsh_0 := cell1_dsh_post;
+ cell1_frizzled_0 := cell1_frizzled_post;
+ cell1_gt1_0 := cell1_gt1_post;
+ cell1_gt2_0 := cell1_gt2_post;
+ cell1_notchic_0 := cell1_notchic_post;
+ cell1_p21_0 := cell1_p21_post;
+ cell1_wnt_0 := cell1_wnt_post;
+ cell1_wntext_0 := cell1_wntext_post;
+ cell2_axin_0 := cell2_axin_post;
+ cell2_bcat_0 := cell2_bcat_post;
+ cell2_delta_0 := cell2_delta_post;
+ cell2_deltaext_0 := cell2_deltaext_post;
+ cell2_dsh_0 := cell2_dsh_post;
+ cell2_frizzled_0 := cell2_frizzled_post;
+ cell2_gt1_0 := cell2_gt1_post;
+ cell2_gt2_0 := cell2_gt2_post;
+ cell2_notchic_0 := cell2_notchic_post;
+ cell2_p21_0 := cell2_p21_post;
+ cell2_wnt_0 := cell2_wnt_post;
+ cell2_wntext_0 := cell2_wntext_post;
+ cell3_axin_0 := cell3_axin_post;
+ cell3_bcat_0 := cell3_bcat_post;
+ cell3_delta_0 := cell3_delta_post;
+ cell3_deltaext_0 := cell3_deltaext_post;
+ cell3_dsh_0 := cell3_dsh_post;
+ cell3_frizzled_0 := cell3_frizzled_post;
+ cell3_gt1_0 := cell3_gt1_post;
+ cell3_gt2_0 := cell3_gt2_post;
+ cell3_notchic_0 := cell3_notchic_post;
+ cell3_p21_0 := cell3_p21_post;
+ cell3_wnt_0 := cell3_wnt_post;
+ cell3_wntext_0 := cell3_wntext_post;
+ cell4_axin_0 := cell4_axin_post;
+ cell4_bcat_0 := cell4_bcat_post;
+ cell4_delta_0 := cell4_delta_post;
+ cell4_deltaext_0 := cell4_deltaext_post;
+ cell4_dsh_0 := cell4_dsh_post;
+ cell4_frizzled_0 := cell4_frizzled_post;
+ cell4_gt1_0 := cell4_gt1_post;
+ cell4_gt2_0 := cell4_gt2_post;
+ cell4_notchic_0 := cell4_notchic_post;
+ cell4_p21_0 := cell4_p21_post;
+ cell4_wnt_0 := cell4_wnt_post;
+ cell4_wntext_0 := cell4_wntext_post;
+TO: 5;
+
+FROM: 6;
+ cell4_deltaext_new_post := nondet();
+ assume(2+cell3_delta_0 <= 2*cell4_deltaext_0 && -1+2*cell4_deltaext_0 <= 2+cell3_delta_0 && cell4_deltaext_new_post = cell4_deltaext_0);
+ cell4_deltaext_new_0 := cell4_deltaext_new_post;
+TO: 4;
+
+FROM: 6;
+ cell4_deltaext_new_post := nondet();
+ assume(3+cell3_delta_0 <= -1+2*cell4_deltaext_0 && cell4_deltaext_new_post = -1+cell4_deltaext_0);
+ cell4_deltaext_new_0 := cell4_deltaext_new_post;
+TO: 4;
+
+FROM: 6;
+ cell4_deltaext_new_post := nondet();
+ assume(1+2*cell4_deltaext_0 <= 2+cell3_delta_0 && cell4_deltaext_new_post = 1+cell4_deltaext_0);
+ cell4_deltaext_new_0 := cell4_deltaext_new_post;
+TO: 4;
+
+FROM: 7;
+ cell0_notchic_new_post := nondet();
+ assume(cell0_notchic_0 <= cell0_deltaext_0 && cell0_deltaext_0 <= cell0_notchic_0 && 1+cell0_deltaext_0 <= 0 && cell0_notchic_new_post = cell0_notchic_0);
+ cell0_notchic_new_0 := cell0_notchic_new_post;
+TO: 3;
+
+FROM: 7;
+ cell0_notchic_new_post := nondet();
+ assume(cell0_notchic_0 <= 0 && 0 <= cell0_notchic_0 && 0 <= cell0_deltaext_0 && cell0_notchic_new_post = cell0_notchic_0);
+ cell0_notchic_new_0 := cell0_notchic_new_post;
+TO: 3;
+
+FROM: 7;
+ cell0_notchic_new_post := nondet();
+ assume(1+cell0_deltaext_0 <= cell0_notchic_0 && cell0_notchic_new_post = -1+cell0_notchic_0);
+ cell0_notchic_new_0 := cell0_notchic_new_post;
+TO: 3;
+
+FROM: 7;
+ cell0_notchic_new_post := nondet();
+ assume(1 <= cell0_notchic_0 && cell0_notchic_new_post = -1+cell0_notchic_0);
+ cell0_notchic_new_0 := cell0_notchic_new_post;
+TO: 3;
+
+FROM: 7;
+ cell0_notchic_new_post := nondet();
+ assume(1+cell0_notchic_0 <= 0 && 1+cell0_notchic_0 <= cell0_deltaext_0 && cell0_notchic_new_post = 1+cell0_notchic_0);
+ cell0_notchic_new_0 := cell0_notchic_new_post;
+TO: 3;
+
+FROM: 8;
+ cell4_wntext_new_post := nondet();
+ assume(cell3_wnt_0 <= 1+2*cell4_wntext_0 && 2*cell4_wntext_0 <= cell3_wnt_0 && cell4_wntext_new_post = cell4_wntext_0);
+ cell4_wntext_new_0 := cell4_wntext_new_post;
+TO: 6;
+
+FROM: 8;
+ cell4_wntext_new_post := nondet();
+ assume(1+cell3_wnt_0 <= 2*cell4_wntext_0 && cell4_wntext_new_post = -1+cell4_wntext_0);
+ cell4_wntext_new_0 := cell4_wntext_new_post;
+TO: 6;
+
+FROM: 8;
+ cell4_wntext_new_post := nondet();
+ assume(2+2*cell4_wntext_0 <= cell3_wnt_0 && cell4_wntext_new_post = 1+cell4_wntext_0);
+ cell4_wntext_new_0 := cell4_wntext_new_post;
+TO: 6;
+
+FROM: 9;
+ cell4_wnt_new_post := nondet();
+ assume(cell4_wnt_0 <= 3-cell4_p21_0 && 3-cell4_p21_0 <= cell4_wnt_0 && cell4_wnt_new_post = cell4_wnt_0);
+ cell4_wnt_new_0 := cell4_wnt_new_post;
+TO: 8;
+
+FROM: 9;
+ cell4_wnt_new_post := nondet();
+ assume(4-cell4_p21_0 <= cell4_wnt_0 && cell4_wnt_new_post = -1+cell4_wnt_0);
+ cell4_wnt_new_0 := cell4_wnt_new_post;
+TO: 8;
+
+FROM: 9;
+ cell4_wnt_new_post := nondet();
+ assume(1+cell4_wnt_0 <= 3-cell4_p21_0 && cell4_wnt_new_post = 1+cell4_wnt_0);
+ cell4_wnt_new_0 := cell4_wnt_new_post;
+TO: 8;
+
+FROM: 10;
+ cell4_p21_new_post := nondet();
+ assume(cell4_p21_0 <= cell4_notchic_0 && cell4_notchic_0 <= cell4_p21_0 && cell4_p21_new_post = cell4_p21_0);
+ cell4_p21_new_0 := cell4_p21_new_post;
+TO: 9;
+
+FROM: 10;
+ cell4_p21_new_post := nondet();
+ assume(1+cell4_notchic_0 <= cell4_p21_0 && cell4_p21_new_post = -1+cell4_p21_0);
+ cell4_p21_new_0 := cell4_p21_new_post;
+TO: 9;
+
+FROM: 10;
+ cell4_p21_new_post := nondet();
+ assume(1+cell4_p21_0 <= cell4_notchic_0 && cell4_p21_new_post = 1+cell4_p21_0);
+ cell4_p21_new_0 := cell4_p21_new_post;
+TO: 9;
+
+FROM: 11;
+ cell4_delta_new_post := nondet();
+ assume(cell4_gt1_0+cell4_gt2_0 <= 2*cell4_delta_0 && -1+2*cell4_delta_0 <= cell4_gt1_0+cell4_gt2_0 && cell4_delta_new_post = cell4_delta_0);
+ cell4_delta_new_0 := cell4_delta_new_post;
+TO: 10;
+
+FROM: 11;
+ cell4_delta_new_post := nondet();
+ assume(1+cell4_gt1_0+cell4_gt2_0 <= -1+2*cell4_delta_0 && cell4_delta_new_post = -1+cell4_delta_0);
+ cell4_delta_new_0 := cell4_delta_new_post;
+TO: 10;
+
+FROM: 11;
+ cell4_delta_new_post := nondet();
+ assume(1+2*cell4_delta_0 <= cell4_gt1_0+cell4_gt2_0 && cell4_delta_new_post = 1+cell4_delta_0);
+ cell4_delta_new_0 := cell4_delta_new_post;
+TO: 10;
+
+FROM: 12;
+ cell4_gt2_new_post := nondet();
+ assume(cell4_gt2_0 <= cell4_notchic_0 && cell4_notchic_0 <= cell4_gt2_0 && cell4_gt2_new_post = cell4_gt2_0);
+ cell4_gt2_new_0 := cell4_gt2_new_post;
+TO: 11;
+
+FROM: 12;
+ cell4_gt2_new_post := nondet();
+ assume(1+cell4_notchic_0 <= cell4_gt2_0 && cell4_gt2_new_post = -1+cell4_gt2_0);
+ cell4_gt2_new_0 := cell4_gt2_new_post;
+TO: 11;
+
+FROM: 12;
+ cell4_gt2_new_post := nondet();
+ assume(1+cell4_gt2_0 <= cell4_notchic_0 && cell4_gt2_new_post = 1+cell4_gt2_0);
+ cell4_gt2_new_0 := cell4_gt2_new_post;
+TO: 11;
+
+FROM: 13;
+ cell4_notchic_new_post := nondet();
+ assume(cell4_notchic_0 <= cell4_deltaext_0 && cell4_deltaext_0 <= cell4_notchic_0 && 1+cell4_deltaext_0 <= 3 && cell4_notchic_new_post = cell4_notchic_0);
+ cell4_notchic_new_0 := cell4_notchic_new_post;
+TO: 12;
+
+FROM: 13;
+ cell4_notchic_new_post := nondet();
+ assume(cell4_notchic_0 <= 3 && 3 <= cell4_notchic_0 && 3 <= cell4_deltaext_0 && cell4_notchic_new_post = cell4_notchic_0);
+ cell4_notchic_new_0 := cell4_notchic_new_post;
+TO: 12;
+
+FROM: 13;
+ cell4_notchic_new_post := nondet();
+ assume(1+cell4_deltaext_0 <= cell4_notchic_0 && cell4_notchic_new_post = -1+cell4_notchic_0);
+ cell4_notchic_new_0 := cell4_notchic_new_post;
+TO: 12;
+
+FROM: 13;
+ cell4_notchic_new_post := nondet();
+ assume(4 <= cell4_notchic_0 && cell4_notchic_new_post = -1+cell4_notchic_0);
+ cell4_notchic_new_0 := cell4_notchic_new_post;
+TO: 12;
+
+FROM: 13;
+ cell4_notchic_new_post := nondet();
+ assume(1+cell4_notchic_0 <= 3 && 1+cell4_notchic_0 <= cell4_deltaext_0 && cell4_notchic_new_post = 1+cell4_notchic_0);
+ cell4_notchic_new_0 := cell4_notchic_new_post;
+TO: 12;
+
+FROM: 14;
+ cell4_gt1_new_post := nondet();
+ assume(cell4_gt1_0 <= cell4_bcat_0 && cell4_bcat_0 <= cell4_gt1_0 && cell4_gt1_new_post = cell4_gt1_0);
+ cell4_gt1_new_0 := cell4_gt1_new_post;
+TO: 13;
+
+FROM: 14;
+ cell4_gt1_new_post := nondet();
+ assume(1+cell4_bcat_0 <= cell4_gt1_0 && cell4_gt1_new_post = -1+cell4_gt1_0);
+ cell4_gt1_new_0 := cell4_gt1_new_post;
+TO: 13;
+
+FROM: 14;
+ cell4_gt1_new_post := nondet();
+ assume(1+cell4_gt1_0 <= cell4_bcat_0 && cell4_gt1_new_post = 1+cell4_gt1_0);
+ cell4_gt1_new_0 := cell4_gt1_new_post;
+TO: 13;
+
+FROM: 15;
+ cell4_bcat_new_post := nondet();
+ assume(cell4_bcat_0 <= 3-cell4_axin_0 && 3-cell4_axin_0 <= cell4_bcat_0 && cell4_bcat_new_post = cell4_bcat_0);
+ cell4_bcat_new_0 := cell4_bcat_new_post;
+TO: 14;
+
+FROM: 15;
+ cell4_bcat_new_post := nondet();
+ assume(4-cell4_axin_0 <= cell4_bcat_0 && cell4_bcat_new_post = -1+cell4_bcat_0);
+ cell4_bcat_new_0 := cell4_bcat_new_post;
+TO: 14;
+
+FROM: 15;
+ cell4_bcat_new_post := nondet();
+ assume(1+cell4_bcat_0 <= 3-cell4_axin_0 && cell4_bcat_new_post = 1+cell4_bcat_0);
+ cell4_bcat_new_0 := cell4_bcat_new_post;
+TO: 14;
+
+FROM: 16;
+ cell4_axin_new_post := nondet();
+ assume(cell4_axin_0 <= 3-cell4_dsh_0 && 3-cell4_dsh_0 <= cell4_axin_0 && cell4_axin_new_post = cell4_axin_0);
+ cell4_axin_new_0 := cell4_axin_new_post;
+TO: 15;
+
+FROM: 16;
+ cell4_axin_new_post := nondet();
+ assume(4-cell4_dsh_0 <= cell4_axin_0 && cell4_axin_new_post = -1+cell4_axin_0);
+ cell4_axin_new_0 := cell4_axin_new_post;
+TO: 15;
+
+FROM: 16;
+ cell4_axin_new_post := nondet();
+ assume(1+cell4_axin_0 <= 3-cell4_dsh_0 && cell4_axin_new_post = 1+cell4_axin_0);
+ cell4_axin_new_0 := cell4_axin_new_post;
+TO: 15;
+
+FROM: 17;
+ cell4_dsh_new_post := nondet();
+ assume(cell4_dsh_0 <= cell4_frizzled_0 && cell4_frizzled_0 <= cell4_dsh_0 && cell4_dsh_new_post = cell4_dsh_0);
+ cell4_dsh_new_0 := cell4_dsh_new_post;
+TO: 16;
+
+FROM: 17;
+ cell4_dsh_new_post := nondet();
+ assume(1+cell4_frizzled_0 <= cell4_dsh_0 && cell4_dsh_new_post = -1+cell4_dsh_0);
+ cell4_dsh_new_0 := cell4_dsh_new_post;
+TO: 16;
+
+FROM: 17;
+ cell4_dsh_new_post := nondet();
+ assume(1+cell4_dsh_0 <= cell4_frizzled_0 && cell4_dsh_new_post = 1+cell4_dsh_0);
+ cell4_dsh_new_0 := cell4_dsh_new_post;
+TO: 16;
+
+FROM: 18;
+ cell0_gt1_new_post := nondet();
+ assume(cell0_gt1_0 <= cell0_bcat_0 && cell0_bcat_0 <= cell0_gt1_0 && cell0_gt1_new_post = cell0_gt1_0);
+ cell0_gt1_new_0 := cell0_gt1_new_post;
+TO: 7;
+
+FROM: 18;
+ cell0_gt1_new_post := nondet();
+ assume(1+cell0_bcat_0 <= cell0_gt1_0 && cell0_gt1_new_post = -1+cell0_gt1_0);
+ cell0_gt1_new_0 := cell0_gt1_new_post;
+TO: 7;
+
+FROM: 18;
+ cell0_gt1_new_post := nondet();
+ assume(1+cell0_gt1_0 <= cell0_bcat_0 && cell0_gt1_new_post = 1+cell0_gt1_0);
+ cell0_gt1_new_0 := cell0_gt1_new_post;
+TO: 7;
+
+FROM: 19;
+ cell4_frizzled_new_post := nondet();
+ assume(cell4_frizzled_0 <= cell4_wntext_0 && cell4_wntext_0 <= cell4_frizzled_0 && cell4_frizzled_new_post = cell4_frizzled_0);
+ cell4_frizzled_new_0 := cell4_frizzled_new_post;
+TO: 17;
+
+FROM: 19;
+ cell4_frizzled_new_post := nondet();
+ assume(1+cell4_wntext_0 <= cell4_frizzled_0 && cell4_frizzled_new_post = -1+cell4_frizzled_0);
+ cell4_frizzled_new_0 := cell4_frizzled_new_post;
+TO: 17;
+
+FROM: 19;
+ cell4_frizzled_new_post := nondet();
+ assume(1+cell4_frizzled_0 <= cell4_wntext_0 && cell4_frizzled_new_post = 1+cell4_frizzled_0);
+ cell4_frizzled_new_0 := cell4_frizzled_new_post;
+TO: 17;
+
+FROM: 20;
+ cell3_deltaext_new_post := nondet();
+ assume(cell2_delta_0+cell4_delta_0 <= 2*cell3_deltaext_0 && -1+2*cell3_deltaext_0 <= cell2_delta_0+cell4_delta_0 && cell3_deltaext_new_post = cell3_deltaext_0);
+ cell3_deltaext_new_0 := cell3_deltaext_new_post;
+TO: 19;
+
+FROM: 20;
+ cell3_deltaext_new_post := nondet();
+ assume(1+cell2_delta_0+cell4_delta_0 <= -1+2*cell3_deltaext_0 && cell3_deltaext_new_post = -1+cell3_deltaext_0);
+ cell3_deltaext_new_0 := cell3_deltaext_new_post;
+TO: 19;
+
+FROM: 20;
+ cell3_deltaext_new_post := nondet();
+ assume(1+2*cell3_deltaext_0 <= cell2_delta_0+cell4_delta_0 && cell3_deltaext_new_post = 1+cell3_deltaext_0);
+ cell3_deltaext_new_0 := cell3_deltaext_new_post;
+TO: 19;
+
+FROM: 21;
+ cell3_wntext_new_post := nondet();
+ assume(cell2_wnt_0+cell4_wnt_0 <= 1+2*cell3_wntext_0 && 2*cell3_wntext_0 <= cell2_wnt_0+cell4_wnt_0 && cell3_wntext_new_post = cell3_wntext_0);
+ cell3_wntext_new_0 := cell3_wntext_new_post;
+TO: 20;
+
+FROM: 21;
+ cell3_wntext_new_post := nondet();
+ assume(1+cell2_wnt_0+cell4_wnt_0 <= 2*cell3_wntext_0 && cell3_wntext_new_post = -1+cell3_wntext_0);
+ cell3_wntext_new_0 := cell3_wntext_new_post;
+TO: 20;
+
+FROM: 21;
+ cell3_wntext_new_post := nondet();
+ assume(2+2*cell3_wntext_0 <= cell2_wnt_0+cell4_wnt_0 && cell3_wntext_new_post = 1+cell3_wntext_0);
+ cell3_wntext_new_0 := cell3_wntext_new_post;
+TO: 20;
+
+FROM: 22;
+ cell3_wnt_new_post := nondet();
+ assume(cell3_wnt_0 <= 3-cell3_p21_0 && 3-cell3_p21_0 <= cell3_wnt_0 && cell3_wnt_new_post = cell3_wnt_0);
+ cell3_wnt_new_0 := cell3_wnt_new_post;
+TO: 21;
+
+FROM: 22;
+ cell3_wnt_new_post := nondet();
+ assume(4-cell3_p21_0 <= cell3_wnt_0 && cell3_wnt_new_post = -1+cell3_wnt_0);
+ cell3_wnt_new_0 := cell3_wnt_new_post;
+TO: 21;
+
+FROM: 22;
+ cell3_wnt_new_post := nondet();
+ assume(1+cell3_wnt_0 <= 3-cell3_p21_0 && cell3_wnt_new_post = 1+cell3_wnt_0);
+ cell3_wnt_new_0 := cell3_wnt_new_post;
+TO: 21;
+
+FROM: 23;
+ cell3_p21_new_post := nondet();
+ assume(cell3_p21_0 <= cell3_notchic_0 && cell3_notchic_0 <= cell3_p21_0 && cell3_p21_new_post = cell3_p21_0);
+ cell3_p21_new_0 := cell3_p21_new_post;
+TO: 22;
+
+FROM: 23;
+ cell3_p21_new_post := nondet();
+ assume(1+cell3_notchic_0 <= cell3_p21_0 && cell3_p21_new_post = -1+cell3_p21_0);
+ cell3_p21_new_0 := cell3_p21_new_post;
+TO: 22;
+
+FROM: 23;
+ cell3_p21_new_post := nondet();
+ assume(1+cell3_p21_0 <= cell3_notchic_0 && cell3_p21_new_post = 1+cell3_p21_0);
+ cell3_p21_new_0 := cell3_p21_new_post;
+TO: 22;
+
+FROM: 24;
+ cell3_delta_new_post := nondet();
+ assume(cell3_gt1_0+cell3_gt2_0 <= 2*cell3_delta_0 && -1+2*cell3_delta_0 <= cell3_gt1_0+cell3_gt2_0 && cell3_delta_new_post = cell3_delta_0);
+ cell3_delta_new_0 := cell3_delta_new_post;
+TO: 23;
+
+FROM: 24;
+ cell3_delta_new_post := nondet();
+ assume(1+cell3_gt1_0+cell3_gt2_0 <= -1+2*cell3_delta_0 && cell3_delta_new_post = -1+cell3_delta_0);
+ cell3_delta_new_0 := cell3_delta_new_post;
+TO: 23;
+
+FROM: 24;
+ cell3_delta_new_post := nondet();
+ assume(1+2*cell3_delta_0 <= cell3_gt1_0+cell3_gt2_0 && cell3_delta_new_post = 1+cell3_delta_0);
+ cell3_delta_new_0 := cell3_delta_new_post;
+TO: 23;
+
+FROM: 25;
+ cell3_gt2_new_post := nondet();
+ assume(cell3_gt2_0 <= cell3_notchic_0 && cell3_notchic_0 <= cell3_gt2_0 && cell3_gt2_new_post = cell3_gt2_0);
+ cell3_gt2_new_0 := cell3_gt2_new_post;
+TO: 24;
+
+FROM: 25;
+ cell3_gt2_new_post := nondet();
+ assume(1+cell3_notchic_0 <= cell3_gt2_0 && cell3_gt2_new_post = -1+cell3_gt2_0);
+ cell3_gt2_new_0 := cell3_gt2_new_post;
+TO: 24;
+
+FROM: 25;
+ cell3_gt2_new_post := nondet();
+ assume(1+cell3_gt2_0 <= cell3_notchic_0 && cell3_gt2_new_post = 1+cell3_gt2_0);
+ cell3_gt2_new_0 := cell3_gt2_new_post;
+TO: 24;
+
+FROM: 26;
+ cell3_notchic_new_post := nondet();
+ assume(cell3_notchic_0 <= cell3_deltaext_0 && cell3_deltaext_0 <= cell3_notchic_0 && 1+cell3_deltaext_0 <= 3 && cell3_notchic_new_post = cell3_notchic_0);
+ cell3_notchic_new_0 := cell3_notchic_new_post;
+TO: 25;
+
+FROM: 26;
+ cell3_notchic_new_post := nondet();
+ assume(cell3_notchic_0 <= 3 && 3 <= cell3_notchic_0 && 3 <= cell3_deltaext_0 && cell3_notchic_new_post = cell3_notchic_0);
+ cell3_notchic_new_0 := cell3_notchic_new_post;
+TO: 25;
+
+FROM: 26;
+ cell3_notchic_new_post := nondet();
+ assume(1+cell3_deltaext_0 <= cell3_notchic_0 && cell3_notchic_new_post = -1+cell3_notchic_0);
+ cell3_notchic_new_0 := cell3_notchic_new_post;
+TO: 25;
+
+FROM: 26;
+ cell3_notchic_new_post := nondet();
+ assume(4 <= cell3_notchic_0 && cell3_notchic_new_post = -1+cell3_notchic_0);
+ cell3_notchic_new_0 := cell3_notchic_new_post;
+TO: 25;
+
+FROM: 26;
+ cell3_notchic_new_post := nondet();
+ assume(1+cell3_notchic_0 <= 3 && 1+cell3_notchic_0 <= cell3_deltaext_0 && cell3_notchic_new_post = 1+cell3_notchic_0);
+ cell3_notchic_new_0 := cell3_notchic_new_post;
+TO: 25;
+
+FROM: 27;
+ cell3_gt1_new_post := nondet();
+ assume(cell3_gt1_0 <= cell3_bcat_0 && cell3_bcat_0 <= cell3_gt1_0 && cell3_gt1_new_post = cell3_gt1_0);
+ cell3_gt1_new_0 := cell3_gt1_new_post;
+TO: 26;
+
+FROM: 27;
+ cell3_gt1_new_post := nondet();
+ assume(1+cell3_bcat_0 <= cell3_gt1_0 && cell3_gt1_new_post = -1+cell3_gt1_0);
+ cell3_gt1_new_0 := cell3_gt1_new_post;
+TO: 26;
+
+FROM: 27;
+ cell3_gt1_new_post := nondet();
+ assume(1+cell3_gt1_0 <= cell3_bcat_0 && cell3_gt1_new_post = 1+cell3_gt1_0);
+ cell3_gt1_new_0 := cell3_gt1_new_post;
+TO: 26;
+
+FROM: 28;
+ cell3_bcat_new_post := nondet();
+ assume(cell3_bcat_0 <= 3-cell3_axin_0 && 3-cell3_axin_0 <= cell3_bcat_0 && cell3_bcat_new_post = cell3_bcat_0);
+ cell3_bcat_new_0 := cell3_bcat_new_post;
+TO: 27;
+
+FROM: 28;
+ cell3_bcat_new_post := nondet();
+ assume(4-cell3_axin_0 <= cell3_bcat_0 && cell3_bcat_new_post = -1+cell3_bcat_0);
+ cell3_bcat_new_0 := cell3_bcat_new_post;
+TO: 27;
+
+FROM: 28;
+ cell3_bcat_new_post := nondet();
+ assume(1+cell3_bcat_0 <= 3-cell3_axin_0 && cell3_bcat_new_post = 1+cell3_bcat_0);
+ cell3_bcat_new_0 := cell3_bcat_new_post;
+TO: 27;
+
+FROM: 29;
+ cell0_bcat_new_post := nondet();
+ assume(cell0_bcat_0 <= 3-cell0_axin_0 && 3-cell0_axin_0 <= cell0_bcat_0 && cell0_bcat_new_post = cell0_bcat_0);
+ cell0_bcat_new_0 := cell0_bcat_new_post;
+TO: 18;
+
+FROM: 29;
+ cell0_bcat_new_post := nondet();
+ assume(4-cell0_axin_0 <= cell0_bcat_0 && cell0_bcat_new_post = -1+cell0_bcat_0);
+ cell0_bcat_new_0 := cell0_bcat_new_post;
+TO: 18;
+
+FROM: 29;
+ cell0_bcat_new_post := nondet();
+ assume(1+cell0_bcat_0 <= 3-cell0_axin_0 && cell0_bcat_new_post = 1+cell0_bcat_0);
+ cell0_bcat_new_0 := cell0_bcat_new_post;
+TO: 18;
+
+FROM: 30;
+ cell3_axin_new_post := nondet();
+ assume(cell3_axin_0 <= 3-cell3_dsh_0 && 3-cell3_dsh_0 <= cell3_axin_0 && cell3_axin_new_post = cell3_axin_0);
+ cell3_axin_new_0 := cell3_axin_new_post;
+TO: 28;
+
+FROM: 30;
+ cell3_axin_new_post := nondet();
+ assume(4-cell3_dsh_0 <= cell3_axin_0 && cell3_axin_new_post = -1+cell3_axin_0);
+ cell3_axin_new_0 := cell3_axin_new_post;
+TO: 28;
+
+FROM: 30;
+ cell3_axin_new_post := nondet();
+ assume(1+cell3_axin_0 <= 3-cell3_dsh_0 && cell3_axin_new_post = 1+cell3_axin_0);
+ cell3_axin_new_0 := cell3_axin_new_post;
+TO: 28;
+
+FROM: 31;
+ cell3_dsh_new_post := nondet();
+ assume(cell3_dsh_0 <= cell3_frizzled_0 && cell3_frizzled_0 <= cell3_dsh_0 && cell3_dsh_new_post = cell3_dsh_0);
+ cell3_dsh_new_0 := cell3_dsh_new_post;
+TO: 30;
+
+FROM: 31;
+ cell3_dsh_new_post := nondet();
+ assume(1+cell3_frizzled_0 <= cell3_dsh_0 && cell3_dsh_new_post = -1+cell3_dsh_0);
+ cell3_dsh_new_0 := cell3_dsh_new_post;
+TO: 30;
+
+FROM: 31;
+ cell3_dsh_new_post := nondet();
+ assume(1+cell3_dsh_0 <= cell3_frizzled_0 && cell3_dsh_new_post = 1+cell3_dsh_0);
+ cell3_dsh_new_0 := cell3_dsh_new_post;
+TO: 30;
+
+FROM: 32;
+ cell3_frizzled_new_post := nondet();
+ assume(cell3_frizzled_0 <= cell3_wntext_0 && cell3_wntext_0 <= cell3_frizzled_0 && cell3_frizzled_new_post = cell3_frizzled_0);
+ cell3_frizzled_new_0 := cell3_frizzled_new_post;
+TO: 31;
+
+FROM: 32;
+ cell3_frizzled_new_post := nondet();
+ assume(1+cell3_wntext_0 <= cell3_frizzled_0 && cell3_frizzled_new_post = -1+cell3_frizzled_0);
+ cell3_frizzled_new_0 := cell3_frizzled_new_post;
+TO: 31;
+
+FROM: 32;
+ cell3_frizzled_new_post := nondet();
+ assume(1+cell3_frizzled_0 <= cell3_wntext_0 && cell3_frizzled_new_post = 1+cell3_frizzled_0);
+ cell3_frizzled_new_0 := cell3_frizzled_new_post;
+TO: 31;
+
+FROM: 33;
+ cell2_deltaext_new_post := nondet();
+ assume(cell1_delta_0+cell3_delta_0 <= 2*cell2_deltaext_0 && -1+2*cell2_deltaext_0 <= cell1_delta_0+cell3_delta_0 && cell2_deltaext_new_post = cell2_deltaext_0);
+ cell2_deltaext_new_0 := cell2_deltaext_new_post;
+TO: 32;
+
+FROM: 33;
+ cell2_deltaext_new_post := nondet();
+ assume(1+cell1_delta_0+cell3_delta_0 <= -1+2*cell2_deltaext_0 && cell2_deltaext_new_post = -1+cell2_deltaext_0);
+ cell2_deltaext_new_0 := cell2_deltaext_new_post;
+TO: 32;
+
+FROM: 33;
+ cell2_deltaext_new_post := nondet();
+ assume(1+2*cell2_deltaext_0 <= cell1_delta_0+cell3_delta_0 && cell2_deltaext_new_post = 1+cell2_deltaext_0);
+ cell2_deltaext_new_0 := cell2_deltaext_new_post;
+TO: 32;
+
+FROM: 34;
+ cell2_wntext_new_post := nondet();
+ assume(cell1_wnt_0+cell3_wnt_0 <= 1+2*cell2_wntext_0 && 2*cell2_wntext_0 <= cell1_wnt_0+cell3_wnt_0 && cell2_wntext_new_post = cell2_wntext_0);
+ cell2_wntext_new_0 := cell2_wntext_new_post;
+TO: 33;
+
+FROM: 34;
+ cell2_wntext_new_post := nondet();
+ assume(1+cell1_wnt_0+cell3_wnt_0 <= 2*cell2_wntext_0 && cell2_wntext_new_post = -1+cell2_wntext_0);
+ cell2_wntext_new_0 := cell2_wntext_new_post;
+TO: 33;
+
+FROM: 34;
+ cell2_wntext_new_post := nondet();
+ assume(2+2*cell2_wntext_0 <= cell1_wnt_0+cell3_wnt_0 && cell2_wntext_new_post = 1+cell2_wntext_0);
+ cell2_wntext_new_0 := cell2_wntext_new_post;
+TO: 33;
+
+FROM: 35;
+ cell2_wnt_new_post := nondet();
+ assume(cell2_wnt_0 <= 3-cell2_p21_0 && 3-cell2_p21_0 <= cell2_wnt_0 && cell2_wnt_new_post = cell2_wnt_0);
+ cell2_wnt_new_0 := cell2_wnt_new_post;
+TO: 34;
+
+FROM: 35;
+ cell2_wnt_new_post := nondet();
+ assume(4-cell2_p21_0 <= cell2_wnt_0 && cell2_wnt_new_post = -1+cell2_wnt_0);
+ cell2_wnt_new_0 := cell2_wnt_new_post;
+TO: 34;
+
+FROM: 35;
+ cell2_wnt_new_post := nondet();
+ assume(1+cell2_wnt_0 <= 3-cell2_p21_0 && cell2_wnt_new_post = 1+cell2_wnt_0);
+ cell2_wnt_new_0 := cell2_wnt_new_post;
+TO: 34;
+
+FROM: 36;
+ cell2_p21_new_post := nondet();
+ assume(cell2_p21_0 <= cell2_notchic_0 && cell2_notchic_0 <= cell2_p21_0 && cell2_p21_new_post = cell2_p21_0);
+ cell2_p21_new_0 := cell2_p21_new_post;
+TO: 35;
+
+FROM: 36;
+ cell2_p21_new_post := nondet();
+ assume(1+cell2_notchic_0 <= cell2_p21_0 && cell2_p21_new_post = -1+cell2_p21_0);
+ cell2_p21_new_0 := cell2_p21_new_post;
+TO: 35;
+
+FROM: 36;
+ cell2_p21_new_post := nondet();
+ assume(1+cell2_p21_0 <= cell2_notchic_0 && cell2_p21_new_post = 1+cell2_p21_0);
+ cell2_p21_new_0 := cell2_p21_new_post;
+TO: 35;
+
+FROM: 37;
+ cell2_delta_new_post := nondet();
+ assume(cell2_gt1_0+cell2_gt2_0 <= 2*cell2_delta_0 && -1+2*cell2_delta_0 <= cell2_gt1_0+cell2_gt2_0 && cell2_delta_new_post = cell2_delta_0);
+ cell2_delta_new_0 := cell2_delta_new_post;
+TO: 36;
+
+FROM: 37;
+ cell2_delta_new_post := nondet();
+ assume(1+cell2_gt1_0+cell2_gt2_0 <= -1+2*cell2_delta_0 && cell2_delta_new_post = -1+cell2_delta_0);
+ cell2_delta_new_0 := cell2_delta_new_post;
+TO: 36;
+
+FROM: 37;
+ cell2_delta_new_post := nondet();
+ assume(1+2*cell2_delta_0 <= cell2_gt1_0+cell2_gt2_0 && cell2_delta_new_post = 1+cell2_delta_0);
+ cell2_delta_new_0 := cell2_delta_new_post;
+TO: 36;
+
+FROM: 38;
+ cell2_gt2_new_post := nondet();
+ assume(cell2_gt2_0 <= cell2_notchic_0 && cell2_notchic_0 <= cell2_gt2_0 && cell2_gt2_new_post = cell2_gt2_0);
+ cell2_gt2_new_0 := cell2_gt2_new_post;
+TO: 37;
+
+FROM: 38;
+ cell2_gt2_new_post := nondet();
+ assume(1+cell2_notchic_0 <= cell2_gt2_0 && cell2_gt2_new_post = -1+cell2_gt2_0);
+ cell2_gt2_new_0 := cell2_gt2_new_post;
+TO: 37;
+
+FROM: 38;
+ cell2_gt2_new_post := nondet();
+ assume(1+cell2_gt2_0 <= cell2_notchic_0 && cell2_gt2_new_post = 1+cell2_gt2_0);
+ cell2_gt2_new_0 := cell2_gt2_new_post;
+TO: 37;
+
+FROM: 39;
+ cell2_notchic_new_post := nondet();
+ assume(cell2_notchic_0 <= cell2_deltaext_0 && cell2_deltaext_0 <= cell2_notchic_0 && 1+cell2_deltaext_0 <= 3 && cell2_notchic_new_post = cell2_notchic_0);
+ cell2_notchic_new_0 := cell2_notchic_new_post;
+TO: 38;
+
+FROM: 39;
+ cell2_notchic_new_post := nondet();
+ assume(cell2_notchic_0 <= 3 && 3 <= cell2_notchic_0 && 3 <= cell2_deltaext_0 && cell2_notchic_new_post = cell2_notchic_0);
+ cell2_notchic_new_0 := cell2_notchic_new_post;
+TO: 38;
+
+FROM: 39;
+ cell2_notchic_new_post := nondet();
+ assume(1+cell2_deltaext_0 <= cell2_notchic_0 && cell2_notchic_new_post = -1+cell2_notchic_0);
+ cell2_notchic_new_0 := cell2_notchic_new_post;
+TO: 38;
+
+FROM: 39;
+ cell2_notchic_new_post := nondet();
+ assume(4 <= cell2_notchic_0 && cell2_notchic_new_post = -1+cell2_notchic_0);
+ cell2_notchic_new_0 := cell2_notchic_new_post;
+TO: 38;
+
+FROM: 39;
+ cell2_notchic_new_post := nondet();
+ assume(1+cell2_notchic_0 <= 3 && 1+cell2_notchic_0 <= cell2_deltaext_0 && cell2_notchic_new_post = 1+cell2_notchic_0);
+ cell2_notchic_new_0 := cell2_notchic_new_post;
+TO: 38;
+
+FROM: 40;
+ cell0_axin_new_post := nondet();
+ assume(cell0_axin_0 <= 3-cell0_dsh_0 && 3-cell0_dsh_0 <= cell0_axin_0 && cell0_axin_new_post = cell0_axin_0);
+ cell0_axin_new_0 := cell0_axin_new_post;
+TO: 29;
+
+FROM: 40;
+ cell0_axin_new_post := nondet();
+ assume(4-cell0_dsh_0 <= cell0_axin_0 && cell0_axin_new_post = -1+cell0_axin_0);
+ cell0_axin_new_0 := cell0_axin_new_post;
+TO: 29;
+
+FROM: 40;
+ cell0_axin_new_post := nondet();
+ assume(1+cell0_axin_0 <= 3-cell0_dsh_0 && cell0_axin_new_post = 1+cell0_axin_0);
+ cell0_axin_new_0 := cell0_axin_new_post;
+TO: 29;
+
+FROM: 41;
+ cell2_gt1_new_post := nondet();
+ assume(cell2_gt1_0 <= cell2_bcat_0 && cell2_bcat_0 <= cell2_gt1_0 && cell2_gt1_new_post = cell2_gt1_0);
+ cell2_gt1_new_0 := cell2_gt1_new_post;
+TO: 39;
+
+FROM: 41;
+ cell2_gt1_new_post := nondet();
+ assume(1+cell2_bcat_0 <= cell2_gt1_0 && cell2_gt1_new_post = -1+cell2_gt1_0);
+ cell2_gt1_new_0 := cell2_gt1_new_post;
+TO: 39;
+
+FROM: 41;
+ cell2_gt1_new_post := nondet();
+ assume(1+cell2_gt1_0 <= cell2_bcat_0 && cell2_gt1_new_post = 1+cell2_gt1_0);
+ cell2_gt1_new_0 := cell2_gt1_new_post;
+TO: 39;
+
+FROM: 42;
+ cell2_bcat_new_post := nondet();
+ assume(cell2_bcat_0 <= 3-cell2_axin_0 && 3-cell2_axin_0 <= cell2_bcat_0 && cell2_bcat_new_post = cell2_bcat_0);
+ cell2_bcat_new_0 := cell2_bcat_new_post;
+TO: 41;
+
+FROM: 42;
+ cell2_bcat_new_post := nondet();
+ assume(4-cell2_axin_0 <= cell2_bcat_0 && cell2_bcat_new_post = -1+cell2_bcat_0);
+ cell2_bcat_new_0 := cell2_bcat_new_post;
+TO: 41;
+
+FROM: 42;
+ cell2_bcat_new_post := nondet();
+ assume(1+cell2_bcat_0 <= 3-cell2_axin_0 && cell2_bcat_new_post = 1+cell2_bcat_0);
+ cell2_bcat_new_0 := cell2_bcat_new_post;
+TO: 41;
+
+FROM: 43;
+ cell2_axin_new_post := nondet();
+ assume(cell2_axin_0 <= 3-cell2_dsh_0 && 3-cell2_dsh_0 <= cell2_axin_0 && cell2_axin_new_post = cell2_axin_0);
+ cell2_axin_new_0 := cell2_axin_new_post;
+TO: 42;
+
+FROM: 43;
+ cell2_axin_new_post := nondet();
+ assume(4-cell2_dsh_0 <= cell2_axin_0 && cell2_axin_new_post = -1+cell2_axin_0);
+ cell2_axin_new_0 := cell2_axin_new_post;
+TO: 42;
+
+FROM: 43;
+ cell2_axin_new_post := nondet();
+ assume(1+cell2_axin_0 <= 3-cell2_dsh_0 && cell2_axin_new_post = 1+cell2_axin_0);
+ cell2_axin_new_0 := cell2_axin_new_post;
+TO: 42;
+
+FROM: 44;
+ cell2_dsh_new_post := nondet();
+ assume(cell2_dsh_0 <= cell2_frizzled_0 && cell2_frizzled_0 <= cell2_dsh_0 && cell2_dsh_new_post = cell2_dsh_0);
+ cell2_dsh_new_0 := cell2_dsh_new_post;
+TO: 43;
+
+FROM: 44;
+ cell2_dsh_new_post := nondet();
+ assume(1+cell2_frizzled_0 <= cell2_dsh_0 && cell2_dsh_new_post = -1+cell2_dsh_0);
+ cell2_dsh_new_0 := cell2_dsh_new_post;
+TO: 43;
+
+FROM: 44;
+ cell2_dsh_new_post := nondet();
+ assume(1+cell2_dsh_0 <= cell2_frizzled_0 && cell2_dsh_new_post = 1+cell2_dsh_0);
+ cell2_dsh_new_0 := cell2_dsh_new_post;
+TO: 43;
+
+FROM: 45;
+ cell2_frizzled_new_post := nondet();
+ assume(cell2_frizzled_0 <= cell2_wntext_0 && cell2_wntext_0 <= cell2_frizzled_0 && cell2_frizzled_new_post = cell2_frizzled_0);
+ cell2_frizzled_new_0 := cell2_frizzled_new_post;
+TO: 44;
+
+FROM: 45;
+ cell2_frizzled_new_post := nondet();
+ assume(1+cell2_wntext_0 <= cell2_frizzled_0 && cell2_frizzled_new_post = -1+cell2_frizzled_0);
+ cell2_frizzled_new_0 := cell2_frizzled_new_post;
+TO: 44;
+
+FROM: 45;
+ cell2_frizzled_new_post := nondet();
+ assume(1+cell2_frizzled_0 <= cell2_wntext_0 && cell2_frizzled_new_post = 1+cell2_frizzled_0);
+ cell2_frizzled_new_0 := cell2_frizzled_new_post;
+TO: 44;
+
+FROM: 46;
+ cell1_deltaext_new_post := nondet();
+ assume(cell0_delta_0+cell2_delta_0 <= 2*cell1_deltaext_0 && -1+2*cell1_deltaext_0 <= cell0_delta_0+cell2_delta_0 && cell1_deltaext_new_post = cell1_deltaext_0);
+ cell1_deltaext_new_0 := cell1_deltaext_new_post;
+TO: 45;
+
+FROM: 46;
+ cell1_deltaext_new_post := nondet();
+ assume(1+cell0_delta_0+cell2_delta_0 <= -1+2*cell1_deltaext_0 && cell1_deltaext_new_post = -1+cell1_deltaext_0);
+ cell1_deltaext_new_0 := cell1_deltaext_new_post;
+TO: 45;
+
+FROM: 46;
+ cell1_deltaext_new_post := nondet();
+ assume(1+2*cell1_deltaext_0 <= cell0_delta_0+cell2_delta_0 && cell1_deltaext_new_post = 1+cell1_deltaext_0);
+ cell1_deltaext_new_0 := cell1_deltaext_new_post;
+TO: 45;
+
+FROM: 47;
+ cell1_wntext_new_post := nondet();
+ assume(cell0_wnt_0+cell2_wnt_0 <= 1+2*cell1_wntext_0 && 2*cell1_wntext_0 <= cell0_wnt_0+cell2_wnt_0 && cell1_wntext_new_post = cell1_wntext_0);
+ cell1_wntext_new_0 := cell1_wntext_new_post;
+TO: 46;
+
+FROM: 47;
+ cell1_wntext_new_post := nondet();
+ assume(1+cell0_wnt_0+cell2_wnt_0 <= 2*cell1_wntext_0 && cell1_wntext_new_post = -1+cell1_wntext_0);
+ cell1_wntext_new_0 := cell1_wntext_new_post;
+TO: 46;
+
+FROM: 47;
+ cell1_wntext_new_post := nondet();
+ assume(2+2*cell1_wntext_0 <= cell0_wnt_0+cell2_wnt_0 && cell1_wntext_new_post = 1+cell1_wntext_0);
+ cell1_wntext_new_0 := cell1_wntext_new_post;
+TO: 46;
+
+FROM: 48;
+ cell1_wnt_new_post := nondet();
+ assume(cell1_wnt_0 <= 3-cell1_p21_0 && 3-cell1_p21_0 <= cell1_wnt_0 && cell1_wnt_new_post = cell1_wnt_0);
+ cell1_wnt_new_0 := cell1_wnt_new_post;
+TO: 47;
+
+FROM: 48;
+ cell1_wnt_new_post := nondet();
+ assume(4-cell1_p21_0 <= cell1_wnt_0 && cell1_wnt_new_post = -1+cell1_wnt_0);
+ cell1_wnt_new_0 := cell1_wnt_new_post;
+TO: 47;
+
+FROM: 48;
+ cell1_wnt_new_post := nondet();
+ assume(1+cell1_wnt_0 <= 3-cell1_p21_0 && cell1_wnt_new_post = 1+cell1_wnt_0);
+ cell1_wnt_new_0 := cell1_wnt_new_post;
+TO: 47;
+
+FROM: 49;
+ cell1_p21_new_post := nondet();
+ assume(cell1_p21_0 <= cell1_notchic_0 && cell1_notchic_0 <= cell1_p21_0 && cell1_p21_new_post = cell1_p21_0);
+ cell1_p21_new_0 := cell1_p21_new_post;
+TO: 48;
+
+FROM: 49;
+ cell1_p21_new_post := nondet();
+ assume(1+cell1_notchic_0 <= cell1_p21_0 && cell1_p21_new_post = -1+cell1_p21_0);
+ cell1_p21_new_0 := cell1_p21_new_post;
+TO: 48;
+
+FROM: 49;
+ cell1_p21_new_post := nondet();
+ assume(1+cell1_p21_0 <= cell1_notchic_0 && cell1_p21_new_post = 1+cell1_p21_0);
+ cell1_p21_new_0 := cell1_p21_new_post;
+TO: 48;
+
+FROM: 50;
+ cell1_delta_new_post := nondet();
+ assume(cell1_gt1_0+cell1_gt2_0 <= 2*cell1_delta_0 && -1+2*cell1_delta_0 <= cell1_gt1_0+cell1_gt2_0 && cell1_delta_new_post = cell1_delta_0);
+ cell1_delta_new_0 := cell1_delta_new_post;
+TO: 49;
+
+FROM: 50;
+ cell1_delta_new_post := nondet();
+ assume(1+cell1_gt1_0+cell1_gt2_0 <= -1+2*cell1_delta_0 && cell1_delta_new_post = -1+cell1_delta_0);
+ cell1_delta_new_0 := cell1_delta_new_post;
+TO: 49;
+
+FROM: 50;
+ cell1_delta_new_post := nondet();
+ assume(1+2*cell1_delta_0 <= cell1_gt1_0+cell1_gt2_0 && cell1_delta_new_post = 1+cell1_delta_0);
+ cell1_delta_new_0 := cell1_delta_new_post;
+TO: 49;
+
+FROM: 51;
+ cell0_dsh_new_post := nondet();
+ assume(cell0_dsh_0 <= cell0_frizzled_0 && cell0_frizzled_0 <= cell0_dsh_0 && cell0_dsh_new_post = cell0_dsh_0);
+ cell0_dsh_new_0 := cell0_dsh_new_post;
+TO: 40;
+
+FROM: 51;
+ cell0_dsh_new_post := nondet();
+ assume(1+cell0_frizzled_0 <= cell0_dsh_0 && cell0_dsh_new_post = -1+cell0_dsh_0);
+ cell0_dsh_new_0 := cell0_dsh_new_post;
+TO: 40;
+
+FROM: 51;
+ cell0_dsh_new_post := nondet();
+ assume(1+cell0_dsh_0 <= cell0_frizzled_0 && cell0_dsh_new_post = 1+cell0_dsh_0);
+ cell0_dsh_new_0 := cell0_dsh_new_post;
+TO: 40;
+
+FROM: 52;
+ cell1_gt2_new_post := nondet();
+ assume(cell1_gt2_0 <= cell1_notchic_0 && cell1_notchic_0 <= cell1_gt2_0 && cell1_gt2_new_post = cell1_gt2_0);
+ cell1_gt2_new_0 := cell1_gt2_new_post;
+TO: 50;
+
+FROM: 52;
+ cell1_gt2_new_post := nondet();
+ assume(1+cell1_notchic_0 <= cell1_gt2_0 && cell1_gt2_new_post = -1+cell1_gt2_0);
+ cell1_gt2_new_0 := cell1_gt2_new_post;
+TO: 50;
+
+FROM: 52;
+ cell1_gt2_new_post := nondet();
+ assume(1+cell1_gt2_0 <= cell1_notchic_0 && cell1_gt2_new_post = 1+cell1_gt2_0);
+ cell1_gt2_new_0 := cell1_gt2_new_post;
+TO: 50;
+
+FROM: 53;
+ cell1_notchic_new_post := nondet();
+ assume(cell1_notchic_0 <= cell1_deltaext_0 && cell1_deltaext_0 <= cell1_notchic_0 && 1+cell1_deltaext_0 <= 2 && cell1_notchic_new_post = cell1_notchic_0);
+ cell1_notchic_new_0 := cell1_notchic_new_post;
+TO: 52;
+
+FROM: 53;
+ cell1_notchic_new_post := nondet();
+ assume(cell1_notchic_0 <= 2 && 2 <= cell1_notchic_0 && 2 <= cell1_deltaext_0 && cell1_notchic_new_post = cell1_notchic_0);
+ cell1_notchic_new_0 := cell1_notchic_new_post;
+TO: 52;
+
+FROM: 53;
+ cell1_notchic_new_post := nondet();
+ assume(1+cell1_deltaext_0 <= cell1_notchic_0 && cell1_notchic_new_post = -1+cell1_notchic_0);
+ cell1_notchic_new_0 := cell1_notchic_new_post;
+TO: 52;
+
+FROM: 53;
+ cell1_notchic_new_post := nondet();
+ assume(3 <= cell1_notchic_0 && cell1_notchic_new_post = -1+cell1_notchic_0);
+ cell1_notchic_new_0 := cell1_notchic_new_post;
+TO: 52;
+
+FROM: 53;
+ cell1_notchic_new_post := nondet();
+ assume(1+cell1_notchic_0 <= 2 && 1+cell1_notchic_0 <= cell1_deltaext_0 && cell1_notchic_new_post = 1+cell1_notchic_0);
+ cell1_notchic_new_0 := cell1_notchic_new_post;
+TO: 52;
+
+FROM: 54;
+ cell1_gt1_new_post := nondet();
+ assume(cell1_gt1_0 <= cell1_bcat_0 && cell1_bcat_0 <= cell1_gt1_0 && cell1_gt1_new_post = cell1_gt1_0);
+ cell1_gt1_new_0 := cell1_gt1_new_post;
+TO: 53;
+
+FROM: 54;
+ cell1_gt1_new_post := nondet();
+ assume(1+cell1_bcat_0 <= cell1_gt1_0 && cell1_gt1_new_post = -1+cell1_gt1_0);
+ cell1_gt1_new_0 := cell1_gt1_new_post;
+TO: 53;
+
+FROM: 54;
+ cell1_gt1_new_post := nondet();
+ assume(1+cell1_gt1_0 <= cell1_bcat_0 && cell1_gt1_new_post = 1+cell1_gt1_0);
+ cell1_gt1_new_0 := cell1_gt1_new_post;
+TO: 53;
+
+FROM: 55;
+ cell1_bcat_new_post := nondet();
+ assume(cell1_bcat_0 <= 3-cell1_axin_0 && 3-cell1_axin_0 <= cell1_bcat_0 && cell1_bcat_new_post = cell1_bcat_0);
+ cell1_bcat_new_0 := cell1_bcat_new_post;
+TO: 54;
+
+FROM: 55;
+ cell1_bcat_new_post := nondet();
+ assume(4-cell1_axin_0 <= cell1_bcat_0 && cell1_bcat_new_post = -1+cell1_bcat_0);
+ cell1_bcat_new_0 := cell1_bcat_new_post;
+TO: 54;
+
+FROM: 55;
+ cell1_bcat_new_post := nondet();
+ assume(1+cell1_bcat_0 <= 3-cell1_axin_0 && cell1_bcat_new_post = 1+cell1_bcat_0);
+ cell1_bcat_new_0 := cell1_bcat_new_post;
+TO: 54;
+
+FROM: 56;
+ cell1_axin_new_post := nondet();
+ assume(cell1_axin_0 <= 3-cell1_dsh_0 && 3-cell1_dsh_0 <= cell1_axin_0 && cell1_axin_new_post = cell1_axin_0);
+ cell1_axin_new_0 := cell1_axin_new_post;
+TO: 55;
+
+FROM: 56;
+ cell1_axin_new_post := nondet();
+ assume(4-cell1_dsh_0 <= cell1_axin_0 && cell1_axin_new_post = -1+cell1_axin_0);
+ cell1_axin_new_0 := cell1_axin_new_post;
+TO: 55;
+
+FROM: 56;
+ cell1_axin_new_post := nondet();
+ assume(1+cell1_axin_0 <= 3-cell1_dsh_0 && cell1_axin_new_post = 1+cell1_axin_0);
+ cell1_axin_new_0 := cell1_axin_new_post;
+TO: 55;
+
+FROM: 57;
+ cell1_dsh_new_post := nondet();
+ assume(cell1_dsh_0 <= cell1_frizzled_0 && cell1_frizzled_0 <= cell1_dsh_0 && cell1_dsh_new_post = cell1_dsh_0);
+ cell1_dsh_new_0 := cell1_dsh_new_post;
+TO: 56;
+
+FROM: 57;
+ cell1_dsh_new_post := nondet();
+ assume(1+cell1_frizzled_0 <= cell1_dsh_0 && cell1_dsh_new_post = -1+cell1_dsh_0);
+ cell1_dsh_new_0 := cell1_dsh_new_post;
+TO: 56;
+
+FROM: 57;
+ cell1_dsh_new_post := nondet();
+ assume(1+cell1_dsh_0 <= cell1_frizzled_0 && cell1_dsh_new_post = 1+cell1_dsh_0);
+ cell1_dsh_new_0 := cell1_dsh_new_post;
+TO: 56;
+
+FROM: 58;
+ cell1_frizzled_new_post := nondet();
+ assume(cell1_frizzled_0 <= cell1_wntext_0 && cell1_wntext_0 <= cell1_frizzled_0 && cell1_frizzled_new_post = cell1_frizzled_0);
+ cell1_frizzled_new_0 := cell1_frizzled_new_post;
+TO: 57;
+
+FROM: 58;
+ cell1_frizzled_new_post := nondet();
+ assume(1+cell1_wntext_0 <= cell1_frizzled_0 && cell1_frizzled_new_post = -1+cell1_frizzled_0);
+ cell1_frizzled_new_0 := cell1_frizzled_new_post;
+TO: 57;
+
+FROM: 58;
+ cell1_frizzled_new_post := nondet();
+ assume(1+cell1_frizzled_0 <= cell1_wntext_0 && cell1_frizzled_new_post = 1+cell1_frizzled_0);
+ cell1_frizzled_new_0 := cell1_frizzled_new_post;
+TO: 57;
+
+FROM: 59;
+ cell0_deltaext_new_post := nondet();
+ assume(2+cell1_delta_0 <= 2*cell0_deltaext_0 && -1+2*cell0_deltaext_0 <= 2+cell1_delta_0 && cell0_deltaext_new_post = cell0_deltaext_0);
+ cell0_deltaext_new_0 := cell0_deltaext_new_post;
+TO: 58;
+
+FROM: 59;
+ cell0_deltaext_new_post := nondet();
+ assume(3+cell1_delta_0 <= -1+2*cell0_deltaext_0 && cell0_deltaext_new_post = -1+cell0_deltaext_0);
+ cell0_deltaext_new_0 := cell0_deltaext_new_post;
+TO: 58;
+
+FROM: 59;
+ cell0_deltaext_new_post := nondet();
+ assume(1+2*cell0_deltaext_0 <= 2+cell1_delta_0 && cell0_deltaext_new_post = 1+cell0_deltaext_0);
+ cell0_deltaext_new_0 := cell0_deltaext_new_post;
+TO: 58;
+
+FROM: 60;
+ cell0_wntext_new_post := nondet();
+ assume(3+cell1_wnt_0 <= 1+2*cell0_wntext_0 && 2*cell0_wntext_0 <= 3+cell1_wnt_0 && cell0_wntext_new_post = cell0_wntext_0);
+ cell0_wntext_new_0 := cell0_wntext_new_post;
+TO: 59;
+
+FROM: 60;
+ cell0_wntext_new_post := nondet();
+ assume(4+cell1_wnt_0 <= 2*cell0_wntext_0 && cell0_wntext_new_post = -1+cell0_wntext_0);
+ cell0_wntext_new_0 := cell0_wntext_new_post;
+TO: 59;
+
+FROM: 60;
+ cell0_wntext_new_post := nondet();
+ assume(2+2*cell0_wntext_0 <= 3+cell1_wnt_0 && cell0_wntext_new_post = 1+cell0_wntext_0);
+ cell0_wntext_new_0 := cell0_wntext_new_post;
+TO: 59;
+
+FROM: 1;
+ cell0_wnt_new_post := nondet();
+ assume(cell0_wnt_0 <= 3-cell0_p21_0 && 3-cell0_p21_0 <= cell0_wnt_0 && cell0_wnt_new_post = cell0_wnt_0);
+ cell0_wnt_new_0 := cell0_wnt_new_post;
+TO: 60;
+
+FROM: 1;
+ cell0_wnt_new_post := nondet();
+ assume(4-cell0_p21_0 <= cell0_wnt_0 && cell0_wnt_new_post = -1+cell0_wnt_0);
+ cell0_wnt_new_0 := cell0_wnt_new_post;
+TO: 60;
+
+FROM: 1;
+ cell0_wnt_new_post := nondet();
+ assume(1+cell0_wnt_0 <= 3-cell0_p21_0 && cell0_wnt_new_post = 1+cell0_wnt_0);
+ cell0_wnt_new_0 := cell0_wnt_new_post;
+TO: 60;
+
+FROM: 5;
+ cell0_frizzled_new_post := nondet();
+ assume(cell0_frizzled_0 <= cell0_wntext_0 && cell0_wntext_0 <= cell0_frizzled_0 && cell0_frizzled_new_post = cell0_frizzled_0);
+ cell0_frizzled_new_0 := cell0_frizzled_new_post;
+TO: 51;
+
+FROM: 5;
+ cell0_frizzled_new_post := nondet();
+ assume(1+cell0_wntext_0 <= cell0_frizzled_0 && cell0_frizzled_new_post = -1+cell0_frizzled_0);
+ cell0_frizzled_new_0 := cell0_frizzled_new_post;
+TO: 51;
+
+FROM: 5;
+ cell0_frizzled_new_post := nondet();
+ assume(1+cell0_frizzled_0 <= cell0_wntext_0 && cell0_frizzled_new_post = 1+cell0_frizzled_0);
+ cell0_frizzled_new_0 := cell0_frizzled_new_post;
+TO: 51;
+
+FROM: 61;
+ assume((0 <= 0));
+TO: 5;
+
+FROM: 62;
+ assume((0 <= 0));
+TO: 61;
+

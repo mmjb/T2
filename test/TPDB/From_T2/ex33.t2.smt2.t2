@@ -1,0 +1,42 @@
+START: 5;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ tmp___0_post := nondet();
+ assume((0 <= 0));
+ tmp___0_0 := tmp___0_post;
+TO: 0;
+
+FROM: 3;
+ __len9_post := nondet();
+ __val8_post := nondet();
+ tmp10_post := nondet();
+ assume(tmp___1_0 <= -1 && -1 <= tmp___1_0 && __val8_post = 0);
+ __len9_0 := __len9_post;
+ __val8_0 := __val8_post;
+ tmp10_0 := tmp10_post;
+TO: 0;
+
+FROM: 3;
+ assume(0 <= tmp___1_0);
+TO: 2;
+
+FROM: 3;
+ assume(1+tmp___1_0 <= -1);
+TO: 2;
+
+FROM: 4;
+ tmp_post := nondet();
+ tmp___1_post := nondet();
+ assume((0 <= 0));
+ tmp_0 := tmp_post;
+ tmp___1_0 := tmp___1_post;
+TO: 3;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 4;
+

@@ -1,0 +1,74 @@
+START: 10;
+
+FROM: 0;
+ assume(length4_0 <= i5_0);
+TO: 1;
+
+FROM: 0;
+ i5_post := nondet();
+ tmp___08_post := nondet();
+ assume(1+i5_0 <= length4_0 && i5_post = 1+i5_0);
+ i5_0 := i5_post;
+ tmp___08_0 := tmp___08_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 7;
+
+FROM: 8;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 8;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 8;
+
+FROM: 7;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 5;
+
+FROM: 9;
+ i5_post := nondet();
+ length4_post := nondet();
+ s_post := nondet();
+ tmp_post := nondet();
+ assume(s_post = tmp_post && length4_post = s_post && i5_post = 0);
+ i5_0 := i5_post;
+ length4_0 := length4_post;
+ s_0 := s_post;
+ tmp_0 := tmp_post;
+TO: 2;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 9;
+

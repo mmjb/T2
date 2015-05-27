@@ -1,0 +1,330 @@
+START: 35;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 3;
+
+FROM: 3;
+ polling_post := nondet();
+ assume(polling_post = 1);
+ polling_0 := polling_post;
+TO: 4;
+
+FROM: 5;
+ assume(Count_0 <= 0);
+TO: 2;
+
+FROM: 5;
+ assume(1 <= Count_0);
+TO: 6;
+
+FROM: 7;
+ Count_post := nondet();
+ assume(Count_post = -1+Count_0);
+ Count_0 := Count_post;
+TO: 5;
+
+FROM: 8;
+ assume((0 <= 0));
+TO: 7;
+
+FROM: 9;
+ assume(requestRescan___014_0 <= 0 && 0 <= requestRescan___014_0);
+TO: 7;
+
+FROM: 9;
+ assume(1 <= requestRescan___014_0);
+TO: 8;
+
+FROM: 9;
+ assume(1+requestRescan___014_0 <= 0);
+TO: 8;
+
+FROM: 10;
+ assume(requestRescan___014_0 <= 0 && 0 <= requestRescan___014_0);
+TO: 11;
+
+FROM: 10;
+ assume(1 <= requestRescan___014_0);
+TO: 11;
+
+FROM: 10;
+ assume(1+requestRescan___014_0 <= 0);
+TO: 11;
+
+FROM: 12;
+ requestRescan___014_post := nondet();
+ assume(requestRescan___014_post = 1);
+ requestRescan___014_0 := requestRescan___014_post;
+TO: 10;
+
+FROM: 13;
+ assume(mdl17_0 <= 0 && 0 <= mdl17_0);
+TO: 10;
+
+FROM: 13;
+ assume(1 <= mdl17_0);
+TO: 12;
+
+FROM: 13;
+ assume(1+mdl17_0 <= 0);
+TO: 12;
+
+FROM: 14;
+ assume(mfg16_0 <= 0 && 0 <= mfg16_0);
+TO: 10;
+
+FROM: 14;
+ assume(1 <= mfg16_0);
+TO: 13;
+
+FROM: 14;
+ assume(1+mfg16_0 <= 0);
+TO: 13;
+
+FROM: 15;
+ assume((0 <= 0));
+TO: 14;
+
+FROM: 16;
+ assume(devId___013_0 <= 0 && 0 <= devId___013_0);
+TO: 10;
+
+FROM: 16;
+ assume(1 <= devId___013_0);
+TO: 15;
+
+FROM: 16;
+ assume(1+devId___013_0 <= 0);
+TO: 15;
+
+FROM: 11;
+ assume((0 <= 0));
+TO: 9;
+
+FROM: 17;
+ devId___013_post := nondet();
+ ret_nondet4146_post := nondet();
+ assume(tmp___018_0 <= 0 && 0 <= tmp___018_0 && ret_nondet4146_post = x4045_0 && devId___013_post = ret_nondet4146_post);
+ devId___013_0 := devId___013_post;
+ ret_nondet4146_0 := ret_nondet4146_post;
+TO: 16;
+
+FROM: 17;
+ assume(1 <= tmp___018_0);
+TO: 11;
+
+FROM: 17;
+ assume(1+tmp___018_0 <= 0);
+TO: 11;
+
+FROM: 18;
+ deviceStatus___012_post := nondet();
+ requestRescan___014_post := nondet();
+ ret_nondet3742_post := nondet();
+ ret_nondet3944_post := nondet();
+ tmp___018_post := nondet();
+ assume(requestRescan___014_post = 0 && ret_nondet3742_post = x3641_0 && deviceStatus___012_post = ret_nondet3742_post && ret_nondet3944_post = x3843_0 && tmp___018_post = ret_nondet3944_post);
+ deviceStatus___012_0 := deviceStatus___012_post;
+ requestRescan___014_0 := requestRescan___014_post;
+ ret_nondet3742_0 := ret_nondet3742_post;
+ ret_nondet3944_0 := ret_nondet3944_post;
+ tmp___018_0 := tmp___018_post;
+TO: 17;
+
+FROM: 19;
+ assume(tmp___119_0 <= 0 && 0 <= tmp___119_0);
+TO: 7;
+
+FROM: 19;
+ assume(1 <= tmp___119_0);
+TO: 18;
+
+FROM: 19;
+ assume(1+tmp___119_0 <= 0);
+TO: 18;
+
+FROM: 20;
+ ret_nondet3540_post := nondet();
+ tmp___119_post := nondet();
+ assume(ret_nondet3540_post = x3439_0 && tmp___119_post = ret_nondet3540_post);
+ ret_nondet3540_0 := ret_nondet3540_post;
+ tmp___119_0 := tmp___119_post;
+TO: 19;
+
+FROM: 21;
+ assume(tmp___220_0 <= 0 && 0 <= tmp___220_0);
+TO: 7;
+
+FROM: 21;
+ assume(1 <= tmp___220_0);
+TO: 20;
+
+FROM: 21;
+ assume(1+tmp___220_0 <= 0);
+TO: 20;
+
+FROM: 22;
+ assume(1+status___011_0 <= -1);
+TO: 7;
+
+FROM: 22;
+ assume(0 <= status___011_0);
+TO: 7;
+
+FROM: 22;
+ ret_nondet3338_post := nondet();
+ tmp___220_post := nondet();
+ assume(-1 <= status___011_0 && status___011_0 <= -1 && ret_nondet3338_post = x3237_0 && tmp___220_post = ret_nondet3338_post);
+ ret_nondet3338_0 := ret_nondet3338_post;
+ tmp___220_0 := tmp___220_post;
+TO: 21;
+
+FROM: 23;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 24;
+ assume(tmp15_0 <= 0 && 0 <= tmp15_0);
+TO: 22;
+
+FROM: 24;
+ assume(1 <= tmp15_0);
+TO: 23;
+
+FROM: 24;
+ assume(1+tmp15_0 <= 0);
+TO: 23;
+
+FROM: 25;
+ Count_post := nondet();
+ ret_nondet2732_post := nondet();
+ assume(ret_nondet2732_post = x2631_0 && Count_post = ret_nondet2732_post);
+ Count_0 := Count_post;
+ ret_nondet2732_0 := ret_nondet2732_post;
+TO: 6;
+
+FROM: 26;
+ assume(tmp___322_0 <= 0 && 0 <= tmp___322_0);
+TO: 3;
+
+FROM: 26;
+ assume(1 <= tmp___322_0);
+TO: 25;
+
+FROM: 26;
+ assume(1+tmp___322_0 <= 0);
+TO: 25;
+
+FROM: 27;
+ ret_nondet2530_post := nondet();
+ tmp___322_post := nondet();
+ assume(ret_nondet2530_post = x2429_0 && tmp___322_post = ret_nondet2530_post);
+ ret_nondet2530_0 := ret_nondet2530_post;
+ tmp___322_0 := tmp___322_post;
+TO: 26;
+
+FROM: 28;
+ assume(tmp___423_0 <= 0 && 0 <= tmp___423_0);
+TO: 3;
+
+FROM: 28;
+ assume(1 <= tmp___423_0);
+TO: 27;
+
+FROM: 28;
+ assume(1+tmp___423_0 <= 0);
+TO: 27;
+
+FROM: 29;
+ assume(WarmPollPeriod_0 <= __const_20_0);
+TO: 30;
+
+FROM: 29;
+ WarmPollPeriod_post := nondet();
+ assume(1+__const_20_0 <= WarmPollPeriod_0 && WarmPollPeriod_post = __const_20_0);
+ WarmPollPeriod_0 := WarmPollPeriod_post;
+TO: 30;
+
+FROM: 30;
+ ret_nondet2328_post := nondet();
+ tmp___423_post := nondet();
+ assume(ret_nondet2328_post = x2227_0 && tmp___423_post = ret_nondet2328_post);
+ ret_nondet2328_0 := ret_nondet2328_post;
+ tmp___423_0 := tmp___423_post;
+TO: 28;
+
+FROM: 6;
+ ret_nondet2934_post := nondet();
+ ret_nondet3136_post := nondet();
+ status___011_post := nondet();
+ tmp15_post := nondet();
+ assume(ret_nondet2934_post = x2833_0 && status___011_post = ret_nondet2934_post && ret_nondet3136_post = x3035_0 && tmp15_post = ret_nondet3136_post);
+ ret_nondet2934_0 := ret_nondet2934_post;
+ ret_nondet3136_0 := ret_nondet3136_post;
+ status___011_0 := status___011_post;
+ tmp15_0 := tmp15_post;
+TO: 24;
+
+FROM: 31;
+ assume(__const_5_0 <= WarmPollPeriod_0);
+TO: 29;
+
+FROM: 31;
+ WarmPollPeriod_post := nondet();
+ assume(1+WarmPollPeriod_0 <= __const_5_0 && WarmPollPeriod_post = __const_5_0);
+ WarmPollPeriod_0 := WarmPollPeriod_post;
+TO: 30;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 32;
+
+FROM: 32;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 33;
+ assume(status_0 <= 0);
+TO: 3;
+
+FROM: 33;
+ WarmPollPeriod_post := nondet();
+ ret_nondet2126_post := nondet();
+ assume(1 <= status_0 && ret_nondet2126_post = x2025_0 && WarmPollPeriod_post = ret_nondet2126_post);
+ WarmPollPeriod_0 := WarmPollPeriod_post;
+ ret_nondet2126_0 := ret_nondet2126_post;
+TO: 31;
+
+FROM: 34;
+ Count_post := nondet();
+ PowerStateIsAC_post := nondet();
+ WarmPollPeriod_post := nondet();
+ polling_post := nondet();
+ ret_nondet1010_post := nondet();
+ ret_nondet22_post := nondet();
+ ret_nondet44_post := nondet();
+ ret_nondet66_post := nondet();
+ ret_nondet88_post := nondet();
+ status_post := nondet();
+ assume(ret_nondet22_post = x11_0 && WarmPollPeriod_post = ret_nondet22_post && ret_nondet44_post = x33_0 && status_post = ret_nondet44_post && ret_nondet66_post = x55_0 && polling_post = ret_nondet66_post && ret_nondet88_post = x77_0 && PowerStateIsAC_post = ret_nondet88_post && ret_nondet1010_post = x99_0 && Count_post = ret_nondet1010_post);
+ Count_0 := Count_post;
+ PowerStateIsAC_0 := PowerStateIsAC_post;
+ WarmPollPeriod_0 := WarmPollPeriod_post;
+ polling_0 := polling_post;
+ ret_nondet1010_0 := ret_nondet1010_post;
+ ret_nondet22_0 := ret_nondet22_post;
+ ret_nondet44_0 := ret_nondet44_post;
+ ret_nondet66_0 := ret_nondet66_post;
+ ret_nondet88_0 := ret_nondet88_post;
+ status_0 := status_post;
+TO: 33;
+
+FROM: 35;
+ assume((0 <= 0));
+TO: 34;
+

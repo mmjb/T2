@@ -1,0 +1,14 @@
+START: 2;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 1;
+

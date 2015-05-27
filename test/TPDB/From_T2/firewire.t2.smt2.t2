@@ -1,0 +1,158 @@
+START: 16;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ yy_post := nondet();
+ assume(yy_post = 1);
+ yy_0 := yy_post;
+TO: 0;
+
+FROM: 3;
+ xx_post := nondet();
+ assume(xx_post = 1);
+ xx_0 := xx_post;
+TO: 4;
+
+FROM: 4;
+ assume(1 <= c2_0);
+TO: 2;
+
+FROM: 4;
+ assume(1+c2_0 <= 0);
+TO: 2;
+
+FROM: 4;
+ yy_post := nondet();
+ assume(c2_0 <= 0 && 0 <= c2_0 && yy_post = 0);
+ yy_0 := yy_post;
+TO: 0;
+
+FROM: 5;
+ c1_post := nondet();
+ c2_post := nondet();
+ z_post := nondet();
+ assume(z_post = -1+z_0);
+ c1_0 := c1_post;
+ c2_0 := c2_post;
+ z_0 := z_post;
+TO: 6;
+
+FROM: 7;
+ it_post := nondet();
+ seqlen_post := nondet();
+ z_post := nondet();
+ assume(1 <= z_post && seqlen_post = 1+seqlen_0 && it_post = seqlen_post);
+ it_0 := it_post;
+ seqlen_0 := seqlen_post;
+ z_0 := z_post;
+TO: 6;
+
+FROM: 8;
+ pattern_post := nondet();
+ assume(1+pattern_0 <= 3 && pattern_post = 1+pattern_0);
+ pattern_0 := pattern_post;
+TO: 7;
+
+FROM: 8;
+ pattern_post := nondet();
+ assume(3 <= pattern_0 && pattern_post = 0);
+ pattern_0 := pattern_post;
+TO: 7;
+
+FROM: 6;
+ assume(1 <= c1_0);
+TO: 3;
+
+FROM: 6;
+ assume(1+c1_0 <= 0);
+TO: 3;
+
+FROM: 6;
+ xx_post := nondet();
+ assume(c1_0 <= 0 && 0 <= c1_0 && xx_post = 0);
+ xx_0 := xx_post;
+TO: 4;
+
+FROM: 9;
+ it_post := nondet();
+ pattern_post := nondet();
+ seqlen_post := nondet();
+ xx_post := nondet();
+ yy_post := nondet();
+ z_post := nondet();
+ assume(pattern_post = 0 && seqlen_post = 1 && it_post = seqlen_post && xx_post = 0 && yy_post = 0 && 1 <= z_post);
+ it_0 := it_post;
+ pattern_0 := pattern_post;
+ seqlen_0 := seqlen_post;
+ xx_0 := xx_post;
+ yy_0 := yy_post;
+ z_0 := z_post;
+TO: 0;
+
+FROM: 10;
+ c1_post := nondet();
+ assume(c1_post = buffer_0);
+ c1_0 := c1_post;
+TO: 6;
+
+FROM: 11;
+ c2_post := nondet();
+ assume(buffer_0 <= 2 && c2_post = 0);
+ c2_0 := c2_post;
+TO: 10;
+
+FROM: 11;
+ buffer_post := nondet();
+ c2_post := nondet();
+ assume(3 <= buffer_0 && c2_post = 1 && buffer_post = -2+buffer_0);
+ buffer_0 := buffer_post;
+ c2_0 := c2_post;
+TO: 10;
+
+FROM: 12;
+ assume(it_0 <= 0);
+TO: 8;
+
+FROM: 12;
+ buffer_post := nondet();
+ it_post := nondet();
+ assume(1 <= it_0 && it_post = -1+it_0 && buffer_post = pattern_0);
+ buffer_0 := buffer_post;
+ it_0 := it_post;
+TO: 11;
+
+FROM: 13;
+ assume((0 <= 0));
+TO: 14;
+
+FROM: 15;
+ assume(1 <= z_0);
+TO: 5;
+
+FROM: 15;
+ assume(1+z_0 <= 0);
+TO: 5;
+
+FROM: 15;
+ assume(z_0 <= 0 && 0 <= z_0);
+TO: 12;
+
+FROM: 1;
+ assume(1+yy_0 <= xx_0);
+TO: 13;
+
+FROM: 1;
+ assume(1+xx_0 <= yy_0);
+TO: 13;
+
+FROM: 1;
+ assume(xx_0 <= yy_0 && yy_0 <= xx_0);
+TO: 15;
+
+FROM: 16;
+ assume((0 <= 0));
+TO: 9;
+

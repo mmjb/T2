@@ -1,0 +1,31 @@
+START: 4;
+
+FROM: 0;
+ Result_4_post := nondet();
+ assume(-1*x_5_0+y_6_0 <= 0);
+ Result_4_0 := Result_4_post;
+TO: 1;
+
+FROM: 0;
+ lt_9_post := nondet();
+ lt_9_1 := nondet();
+ assume(0 <= -1-x_5_0+y_6_0 && lt_9_1 = cnt_15_0);
+ lt_9_0 := lt_9_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ p_8_post := nondet();
+ z_7_post := nondet();
+ assume(p_8_post = z_7_post);
+ p_8_0 := p_8_post;
+ z_7_0 := z_7_post;
+TO: 0;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 3;
+

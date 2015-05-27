@@ -1,0 +1,14 @@
+START: 2;
+
+FROM: 0;
+ tmp3_post := nondet();
+ tmp___04_post := nondet();
+ assume((0 <= 0));
+ tmp3_0 := tmp3_post;
+ tmp___04_0 := tmp___04_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

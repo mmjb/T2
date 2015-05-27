@@ -1,0 +1,16 @@
+START: 2;
+
+FROM: 0;
+ tmp_post := nondet();
+ x35_post := nondet();
+ x68_post := nondet();
+ assume((0 <= 0));
+ tmp_0 := tmp_post;
+ x35_0 := x35_post;
+ x68_0 := x68_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

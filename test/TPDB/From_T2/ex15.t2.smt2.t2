@@ -1,0 +1,24 @@
+START: 2;
+
+FROM: 0;
+ i_post := nondet();
+ tmp10_post := nondet();
+ tmp13_post := nondet();
+ tmp___011_post := nondet();
+ tmp___014_post := nondet();
+ i_1 := nondet();
+ i_2 := nondet();
+ i_3 := nondet();
+ i_4 := nondet();
+ assume(i_1 = 0 && tmp10_post = i_1 && i_2 = 1+i_1 && tmp___011_post = i_2 && i_3 = 1+i_2 && tmp13_post = i_3 && i_4 = 1+i_3 && tmp___014_post = i_4 && i_post = 1+i_4);
+ i_0 := i_post;
+ tmp10_0 := tmp10_post;
+ tmp13_0 := tmp13_post;
+ tmp___011_0 := tmp___011_post;
+ tmp___014_0 := tmp___014_post;
+TO: 1;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+

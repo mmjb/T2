@@ -1,0 +1,23 @@
+START: 3;
+
+FROM: 0;
+ pc_Loop_post := nondet();
+ pc_Loop_1 := nondet();
+ assume(pc_Loop_1 = 3 && pc_Loop_post = 2);
+ pc_Loop_0 := pc_Loop_post;
+TO: 1;
+
+FROM: 1;
+ assume(pc_Loop_0 = pc_Loop_0);
+TO: 0;
+
+FROM: 2;
+ pc_Loop_post := nondet();
+ assume(pc_Loop_post = 2);
+ pc_Loop_0 := pc_Loop_post;
+TO: 0;
+
+FROM: 3;
+ assume(pc_Loop_0 = pc_Loop_0);
+TO: 2;
+

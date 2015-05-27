@@ -1,0 +1,13 @@
+START: 2;
+
+FROM: 0;
+ a_post := nondet();
+ a_1 := nondet();
+ assume(a_1 = 1 && a_post = -1);
+ a_0 := a_post;
+TO: 1;
+
+FROM: 2;
+ assume(a_0 = a_0);
+TO: 0;
+

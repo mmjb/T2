@@ -1,0 +1,111 @@
+START: 12;
+
+FROM: 0;
+ assume(got_SIGHUP_0 <= 0);
+TO: 1;
+
+FROM: 0;
+ __rho_2__post := nondet();
+ a33_post := nondet();
+ got_SIGHUP_post := nondet();
+ ret_XLogArchivingActive44_post := nondet();
+ tmp2_post := nondet();
+ tt1_post := nondet();
+ assume(1 <= got_SIGHUP_0 && got_SIGHUP_post = 0 && a33_post = 1 && ret_XLogArchivingActive44_post = __rho_2__post && tmp2_post = ret_XLogArchivingActive44_post && tt1_post = tmp2_post);
+ __rho_2__0 := __rho_2__post;
+ a33_0 := a33_post;
+ got_SIGHUP_0 := got_SIGHUP_post;
+ ret_XLogArchivingActive44_0 := ret_XLogArchivingActive44_post;
+ tmp2_0 := tmp2_post;
+ tt1_0 := tt1_post;
+TO: 2;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 7;
+ __rho_4__post := nondet();
+ assume((0 <= 0));
+ __rho_4__0 := __rho_4__post;
+TO: 5;
+
+FROM: 8;
+ assume(1+curtime_0-last_copy_time_0 <= __const_1000_0);
+TO: 7;
+
+FROM: 8;
+ wakend_post := nondet();
+ assume(__const_1000_0 <= curtime_0-last_copy_time_0 && wakend_post = 1);
+ wakend_0 := wakend_post;
+TO: 7;
+
+FROM: 9;
+ assume(1 <= wakend_0);
+TO: 7;
+
+FROM: 9;
+ a88_post := nondet();
+ curtime_post := nondet();
+ ret_time1010_post := nondet();
+ tmp99_post := nondet();
+ assume(wakend_0 <= 0 && a88_post = 0 && ret_time1010_post = tmp99_post && curtime_post = ret_time1010_post);
+ a88_0 := a88_post;
+ curtime_0 := curtime_post;
+ ret_time1010_0 := ret_time1010_post;
+ tmp99_0 := tmp99_post;
+TO: 8;
+
+FROM: 1;
+ assume(wakend_0 <= 0);
+TO: 9;
+
+FROM: 1;
+ a55_post := nondet();
+ last_copy_time_post := nondet();
+ ret_time77_post := nondet();
+ tmp66_post := nondet();
+ wakend_post := nondet();
+ assume(1 <= wakend_0 && wakend_post = 0 && a55_post = 0 && ret_time77_post = tmp66_post && last_copy_time_post = ret_time77_post);
+ a55_0 := a55_post;
+ last_copy_time_0 := last_copy_time_post;
+ ret_time77_0 := ret_time77_post;
+ tmp66_0 := tmp66_post;
+ wakend_0 := wakend_post;
+TO: 9;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 10;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 2;
+ assume(1 <= tt1_0);
+TO: 1;
+
+FROM: 2;
+ assume(tt1_0 <= 0);
+TO: 5;
+
+FROM: 11;
+ __rho_1__post := nondet();
+ got_SIGHUP_post := nondet();
+ wakend_post := nondet();
+ wakend_1 := nondet();
+ assume(wakend_1 = 1 && got_SIGHUP_post = __rho_2__0 && wakend_post = 1);
+ __rho_1__0 := __rho_1__post;
+ got_SIGHUP_0 := got_SIGHUP_post;
+ wakend_0 := wakend_post;
+TO: 0;
+
+FROM: 12;
+ assume((0 <= 0));
+TO: 11;
+

@@ -1,0 +1,40 @@
+START: 5;
+
+FROM: 0;
+ r_post := nondet();
+ assume(r_post = p_0);
+ r_0 := r_post;
+TO: 1;
+
+FROM: 0;
+ q_post := nondet();
+ assume(q_post = p_0);
+ q_0 := q_post;
+TO: 1;
+
+FROM: 2;
+ assume(q_0 <= 1+r_0);
+TO: 3;
+
+FROM: 2;
+ p_post := nondet();
+ assume(2+r_0 <= q_0);
+ p_0 := p_post;
+TO: 0;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 2;
+
+FROM: 4;
+ q_post := nondet();
+ r_post := nondet();
+ assume(r_post = 1 && q_post = N_0);
+ q_0 := q_post;
+ r_0 := r_post;
+TO: 1;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 4;
+

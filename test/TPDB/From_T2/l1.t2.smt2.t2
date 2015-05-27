@@ -1,0 +1,31 @@
+START: 3;
+
+FROM: 0;
+ x_post := nondet();
+ assume(0 <= x_0 && t_0 <= y_0 && x_post = x_0+y_0);
+ x_0 := x_post;
+TO: 1;
+
+FROM: 1;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 2;
+ t_post := nondet();
+ t_1 := nondet();
+ t_2 := nondet();
+ t_3 := nondet();
+ t_4 := nondet();
+ t_5 := nondet();
+ t_6 := nondet();
+ t_7 := nondet();
+ t_8 := nondet();
+ t_9 := nondet();
+ assume(t_1 = -1 && t_2 = -1+t_1 && t_3 = -1+t_2 && t_4 = -1+t_3 && t_5 = -1+t_4 && t_6 = -1+t_5 && t_7 = -1+t_6 && t_8 = -1+t_7 && t_9 = -1+t_8 && t_post = -1+t_9 && -1 <= x_0 && t_post <= y_0);
+ t_0 := t_post;
+TO: 0;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 2;
+

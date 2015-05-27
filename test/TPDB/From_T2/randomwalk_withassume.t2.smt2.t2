@@ -1,0 +1,90 @@
+START: 10;
+
+FROM: 0;
+ assume((0 <= 0));
+TO: 1;
+
+FROM: 2;
+ assume(seq_0 <= 1+N_0);
+TO: 3;
+
+FROM: 4;
+ walker_post := nondet();
+ assume(1 <= choice_0 && walker_post = 1+walker_0);
+ walker_0 := walker_post;
+TO: 2;
+
+FROM: 4;
+ walker_post := nondet();
+ assume(choice_0 <= 0 && walker_post = -1+walker_0);
+ walker_0 := walker_post;
+TO: 2;
+
+FROM: 5;
+ N_post := nondet();
+ i_post := nondet();
+ pos_post := nondet();
+ seq_post := nondet();
+ walker_post := nondet();
+ z_post := nondet();
+ assume(seq_post = 1 && i_post = seq_post && 0 <= z_post && pos_post = 0 && N_post <= 2 && 2 <= N_post && walker_post = 1);
+ N_0 := N_post;
+ i_0 := i_post;
+ pos_0 := pos_post;
+ seq_0 := seq_post;
+ walker_0 := walker_post;
+ z_0 := z_post;
+TO: 3;
+
+FROM: 6;
+ i_post := nondet();
+ seq_post := nondet();
+ z_post := nondet();
+ assume(i_0 <= 0 && seq_post = 1+seq_0 && i_post = seq_post && 0 <= z_post);
+ i_0 := i_post;
+ seq_0 := seq_post;
+ z_0 := z_post;
+TO: 4;
+
+FROM: 6;
+ i_post := nondet();
+ assume(1 <= i_0 && choice_0 <= 0 && i_post = -1+i_0);
+ i_0 := i_post;
+TO: 4;
+
+FROM: 7;
+ z_post := nondet();
+ assume(1 <= z_0 && z_post = -1+z_0);
+ z_0 := z_post;
+TO: 4;
+
+FROM: 7;
+ assume(z_0 <= 0);
+TO: 6;
+
+FROM: 8;
+ assume(1+walker_0 <= 1);
+TO: 0;
+
+FROM: 8;
+ choice_post := nondet();
+ assume(1 <= walker_0 && 0 <= choice_post && choice_post <= 1);
+ choice_0 := choice_post;
+TO: 7;
+
+FROM: 9;
+ assume(1+N_0 <= walker_0);
+TO: 0;
+
+FROM: 9;
+ assume(walker_0 <= N_0);
+TO: 8;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 9;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 5;
+

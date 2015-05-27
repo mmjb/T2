@@ -1,0 +1,97 @@
+START: 12;
+
+FROM: 0;
+ assume(got_SIGHUP_0 <= 0);
+TO: 1;
+
+FROM: 0;
+ __rho_3__post := nondet();
+ a22_post := nondet();
+ got_SIGHUP_post := nondet();
+ tt1_post := nondet();
+ assume(1 <= got_SIGHUP_0 && got_SIGHUP_post = 0 && a22_post = 1 && tt1_post = __rho_3__post);
+ __rho_3__0 := __rho_3__post;
+ a22_0 := a22_post;
+ got_SIGHUP_0 := got_SIGHUP_post;
+ tt1_0 := tt1_post;
+TO: 2;
+
+FROM: 3;
+ assume((0 <= 0));
+TO: 4;
+
+FROM: 5;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 7;
+ __rho_5__post := nondet();
+ assume((0 <= 0));
+ __rho_5__0 := __rho_5__post;
+TO: 5;
+
+FROM: 8;
+ assume(1+curtime_0-last_copy_time_0 <= __const_1000_0);
+TO: 7;
+
+FROM: 8;
+ wakend_post := nondet();
+ assume(__const_1000_0 <= curtime_0-last_copy_time_0 && wakend_post = 1);
+ wakend_0 := wakend_post;
+TO: 7;
+
+FROM: 9;
+ assume(1 <= wakend_0);
+TO: 7;
+
+FROM: 9;
+ curtime_post := nondet();
+ assume(wakend_0 <= 0);
+ curtime_0 := curtime_post;
+TO: 8;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 10;
+
+FROM: 10;
+ assume((0 <= 0));
+TO: 6;
+
+FROM: 1;
+ assume(wakend_0 <= 0);
+TO: 9;
+
+FROM: 1;
+ __rho_4__post := nondet();
+ last_copy_time_post := nondet();
+ wakend_post := nondet();
+ assume(1 <= wakend_0 && wakend_post = 0 && last_copy_time_post = __rho_4__post);
+ __rho_4__0 := __rho_4__post;
+ last_copy_time_0 := last_copy_time_post;
+ wakend_0 := wakend_post;
+TO: 9;
+
+FROM: 2;
+ assume(1 <= tt1_0);
+TO: 1;
+
+FROM: 2;
+ assume(tt1_0 <= 0);
+TO: 5;
+
+FROM: 11;
+ __rho_2__post := nondet();
+ got_SIGHUP_post := nondet();
+ wakend_post := nondet();
+ wakend_1 := nondet();
+ assume(wakend_1 = 1 && got_SIGHUP_post = __rho_2__post && wakend_post = 1);
+ __rho_2__0 := __rho_2__post;
+ got_SIGHUP_0 := got_SIGHUP_post;
+ wakend_0 := wakend_post;
+TO: 0;
+
+FROM: 12;
+ assume((0 <= 0));
+TO: 11;
+

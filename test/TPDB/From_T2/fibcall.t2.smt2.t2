@@ -1,0 +1,46 @@
+START: 4;
+
+FROM: 0;
+ ans8_post := nondet();
+ ret_fib9_post := nondet();
+ tmp_post := nondet();
+ assume(1+n3_0 <= i4_0 && ans8_post = Fnew5_0 && ret_fib9_post = ans8_post && tmp_post = ret_fib9_post);
+ ans8_0 := ans8_post;
+ ret_fib9_0 := ret_fib9_post;
+ tmp_0 := tmp_post;
+TO: 1;
+
+FROM: 0;
+ Fnew5_post := nondet();
+ Fold6_post := nondet();
+ i4_post := nondet();
+ temp7_post := nondet();
+ assume(i4_0 <= n3_0 && temp7_post = Fnew5_0 && Fnew5_post = Fnew5_0+Fold6_0 && Fold6_post = temp7_post && i4_post = 1+i4_0);
+ Fnew5_0 := Fnew5_post;
+ Fold6_0 := Fold6_post;
+ i4_0 := i4_post;
+ temp7_0 := temp7_post;
+TO: 2;
+
+FROM: 2;
+ assume((0 <= 0));
+TO: 0;
+
+FROM: 3;
+ Fnew5_post := nondet();
+ Fold6_post := nondet();
+ a_post := nondet();
+ i4_post := nondet();
+ n3_post := nondet();
+ assume(a_post = __const_30_0 && n3_post = a_post && Fnew5_post = 1 && Fold6_post = 0 && i4_post = 2);
+ Fnew5_0 := Fnew5_post;
+ Fold6_0 := Fold6_post;
+ a_0 := a_post;
+ i4_0 := i4_post;
+ n3_0 := n3_post;
+TO: 2;
+
+FROM: 4;
+ assume((0 <= 0));
+TO: 3;
+

@@ -1,0 +1,22 @@
+START: 3;
+
+FROM: 0;
+ assume(p_0 = p_0);
+TO: 1;
+
+FROM: 1;
+ assume(p_0 = p_0);
+TO: 0;
+
+FROM: 2;
+ p_post := nondet();
+ p_1 := nondet();
+ p_2 := nondet();
+ assume(p_1 = 1 && p_2 = 0 && p_post = 1);
+ p_0 := p_post;
+TO: 0;
+
+FROM: 3;
+ assume(p_0 = p_0);
+TO: 2;
+

@@ -1,0 +1,13 @@
+START: 2;
+
+FROM: 0;
+ Result_4_post := nondet();
+ Result_4_1 := nondet();
+ assume((0 <= 0));
+ Result_4_0 := Result_4_post;
+TO: 1;
+
+FROM: 2;
+ assume(Result_4_0 = Result_4_0);
+TO: 0;
+

@@ -1,0 +1,50 @@
+START: 6;
+
+FROM: 0;
+ len_post := nondet();
+ assume(len_post = 1+len_0);
+ len_0 := len_post;
+TO: 1;
+
+FROM: 2;
+ assume(5 <= len_0);
+TO: 0;
+
+FROM: 2;
+ assume(1+len_0 <= 4);
+TO: 0;
+
+FROM: 2;
+ len_post := nondet();
+ assume(len_0 <= 4 && 4 <= len_0 && len_post = 0);
+ len_0 := len_post;
+TO: 0;
+
+FROM: 3;
+ assume(tmp_0 <= 0 && 0 <= tmp_0);
+TO: 4;
+
+FROM: 3;
+ assume(1 <= tmp_0);
+TO: 2;
+
+FROM: 3;
+ assume(1+tmp_0 <= 0);
+TO: 2;
+
+FROM: 1;
+ tmp_post := nondet();
+ assume((0 <= 0));
+ tmp_0 := tmp_post;
+TO: 3;
+
+FROM: 5;
+ len_post := nondet();
+ assume(len_post = 0);
+ len_0 := len_post;
+TO: 1;
+
+FROM: 6;
+ assume((0 <= 0));
+TO: 5;
+

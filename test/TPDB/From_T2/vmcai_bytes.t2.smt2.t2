@@ -1,0 +1,12 @@
+START: 2;
+
+FROM: 0;
+ x_promoted_1_post := nondet();
+ assume(x_promoted_1_post = 0);
+ x_promoted_1_0 := x_promoted_1_post;
+TO: 1;
+
+FROM: 2;
+ assume(x_promoted_1_0 = x_promoted_1_0);
+TO: 0;
+
