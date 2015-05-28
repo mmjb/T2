@@ -62,7 +62,7 @@ let endTimer s =
             totalTimes.[s] <- oldTime + elapsed
         | _ ->
             totalTimes.[s] <- elapsed
-    | _ -> Utils.dieWith "Tried to stop inactive '%s'." s
+    | _ -> () //Utils.dieWith "Tried to stop inactive '%s'." s
 
 /// Add x to the counter s
 let addToCounter s x =
