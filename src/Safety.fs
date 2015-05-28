@@ -38,8 +38,7 @@ let GetProver (parameters : Parameters.parameters) (program : Programs.Program) 
     match parameters.safety_implementation with
     | Parameters.Impact ->
         Impact.ImpactARG(parameters, program, errorLocation) :> _
-    | Parameters.PDR
-    | Parameters.Spacer ->
+    | _ ->
         MuZ.MuZWrapper(parameters, program, errorLocation) :> _
 
  /// Prove that location err is unreachable in p
