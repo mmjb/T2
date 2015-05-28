@@ -138,7 +138,7 @@ let private synthesis_base (pars : Parameters.parameters) a b =
 //
 let private path_synthesis (pars : Parameters.parameters) fs =
     assert (fs <> [])
-    Z.createZ3Context()
+    Z.refreshZ3Context()
 
     // compute interpolant for the middle of the path first
     let rec bisect_intps (fs: Formula.formula list) =

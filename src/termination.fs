@@ -1211,7 +1211,7 @@ let rec nTerm f =
     | CTL.EU _ -> raise (new System.NotImplementedException "EU constraints not yet implemented")
 
 let bottomUpProver (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) (fairness_constraint : (Formula.formula * Formula.formula) option) =
-    Z.createZ3Context()
+    Z.refreshZ3Context()
     Utils.timeout pars.timeout
 
     //Under CTL semantics, it is assumed that all paths are infinite. We thus add infinite loops to any terminating paths unless we are explicitly proving termination.

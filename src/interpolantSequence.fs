@@ -187,7 +187,7 @@ let private synthesis_base (pars : Parameters.parameters) try_ignore_beginning f
 ///
 let private synthesis_base_with_entailment (pars : Parameters.parameters) fs entail_distance invar_fs =
     assert (fs <> [])
-    Z.createZ3Context()
+    Z.refreshZ3Context()
 
     // unprime the invar i
     let unprime i = [for (var,term) in Map.toList i -> (if var = ONE then ONE else Var.unprime_var var), term] |> Map.ofList

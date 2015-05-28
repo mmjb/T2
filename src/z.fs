@@ -46,16 +46,18 @@ let z3Config =
 /// It should be disposed at the end of a run.
 // TODO: This should be wrapped into a context, to be thread-safe.
 let mutable z3Context : Microsoft.Z3.Context = null
-let createZ3Context () =
+let getZ3Context () =
+    new Microsoft.Z3.Context(z3Config)
+let refreshZ3Context () =
     if z3Context <> null then
         System.GC.SuppressFinalize z3Context
         z3Context.Dispose()
-    z3Context <- new Microsoft.Z3.Context(z3Config)
-createZ3Context()
+    z3Context <- getZ3Context()
+refreshZ3Context()
 
 // Register clear() createZ3Context when we "clear" the prover state. This dumps
 // internal z3 state and provides a fresh solver.
-Utils.add_clear createZ3Context
+Utils.add_clear refreshZ3Context
 
 /// Create a simple z3 SMT Solver. Caller has to take care of disposal of the object.
 let getSolver () =
