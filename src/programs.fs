@@ -548,28 +548,24 @@ let variables p = p.vars
 // Return a mapping from nodes to nodes that are reachable using the CFG edges
 //
 let cfg_reach p =
-    let reachable = new SetDictionary<int, int>()
-    let locs = locations p |> Set.toList
+    //(v, w) \in transitiveReaches <-> p has non-empty path from v to w
+    let transitiveReaches = System.Collections.Generic.HashSet()
+    for n in p.active do
+        let (l, _, l') = p.transitions.[n]
+        transitiveReaches.Add (l, l') |> ignore
 
-    for l, _, l' in enumerate_transitions p do
-        reachable.Add(l, l')
+    //Who you gonna call? Floyd-Warshall!
+    for w in p.locs do
+        for v in p.locs do
+            for u in p.locs do
+                if transitiveReaches.Contains (v, w) && transitiveReaches.Contains (w, u) then
+                    transitiveReaches.Add (v, u) |> ignore
 
-    //
-    // Take a step towards building the table
-    //
-    let update loc =
-        let oldReachable = reachable.[loc]
-        let newReachable = Set.fold (fun closure reachableLoc -> Set.union closure reachable.[reachableLoc]) oldReachable oldReachable
-        if Set.count oldReachable = Set.count newReachable then 
-            false
-        else
-            reachable.ReplaceSet loc newReachable
-            true
-    let step () = List.map update locs |> List.exists id
-    while step() do
-        ()
-    done
-    reachable
+    let reachableLocations = new SetDictionary<int, int>()
+    for (v, w) in transitiveReaches do
+        reachableLocations.Add (v, w)
+
+    reachableLocations
 
 ///Remove transition with index n from the program p
 let remove_transition p n =
