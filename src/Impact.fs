@@ -53,38 +53,31 @@ open PriorityQueue
 
 let private make_prio_map (p: Programs.Program) (error_loc: int) =
     //bfs from error location on reversed transition relation, assigned prio is inverted minimal distance
-    let in_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<int * Programs.command list * int>>()
-    let mutable all_nodes = Set.empty
-    let add_to_set_dict (dict : System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<int * Programs.command list * int>>) k v =
-        if dict.ContainsKey k then
-            dict.[k].Add v
-        else
-            dict.Add(k, new System.Collections.Generic.HashSet<int * Programs.command list * int>())
-            dict.[k].Add v
+    let in_trans = SetDictionary()
+    let all_nodes = System.Collections.Generic.HashSet()
     for n in p.active do
         let trans = p.transitions.[n]
         let (k, _, k') = trans
-        add_to_set_dict in_trans k' trans |> ignore
-        all_nodes <- Set.add k' <| Set.add k all_nodes
+        in_trans.Add (k', trans)
+        all_nodes.Add k |> ignore
+        all_nodes.Add k' |> ignore
 
-    let mutable res = Map.empty
+    let res = System.Collections.Generic.Dictionary()
     let todo = new System.Collections.Generic.Queue<int * int>()
     todo.Enqueue(error_loc, 0)
 
     while todo.Count > 0 do
         let (node, dist) = todo.Dequeue()
-        if not(Map.containsKey node res) then
-            res <- Map.add node dist res
-            if in_trans.ContainsKey node then //not everyone has incoming transitions. Think start state
-                let all_in_trans = in_trans.[node]
-                for (pred, _, _) in all_in_trans do
-                    todo.Enqueue(pred, dist - 1)
+        if res.ContainsKey node then
+            res.[node] <- dist
+            for (pred, _, _) in in_trans.[node] do
+                todo.Enqueue(pred, dist - 1)
 
     //Whoever has no weight does not even reach error_loc. Make them go last:
     let min_weight = -p.active.Count
     for node in all_nodes do
-        if not(Map.containsKey node res) then
-            res <- Map.add node min_weight res
+        if res.ContainsKey node then
+            res.[node] <- min_weight
 
     res
 
@@ -756,7 +749,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 else
                     let children = self.expand v
                     for child in children do
-                        let prio = Map.findWithDefault abs_node_to_program_loc.[child] 0 priority
+                        let prio = priority.GetWithDefault abs_node_to_program_loc.[child] 0
                         stack.Push child prio
 
         ret
