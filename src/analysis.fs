@@ -39,22 +39,22 @@ open Programs
 // Cheap analysis for convex constraints of the form k<=v<=k
 //
 let constants p =
-    let changed = ref Set.empty
+    let mutable changed = Set.empty
 
     let locs = Programs.locations p
 
-    let basic =  Map.empty
-    let true_inv = Some(basic)
+    let basic = Map.empty
+    let true_inv = Some basic
     let false_inv = None
 
-    let inv = ref Map.empty
+    let mutable inv = Map.empty
     for l in locs do
-        inv := Map.add l false_inv !inv
+        inv <- Map.add l false_inv inv
     done
 
-    inv := Map.add !p.initial true_inv !inv
+    inv <- Map.add p.initial true_inv inv
 
-    changed := Set.singleton !p.initial
+    changed <- Set.singleton p.initial
 
     let union s t =
        match (s,t) with
@@ -84,28 +84,25 @@ let constants p =
 
     let symbolic_execution T s = List.fold exec s T
 
-    while not (Set.isEmpty !changed) do
-        let loc = (!changed).MinimumElement
-        changed := Set.remove loc !changed
+    while not (Set.isEmpty changed) do
+        let loc = (changed).MinimumElement
+        changed <- Set.remove loc changed
         let next = Programs.transitions_from p loc
-        let s = Map.find loc !inv
-        List.iter (fun (T,loc') ->
-            let old_inv = Map.find loc' !inv
+        let s = Map.find loc inv
+        for (T, loc') in next do
+            let old_inv = Map.find loc' inv
             let s' = symbolic_execution T s
             let new_inv = union old_inv s'
             if not (equal old_inv new_inv) then
-                changed := Set.add loc' !changed
-                inv := Map.add loc' new_inv !inv
-            ) next
-    done
+                changed <- Set.add loc' changed
+                inv <- Map.add loc' new_inv inv
 
-    let tbl = ref Map.empty
-    Map.iter (fun loc s ->
-       match s with
-       | None -> tbl := Map.add loc Map.empty !tbl
-       | Some(s') -> tbl := Map.add loc s' !tbl
-    ) !inv
-    !tbl
+    let mutable tbl = Map.empty
+    for KeyValue (loc, s) in inv do
+        match s with
+        | None -> tbl <- Map.add loc Map.empty tbl
+        | Some s' -> tbl <- Map.add loc s' tbl
+    tbl
 
 //
 // Variable liveness analysis
@@ -130,10 +127,10 @@ let liveness p alwaysLive =
     let next live cmd = Set.union (gen_cmd cmd) (Set.difference live (kill_cmd cmd))
     let exec live  = List.rev >> List.fold next live //(List.rev cmds)
 
-    let changed = ref locs
-    while not (Set.isEmpty !changed) do
-        let loc = (!changed).MaximumElement
-        changed := Set.remove loc !changed
+    let mutable changed = locs
+    while not (Set.isEmpty changed) do
+        let loc = (changed).MaximumElement
+        changed <- Set.remove loc changed
         let nexts = Programs.transitions_from p loc |> Set.ofList
         let Ts = Set.map fst nexts
         let next_locs = Set.map snd nexts
@@ -143,7 +140,7 @@ let liveness p alwaysLive =
         let live_in' = Set.fold (fun li T -> Set.union li (exec live_out T)) Set.empty Ts
         let live' = Set.union live_in live_in'
         if live'.Count <> live_in.Count then
-            changed := Set.union prev_locs !changed
+            changed <- Set.union prev_locs changed
             live := Map.add loc live' !live
     done
     !live
@@ -213,7 +210,7 @@ let program_absint start_pp start_intdom transitions command_filter =
 let get_interval_analysis (p:Programs.Program) (e : Formula.formula)=
     let pp_to_interval =
             program_absint
-                !p.initial
+                p.initial
                 IntervalIntDom.Intervals.create
                 (p.transitions |> Seq.map (fun (k,c,k') -> (k, (k,c,k'))))
                 id

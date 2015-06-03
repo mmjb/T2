@@ -46,14 +46,14 @@ module Microsoft.Research.T2.InterpolantSequence
 
 /// all_implications: if set to true we generate constraints for all backwards implications.
 /// Otherwise see number_of_implications.
-let all_implications = ref false
+let all_implications = false
 
 /// number_of_implications: when all_implications is set to false this variable determines how many
 /// implications to generate.
-let number_of_implications = ref 5
+let number_of_implications = 5
 
 /// number_of_invars:
-let number_of_invars = ref 1
+let number_of_invars = 1
 
 open SparseLinear
 open Utils
@@ -138,14 +138,14 @@ let private gen_system (pars : Parameters.parameters) try_ignore_beginning remov
             if pars.seq_interpolation_ignore_last_constr then
                 // from the end (but not last)
                 let rev_lambdas =
-                    if !all_implications then List.rev lambdas |> List.tail
-                    else List.take (!number_of_implications + 1) (List.rev lambdas) |> List.tail
+                    if all_implications then List.rev lambdas |> List.tail
+                    else List.take (number_of_implications + 1) (List.rev lambdas) |> List.tail
                 [for lambda in rev_lambdas -> Z.conj [for lam in lambda -> Z.eq lam zero]]
             else
                 // from the beginning
                 let lambdas =
-                    if !all_implications then lambdas
-                    else List.take !number_of_implications lambdas
+                    if all_implications then lambdas
+                    else List.take number_of_implications lambdas
                 [for lambda in lambdas -> Z.conj [for lam in lambda -> Z.eq lam zero]]
         else []
 
@@ -283,7 +283,7 @@ let private synthesis_base_with_entailment (pars : Parameters.parameters) fs ent
     let w_intp =
         assert ((intps.Length - entail_distance - 1) >= 0)
         unprime intps.[intps.Length - entail_distance - 1]
-    synthesis_with_invars (!number_of_invars + 1) [Z.conj2 phi case1] [intps] [v_intp] [w_intp]
+    synthesis_with_invars (number_of_invars + 1) [Z.conj2 phi case1] [intps] [v_intp] [w_intp]
 
 let private path_synthesis (pars : Parameters.parameters) try_ignore_beginning entail_distance invar_fs fs =
     assert (fs <> [])

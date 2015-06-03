@@ -50,7 +50,7 @@ type MuZWrapper (parameters : Parameters.parameters,
         //Prepare bits and pieces:
         /// The program variables, in fixed order.
         let programVars : Var.var[] =
-            !program.vars |> Array.ofSeq
+            program.vars |> Array.ofSeq
 
         /// The program variables (as pre-transition version), in fixed order.
         let programPreVars : Var.var[] =
@@ -103,16 +103,16 @@ type MuZWrapper (parameters : Parameters.parameters,
         registerVariables z3PreVars
 
         //Build and insert fact for initial state:
-        let startFuncDecl = getFuncDeclForLocation !program.initial
-        let rules = ref []
+        let startFuncDecl = getFuncDeclForLocation program.initial
+        let mutable rules = []
         let initState =
             Z.z3Context.MkImplies
                 (Z.z3Context.MkBool true,
                  Z.z3Context.MkApp (startFuncDecl, z3PreVars) :?> Microsoft.Z3.BoolExpr)
-        rules := (buildRule z3PreVars initState, Z.z3Context.MkSymbol "init") :: !rules
+        rules <- (buildRule z3PreVars initState, Z.z3Context.MkSymbol "init") :: rules
 
         //Then, build rules for all transitions:
-        for idx in !program.active do
+        for idx in program.active do
             let (k, cmds, k') = program.transitions.[idx]
             let (pathCondition, varToPostIdx) = Symex.path_to_transitions_and_var_map [(k, cmds, k')] Map.empty
             let (_, pathCondition, _) = List.head pathCondition //One transition in, one relation out...
@@ -131,7 +131,7 @@ type MuZWrapper (parameters : Parameters.parameters,
 
             let transitionCondition = Z.z3Context.MkImplies (Z.z3Context.MkAnd (preState, Formula.z3 pathCondition), postState)
             let ruleName = sprintf "trans_%i" idx
-            rules := (buildRule usedVars transitionCondition, Z.z3Context.MkSymbol ruleName) :: !rules
+            rules <- (buildRule usedVars transitionCondition, Z.z3Context.MkSymbol ruleName) :: rules
             ruleNameToTransitionIdx.[ruleName] <- idx
 
         //Finally, build the query:
@@ -144,7 +144,7 @@ type MuZWrapper (parameters : Parameters.parameters,
                [| Z.z3Context.MkIntConst "__makeItLookLessEmptyVar" :> Microsoft.Z3.Expr |]
             else
                z3PreVars
-        (locationToFuncDecl, !rules, Z.z3Context.MkExists (queryVars, errorQuery), ruleNameToTransitionIdx)
+        (locationToFuncDecl, rules, Z.z3Context.MkExists (queryVars, errorQuery), ruleNameToTransitionIdx)
 
     static member inline private CallOnFixedPoint
         (z3Context : Microsoft.Z3.Context)
@@ -160,7 +160,7 @@ type MuZWrapper (parameters : Parameters.parameters,
         | _ -> None
 
     member private __.CallPDR (locationToFuncDecl : Dictionary<int,Microsoft.Z3.FuncDecl>) (rules : (Microsoft.Z3.Quantifier * Microsoft.Z3.StringSymbol) list) (errorQuery : Microsoft.Z3.BoolExpr) =
-        failwith "PDR support currently broken. Try spacer!"
+        failwith "PDR support currently broken. Try spacer"
         use z3Context = lock Z.z3Context (fun _ -> Z.getZ3Context())
         use fixedPoint = z3Context.MkFixedpoint()
         use muZParameters = z3Context.MkParams()

@@ -47,33 +47,34 @@ let simplify_lex_RF (rf_list:term list) (bnd_list:term list) =
     let old_list = ref (List.zip rf_list bnd_list)
 
     //Construct partitioned_list, which is old_list with chunks of the same RF grouped together
-    let partitioned_list = ref []
+    let mutable partitioned_list = []
     while !old_list <> List.empty do
-        let (head_rf,_) = (!old_list).Head
-        match List.tryFindIndex (fun (rf,_) -> rf<>head_rf) !old_list with
-        | Some(index) ->    partitioned_list := (!partitioned_list)@[[for i in 0..(index-1) -> (!old_list).[i]]]
-                            old_list := [for i in index..((!old_list).Length-1) -> (!old_list).[i] ]
-        | None -> partitioned_list := (!partitioned_list)@[(!old_list)]
-                  old_list := List.empty
-
-    assert (!old_list).IsEmpty
+        let (head_rf,_) = List.head !old_list
+        match List.tryFindIndex (fun (rf, _) -> rf <> head_rf) !old_list with
+        | Some index ->
+            partitioned_list <- partitioned_list@[[for i in 0..(index-1) -> (!old_list).[i]]]
+            old_list := [for i in index..((!old_list).Length-1) -> (!old_list).[i] ]
+        | None -> 
+            partitioned_list <- partitioned_list@[!old_list]
+            old_list := List.empty
 
     //for each chunk of the same RF, reduce to one RF with the minimum bound
+    let partitioned_list = partitioned_list //rebind to use in closure
     let old_list_cleaned =
-        [for partition in !partitioned_list do
+        [for partition in partitioned_list do
             let (rfs,bounds) = List.unzip partition
             for rf in rfs do assert (rf=rfs.Head)
             let min_bnd = List.min bounds
             yield (rfs.Head,min_bnd)]
 
-    let simplified_list = ref List.empty
-    for (rf_to_add,bnd_to_add) in old_list_cleaned do
+    let mutable simplified_list = List.empty
+    for (rf_to_add, bnd_to_add) in old_list_cleaned do
         //if the relation represented by the rf_to_add isn't already covered by the list so far...
-        if not (List.exists (fun (rf,bnd) -> rf=rf_to_add && bnd<=bnd_to_add) !simplified_list) then
+        if not (List.exists (fun (rf,bnd) -> rf = rf_to_add && bnd <= bnd_to_add) simplified_list) then
         //then add it on
-            simplified_list := !simplified_list@[(rf_to_add,bnd_to_add)]
+            simplified_list <- simplified_list@[(rf_to_add, bnd_to_add)]
 
-    List.unzip !simplified_list
+    List.unzip simplified_list
 
 ///Takes the three formulae lists of a lex RF and gives a single formula expressing the lex RF
 let make_lex_formula (decr_list:formula list,not_incr_list:formula list,bnd_list:formula list) =
@@ -191,7 +192,7 @@ type Refinement = CEX of Counterexample.cex
                 | Transition_Removal of int list
 
 let exist_past_lex_options cp lex_info =
-    let past_lex_options = (!lex_info.past_lex_options).[cp]
+    let past_lex_options = lex_info.past_lex_options.[cp]
     past_lex_options.IsEmpty |> not
 
 let print_lasso stem cycle =
@@ -272,12 +273,12 @@ let neg_fn_to_arg rf m =
 
 ///Takes in some lexicographic solutions and puts them in past_lex_options in case we want to use them later
 let store_lex_options cp more_options lex_info =
-    let options = Map.find cp !lex_info.past_lex_options
-    lex_info.past_lex_options := Map.add cp (more_options@options) !lex_info.past_lex_options
+    let options = Map.find cp lex_info.past_lex_options
+    lex_info.past_lex_options <- Map.add cp (more_options@options) lex_info.past_lex_options
 
 ///Tries to find a Lex_WF or Program_Simplification
 let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle_rel m lex_info =
-    let old_partial_order = Map.find cutpoint !lex_info.partial_orders
+    let old_partial_order = Map.find cutpoint lex_info.partial_orders
     match Rankfunction.synthesis_lex pars p p_sccs cutpoint cycle_rel old_partial_order with
     | Some(Lexoptions(lexoptions)) ->
             //a function to turn a Lex_RF into a Lex_WF Refinement
@@ -306,7 +307,7 @@ let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map
             //choose the head to be instrumented; store the others in past_lex_options in case we want to use them later
             let lex_soln = processed_lexoptions.Head
             let (_,new_partial_order) = lex_soln
-            lex_info.partial_orders := Map.add cutpoint new_partial_order !lex_info.partial_orders
+            lex_info.partial_orders <- Map.add cutpoint new_partial_order lex_info.partial_orders
 
             let other_solns = processed_lexoptions.Tail
             store_lex_options cutpoint other_solns lex_info
@@ -320,9 +321,9 @@ let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map
 
 ///Tries to find a Lex_WF, when we're doing the init_cond improvement
 let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle_rel m lex_info =
-    let current_partial_orders = Map.find cutpoint !lex_info.partial_orders_init_cond
-    let old_partial_order = Map.find !lex_info.current_counter current_partial_orders
-    let counter = !lex_info.current_counter
+    let current_partial_orders = Map.find cutpoint lex_info.partial_orders_init_cond
+    let old_partial_order = Map.find lex_info.current_counter current_partial_orders
+    let counter = lex_info.current_counter
 
     match Rankfunction.synthesis_lex pars p p_sccs cutpoint cycle_rel old_partial_order with
     | Some(Lexoptions(lexoptions)) ->
@@ -330,7 +331,7 @@ let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) (p
             let (new_partial_order,rf_list,bnd_list) = List.unzip3 lex_soln
 
             let new_current_partial_orders = Map.add counter new_partial_order current_partial_orders
-            lex_info.partial_orders_init_cond := Map.add cutpoint new_current_partial_orders !lex_info.partial_orders_init_cond
+            lex_info.partial_orders_init_cond <- Map.add cutpoint new_current_partial_orders lex_info.partial_orders_init_cond
 
             if pars.print_log then
                 Log.log pars <| sprintf "Lex RF candidate before simplifying:\n %A\n with bounds:\n %A at CP %d" rf_list bnd_list cutpoint
@@ -370,7 +371,7 @@ let dot_poly_trees (trees:poly_tree list) (fname : string) =
             //fprintf h "node%d [ color = blue label = \"EN. index: %d. fn: %A\" ];\n" n index rf
             fprintf h "node%d [ color = blue label = \"EN\\n %A\" ];\n" n rf
             for child in children do
-                counter:=!counter+1
+                incr counter
                 let child_label = !counter
                 let child_index =
                     match child with
@@ -384,7 +385,7 @@ let dot_poly_trees (trees:poly_tree list) (fname : string) =
     for tree in trees do
         print_tree tree !counter
         //increase counter by one between trees so that they're detached
-        counter:=!counter+1
+        incr counter
 
     fprintf h "};\n"
     h.Dispose()
@@ -440,17 +441,17 @@ let find_lex_poly_RF_with_fixed_depth (pars : Parameters.parameters) cycle_rel o
 
 ///Tries to find a Lex_Poly_RF
 let find_lex_poly_RF (pars : Parameters.parameters) cutpoint cycle_rel m lex_info =
-    let old_partial_order = Map.find cutpoint !lex_info.partial_orders
-    let polyrank_depth = ref 2
-    let poly_found = ref None
-    while (!poly_found = None) && (!polyrank_depth <= pars.polyrank_max_depth) do
-        poly_found := find_lex_poly_RF_with_fixed_depth pars cycle_rel old_partial_order !polyrank_depth
-        if (!poly_found).IsNone then
-            if !polyrank_depth < pars.polyrank_max_depth then
-                polyrank_depth := !polyrank_depth+1
-                log pars <| sprintf "Increasing depth of search to %d" !polyrank_depth
+    let old_partial_order = Map.find cutpoint lex_info.partial_orders
+    let mutable polyrank_depth = 2
+    let mutable poly_found = None
+    while (poly_found = None) && (polyrank_depth <= pars.polyrank_max_depth) do
+        poly_found <- find_lex_poly_RF_with_fixed_depth pars cycle_rel old_partial_order polyrank_depth
+        if (poly_found).IsNone then
+            if polyrank_depth < pars.polyrank_max_depth then
+                polyrank_depth <- polyrank_depth+1
+                log pars <| sprintf "Increasing depth of search to %d" polyrank_depth
             else
-                polyrank_depth := !polyrank_depth+1
+                polyrank_depth <- polyrank_depth+1
                 log pars <| sprintf "Reached polyrank depth limit of %d" pars.polyrank_max_depth
 
     ///Takes the list of poly_trees and returns the top level RF of each
@@ -461,7 +462,7 @@ let find_lex_poly_RF (pars : Parameters.parameters) cutpoint cycle_rel m lex_inf
             |_ -> failwith "unexpected"
         ]
 
-    match !poly_found with
+    match poly_found with
     | None -> None
     | Some(polyoptions) ->
         //take the first solution
@@ -472,9 +473,9 @@ let find_lex_poly_RF (pars : Parameters.parameters) cutpoint cycle_rel m lex_inf
 
         if pars.dottify_input_pgms then
             dot_poly_trees trees (sprintf "input_poly_tree_%d.dot" !tree_counter)
-            tree_counter:=!tree_counter+1
+            incr tree_counter
 
-        lex_info.partial_orders := Map.add cutpoint new_partial_order !lex_info.partial_orders
+        lex_info.partial_orders <- Map.add cutpoint new_partial_order lex_info.partial_orders
 
         //note we aren't storing alternative polyranking fns
         //we aren't checking validity either
@@ -503,13 +504,13 @@ let find_disj_RF (pars : Parameters.parameters) cutpoint cycle_rel m =
 /// Return the appropriate type of Refinement or none
 let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle cycle_rel m (lex_info:LexicographicInfo) =
     //are we finding lexicographic RFs for this cutpoint?
-    let attempting_lex = Map.find cutpoint !lex_info.cp_attempt_lex
+    let attempting_lex = Map.find cutpoint lex_info.cp_attempt_lex
 
     //are we doing the "detecting initial condition" improvement for this cutpoint?
-    let init_cond = Map.find cutpoint !lex_info.cp_init_cond
+    let init_cond = Map.find cutpoint lex_info.cp_init_cond
     if init_cond then assert attempting_lex
 
-    let polyranking = Map.find cutpoint !lex_info.cp_polyrank
+    let polyranking = Map.find cutpoint lex_info.cp_polyrank
 
     if pars.print_log then
         sprintf "Refining temporal argument for cycle:" |> log pars
@@ -541,15 +542,15 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
     Log.log pars <| sprintf "Investigating counterexample for cutpoint %d" cp
 
     //This code is for initial condition detection. It works out which initial condition path pi_uncut belongs to
-    if (!lex_info.cp_init_cond).[cp] then
+    if (lex_info.cp_init_cond).[cp] then
         let rho = init_cond_var cp
-        let counter = ref -1
+        let mutable counter = -1
         for (_,cmd,_) in pi do
             match cmd with
-            | Programs.Assume(_,Formula.Eq(Term.Var(v),Term.Const(n))) when (v=rho) -> counter := int n
+            | Programs.Assume(_,Formula.Eq(Term.Var(v),Term.Const(n))) when (v=rho) -> counter <- int n
             | _ -> ()
-        Log.log pars <| sprintf "Initial condition counter of this counterexample: %d" !counter
-        lex_info.current_counter := !counter
+        Log.log pars <| sprintf "Initial condition counter of this counterexample: %d" counter
+        lex_info.current_counter <- counter
 
     let (stem_pre_clean, cycle_pre_clean) = split_path_for_cp pi cp
     let collapsed_cycle_pre = cycle_pre_clean |> collapse_path
@@ -575,12 +576,12 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
     let var_to_old_var_mapping = find_var_to_old_var_mapping cp pi_commands
     
     //Try to refine the termination argument:
-    let ret = ref None
+    let mutable ret = None
     Stats.incCounter "T2 - Counterexample investigation without path invariant"
-    ret := refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
+    ret <- refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
 
     // If we didn't find a rank function yet, try strengthening the cycle with a path invariant...
-    if !ret = None then
+    if ret = None then
         Stats.incCounter "T2 - Counterexample investigation without path invariant failed"
         log pars "Trying to find a path invariant..."
 
@@ -592,15 +593,15 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
 
         let strengthened_cycle = (-1, [Programs.assume invariant], -1) :: strengthened_cycle
         let strengthened_cycle_rel = Symex.path_to_relation strengthened_cycle pi_vars_cleaned
-        ret := refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
-        if (!ret).IsSome then
+        ret <- refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
+        if ret.IsSome then
             Stats.incCounter "T2 - Counterexample investigation with path invariant successful"
         else
             Stats.incCounter "T2 - Counterexample investigation with path invariant failed"
     else
         Stats.incCounter "T2 - Counterexample investigation without path invariant successful"
 
-    match !ret with
+    match ret with
     | Some(Disj_WF(_,rf,bnd)) -> Some(Disj_WF(cp,rf,bnd))
     | Some(Lex_WF(_,decr,not_incr,bnd)) -> Some(Lex_WF(cp,decr,not_incr,bnd))
     | Some(Poly_WF(poly_checkers)) -> Some(Poly_WF(poly_checkers))
@@ -657,7 +658,7 @@ let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) (p_sccs:
                 //Check if we already have a RF that implies this one:
                 let approx_have_lex_rf_already (cp, new_decr, new_not_incr, new_bnd) =
                     //Don't carry out this check if we're doing init cond detection or unrolling (it's not supported)
-                    if (!lex_info.cp_init_cond).[cp] || (!lex_info.cp_unrolling).[cp] then
+                    if (lex_info.cp_init_cond).[cp] || (lex_info.cp_unrolling).[cp] then
                         false
                     else
                         match Map.tryFind cp found_lex_rfs with

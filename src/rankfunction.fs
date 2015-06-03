@@ -375,8 +375,8 @@ let synthesis_lex_max_unaff
 
                 match Z.solve [allconstraints] with
                 //if no soln for this u, decrease u and try again, unless we've reached 0, in which case give up
-                | None -> if !u > 0 then u := !u - 1
-                                  else finished := true
+                | None -> if !u > 0 then decr u
+                                    else finished := true
                 //if a soln is found, return it
                 | Some m ->
                         let rf_lex = [for i in 0 .. (sigma.Length - 1) do
@@ -449,7 +449,7 @@ let synthesis_lex_min_rfs
                         m.Dispose()
                         finished := true
                         yield (rf_lex,!k)
-                k := !k+1
+                incr k
         ]|> List.sortBy (fun (_,k) -> k) //sorts the lexoptions by having the shortest lex rfs first
          |> List.map (fun (x,_) -> x) //drop the length
          |> Lexoptions
@@ -465,7 +465,7 @@ let node_numbering (nodes: Set<int>) =
             yield Z.ge num ONE
             yield Z.le num MAXNUM
         ]
-    (node_num_constr, node_num_map)
+    (node_num_constr, !node_num_map)
 
 let get_simplified_linterm_cache (rels : seq<'a * 'b * Relation.relation * 'c>) =
     rels
@@ -515,12 +515,12 @@ let build_scc_constraints (pars : Parameters.parameters) transitions mu add_boun
                         let rel_strict_decrease_and_bounded_var = Z.fresh_bool_var "bounded_and_decr"
                         decreasing_and_bounded_var_for_transition := Map.add i rel_strict_decrease_and_bounded_var !decreasing_and_bounded_var_for_transition
 
-                        yield Z.implies (Z.gt (!d_num_map).[k'] (!d_num_map).[k]) decreasing_var
-                        yield Z.implies (Z.gt (!b_num_map).[k'] (!b_num_map).[k]) bounded_var
+                        yield Z.implies (Z.gt (d_num_map).[k'] (d_num_map).[k]) decreasing_var
+                        yield Z.implies (Z.gt (b_num_map).[k'] (b_num_map).[k]) bounded_var
 
                         let locally_decr_and_bounded = Z.conj2 decreasing_var bounded_var
-                        let d_diff_nonnull = Z.mk_not <| Z.eq (Z.add (!d_num_map).[k'] (Z.neg (!d_num_map).[k])) ZERO // not(#_D(k') - #_D(k) = 0)
-                        let b_diff_nonnull = Z.mk_not <| Z.eq (Z.add (!b_num_map).[k'] (Z.neg (!b_num_map).[k])) ZERO // not(#_B(k') - #_B(k) = 0)
+                        let d_diff_nonnull = Z.mk_not <| Z.eq (Z.add (d_num_map).[k'] (Z.neg (d_num_map).[k])) ZERO // not(#_D(k') - #_D(k) = 0)
+                        let b_diff_nonnull = Z.mk_not <| Z.eq (Z.add (b_num_map).[k'] (Z.neg (b_num_map).[k])) ZERO // not(#_B(k') - #_B(k) = 0)
                         let globally_decr_and_bounded = Z.conj2 d_diff_nonnull b_diff_nonnull
                         yield Z.z3Context.MkEq(rel_strict_decrease_and_bounded_var, Z.disj2 locally_decr_and_bounded globally_decr_and_bounded)
                 ]
@@ -532,9 +532,9 @@ let build_scc_constraints (pars : Parameters.parameters) transitions mu add_boun
                     decreasing_and_bounded_var_for_transition := Map.add i rel_strict_decrease_and_bounded_var !decreasing_and_bounded_var_for_transition
                     yield Z.z3Context.MkEq(rel_strict_decrease_and_bounded_var, (Z.conj2 decreasing_var bounded_var))
                 ]
-        ([decr_constraints; bound_constraints; trans_decr_and_bounded_constraints] |> List.concat |> Z.conj, decreasing_and_bounded_var_for_transition, bound_var_for_transition)
+        ([decr_constraints; bound_constraints; trans_decr_and_bounded_constraints] |> List.concat |> Z.conj, !decreasing_and_bounded_var_for_transition, !bound_var_for_transition)
     else
-        (Z.conj decr_constraints, decreasing_and_bounded_var_for_transition, bound_var_for_transition)
+        (Z.conj decr_constraints, !decreasing_and_bounded_var_for_transition, !bound_var_for_transition)
 
 ///Try to find a lex rf such that all SCC transitions are unaffected and the cex is decreasing. Then find out what part of the SCC might be deleted.
 let synthesis_lex_scc_trans_unaffected
@@ -568,7 +568,7 @@ let synthesis_lex_scc_trans_unaffected
         let linterm_for_rel_to_add' = rel_to_add' |> Relation.relation_to_linear_terms |> SparseLinear.simplify_as_inequalities
         let (decreasing_var, decrease_constraints) = generate_weakly_decreasing_constraints_for_rel cp rel_to_add' linterm_for_rel_to_add' cp 0 mu
         let (bounded_var, bound_var, bounded_constraints) = generate_bounded_constraints_for_rel cp rel_to_add' linterm_for_rel_to_add' 0 mu
-        let trans_strict_and_bounded = (!decreasing_and_bounded_var_for_transition).Items |> Seq.map (fun (_, var) -> var) |> List.ofSeq
+        let trans_strict_and_bounded = decreasing_and_bounded_var_for_transition.Items |> Seq.map (fun (_, var) -> var) |> List.ofSeq
         let at_least_one_trans_strict_bounded = Z.disj trans_strict_and_bounded
         let all_constraints = Z.conj [decreasing_var; bounded_var; all_transitions_weakly_decreasing; decrease_constraints; bounded_constraints]
 
@@ -582,7 +582,7 @@ let synthesis_lex_scc_trans_unaffected
             | Some m ->
                 //Party! Check if we can even remove transitions:
                 let trans_to_delete =
-                       !decreasing_and_bounded_var_for_transition
+                       decreasing_and_bounded_var_for_transition
                     |> Map.filter (fun _ v -> match (Z.get_model_bool_opt m v) with
                                                 | Some(true) -> true
                                                 | _          -> false)
@@ -666,13 +666,13 @@ let rec synth_maximal_lex_rf (pars : Parameters.parameters) (loop_transitions : 
         build_scc_constraints pars loop_transitions mu true rel_to_simplified_linterm_cache
 
     /// This enforces that at least one transition is strictly decreasing and bounded:
-    let at_least_one_strictly_decreasing_and_bounded = (!trans_decreasing_and_bounded).Items |> Seq.map (fun (_, var) -> var) |> List.ofSeq
+    let at_least_one_strictly_decreasing_and_bounded = trans_decreasing_and_bounded.Items |> Seq.map (fun (_, var) -> var) |> List.ofSeq
     // Now go off and find something (ensure everything is non-increasing, at least one strictly decreasing and bounded):
     match Z.solve [Z.conj2 all_enriched_transitions_weakly_decreasing (Z.disj at_least_one_strictly_decreasing_and_bounded)] with
         | None -> None
         | Some m ->
             let strictly_decreasing_and_bounded : Set<Set<int>> =
-                !trans_decreasing_and_bounded
+                trans_decreasing_and_bounded
              |> Map.filter (fun _ var ->
                                 match Z.get_model_bool_opt m var with
                                     | None -> false
@@ -689,7 +689,7 @@ let rec synth_maximal_lex_rf (pars : Parameters.parameters) (loop_transitions : 
                 let rfs = extract_rf_from_model mu.[0] m
                 let bounds = 
                        strictly_decreasing_and_bounded 
-                    |> Set.map (fun idx -> (idx, -(Z.get_model_int m (!bound_var_for_transition).[idx]))) 
+                    |> Set.map (fun idx -> (idx, -(Z.get_model_int m (bound_var_for_transition).[idx]))) 
                     |> Map.ofSeq;
 
                 m.Dispose()

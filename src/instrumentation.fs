@@ -47,51 +47,51 @@ type LexicographicInfo =
         //
 
         ///a map from each cp to the order of relations being used currently
-        partial_orders : Map<int,Relation.relation list> ref
+        mutable partial_orders : Map<int,Relation.relation list>
 
         ///a map from each cp to any lexicographic solutions we found in the past, but did not instrument. Last in first out
-        past_lex_options : Map<int, ((Formula.formula list * Formula.formula list * Formula.formula list)*Relation.relation list) list> ref
+        mutable past_lex_options : Map<int, ((Formula.formula list * Formula.formula list * Formula.formula list)*Relation.relation list) list>
 
         ///a map from each cp to a bool describing whether we are currently doing the lexicographic method (true) or disjunctive method (false)
-        cp_attempt_lex: Map<int, bool> ref
+        mutable cp_attempt_lex : Map<int, bool>
 
         //
         //INITIAL CONDITION STUFF
         //
 
         ///a map from each cp to a bool describing whether we are currently doing the "detect initial condition" improvement
-        cp_init_cond: Map<int,bool> ref
+        mutable cp_init_cond : Map<int,bool>
 
         ///a map from each cutpoint to a map.
         ///the map is from a counter to the index location of the counter's lex checkers
-        cp_rf_init_cond : Map<int,Map<int,int list>> ref
+        mutable cp_rf_init_cond : Map<int,Map<int,int list>>
 
         ///is the counter identity of the path just found
-        current_counter: int ref
+        mutable current_counter : int
 
         ///map from cp to map.
         ///the map is from counters to current partial order for that counter
-        partial_orders_init_cond: Map<int,Map<int,Relation.relation list>> ref
+        mutable partial_orders_init_cond : Map<int,Map<int,Relation.relation list>>
 
         //
         //UNROLLING STUFF
         //
 
         ///a map from cp to a bool describing whether we are currently doing the "unrolling" improvement
-        cp_unrolling: Map<int,bool> ref
+        mutable cp_unrolling : Map<int,bool>
 
         ///a map from cp to the current number of iterations we're unrolling. Note it starts off at 2 for all cps.
-        cp_current_iter: Map<int,int> ref
+        mutable cp_current_iter : Map<int,int>
 
         ///a map from cp to the index of the transition that contains the guard
-        cp_iter_guard: Map<int,int> ref
+        mutable cp_iter_guard : Map<int,int>
 
         //
         //POLYRANKING STUFF
         //
 
         ///a map from cp to whether we're currently finding polyranking fns for this cutpoint. Starts as false, then switches to true as necessary
-        cp_polyrank: Map<int,bool> ref
+        mutable cp_polyrank : Map<int,bool>
 
     }
 
@@ -99,20 +99,20 @@ type LexicographicInfo =
 let init_lex_info (pars : Parameters.parameters) (cutpoints : Set<int>) =
 
     {
-        partial_orders= ref ([for cp in cutpoints -> (cp,[])] |> Map.ofList)
-        past_lex_options = ref ([for cp in cutpoints -> (cp,[])] |> Map.ofList)
-        cp_attempt_lex = ref ([for cp in cutpoints -> (cp,pars.lexicographic)] |> Map.ofList)
+        partial_orders= [for cp in cutpoints -> (cp,[])] |> Map.ofList
+        past_lex_options = [for cp in cutpoints -> (cp,[])] |> Map.ofList
+        cp_attempt_lex = [for cp in cutpoints -> (cp,pars.lexicographic)] |> Map.ofList
 
-        cp_init_cond = ref ([for cp in cutpoints -> (cp,false)] |> Map.ofList)
-        cp_rf_init_cond = ref Map.empty
-        current_counter = ref -1
-        partial_orders_init_cond = ref ([for cp in cutpoints -> (cp,Map.empty)]|>Map.ofList)
+        cp_init_cond = [for cp in cutpoints -> (cp,false)] |> Map.ofList
+        cp_rf_init_cond = Map.empty
+        current_counter = -1
+        partial_orders_init_cond = [for cp in cutpoints -> (cp,Map.empty)]|>Map.ofList
 
-        cp_unrolling = ref ([for cp in cutpoints -> (cp,false)] |> Map.ofList)
-        cp_current_iter = ref ([for cp in cutpoints -> (cp,2)] |> Map.ofList)
-        cp_iter_guard = ref Map.empty
+        cp_unrolling = [for cp in cutpoints -> (cp,false)] |> Map.ofList
+        cp_current_iter = [for cp in cutpoints -> (cp,2)] |> Map.ofList
+        cp_iter_guard = Map.empty
 
-        cp_polyrank = ref ([for cp in cutpoints -> (cp,false)] |> Map.ofList)
+        cp_polyrank = [for cp in cutpoints -> (cp,false)] |> Map.ofList
 
     }
 
@@ -124,24 +124,24 @@ let init_lex_info (pars : Parameters.parameters) (cutpoints : Set<int>) =
 ///Returns true if cmds contains assume(copied_cp<1)
 let contains_copied_lt_1 cp (cmds:Programs.command list)=
     let copy = Formula.copy_var cp
-    let found = ref false
+    let mutable found = false
     for cmd in cmds do
         match cmd with
         | Programs.Assume(_,Formula.Lt(Term.Var(v),Term.Const c)) when c = bigint.One && (v=copy) ->
-            found := true
+            found <- true
         | _ -> ()
-    !found
+    found
 
 ///Returns true if cmds contains copied_cp:=1
 let contains_copied_gets_1 cp (cmds:Programs.command list)=
     let copy = Formula.copy_var cp
-    let found = ref false
+    let mutable found = false
     for cmd in cmds do
         match cmd with
         | Programs.Assign(_,v,Term.Const c) when c = bigint.One && (v=copy) ->
-            found := true
+            found <- true
         | _ -> ()
-    !found
+    found
 
 //Instruments a RF to p_final (when we're doing the disjunctive method).
 let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs : Map<int, (formula * formula) list> ref) (cp_rf:Dictionary<int,int>) (p_final:Programs.Program) (safety : SafetyProver) =
@@ -155,7 +155,7 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
     let (k, _, _) = p_final.transitions.[check_trans]
     
     //We are now looking for the transition that leads to the checker transition, i.e., the one that goes to node k:
-    let pre_check_trans = Seq.find (fun n -> let (_, _, l') = p_final.transitions.[n] in l' = k) !p_final.active
+    let pre_check_trans = Seq.find (fun n -> let (_, _, l') = p_final.transitions.[n] in l' = k) p_final.active
     let (l, cmds', k) = p_final.transitions.[pre_check_trans]
 
     (* 
@@ -169,7 +169,7 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
     p_final.transitions.[pre_check_trans] <- (l, cmds', new_node)
     
     //Store the ID of one of the new checker transitions, use it in cp_rf
-    let cnt = !p_final.transitions_cnt
+    let cnt = p_final.transitions_cnt
     Programs.plain_add_transition p_final new_node [Programs.assume (Formula.Not(rf))] k
     Programs.plain_add_transition p_final new_node [Programs.assume (Formula.Not(bnd))] k
     cp_rf.[cp] <- (cnt)
@@ -199,17 +199,17 @@ let replace_lex_rf_checkers (pars : Parameters.parameters) p old_checker_trans_i
 
     //Now we insert new lexicographic RF checkers from k to k'
     let new_nodes = k::[for _ in 1..(number_of_checkers-1) -> Programs.new_node p]@[k']
-    let new_checker_trans_ids = ref []
+    let mutable new_checker_trans_ids = []
     for i in 1..number_of_checkers do
         for trans in ith_checker_formulas i do
-            let trans_id = !p.transitions_cnt
+            let trans_id = p.transitions_cnt
             Programs.plain_add_transition p new_nodes.[i-1] [Programs.assume (Formula.Not(trans))] new_nodes.[i]
-            new_checker_trans_ids := !new_checker_trans_ids@[trans_id]
-    (k, !new_checker_trans_ids)
+            new_checker_trans_ids <- new_checker_trans_ids@[trans_id]
+    (k, new_checker_trans_ids)
 
 //Instruments a lexicographic RF to p_final
 let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) lex_info =
-    let doing_init_cond = (!lex_info.cp_init_cond).[cp]
+    let doing_init_cond = (lex_info.cp_init_cond).[cp]
 
     //Standard lexicographic RFs:
     if not doing_init_cond then
@@ -227,16 +227,16 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
     //We are instrumenting the Lex RF under a particular initial condition for the cp:
     else
         //Which initial condition did the path we just found represent?
-        let counter = !lex_info.current_counter
+        let counter = lex_info.current_counter
 
         //map from counters to the index locations of the counter's lex checkers
-        let counters_to_checkers = (!lex_info.cp_rf_init_cond).[cp]
+        let counters_to_checkers = (lex_info.cp_rf_init_cond).[cp]
         let old_checker_trans_ids = counters_to_checkers.[counter]
         //This gives the formulas that should hold for the i-th step in the check:
         let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
         let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
         let new_counter_checkers_map = Map.add counter new_lex_checker_trans_ids counters_to_checkers
-        lex_info.cp_rf_init_cond := Map.add cp new_counter_checkers_map !lex_info.cp_rf_init_cond
+        lex_info.cp_rf_init_cond <- Map.add cp new_counter_checkers_map lex_info.cp_rf_init_cond
 
         safety.ResetFrom first_checker_node
 
@@ -261,29 +261,29 @@ let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.
 ///Fetches the past lex option at the head of the queue for failure_cp
 let switch_to_past_lex_RF (pars : Parameters.parameters) lex_info failure_cp =
     //Take the lex RF at the head of the queue out
-    let past_lex_options = (!lex_info.past_lex_options).[failure_cp]
+    let past_lex_options = (lex_info.past_lex_options).[failure_cp]
     let new_lex_WF = past_lex_options.Head
-    lex_info.past_lex_options := Map.add failure_cp past_lex_options.Tail !lex_info.past_lex_options
+    lex_info.past_lex_options <- Map.add failure_cp past_lex_options.Tail lex_info.past_lex_options
 
     let ((decr_list, not_incr_list, bnd_list),new_partial_order) = new_lex_WF
-    lex_info.partial_orders:= Map.add failure_cp new_partial_order !lex_info.partial_orders
+    lex_info.partial_orders <- Map.add failure_cp new_partial_order lex_info.partial_orders
     Log.log pars <| sprintf "Reverting to a past lexicographic RF:\n %A\n with bounds:\n %A" decr_list bnd_list
     (decr_list,not_incr_list,bnd_list)
 
 ///Deletes the old lex checkers for failure_cp and get ready to start finding lex polyranking functions
 let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) =
     Log.log pars <| sprintf "Now looking for polyranking functions for cp %d" failure_cp
-    lex_info.cp_polyrank:= Map.add failure_cp true !lex_info.cp_polyrank
+    lex_info.cp_polyrank <- Map.add failure_cp true lex_info.cp_polyrank
 
     //remove old checkers at cutpoint
     let lex_checkers = cp_rf_lex.[failure_cp]
     let (k,k') = delete_lex_checkers pars lex_checkers p_final
-    let cnt = !p_final.transitions_cnt
+    let cnt = p_final.transitions_cnt
     Programs.plain_add_transition p_final k [Programs.assume Formula.truec] k'
 
     //and update cp_rf_lex and clear partial_order for cp
     cp_rf_lex.[failure_cp]<-[cnt]
-    lex_info.partial_orders := Map.add failure_cp [] !lex_info.partial_orders
+    lex_info.partial_orders <- Map.add failure_cp [] lex_info.partial_orders
 
     safety.ResetFrom k
     if pars.dottify_input_pgms then
@@ -304,7 +304,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
     let cp_loop_nodes = loops.[cp]
 
     //add rho:=-1 to all trans TO cp from outside, i.e. not on trans to cp from within its own loop
-    for n in !p.active do
+    for n in p.active do
         let (k,cmds,k') = p.transitions.[n]
         //if it's a trans TO cp:
         if k'=cp then
@@ -322,7 +322,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
 
     //yields the index of the transition from imp_node, with "true" if it's the copier and "false" if it isn't
     let trans_from_imp_node =
-        [for n in !p.active do
+        [for n in p.active do
             let (k,cmds,_) = p.transitions.[n]
             if k = important_node then
                 if contains_copied_gets_1 cp cmds then
@@ -342,7 +342,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
 
     //indexes of trans from copier
     let trans_from_copier =
-        [for n in !p.active do
+        [for n in p.active do
             let (k,_,_) = p.transitions.[n]
             if k = copier then
                 yield n]
@@ -400,7 +400,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
     let lex_checkers = cp_rf_lex.[cp]
     let (k,k') = delete_lex_checkers pars lex_checkers p
 
-    let (counter_checker_map:Map<int,int list> ref) = ref Map.empty
+    let mutable counter_checker_map : Map<int,int list> = Map.empty
 
     //ADD NEW RHO-GUARDED CHECKERS:
 
@@ -410,16 +410,16 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
         let new_node = Programs.new_node p
         let assume_rho_counter = Programs.assume (Formula.Eq(Term.Var(rho),Term.constant counter))
         Programs.plain_add_transition p k [assume_rho_counter] new_node
-        let cnt = !p.transitions_cnt
+        let cnt = p.transitions_cnt
         Programs.plain_add_transition p new_node [] k'
-        counter_checker_map := Map.add counter [cnt] !counter_checker_map
+        counter_checker_map <- Map.add counter [cnt] counter_checker_map
 
     //like cp_rf_lex, but maps from a cutpoint to a map
     //and the map goes from the rho-counter to the list of indexes of lex checkers, in order
     //starts off just from our cp to an empty map
-    let cp_rf_init_cond:Map<int,Map<int,int list>> ref = [(cp,!counter_checker_map)] |> Map.ofList |> ref
+    let cp_rf_init_cond : Map<int,Map<int,int list>> = [(cp,counter_checker_map)] |> Map.ofList
 
-    !cp_rf_init_cond
+    cp_rf_init_cond
 
 ///Switches to detecting initial condition for failure_cp
 let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp p_final cp_rf_lex (safety : SafetyProver) =
@@ -430,16 +430,16 @@ let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
     let cp_rf_init_cond = init_cond_trans pars failure_cp p_final cp_rf_lex
 
     //Put the new info in lex_info
-    lex_info.cp_init_cond := Map.add failure_cp true !lex_info.cp_init_cond
-    lex_info.cp_rf_init_cond := cp_rf_init_cond
+    lex_info.cp_init_cond <- Map.add failure_cp true lex_info.cp_init_cond
+    lex_info.cp_rf_init_cond <- cp_rf_init_cond
     let new_partial_orders =
         [for entry in cp_rf_init_cond.[failure_cp] do
             let counter = entry.Key
             yield (counter,[])] |> Map.ofList
-    lex_info.partial_orders_init_cond:= Map.add failure_cp new_partial_orders !lex_info.partial_orders_init_cond
-    lex_info.past_lex_options:= Map.add failure_cp [] !lex_info.past_lex_options
+    lex_info.partial_orders_init_cond <- Map.add failure_cp new_partial_orders lex_info.partial_orders_init_cond
+    lex_info.past_lex_options <- Map.add failure_cp [] lex_info.past_lex_options
 
-    safety.ResetFrom !p_final.initial
+    safety.ResetFrom p_final.initial
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final "input__init_cond.dot"
 
@@ -458,7 +458,7 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
     let cp_loop_nodes = loops.[cp]
 
     //add iters:=0 to all trans TO cp from outside, i.e. not on trans to cp from within its own loop
-    for n in !p.active do
+    for n in p.active do
         let (k,cmds,k') = p.transitions.[n]
         //if it's a trans TO cp:
         if k'=cp then
@@ -472,11 +472,11 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
         // We look for the transition starting from the CP that checks the corresponding copied variable is still unset, and then sets it to 1.
         // We use this to insert increments to our unrolling counter.
         let trans_from_cp_with_copied_lt_1 =
-            [for n in !p.active do
+            [for n in p.active do
                 let (k,cmds,k') = p.transitions.[n]
                 if (k=cp) && (contains_copied_lt_1 cp cmds) then
                     let is_trans_in_loop =
-                           !p.active
+                           p.active
                         |> Seq.map (fun n -> p.transitions.[n])
                         |> Seq.filter (fun (l,cmds,_) -> l = k' && contains_copied_gets_1 cp cmds)
                         |> Seq.isEmpty
@@ -488,7 +488,7 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
         assert (trans_from_cp_with_copied_lt_1.Length=1)
     else
         // This is similar to the termination_only case, but the CTL instrumentation introduces several further intermediate nodes for checks of subproperties.
-        match Seq.tryFind (fun n -> let (k, _, _) = p.transitions.[n] in k = cp) !p.active with
+        match Seq.tryFind (fun n -> let (k, _, _) = p.transitions.[n] in k = cp) p.active with
         | None -> dieWith "?"
         | Some n -> //k' should be "start_of_subproperty_nodeK"
             let (_, _, k') = p.transitions.[n]
@@ -498,11 +498,11 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
                 let endLabel = label.Replace ("start_of", "end_of")
                 let endPropertyNode = Programs.map p endLabel
                 let trans_from_cp_with_copied_lt_1 =
-                    [for n in !p.active do
+                    [for n in p.active do
                         let (k,cmds,k') = p.transitions.[n]
                         if (k=endPropertyNode) && (contains_copied_lt_1 cp cmds) then
                             let is_trans_in_loop =
-                                   !p.active
+                                   p.active
                                 |> Seq.map (fun n -> p.transitions.[n])
                                 |> Seq.filter (fun (l,cmds,_) -> l = k' && contains_copied_gets_1 cp cmds)
                                 |> Seq.isEmpty
@@ -522,9 +522,9 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
 
     //guard the checkers with assume(iters>=2)
     let new_node = Programs.new_node p
-    let cnt1 = !p.transitions_cnt
+    let cnt1 = p.transitions_cnt
     Programs.plain_add_transition p k [assume_iters_ge_n 2] new_node
-    let cnt2 = !p.transitions_cnt
+    let cnt2 = p.transitions_cnt
     Programs.plain_add_transition p new_node [] k'
     cp_rf_lex.[cp] <- [cnt2]
 
@@ -533,17 +533,17 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
 
 ///Return true if we can use unrolling technique:
 let can_unroll (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp =
-    let already_unrolling = (!lex_info.cp_unrolling).[failure_cp]
+    let already_unrolling = (lex_info.cp_unrolling).[failure_cp]
     if not(already_unrolling) then
         true
     else
-        let current_iter = (!lex_info.cp_current_iter).[failure_cp]
+        let current_iter = (lex_info.cp_current_iter).[failure_cp]
         current_iter < pars.unrolling_limit
 
 //Unrolls failure_cp until we reach unrolling_limit. Returns true if we reached limit.
 let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp cp_rf_lex p_final (safety : SafetyProver) termination_only =
 
-    let already_unrolling = ((!lex_info.cp_unrolling).[failure_cp])
+    let already_unrolling = ((lex_info.cp_unrolling).[failure_cp])
 
     if not already_unrolling then //Start unrolling
 
@@ -555,34 +555,34 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
         let guard_index = unrolling_trans pars failure_cp cp_rf_lex p_final termination_only
 
         //Put the new info in lex_info
-        lex_info.cp_unrolling := Map.add failure_cp true !lex_info.cp_unrolling
-        lex_info.partial_orders := Map.add failure_cp [] !lex_info.partial_orders
-        lex_info.past_lex_options := Map.add failure_cp [] !lex_info.past_lex_options
-        lex_info.cp_iter_guard := Map.add failure_cp guard_index !lex_info.cp_iter_guard
+        lex_info.cp_unrolling <- Map.add failure_cp true lex_info.cp_unrolling
+        lex_info.partial_orders <- Map.add failure_cp [] lex_info.partial_orders
+        lex_info.past_lex_options <- Map.add failure_cp [] lex_info.past_lex_options
+        lex_info.cp_iter_guard <- Map.add failure_cp guard_index lex_info.cp_iter_guard
 
-        safety.ResetFrom !p_final.initial
+        safety.ResetFrom p_final.initial
         if pars.dottify_input_pgms then
             Output.print_dot_program p_final "input_unrolling_002.dot"
 
     else //Else we're already unrolling
 
-        let current_iter = (!lex_info.cp_current_iter).[failure_cp]
+        let current_iter = (lex_info.cp_current_iter).[failure_cp]
 
         if current_iter<(pars.unrolling_limit) then //Unroll some more
 
             //remove lex checkers at cutpoint
             let lex_checkers = cp_rf_lex.[failure_cp]
             let (j,j') = delete_lex_checkers pars lex_checkers p_final
-            let cnt = !p_final.transitions_cnt
+            let cnt = p_final.transitions_cnt
             Programs.plain_add_transition p_final j [] j'
             cp_rf_lex.[failure_cp] <- [cnt]
 
-            lex_info.partial_orders := Map.add failure_cp [] !lex_info.partial_orders
-            lex_info.past_lex_options := Map.add failure_cp [] !lex_info.past_lex_options
+            lex_info.partial_orders <- Map.add failure_cp [] lex_info.partial_orders
+            lex_info.past_lex_options <- Map.add failure_cp [] lex_info.past_lex_options
 
             //increment the iter guard
-            lex_info.cp_current_iter:=Map.add failure_cp (current_iter+1) !lex_info.cp_current_iter
-            let guard_index = (!lex_info.cp_iter_guard).[failure_cp]
+            lex_info.cp_current_iter <- Map.add failure_cp (current_iter+1) lex_info.cp_current_iter
+            let guard_index = (lex_info.cp_iter_guard).[failure_cp]
             let (k,_,k') = p_final.transitions.[guard_index]
             let (iters:Var.var) = Formula.iters_var failure_cp
             let new_cmds = [Programs.assume (Formula.Ge(Term.var(iters),Term.constant (current_iter+1)))]
@@ -606,11 +606,11 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 ///Make new copied variables and assume commands to store a copy
 ///Returns a list of assignments of old vars to new (renamed) vars.
 let var_copy_commands (p_orig: Programs.Program) (p_c : Programs.Program) cp =
-    let vars = !p_orig.vars |> Set.filter (fun x -> not(Formula.is_const_var x))
+    let vars = p_orig.vars |> Set.filter (fun x -> not(Formula.is_const_var x))
 
     let copy_vars = vars |> Seq.map (fun x -> Formula.save_state_var x cp)
 
-    p_c.vars := (!p_c.vars).addMany copy_vars
+    p_c.vars <- (p_c.vars).addMany copy_vars
 
     //Add to mapping of variables
     let copy_vars_to_vars = (vars,copy_vars) ||> Seq.zip |> Seq.fold (fun (acc:Map<var,var>) (x,y) -> acc.Add(y,x)) Map.empty
@@ -744,32 +744,32 @@ let instrument_X p formula (propertyMap : SetDictionary<CTL_Formula, int * Formu
     let p_X = Programs.copy p
     let final_loc = Programs.map p_X "final_loc"
     let p_X_copy = Programs.copy p_X
-    let first_states = ref Set.empty
-    let next_states = ref Set.empty
+    let mutable first_states = Set.empty
+    let mutable next_states = Set.empty
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
-    p_X.vars := Set.add ret !p_X.vars
+    p_X.vars <- Set.add ret p_X.vars
 
     //let cp_conditions = eliminate_redun propertyMap.[formula]
     let cp_conditions = propertyMap.[formula] |> List.ofSeq
     let cp = cp_conditions |> List.map(fun (x,_) -> x)
 
-    for n in !p_X_copy.active do
+    for n in p_X_copy.active do
         let (k,_,k') = p_X.transitions.[n]
-        if(k = !p_X.initial) then
-            first_states := Set.add k' !first_states
+        if(k = p_X.initial) then
+            first_states <- Set.add k' first_states
 
-    for n in !p_X_copy.active do
+    for n in p_X_copy.active do
         let (k,_,k') = p_X.transitions.[n]
-        if(Set.contains k !first_states) then
-            next_states := Set.add k' !next_states
+        if(Set.contains k first_states) then
+            next_states <- Set.add k' next_states
 
     // 2. Instrument in the sub-property: Only for the next state.
     let node_to_end_of_subproperty_node_map = new Dictionary<int,int>()
-    for n in !p_X.active do
+    for n in p_X.active do
         let (k,c,k') = p_X.transitions.[n]
         //For Bottom up, we're also checking that it's a node/cp that has a pre-condition
-        if (Set.contains k !next_states) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (List.contains k cp) then
+        if (Set.contains k next_states) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (List.contains k cp) then
 
             // Create the two nodes between which we nest the encoding of the subproperty we consider:
             let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_X
@@ -801,17 +801,17 @@ let instrument_G p formula (propertyMap : SetDictionary<CTL_Formula, int * Formu
     let p_G_copy = Programs.copy p_G
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
-    p_G.vars := Set.add ret !p_G.vars
+    p_G.vars <- Set.add ret p_G.vars
     //let cp_conditions = eliminate_redun propertyMap.[formula]
     let cp_conditions = propertyMap.[formula] |> List.ofSeq
     let cp = cp_conditions |> List.map(fun (x,_) -> x)
 
     // 2. Instrument in the sub-property: Visit every state, and add links to the check for the sub-property.
     let node_to_end_of_subproperty_node_map = new System.Collections.Generic.Dictionary<int,int>()
-    for n in !p_G.active do
+    for n in p_G.active do
         let (k,_,_) = p_G.transitions.[n]
         //For Bottom up, we're also checking that it's a node/cp that has a pre-condition
-        if (k <> !p_G.initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (List.contains k cp) then
+        if (k <> p_G.initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (List.contains k cp) then
             // Create the two nodes between which we nest the encoding of the subproperty we consider:
             let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_G
             let ret_true_node = Programs.map p_G ("RET_TRUE_" + n.ToString())
@@ -828,9 +828,9 @@ let instrument_G p formula (propertyMap : SetDictionary<CTL_Formula, int * Formu
 
             node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
 
-    for n in !p_G_copy.active do
+    for n in p_G_copy.active do
         let (k,c,k') = p_G.transitions.[n]
-        if(k <> !p_G.initial && (List.contains k cp)) then
+        if(k <> p_G.initial && (List.contains k cp)) then
             let end_node_of_subproperty = node_to_end_of_subproperty_node_map.[k]
 
             Programs.plain_add_transition p_G end_node_of_subproperty c k'
@@ -844,7 +844,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
 
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
-    p_F.vars := Set.add ret !p_F.vars
+    p_F.vars <- Set.add ret p_F.vars
 
     //Map from each node starting a loop to the corresponding __copied_ variable
     let copy_loop_var = new System.Collections.Generic.Dictionary<int, var>()
@@ -874,7 +874,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
 
     //For every loop, we want to add a boolean copied value before each loop node, generate this variable here
     //Also determine the set of transitions outgoing frin the loop dominated by this cutpoint.
-    for n in !p_F.active do
+    for n in p_F.active do
         let (_,_,k') = p_F.transitions.[n]
         if (p_loops.ContainsKey k') then
             let cutpoint_copy = get_copy_of_loopnode k'
@@ -893,9 +893,9 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
     //    If the sub-property holds, we may go to the final location directly, otherwise we just dangle there
     let node_to_end_of_subproperty_node_map = new System.Collections.Generic.Dictionary<int,int>()
     if not(isTerminationOnly) then
-        for n in !p_F.active do
+        for n in p_F.active do
             let (k,_,_) = p_F.transitions.[n]
-            if (k <> !p_F.initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) &&
+            if (k <> p_F.initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) &&
                                             (List.contains k cp_propMap || p_loops.ContainsKey k) then
 
                 // Create the two nodes between which we nest the encoding of the subproperty we consider:
@@ -945,9 +945,9 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
     *)
 
     let visited_cp_map = new System.Collections.Generic.Dictionary<int,(int*int)>()
-    for n in !p_F_copy.active do
+    for n in p_F_copy.active do
         let (k,cmds,k') = p_F.transitions.[n]
-        if(k <> !p_F.initial) then
+        if(k <> p_F.initial) then
             let assume_ret_value_false_cmd =
                 if isTerminationOnly then []
                 else [Programs.assume (Formula.Eq(Term.Var(ret),Term.Const(bigint.Zero)))]
@@ -1091,7 +1091,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
                     else
                         Programs.plain_add_transition p_F selected_node cmds copied_k'
 
-        else // if(k <> !p_F.initial)
+        else // if(k <> p_F.initial)
             let init_copied_var_cmmds = copy_loop_var |> Seq.map (fun x -> (Programs.assign x.Value (Term.Const(bigint.Zero))))
             if fairness_constraint.IsSome then
                 p_F.transitions.[n] <- k, (cmds@(List.ofSeq(init_copied_var_cmmds))@
@@ -1102,7 +1102,7 @@ let instrument_F (pars : Parameters.parameters) p formula (propertyMap : SetDict
                 p_F.transitions.[n] <- k, (cmds@(List.ofSeq(init_copied_var_cmmds))), k'
 
     let loop_var_cmmd = copy_loop_var |> Seq.map (fun x -> Programs.assign x.Value (Term.Const(bigint.Zero)))
-    p_F.vars := copy_loop_var |> Seq.fold (fun acc x -> Set.add x.Value acc) !p_F.vars
+    p_F.vars <- copy_loop_var |> Seq.fold (fun acc x -> Set.add x.Value acc) p_F.vars
 
     let loopnode_to_copiednode = loopnode_to_copiednode |> Seq.map (fun x -> (x.Key, x.Value)) |> Map.ofSeq
     (p_F, ret, final_loc, List.ofSeq(loop_var_cmmd), loopnode_to_copiednode)
@@ -1112,22 +1112,22 @@ let instrument_AndOr p formula (propertyMap : SetDictionary<CTL_Formula, int * F
     let final_loc = Programs.map p_AndOr "final_loc"
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
-    p_AndOr.vars := Set.add ret !p_AndOr.vars
+    p_AndOr.vars <- Set.add ret p_AndOr.vars
 
     let cp_conditions = propertyMap.[formula] |> List.ofSeq
 
     // 2. Instrument in the sub-property only for the initial state
-    let init_check_node = ref -1
+    let mutable init_check_node = -1
 
-    for n in !p_AndOr.active do
+    for n in p_AndOr.active do
         let (k,_,k') = p_AndOr.transitions.[n]
-        if k = !p_AndOr.initial then
-            init_check_node := k'
-    assert(!init_check_node <> -1)
+        if k = p_AndOr.initial then
+            init_check_node <- k'
+    assert(init_check_node <> -1)
 
-    for n in !p_AndOr.active do
+    for n in p_AndOr.active do
         let (k,c,k') = p_AndOr.transitions.[n]
-        if k = !init_check_node then
+        if k = init_check_node then
             // Create the two nodes between which we nest the encoding of the subproperty we consider:
             let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_AndOr
             let ret_true_node = Programs.map p_AndOr ("RET_TRUE_" + n.ToString())
@@ -1158,9 +1158,9 @@ let bottomUp_AW p formula1 formula2 (propertyMap : SetDictionary<CTL_Formula, in
     let ret1 = Formula.subcheck_return_var "1_1"
     let ret2 = Formula.subcheck_return_var "2_1"
     let ret = Formula.subcheck_return_var "0"
-    p_AW.vars := Set.add ret !p_AW.vars
-    p_AW.vars := Set.add ret1 !p_AW.vars
-    p_AW.vars := Set.add ret2 !p_AW.vars
+    p_AW.vars <- Set.add ret p_AW.vars
+    p_AW.vars <- Set.add ret1 p_AW.vars
+    p_AW.vars <- Set.add ret2 p_AW.vars
     
     let cp_conditions1 = propertyMap.[formula1] |> List.ofSeq
     let cp_conditions2 = propertyMap.[formula2] |> List.ofSeq
@@ -1170,10 +1170,10 @@ let bottomUp_AW p formula1 formula2 (propertyMap : SetDictionary<CTL_Formula, in
     //Need to add true if the cp in one propertyMaps isn't there for the other.
 
     let node_to_end_of_subproperty_node_map = new System.Collections.Generic.Dictionary<int,int>()
-    for n in !p_AW.active do
+    for n in p_AW.active do
         let (k,c,k') = p_AW.transitions.[n]
-        if(k <> !p_AW.initial) then
-            if (k <> !p_AW.initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (cps.Contains k) then
+        if(k <> p_AW.initial) then
+            if (k <> p_AW.initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (cps.Contains k) then
 
                 let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_AW
                 
@@ -1244,7 +1244,7 @@ let bottomUp_EF p formula (propertyMap : SetDictionary<CTL_Formula, int * Formul
 //Thus, this is for the case that we have something just like x = 0 without AF or AG
 let instrument_Prop p_orig e =
     let p_Prop = Programs.copy p_orig
-    for n in !p_Prop.active do
+    for n in p_Prop.active do
         let (k,c,k') = p_Prop.transitions.[n]
         if k = -1 then
             p_Prop.transitions.[n] <- k, (c@[(Programs.assume e)]), k'
@@ -1332,7 +1332,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) p actl_prop (is_false
 
     //Maps first node on the path out of an instrumented loop (to the error location) to the corresponding CP:
     let cp_rf_init = new System.Collections.Generic.Dictionary<int, int>()
-    for n in !p_final.active do
+    for n in p_final.active do
         let (_, cmds, k') = p_final.transitions.[n]
         for cmd in cmds do
             match cmd with
@@ -1342,7 +1342,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) p actl_prop (is_false
                 cp_rf_init.Add(k', num_cp)
             | _ -> ()
     //Maps CP to the the transition leading from the first node on the corresponding path to the error location
-    for n in !p_final.active do
+    for n in p_final.active do
         let (k, cmds, _) = p_final.transitions.[n]
         if cp_rf_init.ContainsKey(k) then
             match cmds with

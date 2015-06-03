@@ -98,7 +98,7 @@ match runMode with
           printfn "Printing SMTLIB Pushdown Automaton to %s completed" output_file
     | Arguments.Safety inputLoc ->
         let loc =
-            match Map.tryFind (sprintf "loc_%d" inputLoc) !p.labels with
+            match Map.tryFind (sprintf "loc_%d" inputLoc) p.labels with
             | None ->
               eprintfn "Could not find location %d in program" inputLoc
               exit 3

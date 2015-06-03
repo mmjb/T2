@@ -69,21 +69,22 @@ let slice_path pi relevantCmds =
             track_dependency c
 
     //Now do a fixpoint thing where we recursively compute all needed variables
-    let queue = ref (List.ofSeq needed_vars)
-    let relevant = ref Set.empty
-    while not (!queue).IsEmpty do
-        let var = (!queue).Head
-        queue := (!queue).Tail
-        if not <| Set.contains var !relevant then
-            relevant := (!relevant).Add var
+    let mutable queue = List.ofSeq needed_vars
+    let mutable relevant = Set.empty
+    while not (queue).IsEmpty do
+        let var = (queue).Head
+        queue <- (queue).Tail
+        if not <| Set.contains var relevant then
+            relevant <- (relevant).Add var
             if depends_on.ContainsKey var then
                 for v in depends_on.[var] do
-                    queue := v::!queue
+                    queue <- v::queue
 
     //Filter everything that's not needed out:
+    let relevant = relevant // rebind to use in closure
     let is_relevant c =
         match c with
-        | Assign(_, v, _) when Set.contains v !relevant -> true
+        | Assign(_, v, _) when Set.contains v relevant -> true
         | Assign _ -> false
         | Assume _ -> true
 
@@ -266,7 +267,7 @@ let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * Tra
 
 let get_scc_rels_for_lex_rf_synth_from_program (pars : Parameters.parameters) (p:Programs.Program) (scc_nodes:Set<int>) (cp:int) =
     let scc_transitions =
-           !p.active
+           p.active
         |> Set.map (fun trans_idx -> (Set.singleton trans_idx, p.transitions.[trans_idx]))
         |> Set.filter (fun (_, (k, _, k')) -> scc_nodes.Contains k && scc_nodes.Contains k')
         |> Programs.filter_out_copied_transitions pars cp

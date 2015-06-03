@@ -125,7 +125,7 @@ let separate_conditions_and_assignments prevars conjuncts =
 
     Seq.iter handle_conj conjuncts
         
-    (!constraints, !assignments)
+    (constraints, assignments)
 
 let recurrent_set_from_path_conditions (pars : Parameters.parameters) stem cycle =
     Log.log pars <| sprintf "Nontermination: Checking for recurrent set constructed from constraints on counterexample cycle."
@@ -159,8 +159,8 @@ let recurrent_set_from_path_conditions (pars : Parameters.parameters) stem cycle
             []
 
     let constraints, assignments = separate_conditions_and_assignments prevars cycle_formulas
-    let constraints = Formula.conj constraints
-    let assignments = Formula.conj assignments
+    let constraints = Formula.conj !constraints
+    let assignments = Formula.conj !assignments
 
     // rename invariant vars to prevars
     let invariant = Formula.alpha (fun v -> Var.prime_var v 0) invariant
@@ -192,17 +192,17 @@ let recurrent_set_from_path_conditions (pars : Parameters.parameters) stem cycle
     // build invariant_renamed && constraints && assignments && not(constraints_renamed) && assignments_renamed to see if we exit after 2nd iteration
     if Formula.unsat exit_after_2nd_iteration then
         // If unsat, eliminate non-pre vars from constraints, rename pre-vars to just vars, return as recurrent set
-        let recurrent_set_terms = ref (constraints |> formula_to_linear_terms)
+        let mutable recurrent_set_terms = constraints |> formula_to_linear_terms
         for var in varMap.Keys do
             for i in 1..(Map.find var varMap) do
                 let var_prime = Var.prime_var var i
-                recurrent_set_terms := eliminate_var var_prime !recurrent_set_terms
-                recurrent_set_terms := simplify_as_inequalities !recurrent_set_terms
+                recurrent_set_terms <- eliminate_var var_prime recurrent_set_terms
+                recurrent_set_terms <- simplify_as_inequalities recurrent_set_terms
 
         let recurrent_set =
             Formula.And(
                 invariant |> Formula.alpha Var.unprime_var, 
-                List.map linear_term_to_formula !recurrent_set_terms |> Formula.conj |> Formula.alpha Var.unprime_var)
+                List.map linear_term_to_formula recurrent_set_terms |> Formula.conj |> Formula.alpha Var.unprime_var)
 
         Some recurrent_set
     else
@@ -214,7 +214,7 @@ let recurrent_set_from_path_conditions (pars : Parameters.parameters) stem cycle
 /// based on some smart technology
 ///
 let synthesize (pars : Parameters.parameters) stem cycle (tryOneElementSets:bool) =
-    let result = ref None
+    let mutable result = None
 
     let clean_commands cmds =
         cmds
@@ -226,13 +226,13 @@ let synthesize (pars : Parameters.parameters) stem cycle (tryOneElementSets:bool
     let vars = Programs.freevars [for _, cmds, _ in cycle@stem do for cmd in cmds -> cmd]
     if tryOneElementSets then
         for i in 1..2 do
-            if (!result).IsNone then
-                result := recurrent_state pars vars stem cycle i
+            if result.IsNone then
+                result <- recurrent_state pars vars stem cycle i
 
-                if (!result).IsSome then
+                if result.IsSome then
                     Stats.incCounter (sprintf "T2 - Looping nontermination after %i iterations" i)
 
-    if (!result).IsNone then
-        result := recurrent_set_from_path_conditions pars stem cycle
+    if result.IsNone then
+        result <- recurrent_set_from_path_conditions pars stem cycle
 
-    !result
+    result

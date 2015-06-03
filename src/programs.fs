@@ -43,7 +43,7 @@ open Log
 ///
 /// Constants not abstracted away because they are used as bounds
 ///
-let bound_constants = [-4 .. 4] |> List.map (fun i -> bigint i) |> Set.ofList |> ref
+let bound_constants = [-4 .. 4] |> List.map (fun i -> bigint i) |> Set.ofList
 //let bound_constants = ref (Set.ofList [0])
 
 ///
@@ -57,12 +57,12 @@ type pos = (int * string) option
 type command =
 
     ///
-    /// Assign(p,v,t) represents v := t at location p
+    /// Assign(p,v,t) represents v <- t at location p
     ///
     | Assign of pos * Var.var * term
 
     ///
-    /// Assume(p,f) represents  "if (!f) ignore" at location p
+    /// Assume(p,f) represents  "if (f) ignore" at location p
     ///
     | Assume of pos * formula
 
@@ -94,9 +94,9 @@ let pos2pp pos = match pos with
                  | Some(k,file) -> sprintf "%s:%d" file k
 
 let command2pp c = match c with
-                   | Assign(None,v,e) ->   Var.pp v + " := " + e.pp + ";"
+                   | Assign(None,v,e) ->   Var.pp v + " <- " + e.pp + ";"
                    | Assume(None,e) ->    "assume(" + Formula.pp e + ");"
-                   | Assign(p,v,e) ->   Var.pp v + " := " + e.pp + "; // at " + pos2pp p
+                   | Assign(p,v,e) ->   Var.pp v + " <- " + e.pp + "; // at " + pos2pp p
                    | Assume(p,e) ->    "assume(" + Formula.pp e + "); // at " + pos2pp p
 
 let commands2pp b = (List.fold (fun x y -> x + "    " + command2pp y + "\n") "{\n" b) + "}"
@@ -130,34 +130,34 @@ let modified cmds =
 type Transition = int * command list * int
 
 /// Default size for transitions array
-let transitions_sz = ref 50000
+let transitions_sz = 50000
 
-type Program = { initial : int ref
-               ; node_cnt : int ref
-               ; nodeToLabels : Map<int,string> ref
-               ; labels : Map<string,int> ref
+type Program = { mutable initial : int
+               ; mutable node_cnt : int
+               ; mutable nodeToLabels : Map<int,string> 
+               ; mutable labels : Map<string,int>
                ; transitions : Transition []
-               ; transitions_cnt : int ref
+               ; mutable transitions_cnt : int
 
                /// x \in active iff transitions[x] != (-1,_,-1)
-               ; active : Set<int> ref
+               ; mutable active : Set<int>
 
                /// Variables in the program
-               ; vars : Set<Var.var> ref
+               ; mutable vars : Set<Var.var>
 
                /// Locations in the program
-               ; locs : Set<int> ref
+               ; mutable locs : Set<int>
 
                /// Constants used in the program.
-               ; constants : Set<bigint> ref
+               ; mutable constants : Set<bigint>
 
                /// Flag indicating that we abstracted away things in an incomplete manner and hence should not report non-term
-               ; incomplete_abstraction : bool ref
+               ; mutable incomplete_abstraction : bool
 
                }
 
 let enumerate_transitions p = seq {
-        for node in !p.active do
+        for node in p.active do
             let (k, _,k' ) = p.transitions.[node]
             assert (k <> -1)
             assert (k' <> -1)
@@ -168,7 +168,7 @@ let enumerate_transitions p = seq {
 /// take function that transforms transition
 /// and apply it to every transition in the program
 let transitions_inplace_map p f =
-    for n in !p.active do
+    for n in p.active do
         let (k,_,k') = p.transitions.[n]
         assert (k <> -1)
         assert (k' <> -1)
@@ -274,28 +274,28 @@ type TransitionFunction = int -> (command list * int) list
 // APPROVED API
 //
 let new_node p =
-    let old = !p.node_cnt
-    p.node_cnt := old + 1
-    assert (!p.node_cnt > old)
+    let old = p.node_cnt
+    p.node_cnt <- old + 1
+    assert (p.node_cnt > old)
     old
 
 //
 // Mapping from labels to internally used nodes
 //
-let map p k = match Map.tryFind k !p.labels with
+let map p k = match Map.tryFind k p.labels with
               | None -> let node = new_node p
-                        p.labels := Map.add k node !p.labels
-                        p.nodeToLabels := Map.add node k !p.nodeToLabels
+                        p.labels <- Map.add k node p.labels
+                        p.nodeToLabels <- Map.add node k p.nodeToLabels
                         node
               | Some(node) -> node
 
-let findLabel p node = Map.tryFind node !p.nodeToLabels
+let findLabel p node = Map.tryFind node p.nodeToLabels
 
 //
 // APPROVED API
 //
 let set_initial p x =
-    p.initial := map p x
+    p.initial <- map p x
 
 ///
 /// Replace all constants that are not in 'range' with special variables
@@ -315,7 +315,7 @@ let rec term_constants range t =
         | Sub(t1, t2) -> Sub(alpha t1, alpha t2)
         | Mul(t1, t2) -> Mul(alpha t1, alpha t2)
     let t' = alpha t
-    (t',!s)
+    (t', !s)
 
 ///
 /// Replace all constants that are not in range with special variables
@@ -325,8 +325,8 @@ let rec formula_constants range f =
     let s = ref Set.empty
 
     let case_term t1 t2 f =
-        let (t1',s1) = term_constants range t1
-        let (t2',s2) = term_constants range t2
+        let (t1', s1) = term_constants range t1
+        let (t2', s2) = term_constants range t2
         s := Set.unionMany [!s; s1; s2]
         f(t1',t2')
 
@@ -341,7 +341,7 @@ let rec formula_constants range f =
         | Or(f1, f2) -> Or(alpha f1, alpha f2)
         | Not(f) -> Not(alpha f)
     let f' = alpha f
-    (f',!s)
+    (f', !s)
 
 ///
 /// Replace all constants that are not in range with special variables
@@ -380,17 +380,17 @@ let commands_constants range cmds =
 /// add transition n--T-->m as it is, without any preprocessing
 ///
 let plain_add_transition p n T m =
-    let cnt = !p.transitions_cnt
+    let cnt = p.transitions_cnt
     //printfn "  Adding %i(%i, %i): %s" cnt n m (commands2pp T)
-    p.transitions_cnt := cnt + 1;
-    p.active := Set.add cnt !p.active
-    if (!p.transitions_cnt >= !transitions_sz) then die()
-    assert (!p.transitions_cnt > cnt);
-    assert (!p.transitions_cnt < !transitions_sz);
+    p.transitions_cnt <- cnt + 1;
+    p.active <- Set.add cnt p.active
+    if (p.transitions_cnt >= transitions_sz) then die()
+    assert (p.transitions_cnt > cnt);
+    assert (p.transitions_cnt < transitions_sz);
     p.transitions.[cnt] <- (n,T,m)
-    p.vars := Set.union !p.vars (freevars T)
-    p.locs := Set.add n !p.locs
-    p.locs := Set.add m !p.locs
+    p.vars <- Set.union p.vars (freevars T)
+    p.locs <- Set.add n p.locs
+    p.locs <- Set.add m p.locs
 
 type SeqPar =
     | Atom of command
@@ -461,7 +461,7 @@ let rec command_to_seqpar (pars : Parameters.parameters) p cmd =
                                 Le (SparseLinear.term_as_linear t1, SparseLinear.term_as_linear t2)
                             with SparseLinear.Nonlinear _ ->
                                 sprintf "WARNING: Non-linear assumption %s\n" (command2pp cmd) |> Log.log pars
-                                p.incomplete_abstraction := true
+                                p.incomplete_abstraction <- true
                                 Formula.truec
 
                         let cmd = Assume (pos, f)
@@ -481,15 +481,15 @@ let rec command_to_seqpar (pars : Parameters.parameters) p cmd =
                 Assign(pos, v, SparseLinear.term_as_linear tm)
             with SparseLinear.Nonlinear _ ->
                sprintf "WARNING: Non-linear assignment %s\n" (command2pp cmd) |> Log.log pars
-               p.incomplete_abstraction := true
+               p.incomplete_abstraction <- true
                Assign(pos, v, Term.Nondet)
         Atom c
 
 let add_transition_unmapped (pars : Parameters.parameters) p n T m =
     let T =
         if pars.elim_constants then
-            let (T, consts) = commands_constants !bound_constants T
-            p.constants := Set.union !p.constants consts
+            let (T, consts) = commands_constants bound_constants T
+            p.constants <- Set.union p.constants consts
             T
         else
             T
@@ -508,16 +508,16 @@ let add_transition (pars : Parameters.parameters) p input_n (T : command list) i
 /// copy p returns a deep copy of program p
 ///
 let copy q  =
-        let p = { initial = ref (!q.initial)
-                ; node_cnt = ref (!q.node_cnt)
-                ; labels = ref (!q.labels)
-                ; nodeToLabels = ref(!q.nodeToLabels)
-                ; transitions_cnt = ref (!q.transitions_cnt)
+        let p = { initial = q.initial
+                ; node_cnt = q.node_cnt
+                ; labels = q.labels
+                ; nodeToLabels = q.nodeToLabels
+                ; transitions_cnt = q.transitions_cnt
                 ; transitions = Array.copy q.transitions
-                ; active = ref (!q.active)
-                ; vars = ref (!q.vars)
-                ; locs = ref (!q.locs)
-                ; constants = ref (!q.constants)
+                ; active = q.active
+                ; vars = q.vars
+                ; locs = q.locs
+                ; constants = q.constants
                 ; incomplete_abstraction = q.incomplete_abstraction
                 }
         p
@@ -537,12 +537,12 @@ let transitions_to p loc =
 //
 // Return the locations used in the program
 //
-let locations p = !p.locs
+let locations p = p.locs
 
 //
 // Return the variables used in the program
 //
-let variables p = !p.vars
+let variables p = p.vars
 
 //
 // Return a mapping from nodes to nodes that are reachable using the CFG edges
@@ -576,22 +576,22 @@ let remove_transition p n =
     //let (k,cmds,k') = p.transitions.[n]
     //printfn "  Rm'ing %i(%i, %i): %s" n k k' (commands2pp cmds)
     p.transitions.[n] <- (-1,[],-1)
-    p.active := Set.remove n !p.active
+    p.active <- Set.remove n p.active
 
 //
 // Prune out stupidly unreachable locations in the program
 //
 let remove_unreachable p =
     let reachableMap = cfg_reach p
-    let reachableLocs = Set.add !p.initial reachableMap.[!p.initial]
+    let reachableLocs = Set.add p.initial reachableMap.[p.initial]
     let unreachable = Set.difference (locations p) reachableLocs
 
-    for n in [0 .. !p.transitions_cnt-1] do
+    for n in [0 .. p.transitions_cnt-1] do
         let (k,_,k') = p.transitions.[n]
         if Set.contains k unreachable || Set.contains k' unreachable then
             remove_transition p n
 
-    p.locs := Set.difference !p.locs unreachable
+    p.locs <- Set.difference p.locs unreachable
 
 ///
 /// Returns strongly connected subgraphs in the transitive closure of p's
@@ -601,7 +601,7 @@ let sccsgs p =
     //Get map from location to all reachable locations:
     let reachableMap = cfg_reach p
 
-    SCC.find_sccs reachableMap !p.initial |> List.map Set.ofList
+    SCC.find_sccs reachableMap p.initial |> List.map Set.ofList
 
 //
 // Compute dominators tree
@@ -615,7 +615,7 @@ let dominators_from p_orig loc =
     Dominators.find_dominators cfg loc
 
 let dominators p_orig =
-    let initial = !p_orig.initial
+    let initial = p_orig.initial
     dominators_from p_orig initial
 
 let dominates t x y = Dominators.dominates t x y
@@ -639,7 +639,7 @@ let cutpoints p =
                 // node->node' is backedge
                 cuts := (!cuts).Add node'
         marks.[node] <- true // true means fully processed
-    dfs_visit !p.initial
+    dfs_visit p.initial
     !cuts |> Set.toList
 
 //
@@ -730,32 +730,32 @@ let find_loops p =
 
 //Returns a map of a nested loop, out loop
 let make_isolation_map (loops : Map<int,Set<int>>) =
-    let isolation_map = ref Map.empty
+    let mutable isolation_map = Map.empty
 
     for KeyValue(cp, loop) in loops do
         for loc in loop do
             if loops.ContainsKey(loc) then
                 let v = loops.[loc]
                 if not(Set.contains cp v) then
-                    isolation_map := (!isolation_map).Add(loc, cp)
+                    isolation_map <- isolation_map.Add(loc, cp)
 
-    !isolation_map
+    isolation_map
 
 //
 // APPROVED API
 //
 let make (pars : Parameters.parameters) is_temporal init (ts : (string * command list * string) seq) incomplete_abstraction =
-        let p = { initial = ref 0
-                ; node_cnt = ref 0
-                ; labels = ref Map.empty
-                ; nodeToLabels = ref Map.empty
-                ; transitions_cnt = ref 0
-                ; transitions = Array.create !transitions_sz (-1,[],-1)
-                ; active = ref Set.empty
-                ; vars = ref Set.empty
-                ; locs = ref Set.empty
-                ; constants = ref Set.empty
-                ; incomplete_abstraction = ref incomplete_abstraction
+        let p = { initial = 0
+                ; node_cnt = 0
+                ; labels = Map.empty
+                ; nodeToLabels = Map.empty
+                ; transitions_cnt = 0
+                ; transitions = Array.create transitions_sz (-1,[],-1)
+                ; active = Set.empty
+                ; vars = Set.empty
+                ; locs = Set.empty
+                ; constants = Set.empty
+                ; incomplete_abstraction = incomplete_abstraction
                 }
         let mutable init_is_target = false
         for (x, cmds, y) in ts do
@@ -763,17 +763,17 @@ let make (pars : Parameters.parameters) is_temporal init (ts : (string * command
             if y = init then
                 init_is_target <- true
         done
-        p.initial := map p init
+        p.initial <- map p init
 
         //Make sure that an initial state is not in a loop:
         if not(is_temporal) && init_is_target then
             let new_initial = new_node p
-            plain_add_transition p new_initial [] !p.initial
-            p.initial := new_initial
+            plain_add_transition p new_initial [] p.initial
+            p.initial <- new_initial
         else
             if init_is_target then
                 let (cp_to_dominated_loops, _) = find_loops p
-                if Map.containsKey !p.initial cp_to_dominated_loops then
+                if Map.containsKey p.initial cp_to_dominated_loops then
                     Utils.dieWith "Cannot do temporal proofs for programs with start state on a loop."
         p
 
@@ -813,7 +813,7 @@ let print_path path =
 
 let symbolic_consts_cmds consts =
 
-    let small = !bound_constants
+    let small = bound_constants
 
     assert ((Set.intersect small consts).IsEmpty)
 
@@ -839,7 +839,7 @@ let symbolic_consts_cmds consts =
     ]
 
 let consts_cmds path =
-    let used = ref Set.empty
+    let mutable used = Set.empty
     let assign_const_vars cmd =
         match cmd with
         | Assume(_,_) -> Set.empty
@@ -848,17 +848,17 @@ let consts_cmds path =
 
     for (_,cmds,_) in path do
         let vs = assign_const_vars_cmds cmds
-        used := Set.union !used (Set.filter Formula.is_const_var vs)
+        used <- Set.union used (Set.filter Formula.is_const_var vs)
     done
-    let used_ints = Set.map Formula.get_const_from_constvar !used
+    let used_ints = Set.map Formula.get_const_from_constvar used
     symbolic_consts_cmds used_ints
 
 let symbconsts_init p =
-    if not <| Set.isEmpty !p.constants then
-        let commands = symbolic_consts_cmds !p.constants
+    if not <| Set.isEmpty p.constants then
+        let commands = symbolic_consts_cmds p.constants
         let new_init = new_node p
-        plain_add_transition p new_init commands !p.initial
-        p.initial := new_init
+        plain_add_transition p new_init commands p.initial
+        p.initial <- new_init
 
 /// Replace __const variables by the actual constants again
 let const_subst cmd =
@@ -877,15 +877,15 @@ let chain_program_transitions (pars : Parameters.parameters) (program : Program)
     // (1) Create map, giving access to all incoming/outgoing transitions for a location
     let incomingTransitions = Utils.SetDictionary()
     let outgoingTransitions = Utils.SetDictionary()
-    for idx in !program.active do
+    for idx in program.active do
         let (k, cmds, k') = program.transitions.[idx]
         incomingTransitions.Add (k', (Set.singleton idx, k, cmds)) |> ignore
         outgoingTransitions.Add (k, (Set.singleton idx, cmds, k')) |> ignore
 
     // (2) Then try to chain away each location:
-    for location in !program.locs do
+    for location in program.locs do
         if not (dontChain.Contains location) 
-            && (not onlyRemoveUnnamed || not (Map.containsKey location !program.nodeToLabels)) then
+            && (not onlyRemoveUnnamed || not (Map.containsKey location program.nodeToLabels)) then
             let incomingCount = incomingTransitions.[location].Count
             let outgoingCount = outgoingTransitions.[location].Count
             let incomingEmptySingleton =
@@ -901,7 +901,7 @@ let chain_program_transitions (pars : Parameters.parameters) (program : Program)
                 else
                     false
             if (incomingCount = 1 && outgoingCount = 1) then //|| incomingEmptySingleton || outgoingEmptySingleton then
-                let chained = ref true
+                let mutable chained = true
                 for (inIdx, s, T1) in incomingTransitions.[location] do
                     for (outIdx, T2, e) in outgoingTransitions.[location] do
                         //Don't do this for self-loops
@@ -915,19 +915,19 @@ let chain_program_transitions (pars : Parameters.parameters) (program : Program)
                             outgoingTransitions.RemoveKeyVal s (inIdx, T1, location)
                             outgoingTransitions.Add (s, (transIdxSet, T, e))
                         else
-                            chained := true
-                if !chained then
+                            chained <- true
+                if chained then
                     incomingTransitions.Remove location |> ignore
                     outgoingTransitions.Remove location |> ignore
 
     // (3) Rewrite the program:
-    program.active := Set.empty
-    program.transitions_cnt := 0
-    program.locs := Set.empty
+    program.active <- Set.empty
+    program.transitions_cnt <- 0
+    program.locs <- Set.empty
     let transMap = System.Collections.Generic.Dictionary()
     for (startLoc, outgoings) in outgoingTransitions do
         for (transIdxSet, cmds, endLoc) in outgoings do
-            let newTransIdx = !program.transitions_cnt
+            let newTransIdx = program.transitions_cnt
             plain_add_transition program startLoc cmds endLoc
             for transIdx in transIdxSet do
                 transMap.[transIdx] <- newTransIdx
@@ -984,9 +984,9 @@ let chain_transitions nodes_to_consider transitions =
 let filter_out_copied_transitions (pars : Parameters.parameters) cp scc_transitions =
     if pars.lexicographic then //if we didn't do lexicographic instrumentation, this optimization is unsound
         let cleaned_scc_nodes = new System.Collections.Generic.HashSet<int>()
-        let mutable found_new_node = ref (cleaned_scc_nodes.Add cp)
-        while !found_new_node do
-            found_new_node := false
+        let mutable found_new_node = cleaned_scc_nodes.Add cp
+        while found_new_node do
+            found_new_node <- false
             for (_, (k, cmds, k')) in scc_transitions do
                 if cleaned_scc_nodes.Contains k && not(cleaned_scc_nodes.Contains k') then
                     //Ignore instrumentation transitions:
@@ -997,7 +997,7 @@ let filter_out_copied_transitions (pars : Parameters.parameters) cp scc_transiti
                                       | Assign(_,var,term) -> (Formula.is_copied_var var) && term.Equals(Term.constant 1))
                         |> Seq.isEmpty
                     if is_no_copy_transition then
-                        found_new_node := cleaned_scc_nodes.Add k'
+                        found_new_node <- cleaned_scc_nodes.Add k'
 
         scc_transitions
         |> Set.filter (fun (_, (k, _, k')) -> cleaned_scc_nodes.Contains k && cleaned_scc_nodes.Contains k')
@@ -1005,12 +1005,12 @@ let filter_out_copied_transitions (pars : Parameters.parameters) cp scc_transiti
         scc_transitions
 
 let get_current_locations p =
-    let res = ref Set.empty
-    for n in !p.active do
+    let mutable res = Set.empty
+    for n in p.active do
         let (k,_,k') = p.transitions.[n]
-        res := Set.add k !res
-        res := Set.add k' !res
-    !res
+        res <- Set.add k res
+        res <- Set.add k' res
+    res
 
 let add_const1_var_to_relation extra_pre_var extra_post_var rel =
     let (formula, prevars, postvars) = (Relation.formula rel, Relation.prevars rel, Relation.postvars rel)

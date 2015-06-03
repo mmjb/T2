@@ -27,11 +27,11 @@ open Programs
 
 let print_program p =
    printf "=================== PROGRAM =====================\n"
-   printf "Initial location: %d\n" !p.initial
+   printf "Initial location: %d\n" p.initial
    printf "Labels:\n"
    let print_label l n =
       printf "  %s:%d\n" l n
-   Map.iter print_label !p.labels
+   Map.iter print_label p.labels
 
    printf "Transitions:\n"
    let print_trans (k,T,k') =
@@ -60,16 +60,16 @@ let print_dot_program p (fname : string) =
        fprintf h "%s [shape=box label=\"%i: %s\"];\n" cmd_box idx (commands2pp T)
        fprintf h "%s -> node%d;\n" cmd_box k'
 
-   for transIdx in !p.active do
+   for transIdx in p.active do
        let (k,t,k') = p.transitions.[transIdx]
        print_trans transIdx (k,t,k')
 
    for n in !nodes do
-       let lab = match Map.tryFindKey (fun _ v -> v=n) !p.labels with
+       let lab = match Map.tryFindKey (fun _ v -> v=n) p.labels with
                  | Some(s) -> s
                  | None -> "?"
        let color = "red"
-       if n<> !p.initial then
+       if n<> p.initial then
            fprintf h "node%d [ color=%s label = \"%d (%s)\" ];\n" n color n lab
        else
            fprintf h "node%d [ color=%s label = \"%d (start)\" ];\n" n color n
@@ -95,12 +95,12 @@ let print_c_program_goto p (fname : string) =
 
     //sanitize var names, declare:
     let vars = variables p
-    let var_map = ref Map.empty;
-    let i = ref 1
+    let mutable var_map = Map.empty
+    let mutable i = 1
     for v in vars do
-        let new_v = "v" + (!i).ToString()
-        var_map := Map.add v new_v !var_map
-        i := !i + 1
+        let new_v = "v" + (i).ToString()
+        var_map <- Map.add v new_v var_map
+        i <- i + 1
         fprintfn out_channel "int %s = nondet();" new_v
 
     //map all location to outgoing transitions:
@@ -111,17 +111,18 @@ let print_c_program_goto p (fname : string) =
         else
             dict.Add(k, new System.Collections.Generic.HashSet<command list * int>())
             dict.[k].Add v
-    for n in !p.active do
+    for n in p.active do
         let (k, cmds, k') = p.transitions.[n]
         add_to_set_dict out_trans k (cmds, k') |> ignore
 
     //first step:
-    fprintfn out_channel "goto %s;" (pp_label !p.initial cps)
+    fprintfn out_channel "goto %s;" (pp_label p.initial cps)
 
     //encode transitions. Order locations first, putting initial and cutpoints first:
-    let final_locs = ref []
-    let locations = ref <| !p.initial :: (List.ofSeq cps)
+    let mutable final_locs = []
+    let locations = ref <| p.initial :: (List.ofSeq cps)
     locations := !locations @ (List.ofSeq <| Seq.filter (fun pp -> not <| List.contains pp !locations) out_trans.Keys)
+    let var_map = var_map //rebind to use in alpha closures further down:
     for location in !locations do
         fprintfn out_channel "%s:" (pp_label location cps)
 
@@ -132,22 +133,22 @@ let print_c_program_goto p (fname : string) =
             |> List.iter (
                 function
                     | Assume(_, f) ->
-                        let sanitized_f = Formula.alpha (fun v -> (!var_map).[v]) f
+                        let sanitized_f = Formula.alpha (fun v -> (var_map).[v]) f
                         fprintfn out_channel "  if (!( %s )) goto end;" (sanitized_f.pp);
                     | Assign(_, v, t) ->
-                        let sanitized_v = (!var_map).[v]
-                        let sanitized_t = Term.alpha (fun v -> (!var_map).[v]) t
+                        let sanitized_v = (var_map).[v]
+                        let sanitized_t = Term.alpha (fun v -> (var_map).[v]) t
                         fprintfn out_channel "  %s = %s;" (sanitized_v) (sanitized_t.pp);
                 )
             ()
             fprintfn out_channel "  goto %s;" (pp_label k' cps)
             if not(out_trans.ContainsKey k') then
-                final_locs := k' :: !final_locs
+                final_locs <- k' :: final_locs
             fprintfn out_channel " }"
 
         fprintfn out_channel " goto end;"
 
-    for final_loc in !final_locs do
+    for final_loc in final_locs do
         fprintfn out_channel "%s:" (pp_label final_loc cps)
     fprintfn out_channel "end:\n;\n}"
     out_channel.Dispose ()
@@ -162,12 +163,12 @@ let print_c_program_pc_loop p (fname : string) =
 
     //sanitize var names, declare:
     let vars = variables p
-    let var_map = ref Map.empty;
-    let i = ref 1
+    let mutable var_map = Map.empty;
+    let mutable i = 1
     for v in vars do
-        let new_v = "v" + (!i).ToString()
-        var_map := Map.add v new_v !var_map
-        i := !i + 1
+        let new_v = "v" + (i).ToString()
+        var_map <- Map.add v new_v var_map
+        i <- i + 1
         fprintfn out_channel "int %s = nondet();" new_v
 
     //map all location to outgoing transitions:
@@ -178,19 +179,20 @@ let print_c_program_pc_loop p (fname : string) =
         else
             dict.Add(k, new System.Collections.Generic.HashSet<command list * int>())
             dict.[k].Add v
-    for n in !p.active do
+    for n in p.active do
         let (k, cmds, k') = p.transitions.[n]
         add_to_set_dict out_trans k (cmds, k') |> ignore
 
     //first step:
-    fprintfn out_channel "unsigned int pc = %i;" !p.initial
+    fprintfn out_channel "unsigned int pc = %i;" p.initial
     fprintfn out_channel " while (pc != -1) {"
     fprintfn out_channel "  switch (pc) {"
 
     //encode transitions. Order locations first, putting initial and cutpoints first:
-    let final_locs = ref []
-    let locations = ref <| !p.initial :: (List.ofSeq (fst <| find_loops p).Keys)
+    let mutable final_locs = []
+    let locations = ref <| p.initial :: (List.ofSeq (fst <| find_loops p).Keys)
     locations := !locations @ (List.ofSeq <| Seq.filter (fun pp -> not <| List.contains pp !locations) out_trans.Keys)
+    let var_map = var_map //rebind to use in alpha closures further down:
     for location in !locations do
         fprintfn out_channel "case %i:" location
 
@@ -201,17 +203,17 @@ let print_c_program_pc_loop p (fname : string) =
             |> List.iter (
                 function
                     | Assume(_, f) ->
-                        let sanitized_f = Formula.alpha (fun v -> (!var_map).[v]) f
+                        let sanitized_f = Formula.alpha (fun v -> (var_map).[v]) f
                         fprintfn out_channel "  if (!( %s )) { pc = -1; break; }" (sanitized_f.pp);
                     | Assign(_, v, t) ->
-                        let sanitized_v = (!var_map).[v]
-                        let sanitized_t = Term.alpha (fun v -> (!var_map).[v]) t
+                        let sanitized_v = (var_map).[v]
+                        let sanitized_t = Term.alpha (fun v -> (var_map).[v]) t
                         fprintfn out_channel "  %s = %s;" (sanitized_v) (sanitized_t.pp);
                 )
             ()
             fprintfn out_channel "  pc = %i; break;" k'
             if not(out_trans.ContainsKey k') then
-                final_locs := k' :: !final_locs
+                final_locs <- k' :: final_locs
             fprintfn out_channel " }"
 
         fprintfn out_channel " pc = -1; break;"
@@ -228,14 +230,14 @@ let print_c_program p imperative_style fname =
 
 let print_t2_program p (fname : string) =
     let out_channel = new System.IO.StreamWriter(fname)
-    fprintfn out_channel "START: %i;\n" !p.initial
+    fprintfn out_channel "START: %i;\n" p.initial
 
     let print_transition k cmds k' =
         fprintfn out_channel "FROM: %i;" k
         cmds |> Seq.iter (fun c -> c |> command2pp |> fprintfn out_channel "%s")
         fprintfn out_channel "TO: %i;\n" k'
 
-    for n in !p.active do
+    for n in p.active do
         let (k, cmds, k') = p.transitions.[n]
         print_transition k cmds k'
     out_channel.Dispose()
@@ -246,29 +248,29 @@ let print_clauses p (fname : string) =
     //Prepare variable lists, print the actual transitions:
     let varPP (v : string) = v.Replace("^", "_")
     let varPPPrefix v = "_" + (varPP v)
-    let preVarsString = !p.vars |> Seq.map (fun v -> varPPPrefix (v + "^0")) |> String.concat ", "
-    let postVarsString = !p.vars |> Seq.map (fun v -> varPPPrefix (v + "^post")) |> String.concat ", "
+    let preVarsString = p.vars |> Seq.map (fun v -> varPPPrefix (v + "^0")) |> String.concat ", "
+    let postVarsString = p.vars |> Seq.map (fun v -> varPPPrefix (v + "^post")) |> String.concat ", "
     let trans_to_rule src cmds dst=
-        let io_rel = Symex.path_to_relation [(src, cmds, dst)] !p.vars |> Relation.standardise_postvars
+        let io_rel = Symex.path_to_relation [(src, cmds, dst)] p.vars |> Relation.standardise_postvars
         let io_formula = Relation.formula io_rel
         sprintf "PC=%i,PCP=%i,%s" src dst (io_formula.clause_pp varPPPrefix)
-    let transs = ref []
-    for n in !p.active do
+    let mutable transs = []
+    for n in p.active do
         let (k, cmds, k') = p.transitions.[n]
-        transs := (trans_to_rule k cmds k')::!transs
+        transs <- (trans_to_rule k cmds k')::transs
 
     let (loops, _) = Programs.find_loops p
     let cps = loops.Keys
     let cpString = cps |> Seq.map (fun cp -> sprintf "PC = %i" cp) |> String.concat "; "
 
-    fprintfn out_channel "init([PC, %s]) :- PC=%i." preVarsString !p.initial
+    fprintfn out_channel "init([PC, %s]) :- PC=%i." preVarsString p.initial
     fprintfn out_channel "next([PC, %s], [PCP, %s]) :-" preVarsString postVarsString
-    !transs |> String.concat ";\n  " |> fprintfn out_channel "  %s."
+    transs |> String.concat ";\n  " |> fprintfn out_channel "  %s."
     fprintfn out_channel "cutpoint([PC, %s]) :- %s."  preVarsString cpString
 
-    let ppvarString = !p.vars |> Seq.map varPP |> String.concat "', '"
-    let ppPreVarsString = !p.vars |> Seq.map varPP |> String.concat "', '"
-    let ppPostVarsString = !p.vars |> Seq.map varPP |> String.concat "\\'', '"
+    let ppvarString = p.vars |> Seq.map varPP |> String.concat "', '"
+    let ppPreVarsString = p.vars |> Seq.map varPP |> String.concat "', '"
+    let ppPostVarsString = p.vars |> Seq.map varPP |> String.concat "\\'', '"
     fprintfn out_channel "query_naming(cutpoint, ['PC', '%s'])." ppvarString
     fprintfn out_channel "query_naming(init, ['PC', '%s'])." ppvarString
     fprintfn out_channel "query_naming(next, ['PC', '%s', 'PC\\'', '%s\\''])." ppPreVarsString ppPostVarsString
@@ -298,19 +300,19 @@ let print_java_program_goto p java_nondet_style class_name path =
 
     //sanitize var names, declare:
     let vars = variables p
-    let var_map = ref Map.empty;
-    let i = ref 1
+    let mutable var_map = Map.empty;
+    let mutable i = 1
     for v in vars do
-        let new_v = "v" + (!i).ToString()
-        var_map := Map.add v new_v !var_map
-        i := !i + 1
+        let new_v = "v" + (i).ToString()
+        var_map <- Map.add v new_v var_map
+        i <- i + 1
         fprintfn out_channel "  public static int %s;" new_v
 
     fprintfn out_channel ""
     fprintfn out_channel "  public static void main(String[] args) {"
 
     let mutable i = 0 in
-        for v in !var_map do
+        for v in var_map do
             fprintfn out_channel "    %s = args[%d].length() - args[%d].length();" v.Value (2*i) (2*i + 1)
             i <- i+1
     fprintfn out_channel ""
@@ -326,18 +328,19 @@ let print_java_program_goto p java_nondet_style class_name path =
         else
             dict.Add(k, new System.Collections.Generic.HashSet<command list * int>())
             dict.[k].Add v
-    for n in !p.active do
+    for n in p.active do
         let (k, cmds, k') = p.transitions.[n]
         add_to_set_dict out_trans k (cmds, k') |> ignore
 
     //first step:
-    fprintfn out_channel "    %s();" (pp_label !p.initial cps)
+    fprintfn out_channel "    %s();" (pp_label p.initial cps)
     fprintfn out_channel "  }" // main
 
     //encode transitions. Order locations first, putting initial and cutpoints first:
     let final_locs = new System.Collections.Generic.HashSet<int>();
-    let locations = ref <| !p.initial :: (List.ofSeq cps)
+    let locations = ref <| p.initial :: (List.ofSeq cps)
     locations := !locations @ (List.ofSeq <| Seq.filter (fun pp -> not <| List.contains pp !locations) out_trans.Keys)
+    let var_map = var_map //rebind to use in alpha closures further down:
     for location in !locations do
         fprintfn out_channel ""
         fprintfn out_channel "  public static void %s() {" (pp_label location cps)
@@ -349,11 +352,11 @@ let print_java_program_goto p java_nondet_style class_name path =
             |> List.iter (
                 function
                     | Assume(_, f) ->
-                        let sanitized_f = Formula.alpha (fun v -> (!var_map).[v]) f
+                        let sanitized_f = Formula.alpha (fun v -> (var_map).[v]) f
                         fprintfn out_channel "      if (!( %s )) return;" (sanitized_f.pp);
                     | Assign(_, v, t) ->
-                        let sanitized_v = (!var_map).[v]
-                        let sanitized_t = Term.alpha (fun v -> (!var_map).[v]) t
+                        let sanitized_v = (var_map).[v]
+                        let sanitized_t = Term.alpha (fun v -> (var_map).[v]) t
                         fprintfn out_channel "      %s = %s;" (sanitized_v) (sanitized_t.pp);
                 )
             ()
@@ -385,11 +388,11 @@ let print_java_program_pc_loop p java_nondet_style class_name path =
 
     //sanitize var names, declare:
     let vars = variables p
-    let var_map = ref Map.empty;
+    let mutable var_map = Map.empty;
     let mutable i = 0
     for v in vars do
         let new_v = "v" + (i+1).ToString()
-        var_map := Map.add v new_v !var_map
+        var_map <- Map.add v new_v var_map
         i <- i + 1
         fprintfn out_channel "    int %s = args[%d].length() - args[%d].length();" new_v (2*i) (2*i + 1)
 
@@ -401,36 +404,34 @@ let print_java_program_pc_loop p java_nondet_style class_name path =
         else
             dict.Add(k, new System.Collections.Generic.HashSet<command list * int>())
             dict.[k].Add v
-    for n in !p.active do
+    for n in p.active do
         let (k, cmds, k') = p.transitions.[n]
         add_to_set_dict out_trans k (cmds, k') |> ignore
 
     //first step:
-    fprintfn out_channel "    int pc = %i;" !p.initial
+    fprintfn out_channel "    int pc = %i;" p.initial
     fprintfn out_channel "    while (pc != -1) {"
     fprintfn out_channel "      switch (pc) {"
 
     //encode transitions. Order locations first, putting initial and cutpoints first:
-    let locations = ref <| !p.initial :: (List.ofSeq (fst <| find_loops p).Keys)
+    let locations = ref <| p.initial :: (List.ofSeq (fst <| find_loops p).Keys)
     locations := !locations @ (List.ofSeq <| Seq.filter (fun pp -> not <| List.contains pp !locations) out_trans.Keys)
+    let var_map = var_map //rebind to use in alpha closures further down:
     for location in !locations do
         fprintfn out_channel "        case %i:" location
 
         let trans = out_trans.[location]
         for (cmds, k') in trans do
             fprintfn out_channel "          if (nondet_bool()) {"
-            cmds
-            |> List.iter (
-                function
-                    | Assume(_, f) ->
-                        let sanitized_f = Formula.alpha (fun v -> (!var_map).[v]) f
-                        fprintfn out_channel "            if (!( %s )) { pc = -1; break; }" (sanitized_f.pp);
-                    | Assign(_, v, t) ->
-                        let sanitized_v = (!var_map).[v]
-                        let sanitized_t = Term.alpha (fun v -> (!var_map).[v]) t
-                        fprintfn out_channel "            %s = %s;" (sanitized_v) (sanitized_t.pp);
-                )
-            ()
+            for cmd in cmds do
+                match cmd with
+                | Assume(_, f) ->
+                    let sanitized_f = Formula.alpha (fun v -> var_map.[v]) f
+                    fprintfn out_channel "            if (!( %s )) { pc = -1; break; }" (sanitized_f.pp);
+                | Assign(_, v, t) ->
+                    let sanitized_v = var_map.[v]
+                    let sanitized_t = Term.alpha (fun v -> var_map.[v]) t
+                    fprintfn out_channel "            %s = %s;" (sanitized_v) (sanitized_t.pp);
             fprintfn out_channel "            pc = %i;" k'
             fprintfn out_channel "            break;"
             fprintfn out_channel "          }"
@@ -460,16 +461,16 @@ let print_smtpushdown p (fname : string) =
 
     //Get all locations:
     let locations = new System.Collections.Generic.HashSet<int>() in
-    for n in !p.active do
+    for n in p.active do
         let (k, _, k') = p.transitions.[n]
         ignore <| locations.Add k
         ignore <| locations.Add k'
     let locPP k = sprintf "l%i" k
 
     //Get the variable lists
-    let pre_vars = !p.vars |> Set.map (sprintf "%s^0")
+    let pre_vars = p.vars |> Set.map (sprintf "%s^0")
     let pre_vars_string = pre_vars |> Set.map (sprintf "(%s Int)") |> String.concat " "
-    let post_vars = !p.vars |> Set.map (sprintf "%s^post")
+    let post_vars = p.vars |> Set.map (sprintf "%s^post")
     let post_vars_string = post_vars |> Set.map (sprintf "(%s Int)") |> String.concat " "
     let all_vars = Set.union pre_vars post_vars
 
@@ -497,7 +498,7 @@ let print_smtpushdown p (fname : string) =
     fprintf out_channel "  (and (= pc exit) (= pc1 call) (= pc2 return) rel))\n\n";
 
     fprintf out_channel "(define-fun init_main ( (%s Loc) %s ) Bool\n" pc_pre_var pre_vars_string;
-    fprintf out_channel "  (cfg_init %s %s true))\n\n" pc_pre_var (locPP !p.initial);
+    fprintf out_channel "  (cfg_init %s %s true))\n\n" pc_pre_var (locPP p.initial);
 
     fprintf out_channel "(define-fun next_main (\n";
     fprintf out_channel "                 (%s Loc) %s\n" pc_pre_var pre_vars_string;
@@ -505,9 +506,9 @@ let print_smtpushdown p (fname : string) =
     fprintf out_channel "             ) Bool\n";
     fprintf out_channel "  (or\n";
 
-    for n in !p.active do
+    for n in p.active do
         let (src, cmds, dst) = p.transitions.[n]
-        let io_rel = Symex.path_to_relation [(src, cmds, dst)] !p.vars |> Relation.standardise_postvars
+        let io_rel = Symex.path_to_relation [(src, cmds, dst)] p.vars |> Relation.standardise_postvars
         let io_formula = Relation.formula io_rel
         let ex_vars = Set.fold (fun vars bound_var -> Set.remove bound_var vars) (Formula.freevars io_formula) all_vars
         if ex_vars.IsEmpty then

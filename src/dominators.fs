@@ -45,7 +45,7 @@ let find_dominators (succ : SetDictionary<int, int>) entry =
   let vertex = new DefaultDictionary<int, int>(fun _ -> -1)
   let parent = new DefaultDictionary<int, int>(fun _ -> -1)
   let rec dfs v =
-    incr dfsNumber;
+    incr dfsNumber
     semi.[v] <- !dfsNumber
     vertex.[!dfsNumber] <- v
     for w in succ.[v] do
@@ -78,25 +78,25 @@ let find_dominators (succ : SetDictionary<int, int>) entry =
   label.[-1] <- -1
   semi.[-1] <- -1
   let link v w =
-    let s = ref w
-    while semi.[label.[w]] < semi.[label.[child.[!s]]] do
-        if size.[!s] + size.[child.[child.[!s]]] >= 2 * size.[child.[!s]] then
-            parent.[child.[!s]] <- !s
-            child.[!s] <- child.[child.[!s]]
+    let mutable s = w
+    while semi.[label.[w]] < semi.[label.[child.[s]]] do
+        if size.[s] + size.[child.[child.[s]]] >= 2 * size.[child.[s]] then
+            parent.[child.[s]] <- s
+            child.[s] <- child.[child.[s]]
         else
-            size.[child.[!s]] <- size.[!s]
-            let t = parent.[!s]
-            parent.[!s] <- child.[!s]
-            s := t
-        label.[!s] <- label.[w]
+            size.[child.[s]] <- size.[s]
+            let t = parent.[s]
+            parent.[s] <- child.[s]
+            s <- t
+        label.[s] <- label.[w]
         size.[v] <- size.[v] + size.[w]
         if size.[v] < 2 * size.[w] then
-            let t = !s
-            s := child.[v]
+            let t = s
+            s <- child.[v]
             child.[v] <- t
-        while !s <> -1 do
-            parent.[!s] <- v
-            s := child.[!s]
+        while s <> -1 do
+            parent.[s] <- v
+            s <- child.[s]
 
   let bucket = new SetDictionary<int, int>()
   let dom = new DefaultDictionary<int,int>(fun _ -> -1)

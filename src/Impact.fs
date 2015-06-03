@@ -54,52 +54,52 @@ open PriorityQueue
 let private make_prio_map (p: Programs.Program) (error_loc: int) =
     //bfs from error location on reversed transition relation, assigned prio is inverted minimal distance
     let in_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<int * Programs.command list * int>>()
-    let all_nodes = ref Set.empty
+    let mutable all_nodes = Set.empty
     let add_to_set_dict (dict : System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<int * Programs.command list * int>>) k v =
         if dict.ContainsKey k then
             dict.[k].Add v
         else
             dict.Add(k, new System.Collections.Generic.HashSet<int * Programs.command list * int>())
             dict.[k].Add v
-    for n in !p.active do
+    for n in p.active do
         let trans = p.transitions.[n]
         let (k, _, k') = trans
         add_to_set_dict in_trans k' trans |> ignore
-        all_nodes := Set.add k' <| Set.add k !all_nodes
+        all_nodes <- Set.add k' <| Set.add k all_nodes
 
-    let res = ref Map.empty
+    let mutable res = Map.empty
     let todo = new System.Collections.Generic.Queue<int * int>()
     todo.Enqueue(error_loc, 0)
 
     while todo.Count > 0 do
         let (node, dist) = todo.Dequeue()
-        if not(Map.containsKey node !res) then
-            res := Map.add node dist !res
+        if not(Map.containsKey node res) then
+            res <- Map.add node dist res
             if in_trans.ContainsKey node then //not everyone has incoming transitions. Think start state
                 let all_in_trans = in_trans.[node]
                 for (pred, _, _) in all_in_trans do
                     todo.Enqueue(pred, dist - 1)
 
     //Whoever has no weight does not even reach error_loc. Make them go last:
-    let min_weight = -(!p.active).Count
-    for node in !all_nodes do
-        if not(Map.containsKey node !res) then
-            res := Map.add node min_weight !res
+    let min_weight = -p.active.Count
+    for node in all_nodes do
+        if not(Map.containsKey node res) then
+            res <- Map.add node min_weight res
 
-    !res
+    res
 
 /// Should we perform garbage collection on the abstraction graph?
-let private do_gc = ref true
+let private do_gc = true
 
 /// Should we perform some sanity checks to make sure that we're not using
 /// nodes that have been GC'd?
-let private gc_check = ref false
+let private gc_check = false
 
 type ImpactARG(parameters : Parameters.parameters,
                program : Programs.Program,
                loc_err : int) =
     /// Initial program location
-    let loc_init = !program.initial
+    let loc_init = program.initial
 
     /// Transition relation, mapping each location to a list of (relation, successor location) pairs.
     /// Note that this reflects changes to program that are done while this is ARG is instantiated.
@@ -115,7 +115,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// RIDDLED with invariants. Fun.
     (* ------- State of the abstract reachability graph ------- *)
     /// Counter tracking how many nodes we have in the system
-    let cnt = ref 0
+    let mutable cnt = 0
 
     /// Current nodes in the system
     let V = System.Collections.Generic.HashSet<int>()
@@ -151,7 +151,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// Node numbers do not quite represent the order that we've "visited" them. dfs_map maps each node number to its dfs number
     let dfs_map = DefaultDictionary<int, int>(fun _ -> -1)
     /// Helper to create dfs numbers
-    let dfs_cnt = ref 0
+    let mutable dfs_cnt = 0
 
     /// The priority queue used during DFS.
     let stack = PriorityQueue<int>()
@@ -164,8 +164,8 @@ type ImpactARG(parameters : Parameters.parameters,
 
     let new_vertex () =
         Stats.incCounter "Impact - Created vertices"
-        let v = !cnt
-        incr cnt
+        let v = cnt
+        cnt <- cnt + 1
         v
     let add_V w = V.Add w |> ignore
     let add_E v w =
@@ -182,8 +182,8 @@ type ImpactARG(parameters : Parameters.parameters,
 
     member private __.dfs_add x =
         if not (dfs_map.ContainsKey x) then
-            dfs_map.[x] <- !dfs_cnt
-            incr dfs_cnt
+            dfs_map.[x] <- dfs_cnt
+            dfs_cnt <- dfs_cnt + 1
     member private __.dfs_visited x = dfs_map.ContainsKey(x)
 
     member private __.psi v = psi.[v] |> Formula.conj
@@ -192,15 +192,12 @@ type ImpactARG(parameters : Parameters.parameters,
     member private __.leaf v = leaves.Contains v
     member private __.remove_leaf v = leaves.Remove v |> ignore
     member private __.rm_from_covering f =
-        let toRemove = ref []
-        covering
-        |> Seq.iter
-            (fun kv ->
-                if f (kv.Key, kv.Value) then
-                    Stats.incCounter "Impact - Uncovered vertices"
-                    toRemove := kv.Key :: !toRemove
-            )
-        covering.RemoveAll !toRemove
+        let mutable toRemove = []
+        for kv in covering do
+            if f (kv.Key, kv.Value) then
+                Stats.incCounter "Impact - Uncovered vertices"
+                toRemove <- kv.Key :: toRemove
+        covering.RemoveAll toRemove
 
     member private __.add_covering a b = covering.Add (a, b)
 
@@ -212,7 +209,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
     /// Sanity check to be used before using a node
     member private __.check_not_removed x =
-        if !gc_check then
+        if gc_check then
              if dead.Contains x then
                  printf "CHECK_NOT_REMOVED FAILED"
                  assert(false);
@@ -240,7 +237,7 @@ type ImpactARG(parameters : Parameters.parameters,
                     for s in psi.[v] do
                         st <- st + (sprintf "%s\\n" (Formula.pp s))
                     st
-                let vertex_list = Seq.map (fun v -> sprintf "%d [label=\"%d (node %d): %s\"]\n" v (abs_node_to_program_loc.[v]) v (pp_psi_nl v)) V
+                let vertex_list = Seq.map (fun v -> sprintf "%d [label=\"%d (node %d): %s\"]\n" v abs_node_to_program_loc.[v] v (pp_psi_nl v)) V
                 let vertices = Seq.fold (fun x s -> x + s) "" vertex_list
                 let edges = E.Fold (fun res sourceLoc targetLocs -> Set.fold (fun res targetLoc -> sprintf "%s%d -> %d\n" res sourceLoc targetLoc) res targetLocs) ""
                 let covering = Seq.fold (fun s (t : System.Collections.Generic.KeyValuePair<int,int>) -> (sprintf "%d -> %d [style=dotted, constraint=false]\n" t.Key t.Value) + s) "" covering
@@ -278,21 +275,21 @@ type ImpactARG(parameters : Parameters.parameters,
                 E.Remove d |> ignore
 
     /// Garbage collection procedure.  Roots of trees become garbage when their interpolant becomes "false".
-    /// The procedure for strengthening interpolants checks for unsat and puts nodes in !garbage when this
+    /// The procedure for strengthening interpolants checks for unsat and puts nodes in garbage when this
     /// condition is met.
     member private self.gc () =
-        if !do_gc then
+        if do_gc then
             for v in garbage do
                 if V.Contains v then
                     self.delete_tree v
             garbage.Clear()
 
     member private __.garbage_add v =
-        if !do_gc then
+        if do_gc then
             garbage.Add v |> ignore
 
     member private self.garbage_check v =
-        if !do_gc then
+        if do_gc then
             if Formula.unsat (self.psi v) then
                 garbage.Add v |> ignore
 
@@ -358,7 +355,7 @@ type ImpactARG(parameters : Parameters.parameters,
         let dfs_v = dfs_map.[v]
         let candidates =
             match fc_candidates.[v] with
-            | Some(candidates) -> candidates
+            | Some candidates -> candidates
 
             // We look at nodes at the same location the original program
             | None ->
@@ -378,21 +375,21 @@ type ImpactARG(parameters : Parameters.parameters,
 
         // We're gc-ing here, as it's a little faster.
         let cleaned = List.filter (fun x -> dead.Contains x |> not) candidates
-        fc_candidates.[v] <- Some(cleaned)
-        List.filter (self.not_covered) cleaned
+        fc_candidates.[v] <- Some cleaned
+        List.filter self.not_covered cleaned
 
     /// Find the path from node x to node y in the tree, given that x sqeq y
     member private self.find_path_from x y =
-        let commands = ref []
+        let mutable commands = []
         let curNode = ref y
         while !curNode <> x do
             let parentNode = self.parent !curNode
             assert (parentNode.IsSome)
             let parentNode = parentNode.Value
             let curCommands = [for c in abs_edge_to_program_commands.[parentNode, !curNode] -> (parentNode, c, !curNode)]
-            commands := curCommands @ !commands
+            commands <- curCommands @ commands
             curNode := parentNode
-        !commands
+        commands
 
     /// Find the path from the root of the tree to x
     member private self.find_path x =
@@ -435,10 +432,8 @@ type ImpactARG(parameters : Parameters.parameters,
 
         if not (self.is_covered v) then
             self.remove_leaf v
-            [for (T, m) in transition (abs_node_to_program_loc.[v]) do
-                let to_add = ref true
-                let psi = self.psi v
-                if (not <| Formula.unsat psi) && !to_add then
+            [for (T, m) in transition abs_node_to_program_loc.[v] do
+                if (not <| Formula.unsat (self.psi v)) then
                     let new_node = self.make_node v T m
                     Log.log parameters <| sprintf "  Expanded to %d (loc %d)" new_node m
                     yield new_node
@@ -498,7 +493,7 @@ type ImpactARG(parameters : Parameters.parameters,
         let get_formulae x path =
             let (formulae, var_map) =
                 let assume_psi_x = (-1, Programs.assume (self.psi x), x)
-                let assume_not_psi_w = (v, Programs.assume (Formula.Not (psi_w)), -1)
+                let assume_not_psi_w = (v, Programs.assume (Formula.Not psi_w), -1)
                 let augmented_path = assume_psi_x :: path @ [assume_not_psi_w]
                 let sliced_path = Symex.slice_path (Programs.collapse_path augmented_path) []
                 let filtered_path = sliced_path |> List.tail |> List.all_but_last
@@ -528,21 +523,21 @@ type ImpactARG(parameters : Parameters.parameters,
                     let final =
                         let zero = Term.constant 0
                         let var v p = Term.var (Var.prime_var v p)
-                        let gen_dummy_assign (v,p) = Formula.Eq(var v p, zero)
+                        let gen_dummy_assign (v, p) = Formula.Eq(var v p, zero)
                         List.map gen_dummy_assign (Map.toList var_map) |> Formula.conj
                     Symex.find_path_interpolant_old parameters false distance ((initial::formulae)@[final; Formula.falsec])
 
             match find_path_interpolant formulae (Formula.conj initial) final with
-            | Some(A) ->
-                let update (loc,intp) =
+            | Some A ->
+                let update (loc, intp) =
                     if not (self.entails1_psi loc intp) then
                         let split = Formula.split_conjunction  intp
                         List.iter (self.conjoin_with_psi loc) split
-                        self.rm_from_covering (fun (x,y) -> y=loc && not (self.entails_psi x loc))
+                        self.rm_from_covering (fun (x, y) -> y=loc && not (self.entails_psi x loc))
                 List.zip (self.path_to_locs formulae) A |> List.iter update
 
                 let covered = self.cover v w
-                assert(covered)
+                assert (covered)
                 true
             | None ->
                 Log.log parameters <| "Failed to find path interpolant!"
@@ -554,13 +549,13 @@ type ImpactARG(parameters : Parameters.parameters,
                 [
                     yield! initial
 
-                    for (_,y,_) in formulae do
+                    for (_, y, _) in formulae do
                         yield! y
 
                     yield (Formula.negate final)
                 ] |> Formula.conj
             if Formula.unsat fs then
-                Some (initial,formulae,final)
+                Some (initial, formulae, final)
             else
                 None
 
@@ -570,7 +565,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 [|
                     yield! List.map Formula.z3 initial
 
-                    for (_,y,_) in formulae do
+                    for (_, y, _) in formulae do
                         yield! List.map Formula.z3 y
 
                     yield Formula.z3 (Formula.negate final)
@@ -596,14 +591,14 @@ type ImpactARG(parameters : Parameters.parameters,
                     let rec reduce_formulae formulae core accum =
                         match formulae with
                         | [] -> assert (List.length core = 1); List.rev accum
-                        | (n1,fs,n2)::formulae_tail ->
+                        | (n1, fs, n2)::formulae_tail ->
                             let fs' = reduce fs core []
-                            reduce_formulae formulae_tail (List.drop fs.Length core) ((n1,fs',n2)::accum)
+                            reduce_formulae formulae_tail (List.drop fs.Length core) ((n1, fs', n2)::accum)
                     reduce_formulae formulae core []
 
                 let final' = if List.last core then final else Formula.falsec
 
-                Some (initial',formulae',final')
+                Some (initial', formulae', final')
 
         let result =
             let try_from_x =
@@ -676,11 +671,11 @@ type ImpactARG(parameters : Parameters.parameters,
     /// Try to find coverings on all of the nodes above v
     member private self.close_all_ancestors v =
         self.check_not_removed v
-        let l = self.ancestors v |> List.rev |> ref
-        let d = ref false
-        while !l<>[] && not !d do
-            d := self.close (List.head !l)
-            l := List.tail !l
+        let mutable l = self.ancestors v |> List.rev
+        let mutable d = false
+        while l <> [] && not d do
+            d <- self.close (List.head l)
+            l <- List.tail l
         done
 
     /// If an error path was spurious, refine abstraction and return None.
@@ -709,7 +704,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 let translate (k1, cmd, k2) = (abs_node_to_program_loc.[k1], cmd, abs_node_to_program_loc.[k2])
                 Some (List.map translate pi)
 
-            | Some(interpolants) ->
+            | Some interpolants ->
                 // Found a strengthening.  Now we apply it by conjoining the pieces along the states
                 // in the Tree/Graph. This may make some coverings invalid, so we have to re-evaluate them
                 // Note also that if we make some of the states unsatisfiable then this will eventually trigger
@@ -721,9 +716,9 @@ type ImpactARG(parameters : Parameters.parameters,
                         if parameters.print_log then
                             Log.log parameters <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs_node_to_program_loc.[loc]
                         self.conjoin_with_psi loc intp
-                        self.rm_from_covering (fun (x,y) -> y=loc && not (self.entails_psi x loc))
+                        self.rm_from_covering (fun (x, y) -> y=loc && not (self.entails_psi x loc))
 
-                self.conjoin_with_psi v (Formula.falsec)
+                self.conjoin_with_psi v Formula.falsec
                 None
 
     /// <summary>
@@ -737,8 +732,8 @@ type ImpactARG(parameters : Parameters.parameters,
         stack.Clear()
         stack.Push start 0
 
-        let ret = ref None
-        while not(stack.IsEmpty) && (!ret).IsNone do
+        let mutable ret = None
+        while not stack.IsEmpty && ret.IsNone do
             let v = stack.Pop()
 
             // The call to dfs_add gives v its DFS ordering number.
@@ -753,7 +748,7 @@ type ImpactARG(parameters : Parameters.parameters,
                         // This is a real error, and the path pi witnesses it.
                         // Due to incrementality we need to add v back as a leaf, as we may be back here.
                         add_leaf v
-                        ret := Some pi
+                        ret <- Some pi
                     | None ->
                         // In this case we haven't hit an error node (yet).
                         ignore (self.close v)
@@ -764,25 +759,25 @@ type ImpactARG(parameters : Parameters.parameters,
                         let prio = Map.findWithDefault abs_node_to_program_loc.[child] 0 priority
                         stack.Push child prio
 
-        !ret
+        ret
 
     /// pick uncovered leaf that
     ///   a) preferably corresponds to error loc
     ///   b) is earliest in dfs order
     member private self.pick_vertex () =
-        let errorNodes = ref []
-        let otherNodes = ref []
+        let mutable errorNodes = []
+        let mutable otherNodes = []
         for v in leaves do
            if self.not_covered v then
                 if abs_node_to_program_loc.[v] = loc_err then
-                    errorNodes := v :: !errorNodes
+                    errorNodes <- v :: errorNodes
                 else
-                    otherNodes := v :: !otherNodes
+                    otherNodes <- v :: otherNodes
 
-        if not (List.isEmpty !errorNodes) then
-            List.minBy (fun v -> dfs_map.[v]) !errorNodes
-        elif not (List.isEmpty !otherNodes) then
-            List.minBy (fun v -> dfs_map.[v]) !otherNodes
+        if not (List.isEmpty errorNodes) then
+            List.minBy (fun v -> dfs_map.[v]) errorNodes
+        elif not (List.isEmpty otherNodes) then
+            List.minBy (fun v -> dfs_map.[v]) otherNodes
         else
             die()
 
@@ -809,15 +804,15 @@ type ImpactARG(parameters : Parameters.parameters,
         member self.ErrorLocationReachable () =
             self.db ()
 
-            let path = ref None
+            let mutable path = None
             Stats.startTimer "Impact"
             try
-                while Seq.exists self.not_covered leaves && (!path).IsNone do
+                while Seq.exists self.not_covered leaves && path.IsNone do
                     match self.unwind () with
                     | Some pi ->
                             let (_, _, l2) = List.last pi
                             assert (l2 = loc_err)
-                            path := Some pi
+                            path <- Some pi
                     | None -> ()
 
                     self.gc()
@@ -830,7 +825,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 self.sanity_check
 
             self.db ()
-            !path
+            path
 
         /// For incrementality, we sometimes need to delete a subtree within the proof graph
         member self.ResetFrom locationToReset =
@@ -851,7 +846,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 fc_candidates.Clear()
                 leaves.Clear()
                 abs_edge_to_program_commands.Clear()
-                cnt := 0
+                cnt <- 0
                 covering.Clear()
                 stack.Clear()
 
