@@ -327,6 +327,8 @@ type Program private (parameters : Parameters.parameters) =
     /// Flag indicating that we abstracted away things in an incomplete manner and hence should not report non-term
     let mutable incompleteAbstraction = false
 
+    let mutable transitionFromCache : ListDictionary<int, int * (int * Command list * int)> option = None
+
     member __.Parameters with get () = parameters
     member __.Initial 
         with         get ()  = initial
@@ -432,12 +434,24 @@ type Program private (parameters : Parameters.parameters) =
             }
 
     member self.TransitionsFrom loc =
-        [
-            for idx in self.ActiveTransitions do
-                let (k, cmds, k') = transitionsArray.[idx]
-                if k = loc then
-                    yield (idx, (k, cmds, k'))
-        ]
+        match transitionFromCache with
+        | None ->
+            [
+                for idx in self.ActiveTransitions do
+                    let (k, cmds, k') = transitionsArray.[idx]
+                    if k = loc then
+                        yield (idx, (k, cmds, k'))
+            ]
+        | Some dict ->
+            dict.[loc]
+
+    member self.CacheTransitionsFrom () =
+        if transitionFromCache.IsNone then
+            let directConnections = ListDictionary()
+            for (idx, (k, cmds, k')) in self.TransitionsWithIdx do
+                directConnections.Add (k, (idx, (k, cmds, k')))
+            transitionFromCache <- Some directConnections
+        transitionFromCache.Value
 
     member self.TransitionsTo loc =
         seq { 
@@ -452,6 +466,7 @@ type Program private (parameters : Parameters.parameters) =
         self.Variables <- Set.union self.Variables (freevars cmds)
         self.Locations <- Set.add source <| Set.add target self.Locations
         transitionsArray.[idx] <- (source, cmds, target)
+        transitionFromCache <- None
 
     member self.TransitionNumber with get () = self.ActiveTransitions.Count
 
@@ -477,6 +492,7 @@ type Program private (parameters : Parameters.parameters) =
     member self.RemoveTransition idx =
         self.TransitionsArray.[idx] <- (-1, [], -1)
         self.ActiveTransitions <- Set.remove idx self.ActiveTransitions
+        transitionFromCache <- None
 
     /// add transition source -- cmds --> target as it is, without any preprocessing
     member self.AddTransition source cmds target =
@@ -487,6 +503,7 @@ type Program private (parameters : Parameters.parameters) =
         transitionsArray.[cnt] <- (source, cmds, target)
         self.Variables <- Set.union self.Variables (freevars cmds)
         self.Locations <- Set.add source <| Set.add target self.Locations
+        transitionFromCache <- None
 
     /// add transition n--T-->M with preprocessing (eliminates constants, creates DNF)
     member self.AddTransitionMapped (input_n : string) (cmds : Command list) (input_m : string) =
@@ -583,6 +600,7 @@ type Program private (parameters : Parameters.parameters) =
                     self.AddTransition last_loc (List.rev unsaved_commands) m
 
         addTransitionSeqPar n sp m
+        transitionFromCache <- None
 
     /// Return a mapping from nodes to nodes that are reachable using the CFG edges
     member self.GetTransitiveCFG () =
@@ -621,18 +639,11 @@ type Program private (parameters : Parameters.parameters) =
     /// Returns strongly connected subgraphs in the transitive closure of the program's
     /// control-flow graph.
     member self.GetSCCSGs () =
-        //TODO (perf): Why does this need the transitive closure anyway?
-        SCC.find_sccs (self.GetTransitiveCFG()) self.Initial |> List.map Set.ofList
+        SCC.find_sccs (self.CacheTransitionsFrom()) self.Initial
 
     /// Compute dominators tree
     member private self.GetDominatorsFrom loc =
-        //Turn program into a CFG (as a map from location to directly reachable locations):
-        //TOOD (perf): This should be cached, we use it in several places
-        let cfg = new SetDictionary<int, int>()
-        for (l, _, l') in self.Transitions do
-            cfg.Add(l, l')
-        
-        Dominators.find_dominators cfg loc
+        Dominators.find_dominators (self.CacheTransitionsFrom()) loc
 
     member self.GetCutpoints () =
         let cuts = ref Set.empty
@@ -863,7 +874,7 @@ type Program private (parameters : Parameters.parameters) =
                         cmds.IsEmpty
                     else
                         false
-                if (incomingCount = 1 && outgoingCount = 1) then //|| incomingEmptySingleton || outgoingEmptySingleton then
+                if (incomingCount = 1 && outgoingCount = 1) || incomingEmptySingleton || outgoingEmptySingleton then
                     let mutable chained = true
                     for (inIdx, s, cmds1) in incomingTransitions.[location] do
                         for (outIdx, cmds2, e) in outgoingTransitions.[location] do

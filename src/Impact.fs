@@ -93,7 +93,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
     /// Transition relation, mapping each location to a list of (relation, successor location) pairs.
     /// Note that this reflects changes to program that are done while this is ARG is instantiated.
-    let transition loc = program.TransitionsFrom loc
+    let transition loc = List.rev <| program.TransitionsFrom loc
 
     /// Priority of each node in the original program.  Used to choose which node to take during DFS
     let priority = make_prio_map program loc_err
@@ -361,7 +361,7 @@ type ImpactARG(parameters : Parameters.parameters,
                                 if not (self.sq_eq v v') then
                                     yield v'
                 // Sort in reverse dfs-search order
-                ] |> List.sortBy (fun v -> dfs_map.[v]) |> List.rev
+                ] |> List.sortBy (fun v -> -dfs_map.[v])
 
         // We're gc-ing here, as it's a little faster.
         let cleaned = List.filter (fun x -> dead.Contains x |> not) candidates
@@ -792,6 +792,7 @@ type ImpactARG(parameters : Parameters.parameters,
     interface SafetyInterface.SafetyProver with
         /// Return path to loc_err or None if it's unreachable
         member self.ErrorLocationReachable () =
+            program.CacheTransitionsFrom() |> ignore
             self.db ()
 
             let mutable path = None

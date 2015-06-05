@@ -37,7 +37,7 @@ open Utils
 type dominatorTree = DefaultDictionary<int,int>
 
 /// Compute dominator tree, following the sophisticated method from Lengauer & Tarjan '79:
-let find_dominators (succ : SetDictionary<int, int>) entry =
+let find_dominators (succ : ListDictionary<int, 'a * ('b * 'c * int)>) entry =
   // Step 1: Initialize data structures, assign DFS numbers:
   let dfsNumber = ref -1
   let pred = new SetDictionary<int, int>()
@@ -48,7 +48,7 @@ let find_dominators (succ : SetDictionary<int, int>) entry =
     incr dfsNumber
     semi.[v] <- !dfsNumber
     vertex.[!dfsNumber] <- v
-    for w in succ.[v] do
+    for (_, (_, _, w)) in succ.[v] do
         if semi.[w] = -1 then
             parent.[w] <- v
             dfs w
