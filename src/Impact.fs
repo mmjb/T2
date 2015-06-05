@@ -55,10 +55,8 @@ let private make_prio_map (p: Programs.Program) (error_loc: int) =
     //bfs from error location on reversed transition relation, assigned prio is inverted minimal distance
     let in_trans = SetDictionary()
     let all_nodes = System.Collections.Generic.HashSet()
-    for n in p.active do
-        let trans = p.transitions.[n]
-        let (k, _, k') = trans
-        in_trans.Add (k', trans)
+    for (k, cmds, k') in p.Transitions do
+        in_trans.Add (k', (k, cmds, k'))
         all_nodes.Add k |> ignore
         all_nodes.Add k' |> ignore
 
@@ -74,10 +72,9 @@ let private make_prio_map (p: Programs.Program) (error_loc: int) =
                 todo.Enqueue(pred, dist - 1)
 
     //Whoever has no weight does not even reach error_loc. Make them go last:
-    let min_weight = -p.active.Count
     for node in all_nodes do
         if res.ContainsKey node then
-            res.[node] <- min_weight
+            res.[node] <- System.Int32.MinValue
 
     res
 
@@ -92,11 +89,11 @@ type ImpactARG(parameters : Parameters.parameters,
                program : Programs.Program,
                loc_err : int) =
     /// Initial program location
-    let loc_init = program.initial
+    let loc_init = program.Initial
 
     /// Transition relation, mapping each location to a list of (relation, successor location) pairs.
     /// Note that this reflects changes to program that are done while this is ARG is instantiated.
-    let transition loc = List.rev <| Programs.transitions_from program loc
+    let transition loc = program.TransitionsFrom loc
 
     /// Priority of each node in the original program.  Used to choose which node to take during DFS
     let priority = make_prio_map program loc_err
@@ -126,7 +123,7 @@ type ImpactARG(parameters : Parameters.parameters,
     let leaves = System.Collections.Generic.HashSet<int>()
 
     /// Mapping from edges in the execution tree to the commands in the original program
-    let abs_edge_to_program_commands = System.Collections.Generic.Dictionary<int * int, Programs.command list>()
+    let abs_edge_to_program_commands = System.Collections.Generic.Dictionary<int * int, Programs.Command list>()
 
     /// Mapping from nodes in the execution tree to the original program
     let abs_node_to_program_loc = DefaultDictionary<int,int>(fun _ -> -1)
@@ -425,7 +422,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
         if not (self.is_covered v) then
             self.remove_leaf v
-            [for (T, m) in transition abs_node_to_program_loc.[v] do
+            [for (_, (_, T, m)) in transition abs_node_to_program_loc.[v] do
                 if (not <| Formula.unsat (self.psi v)) then
                     let new_node = self.make_node v T m
                     Log.log parameters <| sprintf "  Expanded to %d (loc %d)" new_node m
@@ -852,7 +849,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
 
         ///Delete everything from the graph that used/used some program transition:
-        member self.DeleteProgramTransition ((k, cmds, k') : (int * Programs.command list * int)) =
+        member self.DeleteProgramTransition ((k, cmds, k') : (int * Programs.Command list * int)) =
             //For each transition to remove, get the representatives of the source, fish out those out-edges that correspond to the trans, remove those children:
             if not(program_loc_to_abs_nodes.ContainsKey k) || not(program_loc_to_abs_nodes.ContainsKey k') then
                 ()

@@ -50,7 +50,7 @@ type MuZWrapper (parameters : Parameters.parameters,
         //Prepare bits and pieces:
         /// The program variables, in fixed order.
         let programVars : Var.var[] =
-            program.vars |> Array.ofSeq
+            program.Variables |> Array.ofSeq
 
         /// The program variables (as pre-transition version), in fixed order.
         let programPreVars : Var.var[] =
@@ -91,8 +91,7 @@ type MuZWrapper (parameters : Parameters.parameters,
                 funcDecl
 
         /// Maps names assigned to rules we pass to z3 to indices in our program representation.
-        let ruleNameToTransitionIdx : Dictionary<string, int> =
-            Dictionary<string, int>()
+        let ruleNameToTransition = Dictionary()
 
         let declaredVariables : HashSet<Microsoft.Z3.Expr> = HashSet()
         let registerVariables (vars : Microsoft.Z3.Expr seq) =
@@ -103,7 +102,7 @@ type MuZWrapper (parameters : Parameters.parameters,
         registerVariables z3PreVars
 
         //Build and insert fact for initial state:
-        let startFuncDecl = getFuncDeclForLocation program.initial
+        let startFuncDecl = getFuncDeclForLocation program.Initial
         let mutable rules = []
         let initState =
             Z.z3Context.MkImplies
@@ -112,8 +111,7 @@ type MuZWrapper (parameters : Parameters.parameters,
         rules <- (buildRule z3PreVars initState, Z.z3Context.MkSymbol "init") :: rules
 
         //Then, build rules for all transitions:
-        for idx in program.active do
-            let (k, cmds, k') = program.transitions.[idx]
+        for (idx, (k, cmds, k')) in program.TransitionsWithIdx do
             let (pathCondition, varToPostIdx) = Symex.path_to_transitions_and_var_map [(k, cmds, k')] Map.empty
             let (_, pathCondition, _) = List.head pathCondition //One transition in, one relation out...
             let pathCondition = Formula.conj pathCondition
@@ -132,7 +130,7 @@ type MuZWrapper (parameters : Parameters.parameters,
             let transitionCondition = Z.z3Context.MkImplies (Z.z3Context.MkAnd (preState, Formula.z3 pathCondition), postState)
             let ruleName = sprintf "trans_%i" idx
             rules <- (buildRule usedVars transitionCondition, Z.z3Context.MkSymbol ruleName) :: rules
-            ruleNameToTransitionIdx.[ruleName] <- idx
+            ruleNameToTransition.[ruleName] <- (k, cmds, k')
 
         //Finally, build the query:
         let errorFuncDecl = getFuncDeclForLocation errorLocation
@@ -144,7 +142,7 @@ type MuZWrapper (parameters : Parameters.parameters,
                [| Z.z3Context.MkIntConst "__makeItLookLessEmptyVar" :> Microsoft.Z3.Expr |]
             else
                z3PreVars
-        (locationToFuncDecl, rules, Z.z3Context.MkExists (queryVars, errorQuery), ruleNameToTransitionIdx)
+        (locationToFuncDecl, rules, Z.z3Context.MkExists (queryVars, errorQuery), ruleNameToTransition)
 
     static member inline private CallOnFixedPoint
         (z3Context : Microsoft.Z3.Context)
@@ -206,7 +204,7 @@ type MuZWrapper (parameters : Parameters.parameters,
         member self.ErrorLocationReachable () =
             Log.log parameters "Building muZ program representation"
             Stats.startTimer "muZ - Clause construction"
-            let (locationToFuncDecl, rules, errorQuery, ruleNameToTransitionIdx) = self.BuildProgramRepresentation()
+            let (locationToFuncDecl, rules, errorQuery, ruleNameToTransition) = self.BuildProgramRepresentation()
             Stats.endTimer "muZ - Clause construction"
             Log.log parameters "Querying muZ for safety ..."
             let res =
@@ -239,11 +237,10 @@ type MuZWrapper (parameters : Parameters.parameters,
                     Log.debug parameters ("  " + curRuleName)
                     if curRuleName <> "init" then
                         if curRuleName <> "__query" then //Ignore the error fact
-                            if not(ruleNameToTransitionIdx.ContainsKey curRuleName) then
+                            if not(ruleNameToTransition.ContainsKey curRuleName) then
                                 Log.log parameters <| sprintf "Cannot translate transition in muZ counterexample to our representation."
                             else
-                                let transitionIdx = ruleNameToTransitionIdx.[curRuleName]
-                                let (k, cmds, k') = program.transitions.[transitionIdx]
+                                let (k, cmds, k') = ruleNameToTransition.[curRuleName]
                                 if cmds.IsEmpty then
                                     //This case is important, otherwise we "skip" the transition in the returned CEx, and it looks like there is a gap in the path.
                                     resultTrace <- (k, Programs.assume Formula.truec, k') :: resultTrace

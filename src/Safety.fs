@@ -42,12 +42,12 @@ let GetProver (parameters : Parameters.parameters) (program : Programs.Program) 
         MuZ.MuZWrapper(parameters, program, errorLocation) :> _
 
  /// Prove that location err is unreachable in p
-let prover (pars : Parameters.parameters) program err =
+let prover (pars : Parameters.parameters) (program : Programs.Program) err =
     Utils.timeout pars.timeout
 
     // Create new initial location with transition assume(_const_100 > _const_32) for all
     // abstracted const variables.
-    Programs.symbconsts_init program
+    program.AddSymbolConstantInformation()
 
     // The connection between programs and Graph is a little bit messy
     // at the moment. We have to marshal a little bit of data between them

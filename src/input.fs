@@ -59,7 +59,7 @@ let parse (filename : string) =
 /// replace edges x->y->z with x->z if there are
 /// no other edges from/to y.
 ///
-let simplify_chains (blocks : (string * Programs.command list * string) list) dont_chain =
+let simplify_chains (blocks : (string * Programs.Command list * string) list) dont_chain =
     let nodes = Seq.collect (fun (s, _, e) -> [s ; e]) blocks |> Set.ofSeq |> ref
     let incoming = Utils.SetDictionary()
     let outgoing = Utils.SetDictionary()
@@ -128,6 +128,6 @@ let load_t2 (pars : Parameters.parameters) avoid_chaining filename =
             blocks
         else
             simplify_chains blocks (Set.singleton (make_label start))
-    let p = Programs.make pars avoid_chaining (make_label start) (blocks |> Seq.ofList) incomplete_abstraction
-    let cp' = Programs.map p (make_label cp)
-    (p,cp')
+    let p = Programs.Program.Create pars avoid_chaining (make_label start) (blocks |> Seq.ofList) incomplete_abstraction
+    let cp' = p.GetLabelledNode (make_label cp)
+    (p, cp')

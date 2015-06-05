@@ -186,7 +186,7 @@ let defaultParameters =
         fc_remove_on_fail = false
         fc_unsat_core = false
         iterative_reachability = true
-        chaining = true
+        chaining = true 
 
         print_interpolants = false
         check_interpolants = true

@@ -438,7 +438,7 @@ let _fsyacc_reductions ()  =    [|
                  : '_startCTL_formula));
 # 439 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc * parsedLoc * (parsedLoc * Programs.command list * parsedLoc) list * (Var.var * Var.var) list * bool)) in
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc * parsedLoc * (parsedLoc * Programs.Command list * parsedLoc) list * (Var.var * Var.var) list * bool)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
@@ -450,7 +450,7 @@ let _fsyacc_reductions ()  =    [|
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc)) in
             let _7 = (let data = parseState.GetInput(7) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc)) in
             let _9 = (let data = parseState.GetInput(9) in (Microsoft.FSharp.Core.Operators.unbox data : 'shadows)) in
-            let _10 = (let data = parseState.GetInput(10) in (Microsoft.FSharp.Core.Operators.unbox data : (parsedLoc * Programs.command list * parsedLoc) list)) in
+            let _10 = (let data = parseState.GetInput(10) in (Microsoft.FSharp.Core.Operators.unbox data : (parsedLoc * Programs.Command list * parsedLoc) list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
@@ -458,12 +458,12 @@ let _fsyacc_reductions ()  =    [|
                                (_3,_7,_10,_9,!incomplete_abstraction) 
                    )
 # 84 "absparse.fsy"
-                 : parsedLoc * parsedLoc * (parsedLoc * Programs.command list * parsedLoc) list * (Var.var * Var.var) list * bool));
+                 : parsedLoc * parsedLoc * (parsedLoc * Programs.Command list * parsedLoc) list * (Var.var * Var.var) list * bool));
 # 462 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc)) in
             let _5 = (let data = parseState.GetInput(5) in (Microsoft.FSharp.Core.Operators.unbox data : 'shadows)) in
-            let _6 = (let data = parseState.GetInput(6) in (Microsoft.FSharp.Core.Operators.unbox data : (parsedLoc * Programs.command list * parsedLoc) list)) in
+            let _6 = (let data = parseState.GetInput(6) in (Microsoft.FSharp.Core.Operators.unbox data : (parsedLoc * Programs.Command list * parsedLoc) list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
@@ -471,7 +471,7 @@ let _fsyacc_reductions ()  =    [|
                                (_3,NumLoc -1,_6,_5,!incomplete_abstraction) 
                    )
 # 86 "absparse.fsy"
-                 : parsedLoc * parsedLoc * (parsedLoc * Programs.command list * parsedLoc) list * (Var.var * Var.var) list * bool));
+                 : parsedLoc * parsedLoc * (parsedLoc * Programs.Command list * parsedLoc) list * (Var.var * Var.var) list * bool));
 # 475 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
@@ -481,11 +481,11 @@ let _fsyacc_reductions ()  =    [|
                                  [] 
                    )
 # 90 "absparse.fsy"
-                 : (parsedLoc * Programs.command list * parsedLoc) list));
+                 : (parsedLoc * Programs.Command list * parsedLoc) list));
 # 485 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc * Programs.command list * parsedLoc)) in
-            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : (parsedLoc * Programs.command list * parsedLoc) list)) in
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc * Programs.Command list * parsedLoc)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : (parsedLoc * Programs.Command list * parsedLoc) list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
@@ -493,11 +493,11 @@ let _fsyacc_reductions ()  =    [|
                                  _1::_3 
                    )
 # 92 "absparse.fsy"
-                 : (parsedLoc * Programs.command list * parsedLoc) list));
+                 : (parsedLoc * Programs.Command list * parsedLoc) list));
 # 497 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc)) in
-            let _5 = (let data = parseState.GetInput(5) in (Microsoft.FSharp.Core.Operators.unbox data : Programs.command list)) in
+            let _5 = (let data = parseState.GetInput(5) in (Microsoft.FSharp.Core.Operators.unbox data : Programs.Command list)) in
             let _8 = (let data = parseState.GetInput(8) in (Microsoft.FSharp.Core.Operators.unbox data : parsedLoc)) in
             Microsoft.FSharp.Core.Operators.box
                 (
@@ -506,7 +506,7 @@ let _fsyacc_reductions ()  =    [|
                                (_3,_5,_8) 
                    )
 # 95 "absparse.fsy"
-                 : parsedLoc * Programs.command list * parsedLoc));
+                 : parsedLoc * Programs.Command list * parsedLoc));
 # 510 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
@@ -550,11 +550,11 @@ let _fsyacc_reductions ()  =    [|
                                  [] 
                    )
 # 106 "absparse.fsy"
-                 : Programs.command list));
+                 : Programs.Command list));
 # 554 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Programs.command)) in
-            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Programs.command list)) in
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Programs.Command)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Programs.Command list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
@@ -562,7 +562,7 @@ let _fsyacc_reductions ()  =    [|
                                  _1::_3 
                    )
 # 108 "absparse.fsy"
-                 : Programs.command list));
+                 : Programs.Command list));
 # 566 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bigint)) in
@@ -602,7 +602,7 @@ let _fsyacc_reductions ()  =    [|
                                  
                    )
 # 118 "absparse.fsy"
-                 : Programs.command));
+                 : Programs.Command));
 # 606 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bigint)) in
@@ -615,7 +615,7 @@ let _fsyacc_reductions ()  =    [|
                                    Programs.Assume(Some(int _3,_5),_9) 
                    )
 # 124 "absparse.fsy"
-                 : Programs.command));
+                 : Programs.Command));
 # 619 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bigint)) in
@@ -632,7 +632,7 @@ let _fsyacc_reductions ()  =    [|
                                  
                    )
 # 126 "absparse.fsy"
-                 : Programs.command));
+                 : Programs.Command));
 # 636 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
@@ -648,7 +648,7 @@ let _fsyacc_reductions ()  =    [|
                                  
                    )
 # 132 "absparse.fsy"
-                 : Programs.command));
+                 : Programs.Command));
 # 652 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Formula.formula)) in
@@ -662,7 +662,7 @@ let _fsyacc_reductions ()  =    [|
                                  
                    )
 # 138 "absparse.fsy"
-                 : Programs.command));
+                 : Programs.Command));
 # 666 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Term.term)) in
@@ -676,7 +676,7 @@ let _fsyacc_reductions ()  =    [|
                                  
                    )
 # 143 "absparse.fsy"
-                 : Programs.command));
+                 : Programs.Command));
 # 680 "absparse.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bigint)) in
@@ -1178,5 +1178,5 @@ let Fairness_constraint lexer lexbuf : Formula.formula * Formula.formula =
     Microsoft.FSharp.Core.Operators.unbox ((tables ()).Interpret(lexer, lexbuf, 0))
 let CTL_formula lexer lexbuf : CTL.CTL_Formula =
     Microsoft.FSharp.Core.Operators.unbox ((tables ()).Interpret(lexer, lexbuf, 2))
-let program lexer lexbuf : parsedLoc * parsedLoc * (parsedLoc * Programs.command list * parsedLoc) list * (Var.var * Var.var) list * bool =
+let program lexer lexbuf : parsedLoc * parsedLoc * (parsedLoc * Programs.Command list * parsedLoc) list * (Var.var * Var.var) list * bool =
     Microsoft.FSharp.Core.Operators.unbox ((tables ()).Interpret(lexer, lexbuf, 4))

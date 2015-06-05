@@ -197,6 +197,7 @@ let true_string (b : string) =
 /// Uses .NET tricks to find out the location from which dieWith has been called.
 ///
 let inline dieWith s =
+    System.Diagnostics.Debugger.Launch()
     let sf = new System.Diagnostics.StackFrame(true)
     let st = new System.Diagnostics.StackTrace(sf)
     let cf = st.GetFrame(0)
@@ -206,9 +207,9 @@ let inline dieWith s =
     let fn = cf.GetFileName()
     let fs =
         if s = "" then
-            sprintf "Internal T2 error (%s, method %s, line %d, col %d). Please contact mabrocks@microsoft.com or bycook@microsoft.com" fn mName lineNo colNo
+            sprintf "Internal T2 error (%s, method %s, line %d, col %d). Please contact mabrocks@microsoft.com or h.khlaaf@ucl.ac.uk" fn mName lineNo colNo
         else
-            sprintf "Internal T2 error (%s, method %s, line %d, col %d): %s. Please contact mabrocks@microsoft.com or bycook@microsoft.com" fn mName lineNo colNo s
+            sprintf "Internal T2 error (%s, method %s, line %d, col %d): %s. Please contact mabrocks@microsoft.com or h.khlaaf@ucl.ac.uk" fn mName lineNo colNo s
 
     failwith fs
 

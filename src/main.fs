@@ -97,12 +97,7 @@ match runMode with
           Output.print_smtpushdown p output_file
           printfn "Printing SMTLIB Pushdown Automaton to %s completed" output_file
     | Arguments.Safety inputLoc ->
-        let loc =
-            match Map.tryFind (sprintf "loc_%d" inputLoc) p.labels with
-            | None ->
-              eprintfn "Could not find location %d in program" inputLoc
-              exit 3
-            | Some loc -> loc
+        let loc = p.GetLabelledNode (sprintf "loc_%d" inputLoc)
         match Safety.prover parameters p loc with
         | None -> printfn "Safety proof succeeded"
         | Some _ -> printfn "Safety proof failed"

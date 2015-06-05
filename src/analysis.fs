@@ -38,23 +38,21 @@ open Programs
 //
 // Cheap analysis for convex constraints of the form k<=v<=k
 //
-let constants p =
+let constants (p : Programs.Program) =
     let mutable changed = Set.empty
-
-    let locs = Programs.locations p
 
     let basic = Map.empty
     let true_inv = Some basic
     let false_inv = None
 
     let mutable inv = Map.empty
-    for l in locs do
+    for l in p.Locations do
         inv <- Map.add l false_inv inv
     done
 
-    inv <- Map.add p.initial true_inv inv
+    inv <- Map.add p.Initial true_inv inv
 
-    changed <- Set.singleton p.initial
+    changed <- Set.singleton p.Initial
 
     let union s t =
        match (s,t) with
@@ -87,9 +85,9 @@ let constants p =
     while not (Set.isEmpty changed) do
         let loc = (changed).MinimumElement
         changed <- Set.remove loc changed
-        let next = Programs.transitions_from p loc
+        let next = p.TransitionsFrom loc
         let s = Map.find loc inv
-        for (T, loc') in next do
+        for (_, (_, T, loc')) in next do
             let old_inv = Map.find loc' inv
             let s' = symbolic_execution T s
             let new_inv = union old_inv s'
@@ -107,11 +105,9 @@ let constants p =
 //
 // Variable liveness analysis
 //
-let liveness p alwaysLive =
-    let locs = Programs.locations p
-
+let liveness (p : Programs.Program) alwaysLive =
     let live = ref Map.empty
-    for l in locs do
+    for l in p.Locations do
         live := Map.add l alwaysLive !live
 
     let rec kill_cmd cmd =
@@ -127,14 +123,14 @@ let liveness p alwaysLive =
     let next live cmd = Set.union (gen_cmd cmd) (Set.difference live (kill_cmd cmd))
     let exec live  = List.rev >> List.fold next live //(List.rev cmds)
 
-    let mutable changed = locs
+    let mutable changed = p.Locations
     while not (Set.isEmpty changed) do
         let loc = (changed).MaximumElement
         changed <- Set.remove loc changed
-        let nexts = Programs.transitions_from p loc |> Set.ofList
-        let Ts = Set.map fst nexts
-        let next_locs = Set.map snd nexts
-        let prev_locs = Programs.transitions_to p loc |> Set.ofList |> Set.map snd
+        let nexts = p.TransitionsFrom loc |> Set.ofSeq
+        let Ts = Set.map (fun (_, (_, cmds, _)) -> cmds) nexts
+        let next_locs = Set.map (fun (_, (_, _, next)) -> next) nexts
+        let prev_locs = p.TransitionsTo loc |> Set.ofSeq |> Set.map (fun (_, (prev, _, _)) -> prev)
         let live_in = Map.find loc !live
         let live_out = Set.fold (fun live_out succ -> Set.union live_out (Map.find succ !live)) Set.empty next_locs
         let live_in' = Set.fold (fun li T -> Set.union li (exec live_out T)) Set.empty Ts
@@ -173,10 +169,10 @@ let path_invariant stem cycle =
     oct.to_formula
 
 let program_absint start_pp start_intdom transitions command_filter =
-    let outgoing_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Programs.command list * int>>()
+    let outgoing_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Programs.Command list * int>>()
     for (_, (k, trans, k')) in transitions do
         if not(outgoing_trans.ContainsKey k) then
-            outgoing_trans.Add(k, new System.Collections.Generic.HashSet<Programs.command list * int>())
+            outgoing_trans.Add(k, new System.Collections.Generic.HashSet<Programs.Command list * int>())
         outgoing_trans.[k].Add((trans, k')) |> ignore
 
     let pp_to_intdom = new System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom>()
@@ -210,9 +206,9 @@ let program_absint start_pp start_intdom transitions command_filter =
 let get_interval_analysis (p:Programs.Program) (e : Formula.formula)=
     let pp_to_interval =
             program_absint
-                p.initial
+                p.Initial
                 IntervalIntDom.Intervals.create
-                (p.transitions |> Seq.map (fun (k,c,k') -> (k, (k,c,k'))))
+                (p.Transitions |> Seq.map (fun (k,c,k') -> (k, (k,c,k'))))
                 id
     let pp_to_seq = pp_to_interval |> Seq.sortBy (fun (KeyValue(k,_)) -> k)
     let pp_to_form = pp_to_seq |> Seq.map(fun x -> (x.Key,x.Value.to_formula))

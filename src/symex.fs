@@ -267,8 +267,9 @@ let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * Tra
 
 let get_scc_rels_for_lex_rf_synth_from_program (pars : Parameters.parameters) (p:Programs.Program) (scc_nodes:Set<int>) (cp:int) =
     let scc_transitions =
-           p.active
-        |> Set.map (fun trans_idx -> (Set.singleton trans_idx, p.transitions.[trans_idx]))
+           p.TransitionsWithIdx
+        |> Seq.map (fun (trans_idx, trans) -> (Set.singleton trans_idx, trans))
+        |> Set.ofSeq
         |> Set.filter (fun (_, (k, _, k')) -> scc_nodes.Contains k && scc_nodes.Contains k')
         |> Programs.filter_out_copied_transitions pars cp
         |> Programs.chain_transitions (Set.remove cp scc_nodes)

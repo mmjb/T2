@@ -32,15 +32,13 @@
 
 module Microsoft.Research.T2.Counterexample
 
-open Programs
-
 ///
 /// Counterexample to safety property ---> cycle = None.
 /// Counterexample to liveness property ---> stem might be equal to None.
 ///
 type cex =
-    { stem : (int * command list* int) list option
-    ; cycle : (int * command list *int) list option
+    { stem : (int * Programs.Command list* int) list option
+    ; cycle : (int * Programs.Command list *int) list option
     }
 
     override self.ToString () =
@@ -50,10 +48,10 @@ type cex =
 
     member self.ToString (outWriter : System.IO.TextWriter) =
         let outputPath pi =
-            for ((k,cmds,k') : (int * Programs.command list * int)) in pi do
+            for ((k,cmds,k') : (int * Programs.Command list * int)) in pi do
                 outWriter.WriteLine("FROM: {0:D};", k)
                 for cmd in cmds do
-                    outWriter.WriteLine("  {0}", Programs.command2pp cmd)
+                    outWriter.WriteLine("  {0}", cmd.ToString())
                 outWriter.WriteLine("TO: {0:D};", k')
         if self.stem.IsSome then
             outWriter.WriteLine("Stem of the counterexample:")
@@ -64,7 +62,7 @@ type cex =
 
 let make stem cycle = { stem = stem ; cycle = cycle }
 
-let pos2cex (pos:pos) =
+let pos2cex (pos : Programs.pos) =
     match pos with
     | None -> "? 0"
     | Some(k,file) -> sprintf "%s %d" file k
@@ -78,7 +76,7 @@ let print_defect (pars : Parameters.parameters) cexs fname =
         let h = new System.IO.StreamWriter(fname)
         let cnt = ref 0
         let line() = let k = !cnt in cnt := k+1; k
-        let print_cmd (cmd:command) =
+        let print_cmd (cmd : Programs.Command) =
              match cmd.Position with
              | None -> ()
              | Some(loc,file) when cmd.Is_Assign
@@ -120,8 +118,8 @@ let print_program (pars : Parameters.parameters) cexs fname =
     if pars.create_defect_files then
         printf "Creating T2 program file %s\n" fname
         let h = new System.IO.StreamWriter(fname)
-        let print_cmd cmd = fprintf h "%s\n" (Programs.command2pp cmd)
-        let print_cmds (k,cmds,k') = List.iter print_cmd cmds
+        let print_cmd cmd = fprintf h "%s\n" (cmd.ToString())
+        let print_cmds (_,cmds,_) = List.iter print_cmd cmds
         let print_cex k cex =
              // Process the stem
              fprintf h "\n\n// STEM %d ----------------------------------------------\n\n\n" k
