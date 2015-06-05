@@ -326,7 +326,8 @@ let strengthenCond pi_mod p1 =
     disj_fmla
 
 
-let propagateToTransitions (p_orig : Programs.Program) (p_orig_loops : Map<int, Set<int>>) f pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
+let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
+    let (p_orig_loops, _) = p_orig.FindLoops()
     let mutable preStrengthSet = Set.empty
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
     let mutable elim_node = p_orig.Initial
@@ -363,13 +364,14 @@ let propagateToTransitions (p_orig : Programs.Program) (p_orig_loops : Map<int, 
         pi_wp <- (pi_wp).Tail
     (propertyMap, preStrengthSet)
 
-let propagate_func (p_orig : Programs.Program) (p_orig_loops : Map<int, Set<int>>) (p_orig_sccs : Map<int, Set<int>>) f recur pi pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) loopnode_to_copiednode strengthen=
+let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) loopnode_to_copiednode strengthen=
+    let (p_orig_loops, p_orig_sccs) = p_orig.FindLoops()
     let recurs, r =
         match recur with
         | Some x -> (x, true)
         | None -> (Formula.falsec, false)
     //First propagate preconditions to sccs contained within the loop
-    let (propertyMap, preStrengthSet) = propagateToTransitions p_orig p_orig_loops f pi_mod cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
+    let (propertyMap, preStrengthSet) = propagateToTransitions p_orig f pi_mod cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
     //Second, propagate upwards to non-cp nodes that are not part of any SCCS.
     let sccs_vals = p_orig_sccs |> Map.filter(fun x y -> x <> cutp) |> Map.toSeq |> Seq.map snd |> Seq.fold (fun acc elem -> Seq.append elem acc) Seq.empty |> Set.ofSeq
     if sccs_vals.Contains cutp || r then
@@ -398,7 +400,7 @@ let propagate_func (p_orig : Programs.Program) (p_orig_loops : Map<int, Set<int>
         if r then
             pi_elim <- (pi_elim)@[(node,Programs.assume(recurs),-1)]
 
-        propertyMap.Union(propagateToTransitions p_orig p_orig_loops f pi_elim cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
+        propertyMap.Union(propagateToTransitions p_orig f pi_elim cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
     let is_dup x = loc_to_loopduploc |> Map.filter(fun _ value -> value = x) |> Map.isEmpty |> not
     let cex_path = pi |> List.map(fun (x,_,_) -> x) |> List.filter(fun x -> Set.contains x p_orig.Locations || loopnode_to_copiednode.ContainsValue x || is_dup x)
     let cex_path = cex_path |> List.map(fun x -> if loopnode_to_copiednode.ContainsValue x then
@@ -542,7 +544,7 @@ let insertForRerun
                 for precondDisjunct in preconditionDisjuncts do
                     p_final.AddTransition k (Programs.assume(precondDisjunct)::cmds) k'
 
-            let (visitedOnCex, propogateMap,_) = propagate_func p_orig p_orig_loops p_orig_sccs propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
+            let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
             propertyMap.Union(propogateMap)
             visited_nodes := Set.union !visited_nodes visitedOnCex
             (false, precondition, preconditionDisjuncts)
@@ -556,7 +558,7 @@ let insertForRerun
                 let disjunctiveStrengthenedPrecondition = Formula.disj disjunctiveStrengthenedPreconditions
                 //Add strength formula here to propertyMap
                 let (visitedOnCex ,propogateMap, preStrengthSet) =
-                    propagate_func p_orig p_orig_loops p_orig_sccs propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode true
+                    propagate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode true
                 visited_nodes := Set.union !visited_nodes visitedOnCex
 
                 let preStrengthSet = Set.add (orig_cp, p0) preStrengthSet
@@ -588,7 +590,7 @@ let insertForRerun
                 (true, disjunctiveStrengthenedPrecondition, List.ofSeq disjunctiveStrengthenedPreconditions)
 
             else
-                let (visitedOnCex, propogateMap,_) = propagate_func p_orig p_orig_loops p_orig_sccs propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
+                let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
                 visited_nodes := Set.add orig_cp (Set.union !visited_nodes visitedOnCex)
                 propertyMap.Union(propogateMap)
                 (false, precondition, preconditionDisjuncts)
@@ -614,7 +616,8 @@ let insertForRerun
     updateInstrumentation preconditionDisjuncts cutp errorNode endOfPropertyCheckNode strengthen
     Stats.endTimer "T2 - Insert for rerun"
 
-let find_instrumented_loops (p_instrumented : Programs.Program) (p_orig_loops : Map<int, Set<int>>) (p_instrumented_loops : Map<int, Set<int>>) (p_instrumented_sccs : Map<int, Set<int>>) (loc_to_loopduploc: Map<int, int>) =
+let find_instrumented_loops (p_instrumented : Programs.Program) (p_orig_loops : Map<int, Set<int>>) (loc_to_loopduploc: Map<int, int>) =
+    let (p_instrumented_loops, p_instrumented_sccs) = p_instrumented.FindLoops()
     let loc_to_loopduploc = loc_to_loopduploc |> Map.filter (fun x y -> p_orig_loops.ContainsKey x)
     let duplicated_nodes = loc_to_loopduploc |> Map.toList |> List.map(fun (x,y) -> y)
     let to_add = Set.difference (Set.ofList duplicated_nodes) (Set.ofSeq p_instrumented_loops.Keys)
@@ -706,10 +709,8 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
     let f_contains_AF = cps_checked_for_term.Count > 0
 
     //BottomUp changes the instrumentation, so make a copy for that purpose here, as we do not want the pre-conditions to persist in other runs
-    let (p_instrumented_loops, p_instrumented_sccs) = p_instrumented.FindLoops()
-    let (_, p_bu_sccs) = find_instrumented_loops p_instrumented p_orig_loops p_instrumented_loops p_instrumented_sccs loc_to_loopduploc
-    let p_final = p_instrumented
-    let safety = Safety.GetProver pars p_final error_loc
+    let (_, p_bu_sccs) = find_instrumented_loops p_instrumented p_orig_loops loc_to_loopduploc
+    let safety = Safety.GetProver pars p_instrumented error_loc
 
     ///////////////////////////////////////////////////////////////////////////
     /// Main safety loop, instrumenting in termination arguments when needed //
@@ -747,39 +748,39 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             cex <- (Counterexample.make (Some (List.map (fun (x,y,z) -> (x,[y],z)) pi)) None)
             outputCexAsDefect cex
             //Investigate counterexample. Hopefully returns a solution:
-            match Lasso.investigate_cex pars p_final p_instrumented_sccs safety pi !found_disj_rfs !found_lex_rfs lex_info with
+            match Lasso.investigate_cex pars p_instrumented safety pi !found_disj_rfs !found_lex_rfs lex_info with
             | (None, _) ->
                 //We hit this case when the counterexample is not due to a cycle (i.e., we
                 //investigated the counterexample, but it wasn't a lasso at all, but just a
                 //straight-line path to the error loc)
                 //dieWith "Obtained counterexample to termination without a cycle!"
                 if findPreconds then
-                    insertForRerun pars None existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_final
+                    insertForRerun pars None existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_instrumented
 
                     if pars.dottify_input_pgms then
-                        Output.print_dot_program p_final "input__instrumented_cleaned_rerun.dot"
+                        Output.print_dot_program p_instrumented "input__instrumented_cleaned_rerun.dot"
                 else
                     cex_found <- true
                     finished <- true
 
             /////////// Disjunctive (transition invariant) argument:
             | (Some(Lasso.Disj_WF(cp, rf, bnd)),_) ->
-                Instrumentation.instrument_disj_RF pars cp rf bnd found_disj_rfs cp_rf p_final safety
+                Instrumentation.instrument_disj_RF pars cp rf bnd found_disj_rfs cp_rf p_instrumented safety
 
             /////////// Lexicographic termination argument:
             | (Some(Lasso.Lex_WF(cp, decr_list, not_incr_list, bnd_list)),_) ->
-                Instrumentation.instrument_lex_RF pars cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final safety lex_info
+                Instrumentation.instrument_lex_RF pars cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_instrumented safety lex_info
 
             /////////// Lexicographic polyranking termination argument:
             | (Some(Lasso.Poly_WF(poly_checkers)),cp) ->
-                Instrumentation.instrument_poly_RF pars cp poly_checkers cp_rf_lex p_final safety
+                Instrumentation.instrument_poly_RF pars cp poly_checkers cp_rf_lex p_instrumented safety
 
             /////////// Program simplification:
             | (Some(Lasso.Transition_Removal(trans_to_remove)), _) ->
                 //Remove the transitions from the program, remove them from the reachability graph:
                 for trans_idx in trans_to_remove do
-                    let (k,cmds,k') = p_final.GetTransition trans_idx
-                    p_final.RemoveTransition trans_idx
+                    let (k,cmds,k') = p_instrumented.GetTransition trans_idx
+                    p_instrumented.RemoveTransition trans_idx
                     safety.DeleteProgramTransition (k, cmds, k')
                     safety.ResetFrom k
 
@@ -804,24 +805,24 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
                     if attempting_lex && exist_past_lex then
                         Log.log pars "Trying to backtrack to other order for lexicographic RF."
                         let (decr_list,not_incr_list,bnd_list) = Instrumentation.switch_to_past_lex_RF pars lex_info failure_cp
-                        Instrumentation.instrument_lex_RF pars failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_final safety lex_info
+                        Instrumentation.instrument_lex_RF pars failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_instrumented safety lex_info
                     else
                         //If we are trying lexicographic termination arguments, try switching to lexicographic polyranking arguments:
                         let already_polyrank = (lex_info.cp_polyrank).[failure_cp]
                         if pars.polyrank && not(already_polyrank) && attempting_lex then
                             Log.log pars "Switching to polyrank."
-                            Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_final safety
+                            Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_instrumented safety
                         else
                             //Try the "unrolling" technique
                             if attempting_lex && pars.unrolling && Instrumentation.can_unroll pars lex_info failure_cp then
                                 Log.log pars "Trying the unrolling technique."
-                                Instrumentation.do_unrolling pars lex_info failure_cp cp_rf_lex p_final safety termination_only
+                                Instrumentation.do_unrolling pars lex_info failure_cp cp_rf_lex p_instrumented safety termination_only
                             else
                                 //Try the "detect initial condition" technique
                                 let already_doing_init_cond = ((lex_info.cp_init_cond).[failure_cp])
                                 if pars.init_cond && attempting_lex && not(already_doing_init_cond) && not(pars.polyrank) then
                                     Log.log pars "Trying initial condition detection."
-                                    Instrumentation.do_init_cond pars lex_info failure_cp p_final cp_rf_lex safety
+                                    Instrumentation.do_init_cond pars lex_info failure_cp p_instrumented cp_rf_lex safety
 
                                 // That's it, no tricks left. Return the counterexample and give up
                                 else
@@ -849,7 +850,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
                     if terminating = Some false then
                         finished <- false
                         terminating <- None
-                        insertForRerun pars recurrent_set existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_final
+                        insertForRerun pars recurrent_set existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_instrumented
                     else if terminating = None && finished = true then
                         //Giving up, if no lex/recurrent set found, then false and entail giving up.
                         //TODO: Exit recursive bottomUp all together, as we cannot proceed with verification
@@ -880,7 +881,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             | Some true ->
                 Some (true, output_term_proof !scc_simplification_rfs !found_lex_rfs !found_disj_rfs)
             | Some false ->
-                if not(p_final.IncompleteAbstraction) then
+                if not(p_instrumented.IncompleteAbstraction) then
                     assert (!unhandled_counterexample <> None)
                     Some (false, output_nonterm_proof (recurrent_set).Value)
                 else

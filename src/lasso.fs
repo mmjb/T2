@@ -277,9 +277,9 @@ let store_lex_options cp more_options lex_info =
     lex_info.past_lex_options <- Map.add cp (more_options@options) lex_info.past_lex_options
 
 ///Tries to find a Lex_WF or Program_Simplification
-let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle_rel m lex_info =
+let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle_rel m lex_info =
     let old_partial_order = Map.find cutpoint lex_info.partial_orders
-    match Rankfunction.synthesis_lex pars p p_sccs cutpoint cycle_rel old_partial_order with
+    match Rankfunction.synthesis_lex pars p cutpoint cycle_rel old_partial_order with
     | Some(Lexoptions(lexoptions)) ->
             //a function to turn a Lex_RF into a Lex_WF Refinement
             let process_lex_RF (lex_soln:Lex_RF) =
@@ -320,12 +320,12 @@ let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map
             None
 
 ///Tries to find a Lex_WF, when we're doing the init_cond improvement
-let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle_rel m lex_info =
+let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle_rel m lex_info =
     let current_partial_orders = Map.find cutpoint lex_info.partial_orders_init_cond
     let old_partial_order = Map.find lex_info.current_counter current_partial_orders
     let counter = lex_info.current_counter
 
-    match Rankfunction.synthesis_lex pars p p_sccs cutpoint cycle_rel old_partial_order with
+    match Rankfunction.synthesis_lex pars p cutpoint cycle_rel old_partial_order with
     | Some(Lexoptions(lexoptions)) ->
             let lex_soln = List.head lexoptions
             let (new_partial_order,rf_list,bnd_list) = List.unzip3 lex_soln
@@ -502,7 +502,7 @@ let find_disj_RF (pars : Parameters.parameters) cutpoint cycle_rel m =
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Return the appropriate type of Refinement or none
-let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) cutpoint cycle cycle_rel m (lex_info:LexicographicInfo) =
+let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle cycle_rel m (lex_info:LexicographicInfo) =
     //are we finding lexicographic RFs for this cutpoint?
     let attempting_lex = Map.find cutpoint lex_info.cp_attempt_lex
 
@@ -519,9 +519,9 @@ let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Ma
     if attempting_lex then
         if not polyranking then
             if not init_cond then
-                find_lex_RF pars p p_sccs cutpoint cycle_rel m lex_info
+                find_lex_RF pars p cutpoint cycle_rel m lex_info
             else
-                find_lex_RF_init_cond pars p p_sccs cutpoint cycle_rel m lex_info
+                find_lex_RF_init_cond pars p cutpoint cycle_rel m lex_info
         else
             find_lex_poly_RF pars cutpoint cycle_rel m lex_info
     else
@@ -538,7 +538,7 @@ let split_path_for_cp pi cp =
         | [] -> dieWith "Could not split counterexample into stem/cycle"
     split_path_for_cp' pi cp []
 
-let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (reachGraph : SafetyProver) pi cp (lex_info:LexicographicInfo) =
+let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Program) (reachGraph : SafetyProver) pi cp (lex_info:LexicographicInfo) =
     Log.log pars <| sprintf "Investigating counterexample for cutpoint %d" cp
 
     //This code is for initial condition detection. It works out which initial condition path pi_uncut belongs to
@@ -578,7 +578,7 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
     //Try to refine the termination argument:
     let mutable ret = None
     Stats.incCounter "T2 - Counterexample investigation without path invariant"
-    ret <- refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
+    ret <- refine_cycle pars p cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
 
     // If we didn't find a rank function yet, try strengthening the cycle with a path invariant...
     if ret = None then
@@ -593,7 +593,7 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
 
         let strengthened_cycle = (-1, [Programs.assume invariant], -1) :: strengthened_cycle
         let strengthened_cycle_rel = Symex.path_to_relation strengthened_cycle pi_vars_cleaned
-        ret <- refine_cycle pars p p_sccs cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
+        ret <- refine_cycle pars p cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
         if ret.IsSome then
             Stats.incCounter "T2 - Counterexample investigation with path invariant successful"
         else
@@ -628,7 +628,7 @@ let find_failing_cp pi =
     |> (fun c -> match c with | Some (_, Programs.Assume (_, f), _) -> Some (extract_copied_cutpoint f).Value 
                               | _ -> None)
 
-let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) reachGraph pi found_disj_rfs found_lex_rfs lex_info =
+let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) reachGraph pi found_disj_rfs found_lex_rfs lex_info =
     let failing_cutpoint = find_failing_cp pi
 
     match failing_cutpoint with
@@ -640,7 +640,7 @@ let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) (p_sccs:
                 Log.debug pars <| sprintf "  (%i, %A, %i)" k cmd k'
 
         let program_refinement =
-            match investigate_cex_for_fixed_cp pars p p_sccs reachGraph pi failing_cutpoint lex_info with
+            match investigate_cex_for_fixed_cp pars p reachGraph pi failing_cutpoint lex_info with
             | None -> None
             | Some(CEX(l)) -> Some(CEX(l))
             | Some(Disj_WF(cp,rf,bnd)) -> 

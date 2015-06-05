@@ -540,12 +540,12 @@ let build_scc_constraints (pars : Parameters.parameters) transitions mu add_boun
 let synthesis_lex_scc_trans_unaffected
     (pars : Parameters.parameters)
     (p:Programs.Program)
-    (p_sccs: Map<int, Set<int>>)
     (rel_to_add:Relation.relation)
     (partial_order: Relation.relation list)
     (cp: int)
     (linterm_for_relation : Map<Relation.relation, LinearTerm list>) =
         //Get all transitions in the considered SCC, clean them up a bit:
+        let (_, p_sccs) = p.FindLoops()
         let loops_containing_cp = p_sccs |> Map.filter (fun _ ns -> ns.Contains cp) |> Map.toList
         if loops_containing_cp.IsEmpty then
             synthesis_lex_no_opt rel_to_add partial_order cp linterm_for_relation
@@ -612,7 +612,7 @@ let synthesis_lex_scc_trans_unaffected
 /// Tries to find a lexicographic ranking function with rel_to_add inserted into partial_order.
 /// Returns None or a list of Lex_RF.
 /// Note partial_order will be empty initially
-let synthesis_lex (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: Map<int, Set<int>>) (cp: int) (rel_to_add':Relation.relation) (partial_order': Relation.relation list) =
+let synthesis_lex (pars : Parameters.parameters) (p:Programs.Program) (cp: int) (rel_to_add':Relation.relation) (partial_order': Relation.relation list) =
     let rel_to_add = Relation.standardise_postvars rel_to_add'
     let partial_order = List.map Relation.standardise_postvars partial_order'
 
@@ -634,7 +634,7 @@ let synthesis_lex (pars : Parameters.parameters) (p:Programs.Program) (p_sccs: M
             synthesis_lex_max_unaff rel_to_add partial_order cp linterm_for_relation
 
         else if pars.lex_opt_scc_unaffected then
-            synthesis_lex_scc_trans_unaffected pars p p_sccs rel_to_add partial_order cp linterm_for_relation
+            synthesis_lex_scc_trans_unaffected pars p rel_to_add partial_order cp linterm_for_relation
 
         else
             synthesis_lex_no_opt rel_to_add partial_order cp linterm_for_relation

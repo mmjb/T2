@@ -328,6 +328,7 @@ type Program private (parameters : Parameters.parameters) =
     let mutable incompleteAbstraction = false
 
     let mutable transitionFromCache : ListDictionary<int, int * (int * Command list * int)> option = None
+    let mutable findLoopsCache = None
 
     member __.Parameters with get () = parameters
     member __.Initial 
@@ -466,7 +467,7 @@ type Program private (parameters : Parameters.parameters) =
         self.Variables <- Set.union self.Variables (freevars cmds)
         self.Locations <- Set.add source <| Set.add target self.Locations
         transitionsArray.[idx] <- (source, cmds, target)
-        transitionFromCache <- None
+        self.InvalidateCaches()
 
     member self.TransitionNumber with get () = self.ActiveTransitions.Count
 
@@ -488,11 +489,15 @@ type Program private (parameters : Parameters.parameters) =
     member self.GetNodeLabel node =
         Map.tryFind node self.NodeToLabel
 
+    member private __.InvalidateCaches () =
+        transitionFromCache <- None
+        findLoopsCache <- None
+
     ///Remove transition with index idx from the program
     member self.RemoveTransition idx =
         self.TransitionsArray.[idx] <- (-1, [], -1)
         self.ActiveTransitions <- Set.remove idx self.ActiveTransitions
-        transitionFromCache <- None
+        self.InvalidateCaches()
 
     /// add transition source -- cmds --> target as it is, without any preprocessing
     member self.AddTransition source cmds target =
@@ -503,7 +508,7 @@ type Program private (parameters : Parameters.parameters) =
         transitionsArray.[cnt] <- (source, cmds, target)
         self.Variables <- Set.union self.Variables (freevars cmds)
         self.Locations <- Set.add source <| Set.add target self.Locations
-        transitionFromCache <- None
+        self.InvalidateCaches()
 
     /// add transition n--T-->M with preprocessing (eliminates constants, creates DNF)
     member self.AddTransitionMapped (input_n : string) (cmds : Command list) (input_m : string) =
@@ -600,7 +605,7 @@ type Program private (parameters : Parameters.parameters) =
                     self.AddTransition last_loc (List.rev unsaved_commands) m
 
         addTransitionSeqPar n sp m
-        transitionFromCache <- None
+        self.InvalidateCaches()
 
     /// Return a mapping from nodes to nodes that are reachable using the CFG edges
     member self.GetTransitiveCFG () =
@@ -730,21 +735,23 @@ type Program private (parameters : Parameters.parameters) =
 
     member self.FindLoops() =
         Stats.startTimer "T2 - Find Loops"
-        let regions = self.GetIsolatedRegions()
-        let cps_to_loops =
-            seq {
-                for (cp, sccs) in regions do
-                    let loop = Set.unionMany sccs
-                    yield cp, loop
-            } |> Map.ofSeq
-        let cps_to_sccs =
-            seq {
-                for (cp, sccs) in regions do
-                    let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> Set.unionMany
-                    yield cp, loop
-            } |> Map.ofSeq
-        Stats.endTimer "T2 - Find Loops"
-        (cps_to_loops, cps_to_sccs)
+        if findLoopsCache.IsNone then
+            let regions = self.GetIsolatedRegions()
+            let cps_to_loops =
+                seq {
+                    for (cp, sccs) in regions do
+                        let loop = Set.unionMany sccs
+                        yield cp, loop
+                } |> Map.ofSeq
+            let cps_to_sccs =
+                seq {
+                    for (cp, sccs) in regions do
+                        let loop = sccs |> Seq.filter (fun scc -> scc.Contains cp) |> Set.unionMany
+                        yield cp, loop
+                } |> Map.ofSeq
+            Stats.endTimer "T2 - Find Loops"
+            findLoopsCache <- Some (cps_to_loops, cps_to_sccs)
+        findLoopsCache.Value
 
     /// take function that transforms transition
     /// and apply it to every transition in the program
