@@ -680,11 +680,13 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             let (cp, scc_nodes) = (scc.Key, scc.Value)
             if not(Set.contains scc_nodes seen_sccs) then
                 seen_sccs <- Set.add scc_nodes seen_sccs
+                Stats.startTimer "T2 - Initial lex. termination proof"
                 match simplify_scc pars p_instrumented termination_only cp_rf cps_checked_for_term cp scc_nodes with
                 | Some (rfs, removed_transitions) ->
                     scc_simplification_rfs := (rfs, removed_transitions)::(!scc_simplification_rfs)
                 | None ->
                     ()
+                Stats.endTimer "T2 - Initial lex. termination proof"
         if pars.print_log then
             Log.log pars <| (List.map snd !scc_simplification_rfs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
 
