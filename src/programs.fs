@@ -310,10 +310,10 @@ type TransitionFunction = int -> (Command list * int) list
 let private transitions_sz = 50000
 
 type Program private (parameters : Parameters.parameters) =
-    let mutable initial = 0
+    let mutable initial = -1
     let mutable labelToNode = Map.empty
     let mutable nodeToLabel = Map.empty
-    let mutable nodeCount = 0
+    let mutable nodeCount = 1
     let mutable transitionCount = 0
     let mutable transitionsArray = Array.create transitions_sz (-1,[],-1)
     /// x \in active iff transitions[x] != (-1,_,-1)
