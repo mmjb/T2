@@ -51,13 +51,12 @@ let find_sccs (graph : ListDictionary<int, 'a * ('b * 'c * int)>) entry =
         stackContents.Add v |> ignore
 
         for (_, (_, _, w)) in graph.[v] do
-            if w <> 0 then
-                if not(number.ContainsKey w) then
-                    strongconnect w
-                    lowlink.[v] <- min lowlink.[v] lowlink.[w]
-                else if number.[w] < number.[v] then
-                    if stackContents.Contains w then
-                        lowlink.[v] <- min lowlink.[v] number.[w]
+            if not(number.ContainsKey w) then
+                strongconnect w
+                lowlink.[v] <- min lowlink.[v] lowlink.[w]
+            else if number.[w] < number.[v] then
+                if stackContents.Contains w then
+                    lowlink.[v] <- min lowlink.[v] number.[w]
         if lowlink.[v] = number.[v] then
             let mutable newComponent = Set.empty
             let numberV = number.[v]
