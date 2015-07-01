@@ -745,6 +745,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
                 ()
             terminating <- Some true
         | Some pi ->
+            Stats.startTimer "T2 - Counterexample analysis"
             cex <- (Counterexample.make (Some (List.map (fun (x,y,z) -> (x,[y],z)) pi)) None)
             outputCexAsDefect cex
             //Investigate counterexample. Hopefully returns a solution:
@@ -857,7 +858,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
                         //if we have reached this point.
                         raise (System.ArgumentException("Cannot synthesize preconditions due to a failure in either lexicographic function or recurrent set generation!"))
 
-
+            Stats.endTimer "T2 - Counterexample analysis"
         Utils.run_clear()
     done
     //This is marking nodes that have now cex reaching them for existential..

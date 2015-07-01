@@ -189,6 +189,7 @@ let extract_rf_from_model mu m =
 /// RF should be always >= bound.
 ///
 let synthesis rel =
+    Stats.startTimer "T2 - Rankfunction Synth. (Disjunctive)"
 
     //printfn "rel: %A" rel
 
@@ -225,15 +226,18 @@ let synthesis rel =
     let n_less_than m = Z.le n_used (Z.constantInt m)
     let strengthenings = List.map n_less_than [3; 2; 1]
 
-    match Z.solve (constraints::strengthenings) with
-    | None -> None
-    | Some m ->
-        let rf_on_pre = Map.map (fun _ coeff -> Z.get_model_int m coeff) rf_on_pre |> linear_term_to_term
-        let bound = Term.Const -(Z.get_model_int m bound)
+    let result =
+        match Z.solve (constraints::strengthenings) with
+        | None -> None
+        | Some m ->
+            let rf_on_pre = Map.map (fun _ coeff -> Z.get_model_int m coeff) rf_on_pre |> linear_term_to_term
+            let bound = Term.Const -(Z.get_model_int m bound)
 
-        m.Dispose()
+            m.Dispose()
 
-        Some (rf_on_pre, bound)
+            Some (rf_on_pre, bound)
+    Stats.endTimer "T2 - Rankfunction Synth. (Disjunctive)"
+    result
 
 (* LEXICOGRAPHIC RFS *)
 
@@ -613,6 +617,7 @@ let synthesis_lex_scc_trans_unaffected
 /// Returns None or a list of Lex_RF.
 /// Note partial_order will be empty initially
 let synthesis_lex (pars : Parameters.parameters) (p:Programs.Program) (cp: int) (rel_to_add':Relation.relation) (partial_order': Relation.relation list) =
+    Stats.startTimer "T2 - Rankfunction Synth. (Lexicographic)"
     let rel_to_add = Relation.standardise_postvars rel_to_add'
     let partial_order = List.map Relation.standardise_postvars partial_order'
 
@@ -638,6 +643,8 @@ let synthesis_lex (pars : Parameters.parameters) (p:Programs.Program) (cp: int) 
 
         else
             synthesis_lex_no_opt rel_to_add partial_order cp linterm_for_relation
+    
+    Stats.endTimer "T2 - Rankfunction Synth. (Lexicographic)"
 
     match synth_res with
         | Lexoptions (_::_)        -> Some synth_res
@@ -946,7 +953,7 @@ let rec make_eventually_neg_constraints (tree:template_tree) (sigma:Relation.rel
 /// Returns None or a list of Lex_Poly_RF.
 /// Note partial_order will be empty initially
 let synthesis_poly_lex rel_to_add' partial_order' depth =
-
+    Stats.startTimer "T2 - Rankfunction Synth. (Polyranking)"
     let rel_to_add = Relation.standardise_postvars rel_to_add'
     let partial_order = List.map Relation.standardise_postvars partial_order'
 
@@ -1057,6 +1064,7 @@ let synthesis_poly_lex rel_to_add' partial_order' depth =
                     yield (sigma,soln_trees)
         ]
 
+    Stats.endTimer "T2 - Rankfunction Synth. (Polyranking)"
     if lexoptions.Length >0 then
         Some lexoptions
     else
