@@ -1056,7 +1056,7 @@ let synthesis_poly_lex rel_to_add' partial_order' depth =
             let bounded_cons = bounded_constraints sigma
             let poly_lex_cons = poly_lex_constraints sigma
             let allconstraints = Z.conj[bounded_cons;poly_lex_cons]
-            match Z.solve [allconstraints] with
+            match Z.quickSolve [allconstraints] with
             | None -> ()
             | Some m ->
                     let soln_trees = [for k in 1..sigma.Length -> retrieve_tree m my_trees.[k-1]]
