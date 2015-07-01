@@ -197,7 +197,6 @@ let true_string (b : string) =
 /// Uses .NET tricks to find out the location from which dieWith has been called.
 ///
 let inline dieWith s =
-    System.Diagnostics.Debugger.Launch()
     let sf = new System.Diagnostics.StackFrame(true)
     let st = new System.Diagnostics.StackTrace(sf)
     let cf = st.GetFrame(0)
