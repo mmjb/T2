@@ -65,7 +65,7 @@ let recurrent_state (pars : Parameters.parameters) vars stem cycle count =
                         Term.var (Var.prime_var var new_index) )
         ]
 
-    match Z.solve_k [Formula.z3 constr] with
+    match Z.solve_k None [Formula.z3 constr] with
     | Some(_, model) ->
         let set =
             Formula.disj [

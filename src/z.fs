@@ -60,10 +60,12 @@ refreshZ3Context()
 Utils.add_clear refreshZ3Context
 
 /// Create a simple z3 SMT Solver. Caller has to take care of disposal of the object.
-let getSolver () =
+let getSolver (solverTimeout : uint32 option) =
     let solver = z3Context.MkSimpleSolver()
     let p = z3Context.MkParams()
-    p.Add("timeout", 10000u)
+    match solverTimeout with
+    | Some timeout -> p.Add("timeout", timeout)
+    | None -> p.Add("timeout", 10000u)
     solver.Parameters <- p
     Microsoft.Z3.Global.SetParameter("model_evaluator.completion", "true")
     solver
@@ -130,7 +132,7 @@ let sat_opt q =
 
     let result =
         try
-            use solver = getSolver()
+            use solver = getSolver None
             solver.Assert(q)
             match solver.Check() with
             | Status.SATISFIABLE -> Some true
@@ -151,7 +153,7 @@ let unsat_core assertions =
     !Utils.check_timeout ()
     let assumptions = Array.init (Array.length assertions) (fun _ -> z3Context.MkBoolConst ("unsat_core") :> Expr)
 
-    use solver = getSolver()
+    use solver = getSolver None
     let make_assertion assertion (assumption : Expr) = solver.Assert (z3Context.MkOr (assertion, z3Context.MkNot (assumption :?> BoolExpr)))
     Array.iter2 make_assertion assertions assumptions
     let core = ref null
@@ -185,11 +187,11 @@ let valid q = not (sat ([| mk_not q |]))
 /// we absolutely want to satisfy, and h1, h2... are heuristics we'd like to
 /// satisfy if possible.
 ///
-let solve_k fs =
+let solve_k solverTimeout fs =
     (!Utils.check_timeout)()
     Stats.startTimer "Z3 - Satisfiability (opt)"
 
-    use solver = getSolver()
+    use solver = getSolver solverTimeout
     let result =
         try
             try
@@ -197,7 +199,7 @@ let solve_k fs =
             with
             :? System.TimeoutException as e ->
                 Stats.incCounter "Z3 - Timeout"
-                raise e
+                None
         finally
             Stats.endTimer "Z3 - Satisfiability (opt)"
 
@@ -211,9 +213,13 @@ let solve_k fs =
 /// we absolutely want to satisfy, and h1, h2... are heuristics we'd like to
 /// satisfy if possible.
 ///
-let solve fs = match solve_k fs with
-               | None -> None
-               | Some(_,m) -> Some(m)
+let private internalSolve solverTimeout fs =
+    match solve_k solverTimeout fs with
+    | None -> None
+    | Some(_,m) -> Some(m)
+
+let solve fs = internalSolve None fs
+let quickSolve fs = internalSolve (Some 500u) fs
 
 let fresh_var _ = var (Gensym.fresh_var())
 let fresh_bool_var _ = bool_var (Gensym.fresh_var())
