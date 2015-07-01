@@ -810,7 +810,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
                     else
                         //If we are trying lexicographic termination arguments, try switching to lexicographic polyranking arguments:
                         let already_polyrank = (lex_info.cp_polyrank).[failure_cp]
-                        if pars.polyrank && not(already_polyrank) && attempting_lex then
+                        if pars.polyrank && termination_only && not(already_polyrank) && attempting_lex then
                             Log.log pars "Switching to polyrank."
                             Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_instrumented safety
                         else
