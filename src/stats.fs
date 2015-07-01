@@ -78,5 +78,8 @@ let incCounter s = addToCounter s 1
 /// Print out statistics
 let printStatistics () =
     printfn "Statistics:"
-    Seq.iter (function KeyValue(k, v) -> printfn "  Timer '%s': %.3fs" k v) totalTimes
-    Seq.iter (function KeyValue(k, v) -> printfn "  %s: %d" k v) counters
+    for KeyValue(k, v) in totalTimes |> Seq.sortBy (function KeyValue(k, _) -> k) do
+        printfn "  Timer '%s': %.3fs" k v
+
+    for KeyValue(k, v) in counters |> Seq.sortBy (function KeyValue(k, _) -> k) do
+        printfn "  %s: %d" k v
