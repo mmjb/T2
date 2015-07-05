@@ -177,7 +177,7 @@ let defaultParameters =
         lex_term_proof_first = true
         mcnp_style_bound_decr = false
 
-        safety_implementation = Impact
+        safety_implementation = Spacer
         dottify_reachability = false
         dottify_input_pgms = false
         sanity_checking = true

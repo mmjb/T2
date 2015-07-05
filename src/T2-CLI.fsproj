@@ -23,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <StartWorkingDirectory>\\vmware-host\Shared Folders\Documents\Git\T2\test</StartWorkingDirectory>
+    <StartWorkingDirectory>C:\Users\Administrator\Documents\GitHub\T2\test</StartWorkingDirectory>
     <StartArguments>-tests</StartArguments>
     <StartAction>Project</StartAction>
     <StartProgram>Z:\src\T2\bin\Debug\T2.exe</StartProgram>
@@ -82,6 +82,7 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -91,6 +92,18 @@
       <HintPath>packages\FSPowerPack.Core.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FSharp.PowerPack.Linq">
+      <HintPath>packages\FSPowerPack.Linq.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.PowerPack.Metadata">
+      <HintPath>packages\FSPowerPack.Metadata.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.Metadata.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.PowerPack.Parallel.Seq">
+      <HintPath>packages\FSPowerPack.Parallel.Seq.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.Parallel.Seq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -98,8 +111,6 @@
     <Reference Include="Microsoft.Z3">
       <HintPath>Microsoft.Z3.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="T2-Library.fsproj">
       <Name>T2-Library</Name>
       <Project>{5f69e273-595d-4a27-816e-cec1bd3c74fc}</Project>

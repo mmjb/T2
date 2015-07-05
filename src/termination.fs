@@ -484,10 +484,17 @@ let insertForRerun
         //Now we want to instrument this into our program and re-run this whole process again.
         //The reason why we create an extra node to instrument in the pre-condition is because
         //we may need to generate another precondition given that we reached an error from another path
-        let (m, m') = if cutp <> -1 then (!visited_BU_cp).[cutp] else (endOfPropertyCheckNode, final_loc)
+        
+        //Finding pairs of copied nodes in case of cut-points. Negations of precondition will be instrumented
+        //here to prevent recurring counterexamples. In case that an error does not originate from a cutpoint, 
+        //or cutp == -1, then the negation is instrumented between the error location and the final_loc (where
+        //the value of RET is checked). 
+        let (origNode, copiedNode) = if cutp <> -1 then (!visited_BU_cp).[cutp] else (endOfPropertyCheckNode, final_loc)
+        Log.log pars <| sprintf "Negation of CEX precondition to be instrumented between node %i and %i" origNode copiedNode
+
         let mutable transitionToStrengthen = None
         for (l, (k, cmds, k')) in p_final.TransitionsWithIdx do
-            if  (k = m && k' = m') || (cutp <> errorNode && cutp <> -1 && k = endOfPropertyCheckNode && k' = final_loc) then
+            if  (k = origNode && k' = copiedNode) || (cutp <> errorNode && cutp <> -1 && k = endOfPropertyCheckNode && k' = final_loc) then
             //if (k = m && k' = m') then
                 if not(strengthen) then
                     for x in preCond do
@@ -498,8 +505,8 @@ let insertForRerun
                     p_final.RemoveTransition l
                     transitionToStrengthen <- Some (k, k')
             //Redirect loop to cut-point without assumption: For soundness
-            else if cutp <> -1 && k' = m && p_bu_sccs.[cutp].Contains k then
-                p_final.AddTransition k cmds m'
+            else if cutp <> -1 && k' = origNode && p_bu_sccs.[cutp].Contains k then
+                p_final.AddTransition k cmds copiedNode
                 p_final.RemoveTransition l
             safety.ResetFrom k //Marc's note: This resets from EVERY location. Really needed?
         if strengthen then
@@ -1252,3 +1259,4 @@ let bottomUpProver (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
         Some (propertyValidity, ext_proof_printer)
     else
         ret_value
+
