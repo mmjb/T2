@@ -84,6 +84,17 @@ let register_tests (pars : Parameters.parameters) =
         else
             sprintf "Couldn't open file %s\n" input_file |> failwith
 
+    let t2_run_CTLStar parameters prover input_file ctlstar_formula_string expected_result=
+        if System.IO.File.Exists input_file then
+            let ctlstar_formula = CTL_Parser.parse_CTLStar ctlstar_formula_string
+            let (p, _) = Input.load_t2 parameters true input_file
+            match prover p ctlstar_formula with
+            | Some (result, _) when (Some result) = expected_result -> true //project away the proof
+            | None when None = expected_result -> true
+            | _ -> false 
+        else
+            sprintf "Couldn't open file %s\n" input_file |> failwith
+
     let safety_prover p l =
         match Safety.prover safety_pars p l with
         | Some(_) -> false
@@ -111,9 +122,10 @@ let register_tests (pars : Parameters.parameters) =
         match s with
         | None -> None
         | Some s ->
-            let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes s)
-            Some (Absparse.Fairness_constraint Absflex.token lexbuf)
+        let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes s)
+        Some (Absparse.Fairness_constraint Absflex.token lexbuf)
     let bottomUp_prover p actl_fmla fairness_constraint = Termination.bottomUpProver ctl_pars p actl_fmla false fairness_constraint
+    let CTLStar_prover p ctls_fmla = Termination.CTLStar_Prover ctl_pars p ctls_fmla false
     let inline register_CTL_SAT_test file property fairness_constraint =
         Test.register_test true (ctlTestName file property fairness_constraint) (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) (Some true))
     let inline register_CTL_SAT_testd file property fairness_constraint =
@@ -126,6 +138,19 @@ let register_tests (pars : Parameters.parameters) =
         Test.register_test true (ctlTestName file property fairness_constraint) (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) None)
     let inline register_CTL_FAIL_testd file property fairness_constraint =
         Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) None)
+    let inline register_CTLStar_SAT_test file property =
+        Test.register_test true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some true))    
+    let inline register_CTLStar_SAT_testd file property =
+        Test.register_testd true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some true))    
+    let inline register_CTLStar_UNSAT_test file property =
+        Test.register_test true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some false))
+    let inline register_CTLStar_UNSAT_testd file property =
+        Test.register_testd true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some false))  
+    let inline register_CTLStar_FAIL_test file property =
+        Test.register_test true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property None)
+    let inline register_CTLStar_FAIL_testd file property =
+        Test.register_testd true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property None)
+
 
     // Small, manually crafted examples ---------------------------------------------------
     register_term_test "testsuite/small01.t2"
@@ -270,6 +295,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "ax_test.t2" "[AG](p > 0 || [AF]([EX](p <= 0)))" None
     register_CTL_SAT_test   "ax_test.t2" "[AG](p > 0 || [AF](p <= 0))" None
     register_CTL_SAT_test   "ax_test_2.t2" "[AG](p > 0 || [AF]([AX](p <= 0)))" None
+    register_CTL_SAT_test   "ax_test_2.t2" "[EG](p > 0 || [EF]([EX](p <= 0)))" None
 
     register_CTL_SAT_test   "ax_test_2.t2" "[AG](p <= 0 || [AX](p <= 0))" None
     register_CTL_SAT_test   "ax_test_2.t2" "[AG](p <= 0 || [EX](p <= 0))" None
@@ -311,6 +337,7 @@ let register_tests (pars : Parameters.parameters) =
     ////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "acqrel-succeed.t2" "[AG](A == 0 || [AF](R == 1)) " None
     register_CTL_SAT_test "acqrel-succeed.t2" "[AG](A == 0 || [EF](R == 1)) " None
+    register_CTL_SAT_test "acqrel-succeed.t2" "[EF](A == 1 && [AG](R == 0)) " None
     register_CTL_SAT_test "acqrel-succeed.t2" "[EG](A == 0 || [EG](R == 0)) " None
     register_CTL_SAT_test "acqrel-succeed.t2" "[AF](A == 0 || [EG](R == 0)) " None
 
@@ -352,7 +379,6 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test "smagilla-fail.t2" "c > 5 || [AF](resp > 5)" None
     register_CTL_SAT_test "smagilla-fail.t2" "c > 5 || [AG](resp <= 5)" None
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "st88b.t2" "[EF]([EG](WItemsNum >= 1))" None
     register_CTL_SAT_test "st88b.t2" "[EF]([AG](WItemsNum >= 1))" None
     register_CTL_SAT_test "st88b.t2" "[AG]([EF](WItemsNum >= 1))" None
@@ -364,4 +390,30 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
     
 
+    register_CTLStar_UNSAT_test "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
+    register_CTLStar_SAT_test "1394complete-succeed-2.t2" "E F((A F(phi_io_compl > 0)) && (A G(F (phi_nSUC_ret <= 0))))"
+    register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) && (A G (keR == 0)))))" //
+    register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) || (E F (keR == 1)))))"  //
 
+    register_CTLStar_SAT_test "ppblock.t2" "E F(PPBlockInits > 0  && ( ( (E F(G (IoCreateDevice != 1))) || (A G( F(status == 1))) ) && (E G(PPBunlockInits <= 0)) ) )" 
+    //Program is about 110 - 400 lines of code.   
+    register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "E F(G ((tt > 0) || (A F (wakend == 0)) ))" //Generation
+    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "A G(F ((tt <= 0) && (E G (wakend == 1)) ))" //Generation
+    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E F(G( (wakend == 1) && (E G (F (wakend == 0))) ))"
+    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E G(F (A G (wakend == 1)))"
+    register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "A F(G (E F (wakend == 0)))"
+
+    register_CTLStar_SAT_test "pgarch-succeed.t2" "A G(F(wakend == 1))"
+    register_CTLStar_UNSAT_test "pgarch-succeed.t2" "E F(G(wakend == 0))"
+    
+    //CTL* Toy examples - About 10-15 lines of code
+
+    register_CTLStar_SAT_test "testsuite/ctlstar_5.t2" "E F(G ((x == 1) && (E G(y == 0))))"
+    register_CTLStar_SAT_test "testsuite/ctlstar_3.t2" "E G(F (x > 0))"
+    register_CTLStar_SAT_test "testsuite/ctlstar_6.t2" "A F(G (x == 1))" 
+    register_CTLStar_UNSAT_test "testsuite/example9.t2" "A G( (E F(G (y = 1))) && (E F(x >= t)))"//
+
+    register_CTLStar_SAT_test "testsuite/ctlstar_4.t2" "A G(F(b == 0)) && (W(x == 0),(b == 0))"
+    register_CTLStar_SAT_test "testsuite/example10.t2" "A G( (E F (G (x = 0))) && (E F(x = 20)))"
+    register_CTLStar_UNSAT_test "ctlstar_test.t2" "(E F(G (x == 0))) && (E F(G (x == 1)))"
+    register_CTLStar_SAT_test "ctlstar_test.t2" "A G ((A F(G (x == 0))) || (A F(G (x == 1))))"

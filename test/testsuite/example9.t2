@@ -1,0 +1,29 @@
+START: 0;
+
+FROM: 0;
+t := nondet();
+x := 0;
+y := 0;
+TO: 1;
+
+FROM: 1;
+assume(nondet());
+x := x + 1;
+TO: 1;
+
+
+FROM: 1;
+assume(nondet());
+TO: 2;
+
+FROM: 2;
+TO: 4;
+
+FROM: 2;
+assume(x < t);
+y := 1;
+TO: 4;
+
+FROM: 4;
+assume(0 <= 0);
+TO: 4;

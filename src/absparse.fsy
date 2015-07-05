@@ -53,17 +53,25 @@ let normalize_var (v : string) =
 %token ASSUME ASSIGN NONDET SHADOW
 %token TO FROM CUTPOINT START
 %token AF AG AW AX EF EG EU EX
+%token A E
+%token F G X W U
 
 %start program
 %start CTL_formula
+%start CTLStar_formula
+%start State_formula
+%start Path_formula
 %start Fairness_constraint
 
 %type <CTL.CTL_Formula> CTL_formula
-%type <parsedLoc * parsedLoc * (parsedLoc * Programs.Command list * parsedLoc) list * (Var.var * Var.var) list * bool> program
-%type <(parsedLoc * Programs.Command list * parsedLoc) list> blocks
-%type <parsedLoc * Programs.Command list * parsedLoc> block
-%type <Programs.Command> command
-%type <Programs.Command list> commands
+%type <CTL.CTLStar_Formula> CTLStar_formula
+%type <CTL.State_Formula> State_formula
+%type <CTL.Path_Formula> Path_formula
+%type <parsedLoc * parsedLoc * (parsedLoc * Programs.command list * parsedLoc) list * (Var.var * Var.var) list * bool> program
+%type <(parsedLoc * Programs.command list * parsedLoc) list> blocks
+%type <parsedLoc * Programs.command list * parsedLoc> block
+%type <Programs.command> command
+%type <Programs.command list> commands
 %type <Formula.formula> formula
 %type <Term.term> term
 %type <bigint> num
@@ -161,8 +169,6 @@ term    : Num                   { Term.Const($1) }
     | NONDET LPAREN RPAREN  { Term.Nondet }
         ;
 
-
-
 formula
     : term LT term { Formula.Lt($1,$3) }
     | term GT term { Formula.Gt($1,$3) }
@@ -184,6 +190,29 @@ ATOM
     | term EQ term { Formula.Eq($1,$3) }
     | term NE term { Formula.Not(Formula.Eq($1,$3)) }
     ;
+
+State_formula 
+    : ATOM { CTL.State_Formula.Atm $1}
+    | A Path_formula { CTL.State_Formula.A $2}
+    | E Path_formula { CTL.State_Formula.E $2}
+	| CTLStar_formula AND_OP CTLStar_formula { CTL.State_Formula.And($1, $3) }
+    | CTLStar_formula OR_OP CTLStar_formula { CTL.State_Formula.Or($1, $3) }
+	| LPAREN State_formula RPAREN { $2 }
+	;
+
+Path_formula
+    : F LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.F $3}
+	| G LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.G $3}
+	| X LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.X $3}
+    | W LPAREN CTLStar_formula RPAREN COMMA LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.W($3, $7) }
+	| U LPAREN CTLStar_formula RPAREN COMMA LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.U($3, $7) }
+	| LPAREN Path_formula RPAREN { $2 }
+	;
+
+CTLStar_formula
+	: Path_formula {CTL.CTLStar_Formula.Path $1}
+	| State_formula {CTL.CTLStar_Formula.State $1}
+	;
 
 CTL_formula
 	: ATOM { CTL.CTL_Formula.Atom $1}

@@ -783,7 +783,6 @@ let instrument_G (p : Programs.Program) formula (propertyMap : SetDictionary<CTL
     //let cp_conditions = eliminate_redun propertyMap.[formula]
     let cp_conditions = propertyMap.[formula] |> List.ofSeq
     let cp = cp_conditions |> List.map(fun (x,_) -> x)
-
     // 2. Instrument in the sub-property: Visit every state, and add links to the check for the sub-property.
     let node_to_end_of_subproperty_node_map = new System.Collections.Generic.Dictionary<int,int>()
     for (n, (k, _, _)) in p_G.TransitionsWithIdx do

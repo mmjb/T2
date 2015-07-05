@@ -22,6 +22,32 @@
 
 module Microsoft.Research.T2.CTL
 
+//CTL* Syntax
+//State:= E path | A path | Bool(State) | prop
+//Path:= State U State | State U Path | Path U State |
+  //         X State | X Path | F State | F Path | G State | G Path |Bool (Path)
+
+[<StructuredFormatDisplayAttribute("{pp}")>]
+type State_Formula =
+
+    | Atm of Formula.formula
+    | A of Path_Formula
+    | E of Path_Formula
+    | And of CTLStar_Formula * CTLStar_Formula
+    | Or of CTLStar_Formula * CTLStar_Formula
+
+and Path_Formula =
+
+    | F of CTLStar_Formula    
+    | W of CTLStar_Formula * CTLStar_Formula
+    | U of CTLStar_Formula * CTLStar_Formula
+    | G of CTLStar_Formula
+    | X of CTLStar_Formula
+
+and CTLStar_Formula =
+
+    | Path of Path_Formula
+    | State of State_Formula
 
 [<StructuredFormatDisplayAttribute("{pp}")>]
 type CTL_Formula =
