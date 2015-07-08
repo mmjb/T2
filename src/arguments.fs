@@ -30,7 +30,7 @@ type runMode =
     | Termination
     | CTL of string
 
-let parseArguments =
+let parseArguments arguments =
     let pars = Parameters.defaultParameters
     let t2_input_file = ref ""
     let mode = ref None
@@ -71,6 +71,10 @@ let parseArguments =
 
     let safetyImplementations = FSharpType.GetUnionCases typeof<Parameters.SafetyImplementation>
     let knownSafetyImplementationsString = String.concat ", " (Array.map (fun (i : UnionCaseInfo) -> i.Name) safetyImplementations)
+    let knownOutputFormats = String.concat ", " (Array.map (fun (i : UnionCaseInfo) -> i.Name) (FSharpType.GetUnionCases typeof<Parameters.outputFormat>))
+    let knownAbstractDomains = String.concat ", " (Array.map (fun (i : UnionCaseInfo) -> i.Name) (FSharpType.GetUnionCases typeof<Parameters.numAbsDomain>))
+    let knownImperativeProgramStyle = String.concat ", " (Array.map (fun (i : UnionCaseInfo) -> i.Name) (FSharpType.GetUnionCases typeof<Parameters.imperativeProgramStyle>))
+    let knownJavaNondetStyle = String.concat ", " (Array.map (fun (i : UnionCaseInfo) -> i.Name) (FSharpType.GetUnionCases typeof<Parameters.javaNondetStyle>))
 
     let parse_safety_implementation_string (s : string) =
         let s = s.ToLower()
@@ -83,182 +87,179 @@ let parseArguments =
         | None ->
             failwithf "Cannot parse safety implementation '%s' (known: %s). Giving up.\n" s knownSafetyImplementationsString
 
-    let args = 
-        [
-             new ArgInfo( "-log"
-             , ArgType.Unit (fun () -> pars.print_log <- true)
-             , "Turn on verbose logging"
-             )
+    let optionSet = Mono.Options.OptionSet()
+    optionSet
+             .Add( "tests"
+                 , "Run unit tests"
+                 , fun _ -> setMode Test)
+             .Add( "input_t2="
+                 , "Input file (in T2 syntax)"
+                 , fun s -> t2_input_file := s)
+             .Add( "safety="
+                 , "Run safety prover, checking reachability of location VALUE"
+                 , fun n -> setMode (Safety (int n)))
+             .Add( "termination"
+                 , "Run termination prover"
+                 , fun _ -> setMode Termination)
+             .Add( "CTL="
+                 , "Run CTL temporal prover on formula VALUE"
+                 , fun s -> setMode (CTL s))
+             .Add( "fairness="
+                 , "Only consider program runs satisfying the given fairness constraint (p, q)"
+                 , fun s -> fairness_constraint_string := s)
+             .Add( "output_as="
+                 , sprintf "Output input file in given format [known: %s]" knownOutputFormats
+                 , parse_output_type_string)
+             .Add( "output_file="
+                 , sprintf "Choose output file name (default '%s', use in conjunction with -output_as)" !output_file
+                 , fun s -> output_file := s)
+             .Add( "timeout="
+                 , "Timeout for the overall proof attempt"
+                 , fun s -> pars.timeout <- float s)
+             .Add( "log"
+                 , "Turn on verbose logging"
+                 , fun _ -> pars.print_log <- true)
+             .Add( "print_proof"
+                 , "Print rank functions / recurrence sets after finishing a proof"
+                 , fun _ -> pars.print_proof <- true)
+             .Add( "stats"
+                 , "Print statistics about T2 internals"
+                 , fun _ -> pars.print_stats <- true)
+             .Add( "full-help"
+                 , "Print help including all options"
+                 , fun _ -> optionSet.WriteOptionDescriptions(System.Console.Error, true); exit 0)
 
-           ; new ArgInfo( "-safety_implementation"
-             , ArgType.String (fun s -> pars.safety_implementation <- parse_safety_implementation_string s)
-             , sprintf "Choose safety implementation. [known: %s, default: %A]" knownSafetyImplementationsString pars.safety_implementation
-             )
-           ; new ArgInfo( "-dottify_reachability"
-             , ArgType.Unit (fun () -> pars.dottify_reachability <- true)
-             , "Generate DOT graphs of the impact tree"
-             )
-           ; new ArgInfo( "-dottify_input_pgms"
-             , ArgType.Unit (fun () -> pars.dottify_input_pgms <- true)
-             , "Generate DOT graphs of the input program and its instrumented variants"
-             )
-           ; new ArgInfo( "-safety_cex"
-             , ArgType.String (fun s -> pars.safety_counterexample <- Utils.true_string s)
-             , "Produce safety counterexamples"
-             )
-           ; new ArgInfo( "-fc_look_back"
-             , ArgType.Unit (fun () -> pars.fc_look_back <- true)
-             , "Use path from root when doing force-cover"
-             )
-           ; new ArgInfo( "-fc_remove_on_fail"
-             , ArgType.Unit (fun () -> pars.fc_remove_on_fail <- true)
-             , "When trying force-cover v by w fails, remove w from the candidates of v"
-             )
-           ; new ArgInfo( "-fc_unsat_core"
-             , ArgType.Unit (fun () -> pars.fc_unsat_core <- true)
-             , "Use UNSAT core to reduce interpolation constraints"
-             )
+             ///// Output things:
+             .Add( "debug"
+                 , "Turn on debug logging"
+                 , fun _ -> pars.print_debug <- true
+                 , true)
+             .Add( "dottify_reachability"
+                 , "Generate DOT graphs of the impact tree"
+                 , fun _ -> pars.dottify_reachability <- true
+                 , true)
+             .Add( "dottify_input_pgms"
+                 , "Generate DOT graphs of the input program and its instrumented variants"
+                 , fun _ -> pars.dottify_input_pgms <- true
+                 , true)
+             .Add( "safety_cex="
+                 , "Produce safety counterexamples"
+                 , fun s -> pars.safety_counterexample <- Utils.true_string s
+                 , true)
 
-           ; new ArgInfo( "-print_interpolants"
-             , ArgType.Unit (fun () -> pars.print_interpolants <- true)
-             , "Print interpolants found"
-             )
-           ; new ArgInfo( "-check_interpolants"
-             , ArgType.Unit (fun () -> pars.check_interpolants <- true)
-             , "Double check interpolants found"
-             )
-           ; new ArgInfo( "-interpolant_sequence_ignore_beginning"
-             , ArgType.Unit (fun () -> pars.seq_interpolation_ignore_last_constr <- false)
-             , "Try to ignore constraints from the beginning"
-             )
+             .Add( "imperative_style="
+                 , sprintf "Choose style of imperative output program. [known: %s, default %A]" knownImperativeProgramStyle !imperative_style
+                 , fun s ->
+                       match s with
+                       | "loop" -> imperative_style := Parameters.Loop
+                       | "goto" -> imperative_style := Parameters.Goto
+                       | _ -> Utils.dieWith (sprintf "Do not know imperative program style '%s', use loop/goto" s)
+                 , true)
+             .Add( "java_nondet_style="
+                 , sprintf "Choose implementation of nondet() in Java output. [known: %s, default %A]" knownJavaNondetStyle !java_nondet_style
+                 , fun s ->
+                       match s with
+                       | "aprove" -> java_nondet_style := Parameters.Aprove
+                       | "julia" -> java_nondet_style := Parameters.Julia
+                       | _ -> Utils.dieWith (sprintf "Do not know nondet style '%s', use aprove/julia" s)
+                 , true)
 
-           ; new ArgInfo( "-print_proof"
-             , ArgType.Unit (fun () -> pars.print_proof <- true)
-             , "Print rank functions / recurrence sets after finishing a proof."
-             )
+             ///// Parsing / program representation things:
+             .Add( "do_ai_threshold"
+                 , "Perform numerical abstr. int. before other analyses if we have less than n transitions"
+                 , fun n -> pars.do_ai_threshold <- int n
+                 , true)
+             .Add( "ai_domain"
+                 , sprintf "Numerical abstract domain used for abstract interpretation [known: %s, default %A]" knownAbstractDomains pars.ai_domain
+                 , fun (s : string) -> 
+                        match s.ToLower() with 
+                        | "oct" | "octagon" | "octagons" -> pars.ai_domain <- Parameters.Octagon
+                        | "box" | "boxes"   | "invervals" -> pars.ai_domain <- Parameters.Box
+                        | _ -> Utils.dieWith <| sprintf "Do not know numerical abstract domain %s" s
+                 , true)
+             .Add( "elim_constants="
+                 , "Abstract away unusual constants"
+                 , fun s -> pars.elim_constants <- Utils.true_string s
+                 , true)
 
-           ; new ArgInfo( "-elim_constants"
-             , ArgType.String (fun s -> pars.elim_constants <- Utils.true_string s) 
-             , "Abstract away unusual constants"
-             )
+             ///// Safety things:
+             .Add( "safety_implementation="
+                 , sprintf "Choose safety implementation. [known: %s, default: %A]" knownSafetyImplementationsString pars.safety_implementation
+                 , fun (s : string) -> pars.safety_implementation <- parse_safety_implementation_string s)
 
-           ; new ArgInfo( "-lexicographic"
-             , ArgType.String (fun s -> pars.lexicographic <- Utils.true_string s) 
-             , "Try to find lexicographic ranking functions instead of disjunctive ones"
-             )
-           ; new ArgInfo( "-lex_opt_fewer_rfs"
-             , ArgType.String (fun s -> pars.lex_opt_fewer_rfs <- Utils.true_string s) 
-             , "Try to choose shorter lexicographic RFs (overrides other -lex_opt options)"
-             )
-           ; new ArgInfo( "-lex_opt_max_unaffected"
-             , ArgType.String (fun s -> pars.lex_opt_max_unaffect <- Utils.true_string s) 
-             , "Try to maximise the 'unaffecting score' of a lexicographic RF (overrides -lex_opt_scc_unaffected)"
-             )
-           ; new ArgInfo( "-lex_opt_scc_unaffected"
-             , ArgType.String (fun s -> pars.lex_opt_scc_unaffected <- Utils.true_string s) 
-             , "Try to find RFs that do not increase on any edge in the SCC"
-             )
-           ; new ArgInfo( "-polyrank"
-             , ArgType.String (fun s -> pars.polyrank <- Utils.true_string s) 
-             , "Try to find lexicographic polyranking functions"
-             )
-           ; new ArgInfo( "-lex_term_proof_first"
-             , ArgType.String (fun s -> pars.lex_term_proof_first <- Utils.true_string s) 
-             , "lexicographic termination proofs with program simplifications before starting safety proof"
-             )
-           ; new ArgInfo( "-do_ai_threshold"
-             , ArgType.Int (fun n -> pars.do_ai_threshold <- n)
-             , "Perform numerical abstr. int. before other analyses if we have less than n transitions"
-             )
-           ; new ArgInfo( "-ai_domain"
-             , ArgType.String (fun s -> 
-                                match s.ToLower() with 
-                                | "oct" | "octagon" | "octagons" -> pars.ai_domain <- Parameters.Octagon
-                                | "box" | "boxes"   | "invervals" -> pars.ai_domain <- Parameters.Box
-                                | _ -> Utils.dieWith <| sprintf "Do not know numerical abstract domain %s" s)
-             , sprintf "Numerical abstract domain used for abstract interpretation ('Octagon' or 'Box', default '%A')" pars.ai_domain
-             )
-           ; new ArgInfo( "-mcnp_style_bound_decr"
-             , ArgType.String (fun s -> pars.mcnp_style_bound_decr <- Utils.true_string s) 
-             , "Use 'anchor' idea from MCNP instead of bounded/decreasing requirement on each edge"
-             )
+             .Add( "fc_look_back"
+                 , "<Impact> Use path from root when doing force-cover"
+                 , fun _ -> pars.fc_look_back <- true
+                 , true)
+             .Add( "fc_remove_on_fail"
+                 , "<Impact> When trying force-cover v by w fails, remove w from the candidates of v"
+                 , fun _ -> pars.fc_remove_on_fail <- true
+                 , true)
+             .Add( "fc_unsat_core"
+                 , "<Impact> Use UNSAT core to reduce interpolation constraints"
+                 , fun _ -> pars.fc_unsat_core <- true
+                 , true)
+             .Add( "print_interpolants"
+                 , "<Impact> Print interpolants found"
+                 , fun _ -> pars.print_interpolants <- true
+                 , true)
+             .Add( "check_interpolants"
+                 , "<Impact> Double check interpolants found"
+                 , fun _ -> pars.check_interpolants <- true
+                 , true)
+             .Add( "interpolant_sequence_ignore_beginning"
+                 , "<Impact> Try to ignore constraints from the beginning"
+                 , fun _ -> pars.seq_interpolation_ignore_last_constr <- false
+                 , true)
 
-           ; new ArgInfo( "-termination"
-             , ArgType.Unit (fun () -> setMode Termination)
-             , "Run refinement termination prover"
-             )
-           ; new ArgInfo( "-try_nonterm"
-             , ArgType.String (fun s -> pars.prove_nonterm <- Utils.true_string s) 
-             , "Try to prove nontermination (using very simple, cheap methods)"
-             )
-           ; new ArgInfo( "-safety"
-             , ArgType.Int (fun n -> setMode (Safety n))
-             , "Run safety prover, checking reachability of argument"
-             )
-           ; new ArgInfo( "-CTL"
-             , ArgType.String (fun s -> setMode (CTL s))
-             , "Run CTL temporal prover"
-             )
-           ; new ArgInfo( "-fairness"
-             , ArgType.String (fun s -> fairness_constraint_string := s)
-             , "Only consider program runs satisfying the given fairness constraint (p, q)"
-             )
-           ; new ArgInfo( "-input_t2"
-             , ArgType.String (fun s -> t2_input_file := s)
-             , "Give T2 syntax input file"
-             )
-           ; new ArgInfo( "-output_as"
-             , ArgType.String parse_output_type_string
-             , "Output input file in given format (known: dot, java, c, hsf, smtpushdown)"
-             )
-           ; new ArgInfo( "-output_file"
-             , ArgType.String (fun s -> output_file := s)
-             , sprintf "Choose output file name (default '%s', use in conjunction with -output_as)" !output_file
-             )
-           ; new ArgInfo( "-imperative_style"
-             , ArgType.String (fun s ->
-                                match s with
-                                | "loop" -> imperative_style := Parameters.Loop
-                                | "goto" -> imperative_style := Parameters.Goto
-                                | _ -> Utils.dieWith (sprintf "Do not know imperative program style '%s', use loop/goto." s))
-             , sprintf "Choose style of imperative program: 'loop' for while loop with switch over pc, 'goto' for explicit jumps. (default '%A')" !imperative_style
-             )
-           ; new ArgInfo( "-java_nondet_style"
-             , ArgType.String (fun s ->
-                                match s with
-                                | "aprove" -> java_nondet_style := Parameters.Aprove
-                                | "julia" -> java_nondet_style := Parameters.Julia
-                                | _ -> Utils.dieWith (sprintf "Do not know nondet style '%s', use aprove/julia." s))
-             , sprintf "Choose implementation of nondet() in Java output. Supported options are 'aprove' and 'julia'. (default: '%A')" !java_nondet_style
-             )
-           ; new ArgInfo( "-tests"
-             , ArgType.Unit (fun () -> setMode Test)
-             , "Run unit tests"
-             )
-           ; new ArgInfo( "-stats"
-             , ArgType.Unit (fun () -> pars.print_stats <- true)
-             , "Print stats"
-             )
-           ; new ArgInfo( "-timeout"
-             , ArgType.Float (fun t -> pars.timeout <- t)
-             , "Timeout for the overall proof"
-             )
+             ///// Terminationy things:
+             .Add( "try_nonterm="
+                 , "Try to prove nontermination (using very simple, cheap methods)"
+                 , fun s -> pars.prove_nonterm <- Utils.true_string s
+                 , true)
+             .Add( "lexicographic="
+                 , "Try to find lexicographic ranking functions instead of disjunctive ones"
+                 , fun s -> pars.lexicographic <- Utils.true_string s
+                 , true)
+             .Add( "lex_opt_fewer_rfs="
+                 , "Try to choose shorter lexicographic RFs (overrides other -lex_opt options)"
+                 , fun s -> pars.lex_opt_fewer_rfs <- Utils.true_string s
+                 , true)
+             .Add( "lex_opt_max_unaffected="
+                 , "Try to maximise the 'unaffecting score' of a lexicographic RF (overrides -lex_opt_scc_unaffected)"
+                 , fun s -> pars.lex_opt_max_unaffect <- Utils.true_string s
+                 , true)
+             .Add( "lex_opt_scc_unaffected="
+                 , "Try to find RFs that do not increase on any edge in the SCC"
+                 , fun s -> pars.lex_opt_scc_unaffected <- Utils.true_string s
+                 , true)
+             .Add( "polyrank="
+                 , "Try to find lexicographic polyranking functions"
+                 , fun s -> pars.polyrank <- Utils.true_string s
+                 , true)
+             .Add( "lex_term_proof_first="
+                 , "lexicographic termination proofs with program simplifications before starting safety proof"
+                 , fun s -> pars.lex_term_proof_first <- Utils.true_string s
+                 , true)
+             .Add( "mcnp_style_bound_decr="
+                 , "Use 'anchor' idea from MCNP instead of bounded/decreasing requirement on each edge"
+                 , fun s -> pars.mcnp_style_bound_decr <- Utils.true_string s
+                 , true)
+             .Add( "seq_interpolation="
+                 , "Use sequential interpolation"
+                 , fun s -> pars.seq_interpolation <- Utils.true_string s
+                 , true)
+             .Add( "iterative_reachability="
+                 , "Use iterative reachability proving"
+                 , fun s -> pars.iterative_reachability <- Utils.true_string s
+                 , true)
+        |> ignore
 
-           ; new ArgInfo( "-seq_interpolation"
-             , ArgType.String (fun s -> pars.seq_interpolation <- Utils.true_string s) 
-             , "Use sequential interpolation"
-             )
-           ; new ArgInfo( "-iterative_reachability"
-             , ArgType.String (fun s -> pars.iterative_reachability <- Utils.true_string s) 
-             , "Use iterative reachability proving"
-             )
-
-        ]
-    
-    ArgParser.Parse args
+    optionSet.Parse arguments |> ignore
 
     if (!mode).IsNone then
-        eprintfn "No valid action option (-tests, -termination, -safety, -CTL, -output_as) given"
+        eprintfn "No valid action option (--tests, --termination, --safety, --CTL, --output_as) given. Usage:"
+        optionSet.WriteOptionDescriptions(System.Console.Error, false)
         exit 3
 
     (!t2_input_file, (!mode).Value, pars, !fairness_constraint_string, !output_type, !output_file, !imperative_style, !java_nondet_style)

@@ -51,7 +51,7 @@ type parameters = {
     mutable print_log : bool
 
     /// Set to true to enable verbose debug logging spew from across T2
-    print_debug : bool
+    mutable print_debug : bool
 
     // ---------------------------- Program things ----------------------------
     /// Symbolic abstraction: change constants in the program from 5 to var5.  Constraints are added
@@ -177,7 +177,7 @@ let defaultParameters =
         lex_term_proof_first = true
         mcnp_style_bound_decr = false
 
-        safety_implementation = Impact
+        safety_implementation = Spacer 
         dottify_reachability = false
         dottify_input_pgms = false
         sanity_checking = true
