@@ -36,6 +36,11 @@ type State_Formula =
     | And of CTLStar_Formula * CTLStar_Formula
     | Or of CTLStar_Formula * CTLStar_Formula
 
+    member self.IsExistential = 
+        match self with
+        | E e1 -> true
+        | _ -> false
+
 and Path_Formula =
 
     | F of CTLStar_Formula    

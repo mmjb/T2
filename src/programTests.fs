@@ -126,6 +126,7 @@ let register_tests (pars : Parameters.parameters) =
         Some (Absparse.Fairness_constraint Absflex.token lexbuf)
     let bottomUp_prover p actl_fmla fairness_constraint = Termination.bottomUpProver ctl_pars p actl_fmla false fairness_constraint
     let CTLStar_prover p ctls_fmla = Termination.CTLStar_Prover ctl_pars p ctls_fmla false
+    
     let inline register_CTL_SAT_test file property fairness_constraint =
         Test.register_test true (ctlTestName file property fairness_constraint) (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) (Some true))
     let inline register_CTL_SAT_testd file property fairness_constraint =

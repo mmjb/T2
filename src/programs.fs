@@ -493,6 +493,10 @@ type Program private (parameters : Parameters.parameters) =
         transitionFromCache <- None
         findLoopsCache <- None
 
+
+    member self.AddVariable var =
+        self.Variables <- Set.add var self.Variables
+
     ///Remove transition with index idx from the program
     member self.RemoveTransition idx =
         self.TransitionsArray.[idx] <- (-1, [], -1)
