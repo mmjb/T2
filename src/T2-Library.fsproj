@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <Name>T2-Library</Name>
+    <NuGetPackageImportStamp>39d0931d</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -61,7 +62,14 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
+  <Import Project="packages\FsLexYacc.6.1.0\build\FsLexYacc.targets" Condition="Exists('packages\FsLexYacc.6.1.0\build\FsLexYacc.targets')" />
   <ItemGroup>
+    <FsLex Include="absflex.fsl">
+      <OtherFlags></OtherFlags>
+    </FsLex>
+    <FsYacc Include="absparse.fsy">
+      <OtherFlags>--module Microsoft.Research.T2.Absparse</OtherFlags>
+    </FsYacc>
     <Compile Include="utils.fs" />
     <Compile Include="parameters.fs" />
     <Compile Include="log.fs" />
@@ -102,8 +110,13 @@
     <Compile Include="absflex.fs" />
     <Compile Include="ctl_parser.fs" />
     <Compile Include="input.fs" />
+    <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FsLexYacc.Runtime">
+      <HintPath>packages\FsLexYacc.Runtime.6.1.0\lib\net40\FsLexYacc.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -123,5 +136,11 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)/libz3.dll" DestinationFolder="$(TargetDir)" Condition=" '$(OS)' != 'Unix'" />
     <Copy SourceFiles="$(ProjectDir)/libz3.so" DestinationFolder="$(TargetDir)" Condition=" '$(OS)' == 'Unix'" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\FsLexYacc.6.1.0\build\FsLexYacc.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\FsLexYacc.6.1.0\build\FsLexYacc.targets'))" />
   </Target>
 </Project>

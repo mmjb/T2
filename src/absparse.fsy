@@ -67,11 +67,11 @@ let normalize_var (v : string) =
 %type <CTL.CTLStar_Formula> CTLStar_formula
 %type <CTL.State_Formula> State_formula
 %type <CTL.Path_Formula> Path_formula
-%type <parsedLoc * parsedLoc * (parsedLoc * Programs.command list * parsedLoc) list * (Var.var * Var.var) list * bool> program
-%type <(parsedLoc * Programs.command list * parsedLoc) list> blocks
-%type <parsedLoc * Programs.command list * parsedLoc> block
-%type <Programs.command> command
-%type <Programs.command list> commands
+%type <parsedLoc * parsedLoc * (parsedLoc * Programs.Command list * parsedLoc) list * (Var.var * Var.var) list * bool> program
+%type <(parsedLoc * Programs.Command list * parsedLoc) list> blocks
+%type <parsedLoc * Programs.Command list * parsedLoc> block
+%type <Programs.Command> command
+%type <Programs.Command list> commands
 %type <Formula.formula> formula
 %type <Term.term> term
 %type <bigint> num

@@ -1,4 +1,4 @@
-# 1 "absflex.fsl"
+# 1 ".\absflex.fsl"
  
 // Copyright (c) Microsoft Corporation
 //
@@ -28,7 +28,7 @@ open Absparse
 let lexerror msg lexbuf = (Printf.printf "Unimplemented %s" msg; failwith "error")
 
 
-# 31 "absflex.fs"
+# 31 ".\absflex.fs"
 let trans : uint16[] array = 
     [| 
    (* State 0 *)
@@ -307,305 +307,305 @@ and token  (lexbuf : Microsoft.FSharp.Text.Lexing.LexBuffer<_>) = _fslex_token  
 and _fslex_token  _fslex_state lexbuf =
   match _fslex_tables.Interpret(_fslex_state,lexbuf) with
   | 0 -> ( 
-# 38 "absflex.fsl"
+# 38 ".\absflex.fsl"
                                          token lexbuf
-# 312 "absflex.fs"
+# 312 ".\absflex.fs"
           )
   | 1 -> ( 
-# 39 "absflex.fsl"
+# 39 ".\absflex.fsl"
                                          ParseError.noteNewline lexbuf.EndPos.AbsoluteOffset;
                                          token lexbuf
                                        
-# 319 "absflex.fs"
+# 319 ".\absflex.fs"
           )
   | 2 -> ( 
-# 44 "absflex.fsl"
+# 44 ".\absflex.fsl"
                                          ParseError.noteNewline lexbuf.EndPos.AbsoluteOffset;
                                          token lexbuf
                                         
-# 326 "absflex.fs"
+# 326 ".\absflex.fs"
           )
   | 3 -> ( 
-# 49 "absflex.fsl"
+# 49 ".\absflex.fsl"
                        begin
                        failwith "error"
                      end 
-# 333 "absflex.fs"
+# 333 ".\absflex.fs"
           )
   | 4 -> ( 
-# 54 "absflex.fsl"
+# 54 ".\absflex.fsl"
                                          begin
                                          ParseError.noteNewline lexbuf.EndPos.AbsoluteOffset;
                                          token lexbuf
                                          end 
-# 341 "absflex.fs"
+# 341 ".\absflex.fs"
           )
   | 5 -> ( 
-# 60 "absflex.fsl"
+# 60 ".\absflex.fsl"
                        
                        let str = System.Text.Encoding.Default.GetString(lexbuf.Lexeme)
                        (* get rid of first and last characters *)
                        String(str.Substring(1, str.Length - 2))
                      
-# 350 "absflex.fs"
+# 350 ".\absflex.fs"
           )
   | 6 -> ( 
-# 66 "absflex.fsl"
+# 66 ".\absflex.fsl"
                                                token lexbuf 
-# 355 "absflex.fs"
+# 355 ".\absflex.fs"
           )
   | 7 -> ( 
-# 68 "absflex.fsl"
+# 68 ".\absflex.fsl"
                                        TO 
-# 360 "absflex.fs"
+# 360 ".\absflex.fs"
           )
   | 8 -> ( 
-# 69 "absflex.fsl"
+# 69 ".\absflex.fsl"
                                         FROM 
-# 365 "absflex.fs"
+# 365 ".\absflex.fs"
           )
   | 9 -> ( 
-# 70 "absflex.fsl"
+# 70 ".\absflex.fsl"
                                              CUTPOINT 
-# 370 "absflex.fs"
+# 370 ".\absflex.fs"
           )
   | 10 -> ( 
-# 71 "absflex.fsl"
+# 71 ".\absflex.fsl"
                                            NONDET 
-# 375 "absflex.fs"
+# 375 ".\absflex.fs"
           )
   | 11 -> ( 
-# 72 "absflex.fsl"
+# 72 ".\absflex.fsl"
                                            NONDET 
-# 380 "absflex.fs"
+# 380 ".\absflex.fs"
           )
   | 12 -> ( 
-# 73 "absflex.fsl"
+# 73 ".\absflex.fsl"
                                            SHADOW 
-# 385 "absflex.fs"
+# 385 ".\absflex.fs"
           )
   | 13 -> ( 
-# 74 "absflex.fsl"
+# 74 ".\absflex.fsl"
                                          START 
-# 390 "absflex.fs"
+# 390 ".\absflex.fs"
           )
   | 14 -> ( 
-# 75 "absflex.fsl"
+# 75 ".\absflex.fsl"
                                       AT 
-# 395 "absflex.fs"
+# 395 ".\absflex.fs"
           )
   | 15 -> ( 
-# 78 "absflex.fsl"
+# 78 ".\absflex.fsl"
                          F
-# 400 "absflex.fs"
+# 400 ".\absflex.fs"
           )
   | 16 -> ( 
-# 79 "absflex.fsl"
+# 79 ".\absflex.fsl"
                          G
-# 405 "absflex.fs"
+# 405 ".\absflex.fs"
           )
   | 17 -> ( 
-# 80 "absflex.fsl"
+# 80 ".\absflex.fsl"
                          X
-# 410 "absflex.fs"
+# 410 ".\absflex.fs"
           )
   | 18 -> ( 
-# 81 "absflex.fsl"
+# 81 ".\absflex.fsl"
                          W
-# 415 "absflex.fs"
+# 415 ".\absflex.fs"
           )
   | 19 -> ( 
-# 82 "absflex.fsl"
+# 82 ".\absflex.fsl"
                          U
-# 420 "absflex.fs"
+# 420 ".\absflex.fs"
           )
   | 20 -> ( 
-# 83 "absflex.fsl"
+# 83 ".\absflex.fsl"
                          A
-# 425 "absflex.fs"
+# 425 ".\absflex.fs"
           )
   | 21 -> ( 
-# 84 "absflex.fsl"
+# 84 ".\absflex.fsl"
                          E
-# 430 "absflex.fs"
+# 430 ".\absflex.fs"
           )
   | 22 -> ( 
-# 85 "absflex.fsl"
+# 85 ".\absflex.fsl"
                              AF
-# 435 "absflex.fs"
+# 435 ".\absflex.fs"
           )
   | 23 -> ( 
-# 86 "absflex.fsl"
+# 86 ".\absflex.fsl"
                              AG
-# 440 "absflex.fs"
+# 440 ".\absflex.fs"
           )
   | 24 -> ( 
-# 87 "absflex.fsl"
+# 87 ".\absflex.fsl"
                              AW
-# 445 "absflex.fs"
+# 445 ".\absflex.fs"
           )
   | 25 -> ( 
-# 88 "absflex.fsl"
+# 88 ".\absflex.fsl"
                              AX
-# 450 "absflex.fs"
+# 450 ".\absflex.fs"
           )
   | 26 -> ( 
-# 89 "absflex.fsl"
+# 89 ".\absflex.fsl"
                              EF
-# 455 "absflex.fs"
+# 455 ".\absflex.fs"
           )
   | 27 -> ( 
-# 90 "absflex.fsl"
+# 90 ".\absflex.fsl"
                              EG
-# 460 "absflex.fs"
+# 460 ".\absflex.fs"
           )
   | 28 -> ( 
-# 91 "absflex.fsl"
+# 91 ".\absflex.fsl"
                              EU
-# 465 "absflex.fs"
+# 465 ".\absflex.fs"
           )
   | 29 -> ( 
-# 92 "absflex.fsl"
+# 92 ".\absflex.fsl"
                              EX
-# 470 "absflex.fs"
+# 470 ".\absflex.fs"
           )
   | 30 -> ( 
-# 95 "absflex.fsl"
+# 95 ".\absflex.fsl"
                                          COMMA 
-# 475 "absflex.fs"
+# 475 ".\absflex.fs"
           )
   | 31 -> ( 
-# 96 "absflex.fsl"
+# 96 ".\absflex.fsl"
                                                 LPAREN 
-# 480 "absflex.fs"
+# 480 ".\absflex.fs"
           )
   | 32 -> ( 
-# 97 "absflex.fsl"
+# 97 ".\absflex.fsl"
                                                 RPAREN 
-# 485 "absflex.fs"
+# 485 ".\absflex.fs"
           )
   | 33 -> ( 
-# 98 "absflex.fsl"
+# 98 ".\absflex.fsl"
                                                 PLUS 
-# 490 "absflex.fs"
+# 490 ".\absflex.fs"
           )
   | 34 -> ( 
-# 99 "absflex.fsl"
+# 99 ".\absflex.fsl"
                                                 MINUS 
-# 495 "absflex.fs"
+# 495 ".\absflex.fs"
           )
   | 35 -> ( 
-# 100 "absflex.fsl"
+# 100 ".\absflex.fsl"
                                                 STAR 
-# 500 "absflex.fs"
+# 500 ".\absflex.fs"
           )
   | 36 -> ( 
-# 101 "absflex.fsl"
+# 101 ".\absflex.fsl"
                                          DIV  
-# 505 "absflex.fs"
+# 505 ".\absflex.fs"
           )
   | 37 -> ( 
-# 102 "absflex.fsl"
+# 102 ".\absflex.fsl"
                                          NOT  
-# 510 "absflex.fs"
+# 510 ".\absflex.fs"
           )
   | 38 -> ( 
-# 103 "absflex.fsl"
+# 103 ".\absflex.fsl"
                                          REM  
-# 515 "absflex.fs"
+# 515 ".\absflex.fs"
           )
   | 39 -> ( 
-# 104 "absflex.fsl"
+# 104 ".\absflex.fsl"
                                          SEMICOLON  
-# 520 "absflex.fs"
+# 520 ".\absflex.fs"
           )
   | 40 -> ( 
-# 105 "absflex.fsl"
+# 105 ".\absflex.fsl"
                                          COLON 
-# 525 "absflex.fs"
+# 525 ".\absflex.fs"
           )
   | 41 -> ( 
-# 106 "absflex.fsl"
+# 106 ".\absflex.fsl"
                                                 LT 
-# 530 "absflex.fs"
+# 530 ".\absflex.fs"
           )
   | 42 -> ( 
-# 107 "absflex.fsl"
+# 107 ".\absflex.fsl"
                                                 GT 
-# 535 "absflex.fs"
+# 535 ".\absflex.fs"
           )
   | 43 -> ( 
-# 108 "absflex.fsl"
+# 108 ".\absflex.fsl"
                                          LE 
-# 540 "absflex.fs"
+# 540 ".\absflex.fs"
           )
   | 44 -> ( 
-# 109 "absflex.fsl"
+# 109 ".\absflex.fsl"
                                          GE 
-# 545 "absflex.fs"
+# 545 ".\absflex.fs"
           )
   | 45 -> ( 
-# 110 "absflex.fsl"
+# 110 ".\absflex.fsl"
                                          EQ 
-# 550 "absflex.fs"
+# 550 ".\absflex.fs"
           )
   | 46 -> ( 
-# 111 "absflex.fsl"
+# 111 ".\absflex.fsl"
                                         EQ 
-# 555 "absflex.fs"
+# 555 ".\absflex.fs"
           )
   | 47 -> ( 
-# 112 "absflex.fsl"
+# 112 ".\absflex.fsl"
                                          NE 
-# 560 "absflex.fs"
+# 560 ".\absflex.fs"
           )
   | 48 -> ( 
-# 113 "absflex.fsl"
+# 113 ".\absflex.fsl"
                                          ASSIGN 
-# 565 "absflex.fs"
+# 565 ".\absflex.fs"
           )
   | 49 -> ( 
-# 114 "absflex.fsl"
+# 114 ".\absflex.fsl"
                                          ASSUME 
-# 570 "absflex.fs"
+# 570 ".\absflex.fs"
           )
   | 50 -> ( 
-# 115 "absflex.fsl"
+# 115 ".\absflex.fsl"
                                          AND_OP 
-# 575 "absflex.fs"
+# 575 ".\absflex.fs"
           )
   | 51 -> ( 
-# 116 "absflex.fsl"
+# 116 ".\absflex.fsl"
                                          OR_OP 
-# 580 "absflex.fs"
+# 580 ".\absflex.fs"
           )
   | 52 -> ( 
-# 117 "absflex.fsl"
+# 117 ".\absflex.fsl"
                                              Num(bigint.Parse (System.Text.Encoding.Default.GetString(lexbuf.Lexeme))) 
-# 585 "absflex.fs"
+# 585 ".\absflex.fs"
           )
   | 53 -> ( 
-# 118 "absflex.fsl"
+# 118 ".\absflex.fsl"
                                                              Id    (System.Text.Encoding.Default.GetString(lexbuf.Lexeme)) 
-# 590 "absflex.fs"
+# 590 ".\absflex.fs"
           )
   | 54 -> ( 
-# 119 "absflex.fsl"
+# 119 ".\absflex.fsl"
                                                 EOF 
-# 595 "absflex.fs"
+# 595 ".\absflex.fs"
           )
   | 55 -> ( 
-# 120 "absflex.fsl"
+# 120 ".\absflex.fsl"
                                               
                                          begin
                                            lexerror ("Illegal Character '" + 
                                                      (System.Text.Encoding.Default.GetString(lexbuf.Lexeme))) lexbuf;
                                            token lexbuf
                                          end 
-# 605 "absflex.fs"
+# 605 ".\absflex.fs"
           )
   | _ -> failwith "token"
 
-# 132 "absflex.fsl"
+# 132 ".\absflex.fsl"
 
-# 3000000 "absflex.fs"
+# 3000000 ".\absflex.fs"

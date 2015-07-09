@@ -224,7 +224,6 @@ let quickSolve fs = internalSolve (Some 500u) fs
 let fresh_var _ = var (Gensym.fresh_var())
 let fresh_bool_var _ = bool_var (Gensym.fresh_var())
 let fresh_var_list n : ArithExpr list = List.map (fun v -> upcast fresh_var v) [for i in [1 .. n] do yield i]
-let fresh_vars c = RowVector.Generic.init c fresh_var
 
 let get_model_int (m:Model) x =
         match (m.Eval x) with

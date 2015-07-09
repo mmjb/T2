@@ -49,6 +49,9 @@ let register_tests (pars : Parameters.parameters) =
     let safetyTestName filename loc =
         sprintf "Safety test %s [loc %i]" filename loc
 
+    let ctlStarTestName filename ctlStarProperty =
+        sprintf "CTL* test %s [prop '%s']"filename ctlStarProperty
+
     let ctlTestName filename ctlProperty fairnessCond =
         match fairnessCond with
         | Some fairCond ->
@@ -140,15 +143,15 @@ let register_tests (pars : Parameters.parameters) =
     let inline register_CTL_FAIL_testd file property fairness_constraint =
         Test.register_testd true (fun () -> t2_run_temporal ctl_pars bottomUp_prover file property (parse_fairness_constraint fairness_constraint) None)
     let inline register_CTLStar_SAT_test file property =
-        Test.register_test true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some true))    
+        Test.register_test true (ctlStarTestName file property) (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some true))    
     let inline register_CTLStar_SAT_testd file property =
         Test.register_testd true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some true))    
     let inline register_CTLStar_UNSAT_test file property =
-        Test.register_test true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some false))
+        Test.register_test true (ctlStarTestName file property) (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some false))
     let inline register_CTLStar_UNSAT_testd file property =
         Test.register_testd true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property (Some false))  
     let inline register_CTLStar_FAIL_test file property =
-        Test.register_test true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property None)
+        Test.register_test true (ctlStarTestName file property) (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property None)
     let inline register_CTLStar_FAIL_testd file property =
         Test.register_testd true (fun () -> t2_run_CTLStar ctl_pars CTLStar_prover file property None)
 
