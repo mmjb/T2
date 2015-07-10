@@ -157,7 +157,7 @@ let register_tests (pars : Parameters.parameters) =
 
 
     // Small, manually crafted examples ---------------------------------------------------
-    register_term_test "testsuite/small01.t2"
+    (*register_term_test "testsuite/small01.t2"
     register_safety_test "testsuite/small02.t2"
     register_safety_test "testsuite/small03.t2"
     register_safety_test "testsuite/small04.t2"
@@ -391,7 +391,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "st88b.t2" "[EF]([AG](WItemsNum < 1))" None
 
     register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
-    register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
+    register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None*)
     
 
     register_CTLStar_UNSAT_test "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
