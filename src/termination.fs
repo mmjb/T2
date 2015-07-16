@@ -1035,7 +1035,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
             propertyMap.Union(preCond_map)
  
     | CTL.AG e
-    | CTL.AF e ->   
+    | CTL.AF e ->  
         //First get subresults
         if nest_level >= 0 then
             bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore               
@@ -1343,6 +1343,7 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                        | CTL.Path_Formula.X e2 -> (snd<|starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl, None)
                                        | CTL.Path_Formula.W (e2,e3) -> (snd<|starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl,
                                                                             snd<|starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl)
+
                                    let new_F = convert_star_CTL f e_sub1 e_sub2       
                                    let ret_value = 
                                         if (!is_ltl) then
@@ -1429,6 +1430,9 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
                 let cmd = [Programs.assume (Formula.Gt(Term.Var(proph_var),Term.Const(bigint.Zero)));
                             Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
                 p_det.SetTransition n (k,c@cmd,k')
+                let cmd = [Programs.assume (Formula.Lt(Term.Var(proph_var),Term.Const(bigint.Zero)));
+                            Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
+                p_det.AddTransition k (c@cmd) k'
                 if same_loc then
                     proph_map := (!proph_map).Remove(k)
                     proph_map := (!proph_map).Add(k,(Set.empty,outnode))
@@ -1438,7 +1442,8 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
                 p_det.AddTransition proph_node [Programs.assign proph_var (Term.Nondet)] k'
                 p_det.RemoveTransition n
 
-    //Programs.print_dot_program p_det "input__determinized.dot"      
+    if pars.dottify_input_pgms then
+                        Output.print_dot_program p_det "input__determinized.dot"    
     
     //Under CTL semantics, it is assumed that all paths are infinite. We thus add infinite loops to any terminating paths unless we are explicitly proving termination.
     //For example, we would be proving AF x instead of AF x || termination, which is what is proved if the path is not infinite.
