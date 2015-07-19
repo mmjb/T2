@@ -157,7 +157,7 @@ let register_tests (pars : Parameters.parameters) =
 
 
     // Small, manually crafted examples ---------------------------------------------------
-    (*register_term_test "testsuite/small01.t2"
+    register_term_test "testsuite/small01.t2"
     register_safety_test "testsuite/small02.t2"
     register_safety_test "testsuite/small03.t2"
     register_safety_test "testsuite/small04.t2"
@@ -391,8 +391,9 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "st88b.t2" "[EF]([AG](WItemsNum < 1))" None
 
     register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
-    register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None*)
+    register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
     
+    //Timeouts for CTL* are commented out. 
 
     register_CTLStar_UNSAT_test "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
     register_CTLStar_SAT_test "1394complete-succeed-2.t2" "E F((A F(phi_io_compl > 0)) && (A G(F (phi_nSUC_ret <= 0))))"
@@ -402,8 +403,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTLStar_SAT_test "ppblock.t2" "E F(PPBlockInits > 0  && ( ( (E F(G (IoCreateDevice != 1))) || (A G( F(status == 1))) ) && (E G(PPBunlockInits <= 0)) ) )" 
     //Program is about 110 - 400 lines of code.   
     register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "E F(G ((tt > 0) || (A F (wakend == 0)) ))" //Generation
-    //register_CTLStar_SAT_testd "e-pgarch-succeed.t2" "A G(F ((tt <= 0) && (E G (wakend == 1)) ))" //Generation
-    register_CTLStar_SAT_testd "e-pgarch-succeed.t2" "A G(F (tt <= 0))" //Generation
+    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "A G(F ((tt <= 0) && (E G (wakend == 1)) ))" //Generation
     register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E F(G( (wakend == 1) && (E G (F (wakend == 0))) ))"
     register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E G(F (A G (wakend == 1)))"
     register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "A F(G (E F (wakend == 0)))"
