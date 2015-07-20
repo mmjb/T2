@@ -103,7 +103,6 @@ let do_interval_AI_on_program (pars : Parameters.parameters) (p:Programs.Program
     *)
     if pars.do_ai_threshold > p.TransitionNumber then
         for (n, (k, c, k')) in p.TransitionsWithIdx do
-            let (k,c,k') = p.GetTransition n
             if pp_to_interval.ContainsKey k then
                 //if(node_to_scc_nodes.ContainsKey k then
                     //let used_vars = scc_to_scc_vars.[node_to_scc_nodes.[k]]
@@ -1173,7 +1172,6 @@ let make_program_infinite (p : Programs.Program) =
            dead_ends <- Set.remove k dead_ends
 
     for (n, (k, c, k')) in p.TransitionsWithIdx do
-        let (k,c,k') = p.GetTransition n
         if k = p.Initial then
             p.SetTransition n (k, c @ [Programs.assign Formula.fair_term_var (Term.Const(bigint.Zero))],k')
         else if (p_loops.ContainsKey k') && not(Set.contains k' visited) then
@@ -1380,8 +1378,7 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
     let p_det = p.Clone()
     let nodes_count = new System.Collections.Generic.Dictionary<int, int list>() 
     //To Marc: What is the purpose of defining k,c,k' twice when using this new class?
-    for (n, (k, c, k')) in p.TransitionsWithIdx do 
-        let (k,c,k') = p.GetTransition n 
+    for (k, _, k') in p.Transitions do
         if nodes_count.ContainsKey k then
             nodes_count.[k] <- k'::nodes_count.[k] 
         else
@@ -1416,8 +1413,7 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
         //Adding the prophecy variable for branching point n.
         p_det.AddVariable ((Formula.proph_var_det) + n.ToString())
     //Now we determinize the program using the prophecy predicates in proph_map 
-    for (n,(k,c,k')) in p_det.TransitionsWithIdx do 
-        let (k,c,k') = p_det.GetTransition n  
+    for (n, (k,c,k')) in p_det.TransitionsWithIdx do 
         if (!proph_map).ContainsKey k then
             let (sccnode,outnode) = (!proph_map).[k]
             let proph_var : Var.var = (Formula.proph_var_det) + k.ToString()
