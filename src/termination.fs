@@ -1151,14 +1151,10 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
     | CTL.EU _ ->
         raise (new System.NotImplementedException "EU constraints not yet implemented")
 
-    let propertyMap =
-                       if fairness_constraint.IsSome then
-                            let formulaMap = propertyMap.[f]
-                            propertyMap.Remove(f) |> ignore
-                            propertyMap.Union(quantify_proph_var f.IsExistential f formulaMap "fair_proph")
-                            propertyMap
-                       else
-                            propertyMap
+    if fairness_constraint.IsSome then
+        let formulaMap = propertyMap.[f]
+        propertyMap.Remove(f) |> ignore
+        propertyMap.Union(quantify_proph_var f.IsExistential f formulaMap "fair_proph")
 
     ret_value
 
