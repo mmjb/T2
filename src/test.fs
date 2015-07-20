@@ -80,6 +80,7 @@ let run_tests timeout  =
                 printf "OK after "
             else
                 printf "FAIL after "
+                failed := testName :: !failed;
             printf "%A\n" (System.DateTime.Now.Subtract start_time)
         with
             | :? System.TimeoutException ->
