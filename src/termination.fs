@@ -1335,8 +1335,8 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                        match e1 with
                                        | CTL.Path_Formula.F e2 | CTL.Path_Formula.G e2 
                                        | CTL.Path_Formula.X e2 -> (snd<|starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl, None)
-                                       | CTL.Path_Formula.W (e2,e3) -> (snd<|starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl,
-                                                                            snd<|starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl)
+                                       | CTL.Path_Formula.W (e2,e3) -> (snd <| starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl,
+                                                                        snd <| starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e3 termination_only is_ltl)
 
                                    let new_F = convert_star_CTL f e_sub1 e_sub2       
                                    let ret_value = 
