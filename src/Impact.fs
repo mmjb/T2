@@ -66,14 +66,14 @@ let private make_prio_map (p: Programs.Program) (error_loc: int) =
 
     while todo.Count > 0 do
         let (node, dist) = todo.Dequeue()
-        if res.ContainsKey node then
+        if not (res.ContainsKey node) then
             res.[node] <- dist
             for (pred, _, _) in in_trans.[node] do
                 todo.Enqueue(pred, dist - 1)
 
     //Whoever has no weight does not even reach error_loc. Make them go last:
     for node in all_nodes do
-        if res.ContainsKey node then
+        if not (res.ContainsKey node) then
             res.[node] <- System.Int32.MinValue
 
     res

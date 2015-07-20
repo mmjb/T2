@@ -51,7 +51,7 @@ type parameters = {
     mutable print_log : bool
 
     /// Set to true to enable verbose debug logging spew from across T2
-    print_debug : bool
+    mutable print_debug : bool
 
     // ---------------------------- Program things ----------------------------
     /// Symbolic abstraction: change constants in the program from 5 to var5.  Constraints are added

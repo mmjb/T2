@@ -4,6 +4,8 @@ defect.t2
 defect.tt
 *.dot
 *~
+absflex.fs
+absparse.fs
 absparse.fsi
 *.suo
 src/packages
