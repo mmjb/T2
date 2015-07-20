@@ -339,16 +339,16 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "1394complete-fail.t2" "[AG](phi_io_compl <= 0) || [AG](phi_nSUC_ret <= 0)" None
     register_CTL_UNSAT_test "1394complete-fail2.t2" "[EF](phi_io_compl > 0) && [EF](phi_nSUC_ret > 0)" None
     ////////////////////////////////////////////////////////////////////////////////////////
-    register_CTL_SAT_test "acqrel-succeed.t2" "[AG](A == 0 || [AF](R == 1)) " None
-    register_CTL_SAT_test "acqrel-succeed.t2" "[AG](A == 0 || [EF](R == 1)) " None
-    register_CTL_SAT_test "acqrel-succeed.t2" "[EF](A == 1 && [AG](R == 0)) " None
-    register_CTL_SAT_test "acqrel-succeed.t2" "[EG](A == 0 || [EG](R == 0)) " None
-    register_CTL_SAT_test "acqrel-succeed.t2" "[AF](A == 0 || [EG](R == 0)) " None
+    register_CTL_SAT_test "acqrel-succeed.t2" "[AG](Ar == 0 || [AF](Rr == 1)) " None
+    register_CTL_SAT_test "acqrel-succeed.t2" "[AG](Ar == 0 || [EF](Rr == 1)) " None
+    register_CTL_SAT_test "acqrel-succeed.t2" "[EF](Ar == 1 && [AG](Rr == 0)) " None
+    register_CTL_SAT_test "acqrel-succeed.t2" "[EG](Ar == 0 || [EG](Rr == 0)) " None
+    register_CTL_SAT_test "acqrel-succeed.t2" "[AF](Ar == 0 || [EG](Rr == 0)) " None
 
-    register_CTL_UNSAT_test "acqrel-succeed.t2" "[AF](A == 1 && [AF](R == 1)) " None
-    register_CTL_UNSAT_test "acqrel-succeed.t2" "[EF](A == 1 && [AG](R == 5)) " None
-    register_CTL_UNSAT_test "acqrel-succeed.t2" "[AG](A == 1 && [AG](R == 5)) " None
-    register_CTL_UNSAT_test "acqrel-succeed.t2" "[AG](A == 0 || [EF](R == 5)) " None
+    register_CTL_UNSAT_test "acqrel-succeed.t2" "[AF](Ar == 1 && [AF](Rr == 1)) " None
+    register_CTL_UNSAT_test "acqrel-succeed.t2" "[EF](Ar == 1 && [AG](Rr == 5)) " None
+    register_CTL_UNSAT_test "acqrel-succeed.t2" "[AG](Ar == 1 && [AG](Rr == 5)) " None
+    register_CTL_UNSAT_test "acqrel-succeed.t2" "[AG](Ar == 0 || [EF](Rr == 5)) " None
     ////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "pgarch-succeed.t2" "[AG]([AF](wakend == 1))" None
     register_CTL_SAT_test "pgarch-succeed.t2" "[AG]([EF](wakend == 1))" None
