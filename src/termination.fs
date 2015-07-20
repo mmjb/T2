@@ -58,7 +58,7 @@ let simplify_scc (pars : Parameters.parameters) p termination_only (cp_rf: Syste
             if pars.print_debug then
                 let (k,_,k') = p.GetTransition trans_idx
                 Log.debug pars <| sprintf "Removing trans %i->%i" k k'
-            let scc_trans_num = Seq.concat (scc_trans |> Set.map(fun (x,y) -> x )) |> Set.ofSeq
+            let scc_trans_num = Seq.concat (scc_trans |> Set.map(fun (x, _) -> x )) |> Set.ofSeq
             if (termination_only || (Set.isEmpty (Set.difference scc_trans_num trans_to_remove))) && pars.lex_term_proof_first then
                 p.RemoveTransition trans_idx
                 cleaned_scc_rels <- Set.filter (fun (i, _, _, _) -> not <| Set.contains i trans_to_remove') cleaned_scc_rels
@@ -373,7 +373,7 @@ let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existentia
     //First propagate preconditions to sccs contained within the loop
     let (propertyMap, preStrengthSet) = propagateToTransitions p_orig f pi_mod cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
     //Second, propagate upwards to non-cp nodes that are not part of any SCCS.
-    let sccs_vals = p_orig_sccs |> Map.filter(fun x y -> x <> cutp) |> Map.toSeq |> Seq.map snd |> Seq.fold (fun acc elem -> Seq.append elem acc) Seq.empty |> Set.ofSeq
+    let sccs_vals = p_orig_sccs |> Map.filter(fun x _ -> x <> cutp) |> Map.toSeq |> Seq.map snd |> Seq.fold (fun acc elem -> Seq.append elem acc) Seq.empty |> Set.ofSeq
     if sccs_vals.Contains cutp || r then
         let mutable cp_reached = false
         let mutable found_cp = false
@@ -625,8 +625,8 @@ let insertForRerun
 
 let find_instrumented_loops (p_instrumented : Programs.Program) (p_orig_loops : Map<int, Set<int>>) (loc_to_loopduploc: Map<int, int>) =
     let (p_instrumented_loops, p_instrumented_sccs) = p_instrumented.FindLoops()
-    let loc_to_loopduploc = loc_to_loopduploc |> Map.filter (fun x y -> p_orig_loops.ContainsKey x)
-    let duplicated_nodes = loc_to_loopduploc |> Map.toList |> List.map(fun (x,y) -> y)
+    let loc_to_loopduploc = loc_to_loopduploc |> Map.filter (fun x _ -> p_orig_loops.ContainsKey x)
+    let duplicated_nodes = loc_to_loopduploc |> Map.toList |> List.map snd
     let to_add = Set.difference (Set.ofList duplicated_nodes) (Set.ofSeq p_instrumented_loops.Keys)
 
     let regions = p_instrumented.GetIsolatedRegionsNonCP to_add
@@ -1283,9 +1283,9 @@ let convert_star_CTL (f:CTL.CTLStar_Formula) (e_sub1:CTL.CTL_Formula option) e_s
     let match_path_form (frm: CTL.Path_Formula) : CTL.CTL_Formula =
         let e_sub1 = retrieve_formula e_sub1
         match frm with
-        | CTL.Path_Formula.F e2-> CTL.AF e_sub1
-        | CTL.Path_Formula.G e2 -> CTL.AG e_sub1
-        | CTL.Path_Formula.X e2-> CTL.AX e_sub1
+        | CTL.Path_Formula.F _-> CTL.AF e_sub1
+        | CTL.Path_Formula.G _ -> CTL.AG e_sub1
+        | CTL.Path_Formula.X _-> CTL.AX e_sub1
         | CTL.Path_Formula.W (e2,e3) -> let e_sub2 = retrieve_formula e_sub2                                         
                                         CTL.AW (e_sub1,e_sub2)
         //The reason why U isn't included is because we currently only have support for AW and not AU
@@ -1297,12 +1297,12 @@ let convert_star_CTL (f:CTL.CTLStar_Formula) (e_sub1:CTL.CTL_Formula option) e_s
                      | CTL.A e1 -> match_path_form e1
                      | CTL.E e1 -> let e_sub1 = retrieve_formula e_sub1
                                    match e1 with
-                                   | CTL.Path_Formula.F e2-> CTL.EF e_sub1
-                                   | CTL.Path_Formula.G e2 -> CTL.EG e_sub1
-                                   | CTL.Path_Formula.X e2-> CTL.EX e_sub1
+                                   | CTL.Path_Formula.F _-> CTL.EF e_sub1
+                                   | CTL.Path_Formula.G _ -> CTL.EG e_sub1
+                                   | CTL.Path_Formula.X _-> CTL.EX e_sub1
                                    | CTL.Path_Formula.U (e2,e3) -> CTL.EU (e_sub1,retrieve_formula e_sub2)
-                     | CTL.And (e1,e2) -> CTL.CTL_And(retrieve_formula e_sub1 ,retrieve_formula e_sub2)
-                     | CTL.Or (e1,e2) ->  CTL.CTL_Or(retrieve_formula e_sub1 ,retrieve_formula e_sub2)
+                     | CTL.And _ -> CTL.CTL_And(retrieve_formula e_sub1 ,retrieve_formula e_sub2)
+                     | CTL.Or _ ->  CTL.CTL_Or(retrieve_formula e_sub1 ,retrieve_formula e_sub2)
                      | CTL.Atm a->  CTL.Atom a  
     
 let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz:Programs.Program) nest_level propertyMap (f:CTL.CTLStar_Formula) (termination_only:bool) is_ltl  =
@@ -1362,9 +1362,9 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                                 bottomUp pars p new_F termination_only nest_level None propertyMap
                                           (ret_value,Some(new_F))
                                           
-                     | CTL.Atm a-> let new_F = convert_star_CTL f None None
-                                   let ret_value = bottomUp pars p new_F termination_only nest_level None propertyMap
-                                   (ret_value,Some(new_F))
+                     | CTL.Atm _ -> let new_F = convert_star_CTL f None None
+                                    let ret_value = bottomUp pars p new_F termination_only nest_level None propertyMap
+                                    (ret_value,Some(new_F))
                      
 
 let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTLStar_Formula) (termination_only:bool) =             
@@ -1445,7 +1445,7 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
     //if not(termination_only) then make_program_infinite p ; make_program_infinite p_det
     let propertyMap = SetDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
     let is_ltl = ref false           
-    let (ret_value,ctl_form) = 
+    let (ret_value, _) = 
         try
             starBottomUp pars p p_det -1 propertyMap f termination_only is_ltl
         with
