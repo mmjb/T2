@@ -156,7 +156,7 @@ let defaultParameters =
         print_proof = false
         print_stats = true
 
-        print_log = false
+        print_log = true
         print_debug = false
 
         elim_constants = true
@@ -179,7 +179,7 @@ let defaultParameters =
 
         safety_implementation = Spacer
         dottify_reachability = false
-        dottify_input_pgms = false
+        dottify_input_pgms = true
         sanity_checking = true
         safety_counterexample = false
         fc_look_back = false
