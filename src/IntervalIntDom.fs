@@ -134,14 +134,16 @@ type Intervals =
                 let (l2,u2) = self.boundsOfTerm t2
 
                 //Only handle mult with constants
-                if (l1 = u1) then
+                if l1 = u1 then
                     match l1 with
-                        | C(c) -> (l2.const_mult c, u2.const_mult c)
-                        | _ -> (NegInf, PosInf)
-                else if (l2 = u2) then
+                    | C c when c < bigint.Zero -> (u2.const_mult c, l2.const_mult c)
+                    | C c when c >= bigint.Zero -> (l2.const_mult c, u2.const_mult c)
+                    | _ -> (NegInf, PosInf)
+                else if l2 = u2 then
                     match l2 with
-                        | C(c) -> (l1.const_mult c, u1.const_mult c)
-                        | _ -> (NegInf, PosInf)
+                    | C c when c < bigint.Zero -> (u1.const_mult c, l1.const_mult c)
+                    | C c when c >= bigint.Zero -> (l1.const_mult c, u1.const_mult c)
+                    | _ -> (NegInf, PosInf)
                 else
                     (NegInf, PosInf)
             | Nondet -> (NegInf, PosInf)
