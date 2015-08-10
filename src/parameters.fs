@@ -154,9 +154,9 @@ let defaultParameters =
         start_time = System.DateTime.Now
         timeout = 300.0
         print_proof = false
-        print_stats = true
+        print_stats = false 
 
-        print_log = true
+        print_log = false
         print_debug = false
 
         elim_constants = true
@@ -179,7 +179,7 @@ let defaultParameters =
 
         safety_implementation = Spacer
         dottify_reachability = false
-        dottify_input_pgms = true
+        dottify_input_pgms = false
         sanity_checking = true
         safety_counterexample = false
         fc_look_back = false
