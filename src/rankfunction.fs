@@ -555,7 +555,7 @@ let synthesis_lex_scc_trans_unaffected
             synthesis_lex_no_opt rel_to_add partial_order cp linterm_for_relation
         else
         let (_, scc_nodes) = loops_containing_cp.Head
-        let (scc_vars, _, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program pars p scc_nodes cp
+        let (scc_vars, _, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program pars p scc_nodes (Some cp)
 
         //Now construct a set of ranking functions for all considered states such that everything's weakly oriented and we are strictly oriented:
         let cleaned_scc_nodes = [ for (_, k, _, k') in scc_rels do yield! [k; k'] ] |> Set.ofList

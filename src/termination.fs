@@ -41,12 +41,12 @@ open Utils
 open SafetyInterface
 
 /// Tries to remove as many transitions as possible from a SCC. Returns a list of used rank functions/bounds.
-let simplify_scc (pars : Parameters.parameters) p termination_only (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all_cutpoints: Set<int>) cp scc_nodes =
-    let (scc_vars, scc_trans, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program pars p scc_nodes cp
+let simplify_scc (pars : Parameters.parameters) p termination_only (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all_cutpoints: Set<int>) scc_nodes =
+    let (scc_vars, scc_trans, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program pars p scc_nodes None
     let mutable cleaned_scc_rels = scc_rels
 
     if pars.print_debug then
-        Log.debug pars <| sprintf "CP %A has scc nodes %A, vars %A" cp scc_nodes scc_vars
+        Log.debug pars <| sprintf "SCC nodes %A, vars %A" scc_nodes scc_vars
         Log.debug pars <| sprintf "SCC transitions: "
         Log.debug pars <| (scc_trans |> Seq.map (fun t -> sprintf "  %A" t) |> String.concat "\n")
 
@@ -685,16 +685,15 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
 
     let (p_orig_loops, _) = p_orig.FindLoops()
     let scc_simplification_rfs = ref []
+    let cps = cps_checked_for_term |> Set.ofSeq
     if pars.lex_term_proof_first then
-        let (_, p_instrumented_sccs_plain) = p_instrumented.FindLoops()
+        let sccs = p_instrumented.GetSCCSGs()
         //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
-        let mutable seen_sccs = Set.empty
-        for scc in (Map.filter (fun cp _ -> Set.contains cp cps_checked_for_term) p_instrumented_sccs_plain) do
-            let (cp, scc_nodes) = (scc.Key, scc.Value)
-            if not(Set.contains scc_nodes seen_sccs) then
-                seen_sccs <- Set.add scc_nodes seen_sccs
+        for scc_nodes in sccs do
+            if not(Set.isEmpty (Set.intersect scc_nodes cps)) then //Only process loops in the duplicated part of the graph
+                Log.debug pars <| sprintf "Trying initial term proof for SCC [%s]" (String.concat ", " (Seq.map string scc_nodes))
                 Stats.startTimer "T2 - Initial lex. termination proof"
-                match simplify_scc pars p_instrumented termination_only cp_rf cps_checked_for_term cp scc_nodes with
+                match simplify_scc pars p_instrumented termination_only cp_rf cps_checked_for_term scc_nodes with
                 | Some (rfs, removed_transitions) ->
                     scc_simplification_rfs := (rfs, removed_transitions)::(!scc_simplification_rfs)
                 | None ->

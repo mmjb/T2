@@ -181,11 +181,12 @@ let program_absint start_pp start_intdom transitions command_filter =
     pp_to_intdom.Add(start_pp, start_intdom)
 
     /// Note the new integer values for program position pp. Returns true if this changed the current knowledge
-    let set_or_widen pp intdom =
-        if pp_to_intdom.ContainsKey pp then
-            pp_to_intdom.[pp].widen intdom
-        else
-            pp_to_intdom.Add(pp, intdom)
+    let set_or_widen pp (intdom : IIntAbsDom.IIntAbsDom) =
+        match pp_to_intdom.TryGetValue pp with
+        | (true, pp_intdom) ->
+            pp_intdom.widen intdom
+        | (false, _) -> 
+            pp_to_intdom.[pp] <- intdom
             true
 
     while todo.Count > 0 do

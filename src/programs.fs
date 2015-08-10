@@ -965,30 +965,6 @@ let chain_transitions nodes_to_consider transitions =
     // (3) The updated transitions are now in in_trans and out_trans:
     in_trans.Values |> Seq.concat |> Set.ofSeq
 
-///Returns all transitions reachable from cp that are not an artifact of the termination instrumentation, where copied is set
-let filter_out_copied_transitions (pars : Parameters.parameters) cp scc_transitions =
-    if pars.lexicographic then //if we didn't do lexicographic instrumentation, this optimization is unsound
-        let cleaned_scc_nodes = new System.Collections.Generic.HashSet<int>()
-        let mutable found_new_node = cleaned_scc_nodes.Add cp
-        while found_new_node do
-            found_new_node <- false
-            for (_, (k, cmds, k')) in scc_transitions do
-                if cleaned_scc_nodes.Contains k && not(cleaned_scc_nodes.Contains k') then
-                    //Ignore instrumentation transitions:
-                    let is_no_copy_transition =
-                           cmds
-                        |> Seq.filter
-                            (function | Assume(_,_) -> false
-                                      | Assign(_,var,term) -> (Formula.is_copied_var var) && term.Equals(Term.constant 1))
-                        |> Seq.isEmpty
-                    if is_no_copy_transition then
-                        found_new_node <- cleaned_scc_nodes.Add k'
-
-        scc_transitions
-        |> Set.filter (fun (_, (k, _, k')) -> cleaned_scc_nodes.Contains k && cleaned_scc_nodes.Contains k')
-    else
-        scc_transitions
-
 let add_const1_var_to_relation extra_pre_var extra_post_var rel =
     let (formula, prevars, postvars) = (Relation.formula rel, Relation.prevars rel, Relation.postvars rel)
     let newformula =

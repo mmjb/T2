@@ -265,13 +265,28 @@ let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * Tra
         |> Set.map (fun (idx, k, rel, k') -> (idx, k, Programs.add_const1_var_to_relation extra_pre_var extra_post_var rel, k'))
     (scc_vars.Add (Var.unprime_var extra_pre_var), scc_transitions, affine_scc_rels)
 
-let get_scc_rels_for_lex_rf_synth_from_program (pars : Parameters.parameters) (p:Programs.Program) (scc_nodes:Set<int>) (cp:int) =
+let get_scc_rels_for_lex_rf_synth_from_program (pars : Parameters.parameters) (p:Programs.Program) (scc_nodes:Set<int>) (cp : int option) =
+    let mutable scc_transitions = Set.empty
+    let scc_nodes_without_copy_nodes = System.Collections.Generic.HashSet()
+    for (k, cmds, k') in p.Transitions do
+        if scc_nodes.Contains k && scc_nodes.Contains k' then
+            let is_no_copy_transition =
+                   cmds
+                |> Seq.filter
+                    (function | Assume(_,_) -> false
+                              | Assign(_,var,term) -> (Formula.is_copied_var var) && term.Equals(Term.constant 1))
+                |> Seq.isEmpty
+            if is_no_copy_transition then
+                scc_nodes_without_copy_nodes.Add k' |> ignore
+
     let scc_transitions =
-           p.TransitionsWithIdx
-        |> Seq.map (fun (trans_idx, trans) -> (Set.singleton trans_idx, trans))
-        |> Set.ofSeq
-        |> Set.filter (fun (_, (k, _, k')) -> scc_nodes.Contains k && scc_nodes.Contains k')
-        |> Programs.filter_out_copied_transitions pars cp
-        |> Programs.chain_transitions (Set.remove cp scc_nodes)
+        p.TransitionsWithIdx
+        |> Seq.filter (fun (_, (k, _, k')) ->    scc_nodes_without_copy_nodes.Contains k 
+                                              && scc_nodes_without_copy_nodes.Contains k')
+        |> Seq.map (fun (trans_idx, (k, cmds, k')) -> (Set.singleton trans_idx, (k, cmds, k')))
+        |> List.ofSeq
+                          
+    let chainableLocs = if cp.IsSome then Set.remove cp.Value scc_nodes else scc_nodes
+    let scc_transitions = Programs.chain_transitions chainableLocs scc_transitions
 
     get_scc_rels_for_lex_rf_synth_from_trans scc_transitions
