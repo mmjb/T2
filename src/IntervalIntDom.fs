@@ -103,30 +103,31 @@ type Intervals =
                 let (l, u) = (self.boundsOfTerm t)
                 (u.negate, l.negate)
             | Add(t1,t2) ->
-                let (l1,u1) = self.boundsOfTerm t1
-                let (l2,u2) = self.boundsOfTerm t2
+                let (l1, u1) = self.boundsOfTerm t1
+                let (l2, u2) = self.boundsOfTerm t2
 
-                let mutable lr = NegInf
-                if l1 = NegInf || l2 = NegInf then
-                    lr <- NegInf
-                else
+                let lr = 
                     match (l1, l2) with
-                        | (C(c1), C(c2)) ->
-                            lr <- C(c1+c2)
-                        | (_,_) ->
-                             //If the lower bound is inf, then there is no integer number that is described by these intervals. HELP!
-                            assert (l1 <> PosInf && l2 <> PosInf);
+                    | (C c1, C c2) ->
+                        C (c1+c2)
+                    | (NegInf, _)
+                    | (_, NegInf) ->
+                        NegInf
+                    | (_,_) ->
+                         //If the lower bound is +inf, then the interval is empty!
+                        PosInf
 
-                let mutable ur = PosInf
-                if u1 = PosInf || u2 = PosInf then
-                    ur <- PosInf
-                else
+                let ur = 
                     match (u1, u2) with
-                        | (C(c1), C(c2)) ->
-                            ur <- C(c1+c2)
-                        | (_,_) ->
-                             //If the upper bound is -inf, then there is no integer number that is described by these intervals. HELP!
-                             assert (u1 <> NegInf && u2 <> NegInf);
+                    | (C c1, C c2) ->
+                        C (c1+c2)
+                    | (PosInf, _)
+                    | (_, PosInf) ->
+                        PosInf
+                    | (_,_) ->
+                         //If the lower bound is -inf, then the interval is empty!
+                        NegInf
+
                 (lr, ur)
             | Sub(t1,t2) -> self.boundsOfTerm (Add(t1,Neg(t2)))
             | Mul(t1,t2) ->
@@ -254,8 +255,8 @@ type Intervals =
                 self.setBoundsOfVar v (lv.max (lt.const_add bigint.One), uv)
             | Lt _ -> ()
             | Le(Var(v), t) ->
-                let (_,ut) = self.boundsOfTerm t
-                let (lv,uv) = self.boundsOfVar v
+                let (_, ut) = self.boundsOfTerm t
+                let (lv, uv) = self.boundsOfVar v
                 self.setBoundsOfVar v (lv, uv.min ut)
             | Le(t, Var(v)) ->
                 let (lt,_) = self.boundsOfTerm t
