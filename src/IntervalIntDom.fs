@@ -284,6 +284,9 @@ type Intervals =
                     | _                -> assert(false); //Illegal Interval!
         ] |> Formula.conj
 
+    member self.pp =
+        (self.to_formula_filtered (fun _ -> true)).pp
+
     interface IIntAbsDom with
         member self.tight_closure = ()
         member self.clone() = self.clone() :> IIntAbsDom
