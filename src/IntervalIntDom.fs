@@ -52,10 +52,13 @@ type Bound with
             | PosInf -> NegInf
             | C(x)   -> C(-x)
 
-    member b.const_mult m =
-        match b with
-            | NegInf -> NegInf
-            | PosInf -> PosInf
+    member b.const_mult (m : bigint) =
+        if m.IsZero then 
+            C bigint.Zero
+        else
+            match b with
+            | NegInf -> if m < bigint.Zero then PosInf else NegInf
+            | PosInf -> if m < bigint.Zero then NegInf else PosInf
             | C(c) -> C(m*c)
 
     member b.const_add s =
