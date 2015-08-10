@@ -72,7 +72,7 @@ let do_interval_AI_on_program (pars : Parameters.parameters) (p:Programs.Program
     let pp_to_interval =
         Analysis.program_absint
             p.Initial
-            (match pars.ai_domain with | Parameters.Box -> IntervalIntDom.Intervals.create :> IIntAbsDom.IIntAbsDom 
+            (match pars.ai_domain with | Parameters.Box -> IntervalIntDom.Intervals.create() :> IIntAbsDom.IIntAbsDom 
                                        | Parameters.Octagon -> Octagon2.Oct.create :> IIntAbsDom.IIntAbsDom)
             (p.Transitions |> Seq.map (fun (k,c,k') -> (k, (k,c,k'))))
             id

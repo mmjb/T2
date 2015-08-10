@@ -280,9 +280,9 @@ type Intervals =
 
     interface IIntAbsDom with
         member self.tight_closure = ()
-        member self.clone = self.clone :> IIntAbsDom
+        member self.clone() = self.clone() :> IIntAbsDom
         member self.widen other = self.widen (other :?> Intervals)
         member self.assign var term = self.assign var term
         member self.assume f = self.assume f
-        member self.to_formula = self.to_formula_filtered (fun _ -> true)
+        member self.to_formula() = self.to_formula_filtered (fun _ -> true)
         member self.to_formula_filtered filter = self.to_formula_filtered filter

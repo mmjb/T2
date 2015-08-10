@@ -193,7 +193,7 @@ let program_absint start_pp start_intdom transitions command_filter =
         let cur_intdom = pp_to_intdom.[cur_pp]
         if outgoing_trans.ContainsKey cur_pp then
             for (cmds, target_pp) in outgoing_trans.[cur_pp] do
-                let new_intdom = cur_intdom.clone
+                let new_intdom = cur_intdom.clone()
                 for cmd in (command_filter cmds) do
                     exec_cmd new_intdom cmd
                 new_intdom.tight_closure
@@ -207,11 +207,11 @@ let get_interval_analysis (p:Programs.Program) (e : Formula.formula)=
     let pp_to_interval =
             program_absint
                 p.Initial
-                IntervalIntDom.Intervals.create
+                (IntervalIntDom.Intervals.create())
                 (p.Transitions |> Seq.map (fun (k,c,k') -> (k, (k,c,k'))))
                 id
     let pp_to_seq = pp_to_interval |> Seq.sortBy (fun (KeyValue(k,_)) -> k)
-    let pp_to_form = pp_to_seq |> Seq.map(fun x -> (x.Key,x.Value.to_formula))
+    let pp_to_form = pp_to_seq |> Seq.map(fun x -> (x.Key,x.Value.to_formula()))
     let to_check = pp_to_form |> Seq.filter(fun (_,y) ->  not(Formula.entails y e) || Formula.unsat (Formula.conj[y;e]))
                                     |> Seq.map(fun (x,_) -> x)
 

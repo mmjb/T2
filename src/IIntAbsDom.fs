@@ -23,7 +23,7 @@
 module Microsoft.Research.T2.IIntAbsDom
 
 type IIntAbsDom =
-    abstract clone : IIntAbsDom
+    abstract clone : unit -> IIntAbsDom
 
     abstract tight_closure : unit
     abstract widen : IIntAbsDom -> bool
@@ -31,5 +31,5 @@ type IIntAbsDom =
     abstract assign : Var.var -> Term.term -> unit
     abstract assume : Formula.formula -> unit
 
-    abstract to_formula : Formula.formula
+    abstract to_formula : unit -> Formula.formula
     abstract to_formula_filtered : (Var.var -> bool) -> Formula.formula
