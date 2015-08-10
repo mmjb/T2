@@ -76,24 +76,23 @@ type Bound with
 type Intervals =
     private {
         ///Variables we know something about. Everything that's not in there has a completely unknown value
-        mutable vars : Map<Var.var, (Bound * Bound)>;
+        mutable vars : System.Collections.Generic.Dictionary<Var.var, Bound * Bound>
     }
 
-    static member create = { vars = Map.empty; }
+    static member create() = { vars = System.Collections.Generic.Dictionary() }
 
-    member self.clone = {vars = self.vars; }
+    member self.clone() = { vars = System.Collections.Generic.Dictionary(self.vars) }
 
     member private self.setBoundsOfVar var bounds =
-        if Map.containsKey var self.vars then
-            self.vars <- self.vars |> Map.remove var |> Map.add var bounds
-        else
-            self.vars <- self.vars |> Map.add var bounds
+        match bounds with
+        | (C x, C y) -> if x > y then System.Diagnostics.Debugger.Break() |> ignore
+        | _ -> ()
+        self.vars.[var] <- bounds
 
     member private self.boundsOfVar var =
-        if Map.containsKey var self.vars then
-            self.vars.[var]
-        else
-            (NegInf, PosInf)
+        match self.vars.TryGetValue var with
+        | (true, bounds) -> bounds
+        | (false, _) -> (NegInf, PosInf)
 
     member private self.boundsOfTerm (term : Term.term) : (Bound * Bound) =
         match term with
@@ -151,14 +150,15 @@ type Intervals =
 
     member private self.merge (other: Intervals) (merge_func: Bound * Bound -> Bound * Bound -> Bound * Bound) =
         let changed = ref false
-        let new_vars =
-               self.vars
-            |> Map.map
-                (fun k v ->
-                    let old_interval = v
-                    let new_interval = merge_func v (other.boundsOfVar k)
-                    if old_interval <> new_interval then changed := true
-                    new_interval)
+        let new_vars = System.Collections.Generic.Dictionary()
+        for KeyValue(k, v) in self.vars do
+            let old_interval = v
+            let new_interval = merge_func v (other.boundsOfVar k)
+            match new_interval with
+            | (C x, C y) -> if x > y then System.Diagnostics.Debugger.Break() |> ignore
+            | _ -> ()
+            if old_interval <> new_interval then changed := true
+            new_vars.[k] <- new_interval
         self.vars <- new_vars
         !changed
 
@@ -269,7 +269,7 @@ type Intervals =
             | Or _ -> ()
 
     member self.to_formula_filtered filter =
-        [ for (v,i) in self.vars.Items do
+        [ for KeyValue(v,i) in self.vars do
             if filter v then
                 match i with
                     | (NegInf, PosInf) -> ()
