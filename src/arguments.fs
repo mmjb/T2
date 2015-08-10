@@ -169,11 +169,11 @@ let parseArguments arguments =
                  , true)
 
              ///// Parsing / program representation things:
-             .Add( "do_ai_threshold"
+             .Add( "do_ai_threshold="
                  , "Perform numerical abstr. int. before other analyses if we have less than n transitions"
                  , fun n -> pars.do_ai_threshold <- int n
                  , true)
-             .Add( "ai_domain"
+             .Add( "ai_domain="
                  , sprintf "Numerical abstract domain used for abstract interpretation [known: %s, default %A]" knownAbstractDomains pars.ai_domain
                  , fun (s : string) -> 
                         match s.ToLower() with 
