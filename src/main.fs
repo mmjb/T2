@@ -67,6 +67,8 @@ let main (arguments: string[]) =
     match runMode with
         | Arguments.Output ->
             parameters.elim_constants <- false
+        | Arguments.ConditionalTermination ->
+            parameters.elim_constants <- false //TODO: Is this the right thing to do?
         | _ -> ()
 
     let (p, loc) =
@@ -104,7 +106,8 @@ let main (arguments: string[]) =
             match Safety.prover parameters p loc with
             | None -> printfn "Safety proof succeeded"
             | Some _ -> printfn "Safety proof failed"
-            
+        | Arguments.ConditionalTermination ->
+            Conditional.run parameters p
         | Arguments.Termination
         | Arguments.CTL _
         | Arguments.CTLStar _ ->

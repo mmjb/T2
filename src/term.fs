@@ -184,3 +184,24 @@ let rec z3 e =
     | Add(e1,e2) -> Z.add (z3 e1) (z3 e2)
     | Mul(e1,e2) -> Z.mul (z3 e1) (z3 e2)
     | Nondet -> die()
+
+let rec get_coefficient term var =
+    match term with
+    | Const(i) -> i
+    | Var(v) -> if (v = var) then bigint.One else bigint.Zero
+    | Neg(e) -> -(get_coefficient e var)
+    | Sub(e1,e2) -> get_coefficient e1 var - get_coefficient e2 var
+    | Add(e1,e2) -> get_coefficient e1 var + get_coefficient e2 var
+    | Mul(e1,e2) -> get_coefficient e1 var * get_coefficient e2 var
+    | Nondet -> die()
+
+
+let rec remove_var term var =
+    match term with
+    | Const(i) -> Const(i)
+    | Var(v) -> if (v = var) then Const(bigint.Zero) else Var(v)
+    | Neg(e) -> Neg(remove_var e var)
+    | Sub(e1,e2) -> Sub(remove_var e1 var, remove_var e2 var)
+    | Add(e1,e2) -> Add(remove_var e1 var, remove_var e2 var)
+    | Mul(e1,e2) -> Mul(remove_var e1 var, remove_var e2 var)
+    | Nondet -> die()

@@ -759,7 +759,7 @@ type Program private (parameters : Parameters.parameters) =
 
     /// take function that transforms transition
     /// and apply it to every transition in the program
-    member private self.TransitionsInplaceMap f =
+    member self.TransitionsInplaceMap f =
         for idx in self.ActiveTransitions do
             transitionsArray.[idx] <- f transitionsArray.[idx]
 

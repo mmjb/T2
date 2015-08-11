@@ -65,7 +65,8 @@
   <Import Project="packages\FsLexYacc.6.1.0\build\FsLexYacc.targets" Condition="Exists('packages\FsLexYacc.6.1.0\build\FsLexYacc.targets')" />
   <ItemGroup>
     <FsLex Include="absflex.fsl">
-      <OtherFlags></OtherFlags>
+      <OtherFlags>
+      </OtherFlags>
     </FsLex>
     <FsYacc Include="absparse.fsy">
       <OtherFlags>--module Microsoft.Research.T2.Absparse</OtherFlags>
@@ -110,6 +111,8 @@
     <Compile Include="absflex.fs" />
     <Compile Include="ctl_parser.fs" />
     <Compile Include="input.fs" />
+    <Compile Include="filter.fs" />
+    <Compile Include="conditional.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

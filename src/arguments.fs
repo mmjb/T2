@@ -28,6 +28,7 @@ type runMode =
     | Test
     | Safety of int
     | Termination
+    | ConditionalTermination
     | CTL of string
     | CTLStar of string
 
@@ -102,6 +103,9 @@ let parseArguments arguments =
              .Add( "termination"
                  , "Run termination prover"
                  , fun _ -> setMode Termination)
+             .Add( "conditional-termination"
+                 , "Run conditional termination prover"
+                 , fun _ -> setMode ConditionalTermination)
              .Add( "CTL="
                  , "Run CTL temporal prover on given formula"
                  , fun s -> setMode (CTL s))

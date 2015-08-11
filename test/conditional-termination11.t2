@@ -1,0 +1,41 @@
+START: 0;
+
+FROM: 0;
+TO: 1;
+
+FROM: 1;
+      assume(x>0);
+TO: 2;
+
+FROM: 2;
+      assume(y>0);
+      y:=y-z;
+TO: 2;
+
+FROM: 2;
+      assume(y<=0);
+      y:=y+z;
+
+TO: 2;
+
+FROM: 1;
+      assume(x<=0);
+TO: 3;
+
+FROM: 3;
+      assume(y>0);
+TO: 4;
+
+FROM: 4;
+      assume(z>0);
+      z:=z-1;
+TO: 4;
+
+FROM: 3;
+      assume(y<=0);
+TO: 5;
+
+FROM: 5;
+      assume(z<=0);
+      z:=z+1;
+TO: 5;

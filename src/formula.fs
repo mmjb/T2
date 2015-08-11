@@ -529,3 +529,86 @@ let fromZ3 f =
        memo.[f] <- !res
        !res
    z3f(get f)
+
+let clean_formula f = 
+    let z3_formula = z3 f
+    let result = Z.simplify z3_formula
+    fromZ3 result
+
+
+let advance_formula f (vars:Map<Var.var,int>) =
+    
+    let rename (v : string) =             
+        // Assumes all variables are of the form <variable_name> ^ <variable_version>
+        // Increases the version with the number of times that variable is updated in one step - found in vars
+
+        let cur = v.Split '^'
+        let cur_var = cur.[0]
+        let cur_prime = int cur.[1]
+        
+        let prime =
+            try
+                vars.Item(cur_var)
+            with 
+                | _ ->  0
+
+
+        let new_prime = cur_prime + prime
+                 
+
+        let new_var = cur_var + "^" + (string new_prime)  
+
+        new_var   
+
+    alpha rename f
+
+
+let formulae_to_terms formulae =
+    //assume formulae are of the form t1 <= t2 or t1 >= t2   
+    List.map (fun e -> match e with
+                       | (Le(t1, t2)) -> Sub (t2, t1) 
+                       | (Ge(t1, t2)) -> Sub (t1, t2)
+             
+             ) formulae
+
+
+let rec polyhedra_cnf f = 
+    match f with
+    | Le (t1, t2) -> f // for efficiency
+    | Ge (t2, t1)
+    | Not (Lt (t2, t1))
+    | Not (Gt (t1, t2)) -> Le(t1, t2)
+
+    | Lt (t1, t2)
+    | Gt (t2, t1)
+    | Not (Ge (t1, t2))
+    | Not (Le (t2, t1)) -> Le (Term.add t1 (Term.constant 1), t2)
+
+    | Eq (t1, t2) -> And (Le (t1, t2), Le (t2, t1))
+    | Not (Eq (t1, t2)) -> polyhedra_cnf (Or (Lt (t1, t2), Lt (t2, t1)))
+
+    | Or (f1, f2) -> 
+        let fs1 = polyhedra_cnf f1 |> split_conjunction
+        let fs2 = polyhedra_cnf f2 |> split_conjunction
+        [
+            for d1 in fs1 do
+                for d2 in fs2 do
+                    yield Or (d1, d2)
+        ] |> List.reduce (fun a b -> 
+                                let r = And (a, b)
+                                if(valid a) then
+                                    if(valid b) then truec
+                                    elif(unsat b) then falsec
+                                    else b
+                                elif(unsat a) then falsec
+                                else 
+                                    if(valid b) then a
+                                    elif(unsat b) then falsec
+                                    else r                                
+                         )    
+    
+    | And (f1, f2) -> And (polyhedra_cnf f1, polyhedra_cnf f2)
+
+    | Not (And (f1, f2)) -> polyhedra_cnf (Or (Not f1, Not f2))
+    | Not (Or (f1, f2)) -> polyhedra_cnf (And (Not f1, Not f2))
+    | Not (Not f1) -> polyhedra_cnf f1
