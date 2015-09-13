@@ -311,7 +311,11 @@ let strengthenCond pi_mod p1 =
             (fun (_, cmd, _) ->
                 match cmd with
                 | Programs.Assign(_, v, _) -> Some(v)
+                | Programs.Assume(_,f) -> if Formula.contains_var f "__proph_var_det" then
+                                               Some(f |> Formula.freevars |> Seq.find (Formula.contains_var_str "__proph_var_det"))
+                                          else None
                 | _ -> None)
+
     let mutable disj_fmla = Set.empty
     let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf p1)
 
@@ -441,7 +445,7 @@ let insertForRerun
 
             //For AG, we have to duplicate the original cp with no property checks in order to allow
             //other transitions to be explored despite adding in a pre-condition that could falsify the path
-            else
+        else
             if cutp = -1 then
                 visited_BU_cp := (!visited_BU_cp).Add(cutp, (endOfPropertyCheckNode,final_loc))
             else
@@ -453,10 +457,31 @@ let insertForRerun
                         if k = cutp then
                             visited_BU_cp := (!visited_BU_cp).Add(cutp, (cutp, k'))
                 else
-                    for node in p_orig_sccs.[cutp] do
-                        if not (loopnode_to_copiednode.ContainsKey node) then
-                            let copiednode = p_final.NewNode()
-                            loopnode_to_copiednode.Add(node, copiednode)
+                    for node in p_orig.Locations do
+                        if node <> p_orig.Initial then 
+                            if not (loopnode_to_copiednode.ContainsKey node) then
+                              let copiednode = p_final.NewNode()
+                              loopnode_to_copiednode.Add(node, copiednode)
+                    (*for loopNode in p_orig_loops do
+                        for node in p_orig_sccs.[loopNode.Key] do
+                            if not (loopnode_to_copiednode.ContainsKey node) then
+                                let copiednode = p_final.NewNode()
+                                printfn "%A, %A" node copiednode
+                                loopnode_to_copiednode.Add(node, copiednode)*)
+                    
+                    //This is the corner case where other nodes, which are not part of the scc
+                    //stem or "exit" from a node which is part of the scc. They need to be
+                    //copied as well, thus we iterate over the TS again to find them.
+                    
+                    //let transitiveCFG = p_orig.GetTransitiveCFG()
+                    //remove the cutpoint as we're only interested in leaving the SCC from inner nodes
+                    //let copiedKeys = loopnode_to_copiednode |> Seq.map(fun x -> x.Key)|> Set.ofSeq |> Set.remove(cutp)
+                    (*copiedKeys |> Seq.iter(fun x -> let keysTrans = transitiveCFG.[x]
+                                                    let remainingLocs = Set.difference keysTrans copiedKeys
+                                                    for n in remainingLocs do
+                                                        if not (loopnode_to_copiednode.ContainsKey n) then 
+                                                            let copiednode = p_final.NewNode()
+                                                            loopnode_to_copiednode.Add(n, copiednode))*)
 
                     let get_copy_of_loopnode node = loopnode_to_copiednode.GetWithDefault node node
 
@@ -464,20 +489,25 @@ let insertForRerun
                         //Note: Since we do an AG property check at every node, there is now a lying assumption
                         //that the cutp only has one outer transition. That outer transition is the property check
                         //This is because we do the check, then transition to the next state(s).
-                        if k = cutp then
-                            visited_BU_cp := (!visited_BU_cp).Add(cutp, (cutp, k'))
-                            p_final.AddTransition k [] (get_copy_of_loopnode k)
+                        //if k = cutp || p_orig_loops.ContainsKey k then
+                        if p_orig_loops.ContainsKey k then
+                            visited_BU_cp := (!visited_BU_cp).Add(k, (k, k'))
+                            if k = cutp then
+                                p_final.AddTransition k [] (get_copy_of_loopnode k)
+                            else
+                                p_final.AddTransition (get_copy_of_loopnode k) [] k
                             safety.ResetFrom k
-     
+
                     for (k, cmds, k') in p_orig.Transitions do
-                        if (k' <> cutp && not(loopnode_to_copiednode.ContainsKey k')) || p_orig_sccs.[cutp].Contains k then
+                        //if (k' <> cutp && not(loopnode_to_copiednode.ContainsKey k')) || p_orig_sccs.[cutp].Contains k then
+                        if (p_orig_loops.ContainsKey k' && not(loopnode_to_copiednode.ContainsKey k')) || loopnode_to_copiednode.ContainsKey k then
                             if loopnode_to_copiednode.ContainsKey k || loopnode_to_copiednode.ContainsKey k' then
-                                p_final.AddTransition (get_copy_of_loopnode k)
-                                    cmds (get_copy_of_loopnode k')
-                                if p_orig_loops.ContainsKey k' && k' <> cutp && not ((!visited_BU_cp).ContainsKey k') && loopnode_to_copiednode.ContainsKey k' then
+                                p_final.AddTransition (get_copy_of_loopnode k) cmds (get_copy_of_loopnode k')
+                                if p_orig_loops.ContainsKey k' && not ((!visited_BU_cp).ContainsKey k') && loopnode_to_copiednode.ContainsKey k' then
+                                //if p_orig_loops.ContainsKey k' && k' <> cutp && not ((!visited_BU_cp).ContainsKey k') && loopnode_to_copiednode.ContainsKey k' then
                                     p_final.AddTransition (get_copy_of_loopnode k') [] k'
                         safety.ResetFrom k
-
+                    //Output.print_dot_program p_final "input__final2.dot"
                     //NOW PROPAGATE UPWARDS TO COPIES
 
     let updateInstrumentation preCond cutp errorNode endOfPropertyCheckNode (strengthen : bool) =
@@ -490,7 +520,7 @@ let insertForRerun
         //or cutp == -1, then the negation is instrumented between the error location and the final_loc (where
         //the value of RET is checked). 
         let (origNode, copiedNode) = if cutp <> -1 then (!visited_BU_cp).[cutp] else (endOfPropertyCheckNode, final_loc)
-        Log.log pars <| sprintf "Negation of CEX precondition to be instrumented between node %i and %i" origNode copiedNode
+        Log.log pars <| sprintf "Negation of CEX precondition %A to be instrumented between node %i and %i" preCond origNode copiedNode
 
         let mutable transitionToStrengthen = None
         for (l, (k, cmds, k')) in p_final.TransitionsWithIdx do
@@ -543,7 +573,6 @@ let insertForRerun
 
             let precondition = fPreCondNeg |> Formula.negate
             let preconditionDisjuncts = Formula.polyhedra_dnf precondition |> Formula.split_disjunction
-
             //Now instrument recurrent set and negation of it at the edges going into the loop
             //This is to reassure that within the loop our recurrent sets are progessing and not repeating
             for (l, (k, cmds, k')) in p_final.TransitionsFrom cutp do
@@ -552,7 +581,8 @@ let insertForRerun
                     p_final.AddTransition k (Programs.assume(precondDisjunct)::cmds) k'
             
             let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
-            propertyMap.Union(propogateMap)
+            propogateMap.[propertyToProve] |> Set.iter (fun (x,y) -> if x <> cutp && x <> orig_cp then propertyMap.Add(propertyToProve,(x,y)))             
+            //propertyMap.Union(propogateMap)
             visited_nodes := Set.union !visited_nodes visitedOnCex
             (false, precondition, preconditionDisjuncts)
         | None ->   //***************************************************************
@@ -649,6 +679,7 @@ let find_instrumented_loops (p_instrumented : Programs.Program) (p_orig_loops : 
     (cps_to_loops,cps_to_sccs)
 
 let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) precondMap (fairness_constraint : (Formula.formula * Formula.formula) option) existential findPreconds next =
+    
     Utils.timeout pars.timeout
     //Maybe let's do some AI first:
     if pars.do_ai_threshold > p_orig.TransitionNumber then
@@ -877,6 +908,11 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             else if not(Set.contains n !visited_nodes) then
                 propertyMap.Add(f,(n,Formula.falsec))
 
+    //For A we explicitly mark the nodes that do not have preconditions with true.
+    if not(existential) then
+         let trueNodes = propertyMap.[f] |> Set.map (fun (x,y) -> x)
+         p_orig_loops.Keys |> Seq.iter (fun locs -> if not(trueNodes.Contains locs) then propertyMap.Add(f,(locs,Formula.truec)))
+
     Utils.reset_timeout()
 
     let is_eg f = match f with
@@ -1034,7 +1070,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
             propertyMap.Union(preCond_map)
  
     | CTL.AG e
-    | CTL.AF e ->  
+    | CTL.AF e -> 
         //First get subresults
         if nest_level >= 0 then
             bottomUp pars p e termination_only (nest_level + 1) fairness_constraint propertyMap |> ignore               
@@ -1055,7 +1091,8 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 propertyMap.Union(nested_X f (Some(f)) p false Props fairness_constraint)
             | _ ->
                 let Props = snd <| prover pars p f termination_only propertyMap fairness_constraint false true false
-                propertyMap.Union(Props)                                                                                            
+                propertyMap.Union(Props)
+                                                                                                           
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         if nest_level >= 0 then
@@ -1322,9 +1359,8 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                     //Call LTL to CTL formula conversaion
                     let new_F : CTL.CTL_Formula = convert_star_CTL f e_sub1 e_sub2
                     //Then call CTL bottom up on it with determinized program
-
-                    let ret_value = bottomUp pars p_dtmz new_F termination_only nest_level None propertyMap          
-                    (ret_value,Some(new_F))          
+                    let ret_value = bottomUp pars p_dtmz new_F termination_only nest_level None propertyMap    
+                    (ret_value,Some(new_F))                   
                     //Return propertyMap                    
     | CTL.State e ->                       
                      match e with
@@ -1343,7 +1379,7 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                         if (!is_ltl) then
                                             is_ltl := false
                                             let ret = bottomUp pars p_dtmz new_F termination_only nest_level None propertyMap
-                                            let formulaMap = propertyMap.[new_F]                                                                                      
+                                            let formulaMap = propertyMap.[new_F]                                                                                   
                                             propertyMap.Remove(new_F)|> ignore                                        
                                             propertyMap.Union(quantify_proph_var e.IsExistential new_F formulaMap "__proph_var_det")                                         
                                             ret
@@ -1435,7 +1471,8 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
                 p_det.RemoveTransition n
 
     if pars.dottify_input_pgms then
-                        Output.print_dot_program p_det "input__determinized.dot"    
+                        Output.print_dot_program p_det "input__determinized.dot" 
+                        Output.print_dot_program p "input__orig.dot"    
     
     //Under CTL semantics, it is assumed that all paths are infinite. We thus add infinite loops to any terminating paths unless we are explicitly proving termination.
     //For example, we would be proving AF x instead of AF x || termination, which is what is proved if the path is not infinite.

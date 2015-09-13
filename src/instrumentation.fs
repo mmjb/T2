@@ -807,7 +807,8 @@ let instrument_G (p : Programs.Program) formula (propertyMap : SetDictionary<CTL
     for (n, (k, c, k')) in p.TransitionsWithIdx do
         if(k <> p_G.Initial && (List.contains k cp)) then
             let end_node_of_subproperty = node_to_end_of_subproperty_node_map.[k]
-
+            //let cmd = [Programs.assume (Formula.Gt(Term.Var ret,Term.Const(bigint.Zero)))]
+            //p_G.AddTransition end_node_of_subproperty (cmd@c) k'
             p_G.AddTransition end_node_of_subproperty c k'
             p_G.RemoveTransition n
 
