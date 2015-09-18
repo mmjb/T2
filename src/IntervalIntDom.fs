@@ -84,9 +84,6 @@ type Intervals =
     member self.clone() = { vars = System.Collections.Generic.Dictionary(self.vars) }
 
     member private self.setBoundsOfVar var bounds =
-        match bounds with
-        | (C x, C y) -> if x > y then System.Diagnostics.Debugger.Break() |> ignore
-        | _ -> ()
         self.vars.[var] <- bounds
 
     member private self.boundsOfVar var =
@@ -154,9 +151,6 @@ type Intervals =
         for KeyValue(k, v) in self.vars do
             let old_interval = v
             let new_interval = merge_func v (other.boundsOfVar k)
-            match new_interval with
-            | (C x, C y) -> if x > y then System.Diagnostics.Debugger.Break() |> ignore
-            | _ -> ()
             if old_interval <> new_interval then changed := true
             new_vars.[k] <- new_interval
         self.vars <- new_vars
