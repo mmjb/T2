@@ -208,11 +208,11 @@ let findPreconditionForPath (cex : (int * Programs.Command * int) list) =
 //Now we must either universally or existentially quantify out the prophecy variables
 //from the preconditions.
 //For each location, apply quantifier elimination.
-let quantify_proph_var IsExistential F formulaMap varString =
+let quantify_proph_var isExistential F formulaMap varString =
     let propertyMap_temp = SetDictionary<CTL.CTL_Formula, (int*Formula.formula)>()
     for n in formulaMap do
         let (loc,loc_form) = n
-        let loc_form = if IsExistential then loc_form else Formula.negate(loc_form)
+        let loc_form = if isExistential then loc_form else Formula.negate(loc_form)
         let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> x.Contains varString)//"__proph_var_det")
         //let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> Formula.is_fair_var x)//x.Contains proph_string __proph_var_det")
         if not(Set.isEmpty proph_var) then
@@ -230,7 +230,7 @@ let quantify_proph_var IsExistential F formulaMap varString =
             //printfn "Before %A" disj_fmla
             //disj_fmla <- Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) disj_fmla
             //printfn "After %A" disj_fmla
-            let strength_f = if IsExistential then Formula.disj disj_fmla else Formula.negate(Formula.disj disj_fmla)
+            let strength_f = if isExistential then Formula.disj disj_fmla else Formula.negate(Formula.disj disj_fmla)
             propertyMap_temp.Add(F,(loc,strength_f))
         else
             propertyMap_temp.Add(F,n)
@@ -310,10 +310,10 @@ let strengthenCond pi_mod p1 =
         |> List.choose
             (fun (_, cmd, _) ->
                 match cmd with
-                | Programs.Assign(_, v, _) -> Some(v)
-                | Programs.Assume(_,f) -> if Formula.contains_var f "__proph_var_det" then
-                                               Some(f |> Formula.freevars |> Seq.find (Formula.contains_var_str "__proph_var_det"))
-                                          else None
+                | Programs.Assign(_, v, _) ->
+                    Some v
+                | Programs.Assume(_, f) when Formula.contains_var f "__proph_var_det" ->
+                    Some (f |> Formula.freevars |> Seq.find (Formula.contains_var_str "__proph_var_det"))
                 | _ -> None)
 
     let mutable disj_fmla = Set.empty
