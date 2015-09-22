@@ -763,6 +763,7 @@ type Program private (parameters : Parameters.parameters) =
     member private self.TransitionsInplaceMap f =
         for idx in self.ActiveTransitions do
             transitionsArray.[idx] <- f transitionsArray.[idx]
+        self.InvalidateCaches()
 
     /// If variables are used temporarly in basic blocks and then are killed or not used elsewhere, LetConvert
     /// removes them in the obvious way. livevars is assumed to be the set of live variables
