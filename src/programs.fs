@@ -771,7 +771,7 @@ type Program private (parameters : Parameters.parameters) =
     /// function synthesis and interpolation work.
     /// It also special cases instrumentation variables, which might be considered dead, but are still
     /// important to us.
-    member self.LetConvert liveVariables =
+    member self.LetConvert (liveVariables : System.Collections.Generic.Dictionary<int, Set<Var.var>>) =
         // Is the variable read in the later commands before being written to again? We know the livevars
         // at the beginning and end of the command sequence, but not in the intermediate points.
         // We could compute the live
@@ -801,7 +801,10 @@ type Program private (parameters : Parameters.parameters) =
             match cmds with
             | Assign(pos,v,Nondet)::r ->
                 let env' = wipe v env
-                Assign(pos,v,Nondet)::interp lvs env' r
+                if not (Set.contains v lvs) && not (needed_local v r) && not(Formula.is_saved_var v) then
+                    interp lvs env' r
+                else
+                    (Assign (pos, v, Nondet)) :: interp lvs env' r
             | Assign(pos,v,t)::r ->
                 let cmd' = rewrite_cmd env (Assign(pos,v,t))
                 let t' = match cmd' with
@@ -809,13 +812,13 @@ type Program private (parameters : Parameters.parameters) =
                          | _ -> die()
                 let env' = wipe v env
                 let env'' = if not (Set.contains v lvs) then Map.add v t' env' else env'
-                if not (Set.contains v lvs) && not (needed_local v r) && not(Formula.is_saved_var v) then skip::interp lvs env'' r
+                if not (Set.contains v lvs) && not (needed_local v r) && not(Formula.is_saved_var v) then interp lvs env'' r
                 else cmd'::interp lvs env'' r
             | assm::r -> rewrite_cmd env assm::interp lvs env r
             | [] -> []
 
         self.TransitionsInplaceMap (fun (k, T, k') ->
-            let lvs = Map.find k' liveVariables
+            let lvs = liveVariables.[k']
             let T' = interp lvs Map.empty T
             (k,T',k')
         )

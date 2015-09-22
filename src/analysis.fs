@@ -105,41 +105,44 @@ let constants (p : Programs.Program) =
 //
 // Variable liveness analysis
 //
-let liveness (p : Programs.Program) alwaysLive =
-    let live = ref Map.empty
+let liveness (p : Programs.Program) (alwaysLive : Set<Var.var>) =
+    let live = System.Collections.Generic.Dictionary()
     for l in p.Locations do
-        live := Map.add l alwaysLive !live
+        live.[l] <- alwaysLive
 
-    let rec kill_cmd cmd =
-       match cmd with
-       | Assign(_,v,_) -> Set.singleton v
-       | Assume(_,_) -> Set.empty
+    let collect_live_vars_backwards live_vars_at_end cmds =
+        //Gets variable defined in this command
+        let get_assigned_var cmd =
+           match cmd with
+           | Assign(_, v, _) -> Set.singleton v
+           | Assume(_, _)    -> Set.empty
 
-    let rec gen_cmd cmd =
-       match cmd with
-       | Assign(_,_,t) ->   Term.freevars t
-       | Assume(_,e) -> Formula.freevars e
+        //Gets variables used by this command.
+        //Note: If we don't care about a variable, we don't care about what gets assigned to it.
+        let get_used_vars live_vars cmd =
+           match cmd with
+           | Assign (_, v, t) when Set.contains v live_vars -> Term.freevars t
+           | Assign _                                       -> Set.empty
+           | Assume (_, e)                                  -> Formula.freevars e
 
-    let next live cmd = Set.union (gen_cmd cmd) (Set.difference live (kill_cmd cmd))
-    let exec live  = List.rev >> List.fold next live //(List.rev cmds)
+        //Backwards collection: At each step, remove variables that are assigned from set of live variables, add all variables used in expressions / guards
+        let handle_one_cmd cmd live = Set.union (get_used_vars live cmd) (Set.difference live (get_assigned_var cmd))
+        List.foldBack handle_one_cmd cmds live_vars_at_end
 
-    let mutable changed = p.Locations
-    while not (Set.isEmpty changed) do
-        let loc = (changed).MaximumElement
-        changed <- Set.remove loc changed
-        let nexts = p.TransitionsFrom loc |> Set.ofSeq
-        let Ts = Set.map (fun (_, (_, cmds, _)) -> cmds) nexts
-        let next_locs = Set.map (fun (_, (_, _, next)) -> next) nexts
-        let prev_locs = p.TransitionsTo loc |> Set.ofSeq |> Set.map (fun (_, (prev, _, _)) -> prev)
-        let live_in = Map.find loc !live
-        let live_out = Set.fold (fun live_out succ -> Set.union live_out (Map.find succ !live)) Set.empty next_locs
-        let live_in' = Set.fold (fun li T -> Set.union li (exec live_out T)) Set.empty Ts
-        let live' = Set.union live_in live_in'
-        if live'.Count <> live_in.Count then
-            changed <- Set.union prev_locs changed
-            live := Map.add loc live' !live
-    done
-    !live
+    //Queue of locations that still need to be processed
+    let mutable queue = p.Locations
+    while not (Set.isEmpty queue) do
+        let loc = queue.MaximumElement
+        queue <- Set.remove loc queue
+        //Propagate backwards from all direct successors of loc
+        let mutable new_live_at_loc = alwaysLive
+        for (_, (_, cmds, target_loc)) in p.TransitionsFrom loc do
+            new_live_at_loc <- Set.union new_live_at_loc (collect_live_vars_backwards live.[target_loc] cmds)
+        if new_live_at_loc.Count <> live.[loc].Count then
+            let prev_locs = p.TransitionsTo loc |> Seq.map (fun (_, (prev, _, _)) -> prev) |> Set.ofSeq
+            queue <- Set.union prev_locs queue
+            live.[loc] <- new_live_at_loc
+    live
 
 let exec_cmd (int_dom:IIntAbsDom.IIntAbsDom) cmd =
     match cmd with
