@@ -307,15 +307,13 @@ type Transition = int * Command list * int
 type TransitionFunction = int -> (Command list * int) list
 
 /// Default size for transitions array
-let private transitions_sz = 50000
-
 type Program private (parameters : Parameters.parameters) =
     let mutable initial = -1
     let mutable labelToNode = Map.empty
     let mutable nodeToLabel = Map.empty
     let mutable nodeCount = 1
     let mutable transitionCount = 0
-    let mutable transitionsArray = Array.create transitions_sz (-1,[],-1)
+    let mutable transitionsArray = Array.create 100 (-1,[],-1)
     /// x \in active iff transitions[x] != (-1,_,-1)
     let mutable activeTransitions = Set.empty
     /// Variables in the program
@@ -508,7 +506,10 @@ type Program private (parameters : Parameters.parameters) =
         let cnt = self.TransitionCount
         self.TransitionCount <- cnt + 1
         self.ActiveTransitions <- Set.add cnt self.ActiveTransitions
-        if (cnt >= transitions_sz) then failwithf "Cannot process more than %i transitions at this time" transitions_sz
+        if cnt >= self.TransitionsArray.Length then
+            let newTransArray = Array.create (2 * self.TransitionsArray.Length) (-1,[],-1)
+            System.Array.Copy (self.TransitionsArray, newTransArray, self.TransitionsArray.Length)
+            self.TransitionsArray <- newTransArray
         transitionsArray.[cnt] <- (source, cmds, target)
         self.Variables <- Set.union self.Variables (freevars cmds)
         self.Locations <- Set.add source <| Set.add target self.Locations
