@@ -132,6 +132,10 @@ let parseArguments arguments =
              .Add( "full-help"
                  , "Print help including all options"
                  , fun _ -> optionSet.WriteOptionDescriptions(System.Console.Error, true); exit 0)
+             .Add( "debugger"
+                 , "Start under VS debugger supervision"
+                 , fun _ -> System.Diagnostics.Debugger.Launch() |> ignore
+                 , false)
 
              ///// Output things:
              .Add( "debug"
