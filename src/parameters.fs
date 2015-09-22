@@ -60,6 +60,11 @@ type parameters = {
     /// very bad for 1000.
     mutable elim_constants : bool
 
+    /// Propagates assignments to variables through the program as far as possible. Very
+    /// helpful to eliminate temporary variables introduced by SSA transformations (i.e.
+    /// when examples are coming from LLVM).
+    mutable elim_temp_vars : bool
+
     /// Perform numerical abstr. interpretation if we have less than !do_ai_threshold transitions
     mutable do_ai_threshold : int
     /// This is flipped to true if we performed AI and enables further optimizations later on
@@ -160,6 +165,7 @@ let defaultParameters =
         print_debug = false
 
         elim_constants = true
+        elim_temp_vars = false
         do_ai_threshold = 50
         did_ai_first = false
         ai_domain = Box

@@ -189,6 +189,10 @@ let parseArguments arguments =
                  , "Abstract away unusual constants"
                  , fun s -> pars.elim_constants <- Utils.true_string s
                  , true)
+             .Add( "elim_temp_vars="
+                 , "Try to eliminate variables that are only in temporary use"
+                 , fun s -> pars.elim_temp_vars <- Utils.true_string s
+                 , true)
 
              ///// Safety things:
              .Add( "safety_implementation="

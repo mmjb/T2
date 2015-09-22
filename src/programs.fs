@@ -852,6 +852,74 @@ type Program private (parameters : Parameters.parameters) =
             (k,T',k')
         )
 
+    member self.ConstantAssignmentPropagation (variables_to_protect : Set<Var.var>) =
+        //For each location, keep a map var -> expr, where expr has the value of var
+        let locToVarExprs = System.Collections.Generic.Dictionary()
+        // Propagate variables. Continue if the target location set changed (either because of a first visit or because things changed)
+        let rec loop (loc : int) =
+            let varToExprs : Map<Var.var, Term.term> = locToVarExprs.GetWithDefault loc Map.empty
+            let mutable changedLocs = []
+            for (_, (_, cmds, targetLoc)) in self.TransitionsFrom loc do
+                //Keep a local, mutable copy
+                let mutable varToExprs = varToExprs
+                for cmd in cmds do
+                    match cmd with
+                    | Assume _ -> ()
+                    | Assign (_, v, t) ->
+                        //Eliminate all expressions that are invalidated by this assignment:
+                        let cleanedVarToExprs = Map.filter (fun _ expr -> not (Set.contains v (Term.freevars expr))) varToExprs
+                        varToExprs <-
+                            if Term.contains_nondet t || Set.contains v (Term.freevars t) then Map.remove v cleanedVarToExprs
+                            else Map.add v t cleanedVarToExprs
+                //Compare with current state at target:
+                match locToVarExprs.TryGetValue targetLoc with
+                | (false, _) ->
+                    //Discovered new pastures! Do the thing!
+                    locToVarExprs.[targetLoc] <- varToExprs
+                    changedLocs <- targetLoc :: changedLocs
+                |  (true, oldVarToExprs) ->
+                    let commonVarExprs =
+                        Map.filter
+                            (fun k v ->
+                                match varToExprs.TryFind k with
+                                | Some v' -> v = v'
+                                | _ -> false)
+                            oldVarToExprs
+                    if commonVarExprs <> oldVarToExprs then
+                        locToVarExprs.[targetLoc] <- commonVarExprs
+                        changedLocs <- targetLoc :: changedLocs
+            List.iter loop changedLocs
+
+        //Compute the sets of constant expressions:
+        self.CacheTransitionsFrom() |> ignore
+        loop self.Initial
+
+        //Rewrite the program to make use of constant expressions:
+        self.TransitionsInplaceMap
+            (fun (k, cmds, k') ->
+                let varToExprs = ref (locToVarExprs.GetWithDefault k Map.empty)
+                let newCmds =
+                    cmds
+                    |> List.map
+                        (fun cmd ->
+                            let substEnv var =
+                                if Set.contains var variables_to_protect || Formula.is_instr_var var then
+                                    Term.var var
+                                else
+                                    Map.findWithDefault var (Term.var var) !varToExprs
+                            match cmd with
+                            | Assume (pos, f) -> Assume(pos, Formula.subst substEnv f)
+                            | Assign (pos, v, t) ->
+                                //Eliminate all expressions that are invalidated by this assignment:
+                                let t = Term.subst substEnv t
+                                let cleanedVarToExprs = Map.filter (fun _ expr -> not (Set.contains v (Term.freevars expr))) !varToExprs
+                                varToExprs :=
+                                    if Term.contains_nondet t || Set.contains v (Term.freevars t) then Map.remove v cleanedVarToExprs
+                                    else Map.add v t cleanedVarToExprs
+                                Assign (pos, v, t))
+                (k, newCmds, k'))
+
+
     /// Adds a new initial transition that asserts relative information on symbolized constants (e.g., __const_4 < __const_10)
     member self.AddSymbolConstantInformation () =
         if not <| Set.isEmpty self.UsedConstants then

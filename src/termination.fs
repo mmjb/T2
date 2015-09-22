@@ -1258,6 +1258,11 @@ let bottomUpProver (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
     Z.refreshZ3Context()
     Utils.timeout pars.timeout
 
+    if pars.elim_temp_vars then
+        let formula_vars = CTL.CTL_Formula.freevars f
+        p.ConstantAssignmentPropagation formula_vars
+        p.LetConvert (Analysis.liveness p formula_vars)
+
     //Under CTL semantics, it is assumed that all paths are infinite. We thus add infinite loops to any terminating paths unless we are explicitly proving termination.
     //For example, we would be proving AF x instead of AF x || termination, which is what is proved if the path is not infinite.
     //All terminating states are marked by fair_term_var. This variable is then used by both AX/EX and later fairness, as an AX property holds if the next state is terminating, while an EX
