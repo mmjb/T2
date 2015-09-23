@@ -861,27 +861,27 @@ type Program private (parameters : Parameters.parameters) =
             let mutable changedLocs = []
             for (_, (_, cmds, targetLoc)) in self.TransitionsFrom loc do
                 //Keep a local, mutable copy
-                let mutable varToExprs = varToExprs
+                let varToExprs = ref varToExprs
                 for cmd in cmds do
                     match cmd with
                     | Assume _ -> ()
                     | Assign (_, v, t) ->
                         //Eliminate all expressions that are invalidated by this assignment:
-                        let cleanedVarToExprs = Map.filter (fun _ expr -> not (Set.contains v (Term.freevars expr))) varToExprs
-                        varToExprs <-
+                        let cleanedVarToExprs = Map.filter (fun _ expr -> not (Set.contains v (Term.freevars expr))) !varToExprs
+                        varToExprs :=
                             if Term.contains_nondet t || Set.contains v (Term.freevars t) then Map.remove v cleanedVarToExprs
                             else Map.add v t cleanedVarToExprs
                 //Compare with current state at target:
                 match locToVarExprs.TryGetValue targetLoc with
                 | (false, _) ->
                     //Discovered new pastures! Do the thing!
-                    locToVarExprs.[targetLoc] <- varToExprs
+                    locToVarExprs.[targetLoc] <- !varToExprs
                     changedLocs <- targetLoc :: changedLocs
                 |  (true, oldVarToExprs) ->
                     let commonVarExprs =
                         Map.filter
                             (fun k v ->
-                                match varToExprs.TryFind k with
+                                match (!varToExprs).TryFind k with
                                 | Some v' -> v = v'
                                 | _ -> false)
                             oldVarToExprs
