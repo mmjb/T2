@@ -158,7 +158,6 @@ type MuZWrapper (parameters : Parameters.parameters,
         | _ -> None
 
     member private __.CallPDR (locationToFuncDecl : Dictionary<int,Microsoft.Z3.FuncDecl>) (rules : (Microsoft.Z3.Quantifier * Microsoft.Z3.StringSymbol) list) (errorQuery : Microsoft.Z3.BoolExpr) =
-        failwith "PDR support currently broken. Try spacer"
         use z3Context = lock Z.z3Context (fun _ -> Z.getZ3Context())
         use fixedPoint = z3Context.MkFixedpoint()
         use muZParameters = z3Context.MkParams()
