@@ -129,6 +129,9 @@ let parseArguments arguments =
              .Add( "stats"
                  , "Print statistics about T2 internals"
                  , fun _ -> pars.print_stats <- true)
+             .Add( "help"
+                 , "Print this short help. Use '--full-help' to view all options"
+                 , fun _ -> optionSet.WriteOptionDescriptions(System.Console.Error, false); exit 0)
              .Add( "full-help"
                  , "Print help including all options"
                  , fun _ -> optionSet.WriteOptionDescriptions(System.Console.Error, true); exit 0)
@@ -267,8 +270,16 @@ let parseArguments arguments =
                  , true)
         |> ignore
 
-    optionSet.Parse arguments |> ignore
+    let remainingArguments = optionSet.Parse arguments
 
+    //For people who forget to use -input_t2 ...
+    if remainingArguments.Count = 1 && System.IO.File.Exists remainingArguments.[0] && !t2_input_file = "" then
+        t2_input_file := remainingArguments.[0]
+    else if remainingArguments.Count > 0 then
+        eprintfn "Arguments %s could not be parsed" (remainingArguments |> Seq.map (fun a -> "'" + a + "'") |> String.concat ", ")
+        optionSet.WriteOptionDescriptions(System.Console.Error, false)
+        exit 3
+       
     if (!mode).IsNone then
         eprintfn "No valid action option (--tests, --termination, --safety, --CTL, --CTLStar, --output_as) given. Usage:"
         optionSet.WriteOptionDescriptions(System.Console.Error, false)
