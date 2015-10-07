@@ -78,15 +78,19 @@ let instrument (p : Programs.Program) (fs : formula) =
         
 
         //*************************************************************************************************************
-
-        if(cps.ContainsKey node_to) && (not ((cps.Item node_to).Contains node)) then
+   
+    for (n, (node, label, node_to)) in p.TransitionsWithIdx do
+        //if(cps.ContainsKey node_to) && (not ((cps.Item node_to).Contains node)) then
+        if(node = p.Initial) then 
             let node_new = p.NewNode()
 
             p.AddTransition node_new label node_to 
-            for f in (fs |> Formula.polyhedra_dnf |> Formula.split_disjunction) do
-                p.AddTransition node ((Programs.assume (Not(f)))::[for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))]) node_new 
+            //for f in (fs |> Formula.polyhedra_dnf |> Formula.split_disjunction) do
+            //    p.AddTransition node ((Programs.assume (Not(f)))::[for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))]) node_new 
             
-            p.RemoveTransition n  
+            p.AddTransition node [for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))] node_new          
+
+            p.RemoveTransition n   
 
 
     (p, error)
