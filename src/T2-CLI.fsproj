@@ -24,7 +24,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <StartWorkingDirectory>C:\Users\Administrator\Documents\GitHub\T2\test</StartWorkingDirectory>
+    <StartWorkingDirectory>C:\Users\DarkMatter\Source\Repos\T22\test\</StartWorkingDirectory>
     <StartArguments>-tests</StartArguments>
     <StartAction>Project</StartAction>
     <StartProgram>Z:\src\T2\bin\Debug\T2.exe</StartProgram>
@@ -101,8 +101,27 @@
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
+    <Reference Include="FSharp.PowerPack">
+      <HintPath>packages\FSPowerPack.Core.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.PowerPack.Linq">
+      <HintPath>packages\FSPowerPack.Linq.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.PowerPack.Metadata">
+      <HintPath>packages\FSPowerPack.Metadata.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.Metadata.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.PowerPack.Parallel.Seq">
+      <HintPath>packages\FSPowerPack.Parallel.Seq.Community.3.0.0.0\Lib\Net40\FSharp.PowerPack.Parallel.Seq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FsLexYacc.Runtime">
       <HintPath>packages\FsLexYacc.Runtime.6.1.0\lib\net40\FsLexYacc.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Z3">
+      <HintPath>Microsoft.Z3.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
