@@ -32,8 +32,6 @@ open Programs
 open Utils
 
 
-
-
 let print_vars  (vars:Map<var,int>) =
     printf "\nVARS: "
     for v in vars.Keys do
@@ -55,6 +53,7 @@ let instrument (p : Programs.Program) (fs : formula) =
             let flag:var = (String.concat ("_") (seq["__flag"; (string n)]))
             flags := flag::(!flags)
             let ft:formula = Eq(Var(flag), Const(bigint.Zero))
+
 
             p.AddTransition node [(Programs.assume ft); (Programs.assign flag (Const(bigint.One)))] node_new 
             p.AddTransition node_new label node_to
@@ -79,15 +78,18 @@ let instrument (p : Programs.Program) (fs : formula) =
 
         //*************************************************************************************************************
 
-        if(cps.ContainsKey node_to) && (not ((cps.Item node_to).Contains node)) then
+    for (n, (node, label, node_to)) in p.TransitionsWithIdx do
+        //if(cps.ContainsKey node_to) && (not ((cps.Item node_to).Contains node)) then
+        if(node = p.Initial) then 
             let node_new = p.NewNode()
 
             p.AddTransition node_new label node_to 
-            for f in (fs |> Formula.polyhedra_dnf |> Formula.split_disjunction) do
-                p.AddTransition node ((Programs.assume (Not(f)))::[for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))]) node_new 
+            //for f in (fs |> Formula.polyhedra_dnf |> Formula.split_disjunction) do
+            //    p.AddTransition node ((Programs.assume (Not(f)))::[for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))]) node_new 
             
-            p.RemoveTransition n  
+            p.AddTransition node [for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))] node_new          
 
+            p.RemoveTransition n   
 
     (p, error)
 
@@ -205,6 +207,7 @@ let wlp_star (rho:formula) (phi:formula) (vars_base:Map<var,int>) =
 /// Returns a disjunction describing preconditions for termination of a program
 /// without phase change. 
 let pre_synth (rho:formula, econd:formula, vars) = 
+    
     
     let get_vars_and_primes f =
     
@@ -330,7 +333,7 @@ let pre_synth (rho:formula, econd:formula, vars) =
 /// with phase change. 
 let rec pre_synth_phase (rho:formula, vars, cur_constr:formula, econd, depth_left) = 
 
-
+    printfn "HELLO!"
     // pre_synth, as everything else in T2 doesn't really like disjunctions.
     // Only call it with a formula purely made of AND-s.    
     let rho_disjs = Formula.polyhedra_dnf rho |> Formula.split_disjunction
@@ -444,7 +447,7 @@ let get_transition_formulae pars (p : Programs.Program) err : formula*formula*Ma
         !result
 
     let cex = find_counterexample pars p err
-
+    
     let rho = ref falsec
     let tetha = ref falsec
     let vars = ref Map.empty
@@ -631,7 +634,7 @@ let build_condition classified =
 
 
 let run pars (p : Programs.Program) =
-
+    
     //the negation of ExCond actually
     let find_exit_conditions rho vars =        
 
@@ -659,6 +662,8 @@ let run pars (p : Programs.Program) =
     let precond = ref falsec
     let (p_work, err) = instrument p !precond    
     let number_of_pred = p.TransitionsTo err |> Seq.length
+
+    //printfn "pars: %A" pars
 
     if(number_of_pred = 0) then conditions := truec
 
