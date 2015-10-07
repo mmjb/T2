@@ -24,7 +24,7 @@ module Microsoft.Research.T2.Arguments
 open Microsoft.FSharp.Reflection
 
 type runMode =
-    | Output
+    | Output of Parameters.outputFormat
     | Test
     | Safety of int
     | Termination
@@ -35,7 +35,6 @@ let parseArguments arguments =
     let pars = Parameters.defaultParameters
     let t2_input_file = ref ""
     let mode = ref None
-    let output_type = ref None
     let output_file = ref "out"
     let imperative_style = ref Parameters.Goto
     let java_nondet_style = ref Parameters.Aprove
@@ -49,26 +48,27 @@ let parseArguments arguments =
             mode := Some m
 
     let parse_output_type_string (s : string) =
-        match s.ToLower () with
+        let output_type =
+            match s.ToLower () with
             | "dot"
             | "dotty" ->
-                output_type := Some Parameters.Dot
+                Parameters.Dot
             | "java" ->
-                output_type := Some Parameters.Java
+                Parameters.Java
             | "c" ->
-                output_type := Some Parameters.C
+                Parameters.C
             | "clauses"
             | "hsf" ->
-                output_type := Some Parameters.HSF
+                Parameters.HSF
             | "smt"
             | "smtlib"
             | "pushdown"
             | "smtpushdown" ->
-                output_type := Some Parameters.SMTPushdown
+                Parameters.SMTPushdown
             | _ ->
                 eprintf "Cannot parse output type '%s' (known: dot, java, c, hsf, smtpushdown). Giving up.\n" s
                 exit 1
-        setMode Output
+        setMode (Output output_type)
 
     let safetyImplementations = FSharpType.GetUnionCases typeof<Parameters.SafetyImplementation>
     let knownSafetyImplementationsString = String.concat ", " (Array.map (fun (i : UnionCaseInfo) -> i.Name) safetyImplementations)
@@ -285,4 +285,4 @@ let parseArguments arguments =
         optionSet.WriteOptionDescriptions(System.Console.Error, false)
         exit 3
 
-    (!t2_input_file, (!mode).Value, pars, !fairness_constraint_string, !output_type, !output_file, !imperative_style, !java_nondet_style)
+    (!t2_input_file, (!mode).Value, pars, !fairness_constraint_string, !output_file, !imperative_style, !java_nondet_style)

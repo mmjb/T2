@@ -38,7 +38,7 @@ let main (arguments: string[]) =
     printfn "T2 program prover/analysis tool."
 
     // Perform the arguments parsing
-    let (t2_input_file, runMode, parameters, fairness_constraint_string, output_type, output_file, imperative_style, java_nondet_style) = Arguments.parseArguments arguments
+    let (t2_input_file, runMode, parameters, fairness_constraint_string, output_file, imperative_style, java_nondet_style) = Arguments.parseArguments arguments
 
     //only run the tests, if this is wanted:
     if runMode = Arguments.Test then
@@ -65,7 +65,7 @@ let main (arguments: string[]) =
 
     //Turn off tricks that don't always work for sepcific cases (this influences the input, thus we do it now) in the program representation that change the input program when just outputting
     match runMode with
-        | Arguments.Output ->
+        | Arguments.Output _ ->
             parameters.elim_constants <- false
         | _ -> ()
 
@@ -80,8 +80,11 @@ let main (arguments: string[]) =
     Stats.startTimer "T2 - Execution"
     match runMode with
         | Arguments.Test -> () //Handled above, so this is never reached...
-        | Arguments.Output ->
-            match output_type.Value with
+        | Arguments.Output outputType ->
+            match outputType with
+            | Parameters.T2 ->
+              Output.print_t2_program p output_file
+              printfn "Printing T2 program to %s completed" output_file
             | Parameters.Dot ->
               Output.print_dot_program p output_file
               printfn "Printing dot to %s completed" output_file

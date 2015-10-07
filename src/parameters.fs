@@ -24,6 +24,7 @@ module Microsoft.Research.T2.Parameters
 
 type numAbsDomain = Box | Octagon
 type outputFormat =
+    | T2
     | Dot
     | Java
     | C
