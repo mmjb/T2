@@ -79,19 +79,19 @@ let instrument (p : Programs.Program) (fs : formula) =
 
         //*************************************************************************************************************
    
-    for (n, (node, label, node_to)) in p.TransitionsWithIdx do
-        //if(cps.ContainsKey node_to) && (not ((cps.Item node_to).Contains node)) then
-        if(node = p.Initial) then 
-            let node_new = p.NewNode()
+    for (n, (node, label, node_to)) in p.TransitionsFrom p.Initial do           
 
-            p.AddTransition node_new label node_to 
-            //for f in (fs |> Formula.polyhedra_dnf |> Formula.split_disjunction) do
-            //    p.AddTransition node ((Programs.assume (Not(f)))::[for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))]) node_new 
+        let node_new = p.NewNode()
+        p.AddTransition node_new label node_to 
+
+        // Missing support for branch exit conditions vs true exit conditions. 
+        // TODO: fix the commented lines below to add the spport as mention above.
+        //for f in (fs |> Formula.polyhedra_dnf |> Formula.split_disjunction) do
+        //    p.AddTransition node ((Programs.assume (Not(f)))::[for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))]) node_new 
             
-            p.AddTransition node [for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))] node_new          
+        p.AddTransition node [for fl in !flags -> (Programs.assign fl (Const(bigint.Zero)))] node_new          
 
-            p.RemoveTransition n   
-
+        p.RemoveTransition n   
 
     (p, error)
 
