@@ -1,77 +1,72 @@
 START: 0;
 
 FROM: 0;
-last_copy_time := 0;
-curtime := nondet();
-got_SIGHUP := nondet();
 wakend := 1;
+got_SIGHUP := nondet();
+last_copy_time := 0;
+PGC_SIGHUP := 1;
 PGARCH_AUTOWAKE_INTERVAL := 1000;
 TO: 1;
 
 FROM: 1;
-assume(0 >= 0);
+assume(got_SIGHUP > 0);
+tt := nondet();
 TO: 2;
 
 FROM: 2;
-assume(got_SIGHUP > 0);
-got_SIGHUP := 0;
-tt := nondet();
+assume(tt > 0);
+TO: 3;
+
+FROM: 2;
+assume(tt <= 0);
+TO: break;
+
+
+FROM: 1;
+assume(got_SIGHUP <= 0);
 TO: 3;
 
 FROM: 3;
-assume(tt <= 0);
-TO: 9;
-
-FROM: 2;
-assume(got_SIGHUP <= 0);
-TO: 5;
+assume(wakend > 0);
+wakend := 0;
+last_copy_time := nondet();
+TO: 4;
 
 FROM: 3;
-assume(tt > 0);
+assume(wakend <= 0);
+TO: 4;
+
+FROM: 4;
+assume(wakend <= 0);
+curtime := nondet();
+calc := curtime - last_copy_time;
 TO: 5;
 
 FROM: 5;
-wakend := 0;
-TO: 10;
-
-FROM: 10;
-assume(wakend > 0);
-wakend := 0;
-t_last_copy_time := last_copy_time;
-last_copy_time := nondet();
-assume(last_copy_time > t_last_copy_time);
+assume(calc >= PGARCH_AUTOWAKE_INTERVAL);
+wakend := 1;
 TO: 6;
 
 FROM: 5;
-assume(wakend <= 0);
+assume(calc < PGARCH_AUTOWAKE_INTERVAL);
+TO: 6;
+
+FROM: 4;
+assume(wakend > 0);
 TO: 6;
 
 FROM: 6;
-assume(wakend <= 0);
-t_curtime := curtime;
-curtime := nondet();
-assume(curtime > t_curtime);
-dif := curtime - last_copy_time;
-TO: 8;
-
-FROM: 8;
-assume(wakend <= 0);
-assume(dif >= PGARCH_AUTOWAKE_INTERVAL);
-wakend := 1;
-TO: 7;
-
-FROM: 8;
-assume(wakend <= 0);
-assume(dif < PGARCH_AUTOWAKE_INTERVAL);
+dummy := nondet();
 TO: 7;
 
 FROM: 7;
-TO: 9;
-
-FROM: 7;
+assume(dummy > 0);
 TO: 1;
 
-FROM: 9;
-assume(0 <= 0);
-TO: 9;
+FROM: 7;
+assume(dummy <= 0);
+TO: break;
 
+FROM: break;
+
+TO: break;

@@ -1,0 +1,43 @@
+//init(A,R,N,PC):=A=0,R=0,PC=1.
+//next(A,R,N,PC,Ap,Rp,Np,PCp):=
+//    PC=1,Ap=A,Rp=R,Np=N,PCp=5;
+//    PC=1,Ap=1,Rp=R,Np=N,PCp=2;
+//    PC=2,Ap=0,Rp=R,Np=N,PCp=3;
+//    PC=3,Ap=A,Rp=R,Np=N,PCp=3;
+//    PC=3,Ap=A,Rp=1,Np=N,PCp=4;
+//    PC=4,Ap=A,Rp=0,Np=N,PCp=1.
+
+//init(A,R,N,PC):=A=0,R=0,PC=1.
+START: init;
+FROM: init;
+varA := 0;
+varR := 0;
+TO: loc1;
+
+// PC=1,Ap=A,Rp=R,Np=N,PCp=5;
+FROM: loc1;
+TO: loc5;
+
+//    PC=1,Ap=1,Rp=R,Np=N,PCp=2;
+FROM: loc1;
+varA := 1;
+TO: loc2;
+
+//    PC=2,Ap=0,Rp=R,Np=N,PCp=3;
+FROM: loc2;
+varA := 0;
+TO: loc3;
+
+//    PC=3,Ap=A,Rp=R,Np=N,PCp=3;
+FROM: loc3;
+TO: loc3;
+
+//    PC=3,Ap=A,Rp=1,Np=N,PCp=4;
+FROM: loc3;
+varR := 1;
+TO: loc4;
+
+//    PC=4,Ap=A,Rp=0,Np=N,PCp=1.
+FROM: loc4;
+varR := 0;
+TO: loc1;
