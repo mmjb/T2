@@ -401,34 +401,34 @@ let register_tests (pars : Parameters.parameters) =
     register_CTLStar_UNSAT_test "pgarch-succeed.t2" "E F(G(wakend == 0))"*)
     *)
 
-    register_CTL_SAT_test "testsuite/1.t2"  "[AG](varA != 1 || [AF](varR == 1))" None 
-    register_CTL_SAT_test "testsuite/2-2.t2" "[EF](varA == 1 && [EG](varR != 5))" None
-    register_CTL_SAT_test "testsuite/3.t2" "[AG](varA != 1 || [EF](varR == 1))" None
-    register_CTL_SAT_test "testsuite/4.t2" "[EF](varA == 1 && [AG](varR != 1))" None
-    register_CTL_SAT_test "testsuite/5.t2" "[AG](varS != 1 || [AF](varU == 1))" None
-    register_CTL_SAT_test "testsuite/6.t2" "[EF](varS == 1 || [EG](varU != 1))" None
-    register_CTL_SAT_test "testsuite/7.t2" "[AG](varS != 1 || [EF](varU == 1))" None
-    register_CTL_SAT_test "testsuite/8.t2" "[EF](varS == 1 && [AG](varU != 1))" None
-    register_CTL_SAT_test "testsuite/9.t2" "[AG](varA != 1 || [AF](varR == 1))" None
-    register_CTL_SAT_test "testsuite/10.t2" "[EF](varA == 1 && [EG](varR != 1))" None
-    register_CTL_SAT_test "testsuite/11.t2" "[AG](varA != 1 || [EF](varR == 1))" None
-    register_CTL_SAT_test "testsuite/12.t2" "[EF](varA == 1 && [AG](varR != 1))" None
-    register_CTL_SAT_test "testsuite/13.t2" "[EG](varP1 != 1) || [EG](varP2 != 1)" None
-    register_CTL_SAT_test "testsuite/14.t2" "[EG](varP1 != 1) || [EG](varP2 != 1)" None
-    register_CTL_SAT_test "testsuite/15.t2" "[EF](varP1 == 1) && [EF](varP2 == 1)" None
-    register_CTL_SAT_test "testsuite/16.t2" "[AG](varP1 != 1) || [AG](varP2 != 1)" None
-    register_CTL_SAT_test "testsuite/17.t2" "[AG]([AF](varW >= 1))" None
-    register_CTL_SAT_test "testsuite/18.t2" "[EF]([EG](varW < 1))" None
-    register_CTL_SAT_test "testsuite/19.t2" "[AG]([EF](varW >=1))" None
-    register_CTL_SAT_test "testsuite/20.t2" "[EF]([AG](varW < 1))" None
-    register_CTL_SAT_test "testsuite/21.t2" "[AG]([AF](varW == 1))" None
-    register_CTL_SAT_test "testsuite/22.t2" "[EF]([EG](varW != 1))" None
-    register_CTL_SAT_test "testsuite/23.t2" "[AG]([EF](varW == 1))" None
-    register_CTL_SAT_test "testsuite/24.t2" "[EF]([AG](varW != 1))" None
-    register_CTL_SAT_test "testsuite/25.t2" "(varC <= 5) || ([AF](varR > 5))" None
-    register_CTL_SAT_test "testsuite/26.t2" "(varC > 5) && [EG](varR <= 5)" None
-    register_CTL_SAT_test "testsuite/27.t2" "(varC <= 5) || [EF](varR > 5)" None
-    register_CTL_SAT_test "testsuite/28.t2" "(varC > 5) && [AG](varR <= 5)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P1.t2" "[AG](varA != 1 || [AF](varR == 1))" None 
+    register_CTL_SAT_test "cav13-ctl-examples/P2.t2" "[EF](varA == 1 && [EG](varR != 5))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P3.t2" "[AG](varA != 1 || [EF](varR == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P4.t2" "[EF](varA == 1 && [AG](varR != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P5.t2" "[AG](varS != 1 || [AF](varU == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P6.t2" "[EF](varS == 1 || [EG](varU != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P7.t2" "[AG](varS != 1 || [EF](varU == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P8.t2" "[EF](varS == 1 && [AG](varU != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P9.t2" "[AG](varA != 1 || [AF](varR == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P10.t2" "[EF](varA == 1 && [EG](varR != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P11.t2" "[AG](varA != 1 || [EF](varR == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P12.t2" "[EF](varA == 1 && [AG](varR != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P13.t2" "[EG](varP1 != 1) || [EG](varP2 != 1)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P14.t2" "[EG](varP1 != 1) || [EG](varP2 != 1)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P15.t2" "[EF](varP1 == 1) && [EF](varP2 == 1)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P16.t2" "[AG](varP1 != 1) || [AG](varP2 != 1)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P17.t2" "[AG]([AF](varW >= 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P18.t2" "[EF]([EG](varW < 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P19.t2" "[AG]([EF](varW >=1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P20.t2" "[EF]([AG](varW < 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P21.t2" "[AG]([AF](varW == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P22.t2" "[EF]([EG](varW != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P23.t2" "[AG]([EF](varW == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P24.t2" "[EF]([AG](varW != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P25.t2" "(varC <= 5) || ([AF](varR > 5))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P26.t2" "(varC > 5) && [EG](varR <= 5)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P27.t2" "(varC <= 5) || [EF](varR > 5)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P28.t2" "(varC > 5) && [AG](varR <= 5)" None
 
     
     //Timeouts for CTL* are commented out. If known why a comment is left above.
