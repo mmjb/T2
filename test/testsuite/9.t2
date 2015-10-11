@@ -1,0 +1,272 @@
+//init(A,R,K1,K2,K3,K4,K5,PC):=A=0,R=0,PC=1.
+//next(A,R,K1,K2,K3,K4,K5,PC,Ap,Rp,K1p,K2p,K3p,K4p,K5p,PCp):=
+//    PC=1,Ap=1,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=2;
+//    PC=2,Ap=0,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=3;
+//    PC=3,Ap=1,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=4;
+//    PC=4,Ap=0,Rp=R,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=5; % K1p = _rho,
+//    PC=5,K1>0,Ap=A,Rp=R,K1p=K1-1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=5;
+//    PC=5,K1=<0,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=6;
+//    PC=6,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=7;
+//    PC=7,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=8;
+//    PC=8,Ap=1,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=9;
+//    PC=9,Ap=0,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=10;
+//    PC=10,Ap=1,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=11;
+//    PC=11,Ap=0,Rp=R,K1p=K1,K3p=K3,K4p=K4,K5p=K5,PCp=12; % K2p = _rho,
+//    PC=12,K2>0,Ap=A,Rp=R,K1p=K1,K2p=K2-1,K3p=K3,K4p=K4,K5p=K5,PCp=12;
+//    PC=12,K2=<0,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=13;
+//    PC=13,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=14;
+//    PC=14,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=15;
+//    PC=15,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=16;
+//    PC=16,Ap=1,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=17;
+//    PC=17,Ap=0,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=18;
+//    PC=18,Ap=1,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=19;
+//    PC=19,Ap=0,Rp=R,K1p=K1,K2p=K2,K4p=K4,K5p=K5,PCp=20; % K3p = _rho,
+//    PC=20,K3>0,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3-1,K4p=K4,K5p=K5,PCp=21;
+//    PC=20,K3=<0,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=24;
+//    PC=21,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=22;
+//    PC=22,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=23;
+//    PC=23,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=16;
+//    PC=24,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=25;
+//    PC=25,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=26;
+//    PC=26,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=27;
+//    PC=27,Ap=1,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=28;
+//    PC=28,Ap=0,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=29;
+//    PC=29,Ap=1,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=30;
+//    PC=30,Ap=0,Rp=R,K1p=K1,K2p=K2,K3p=K3,K5p=K5,PCp=31; % K4p = _rho,
+//    PC=31,K4>0,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4-1,K5p=K5,PCp=32;
+//    PC=31,K4=<0,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=35;
+//    PC=32,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=33;
+//    PC=33,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=34;
+//    PC=34,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=27;
+//    PC=35,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=36;
+//    PC=36,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=37;
+//    PC=37,Ap=1,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=38;
+//    PC=38,Ap=0,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=39;
+//    PC=39,Ap=1,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=40;
+//    PC=40,Ap=0,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,PCp=41; % K5p = _rho,
+//    PC=41,K5>0,Ap=A,Rp=R,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5-1,PCp=41;
+//    PC=41,K5=<0,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=42;
+//    PC=42,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=43;
+//    PC=43,Ap=A,Rp=1,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=44;
+//    PC=44,Ap=A,Rp=0,K1p=K1,K2p=K2,K3p=K3,K4p=K4,K5p=K5,PCp=45.
+
+START: init;
+FROM: init;
+varA := 0;
+varR := 0;
+TO: loc1;
+
+FROM: loc1;
+varA := 1;
+TO: loc2;
+
+FROM: loc2;
+varA := 0;
+TO: loc3;
+
+FROM: loc3;
+varA := 1;
+TO: loc4;
+
+FROM: loc4;
+varA := 0;
+varK1 := nondet();
+TO: loc5;
+
+FROM: loc5;
+assume(varK1 > 0);
+varK1 := varK1 - 1;
+TO: loc5;
+
+FROM: loc5;
+assume(varK1 <= 0);
+varR := 1;
+TO: loc6;
+
+FROM: loc6;
+varR := 0;
+TO: loc7;
+
+FROM: loc7;
+varR := 1;
+TO: loc8;
+
+FROM: loc8;
+varA := 1;
+varR := 0;
+TO: loc9;
+
+FROM: loc9;
+varA := 0;
+TO: loc10;
+
+FROM: loc10;
+varA := 1;
+TO: loc11;
+
+FROM: loc11;
+varA := 0;
+varK2 := nondet();
+TO: loc12;
+
+FROM: loc12;
+assume(varK2 > 0);
+varK2 := varK2 - 1;
+TO: loc12;
+
+FROM: loc12;
+assume(varK2 <= 0);
+varR := 1;
+TO: loc13;
+
+FROM: loc13;
+varR := 0;
+TO: loc14;
+
+FROM: loc14;
+varR := 1;
+TO: loc15;
+
+FROM: loc15;
+varR := 0;
+TO: loc16;
+
+FROM: loc16;
+varA := 1;
+TO: loc17;
+
+FROM: loc17;
+varA := 0;
+TO: loc18;
+
+FROM: loc18;
+varA := 1;
+TO: loc19;
+
+FROM: loc19;
+varA := 0;
+varK3 := nondet();
+TO: loc20;
+
+FROM: loc20;
+assume(varK3 > 0);
+varR := 1;
+varK3 := varK3 - 1;
+TO: loc21;
+
+FROM: loc20;
+assume(varK3 <= 0);
+varR := 1;
+TO: loc24;
+
+FROM: loc21;
+varR := 0;
+TO: loc22;
+
+FROM: loc22;
+varR := 1;
+TO: loc23;
+
+FROM: loc23;
+varR := 0;
+TO: loc16;
+
+FROM: loc24;
+varR := 0;
+TO: loc25;
+
+FROM: loc25;
+varR := 1;
+TO: loc26;
+
+FROM: loc26;
+varR := 0;
+TO: loc27;
+
+FROM: loc27;
+varA := 1;
+TO: loc28;
+
+FROM: loc28;
+varA := 0;
+TO: loc29;
+
+FROM: loc29;
+varA := 1;
+TO: loc30;
+
+FROM: loc30;
+varA := 0;
+varK4 := nondet();
+TO: loc31;
+
+FROM: loc31;
+assume(varK4 > 0);
+varR := 1;
+varK4 := varK4 - 1;
+TO: loc32;
+
+FROM: loc31;
+assume(varK4 <= 0);
+varR := 1;
+TO: loc35;
+
+FROM: loc32;
+varR := 0;
+TO: loc33;
+
+FROM: loc33;
+varR := 1;
+TO: loc34;
+
+FROM: loc34;
+varR := 0;
+TO: loc27;
+
+FROM: loc35;
+varR := 0;
+TO: loc36;
+
+FROM: loc36;
+varR := 1;
+TO: loc37;
+
+FROM: loc37;
+varA := 1;
+varR := 0;
+TO: loc38;
+
+FROM: loc38;
+varA := 0;
+TO: loc39;
+
+FROM: loc39;
+varA := 1;
+TO: loc40;
+
+FROM: loc40;
+varA := 0;
+varK5 := nondet();
+TO: loc41;
+
+FROM: loc41;
+assume(varK5 > 0);
+varK5 := varK5 - 1;
+TO: loc41;
+
+FROM: loc41;
+assume(varK5 <= 0);
+varR := 1;
+TO: loc42;
+
+FROM: loc42;
+varR := 0;
+TO: loc43;
+
+FROM: loc43;
+varR := 1;
+TO: loc44;
+
+FROM: loc44;
+varR := 0;
+TO: loc45;

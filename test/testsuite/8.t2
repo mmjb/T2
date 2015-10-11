@@ -1,0 +1,71 @@
+//init(I,P,X,S,U,PC):=S=0,U=0,PC=0.
+//next(I,P,X,S,U,PC,Ip,Pp,Xp,Sp,Up,PCp):=
+//    PC=0,Ip=I,Pp=P,Sp=S,Up=U,PCp=1; % Xp=_
+//    PC=1,X>=1,Ip=I,Pp=P,Xp=X,Sp=S+1,Up=U,PCp=2;
+//    PC=1,X=<0,Ip=I,Pp=P,Xp=X,Sp=S,Up=U,PCp=3;
+//    PC=2,Ip=I,Pp=P,Xp=X,Sp=0,Up=U,PCp=3;
+//    PC=3,I<P,Ip=I+1,Pp=P,Xp=X,Sp=S,Up=U,PCp=3;
+//    PC=3,I<P,Ip=I,Pp=P,Xp=X,Sp=S,Up=U,PCp=4;
+//    PC=3,I>=P,Ip=I,Pp=P,Xp=X,Sp=S,Up=U,PCp=4;
+//    PC=4,X=<0,Ip=I,Pp=P,Xp=X,Sp=S,Up=U+1,PCp=5;
+//    PC=4,X>=1,Ip=I,Pp=P,Xp=X,Sp=S,Up=U,PCp=6;
+//    PC=5,Ip=I,Pp=P,Xp=X,Sp=S,Up=0,PCp=6.
+
+
+//init(I,P,X,S,U,PC):=S=0,U=0,PC=0.
+START: init;
+FROM: init;
+varS := 0;
+varU := 0;
+TO: loc0;
+
+//    PC=0,Ip=I,Pp=P,Sp=S,Up=U,PCp=1;
+FROM: loc0;
+TO: loc1;
+
+//    PC=1,X>=1,Ip=I,Pp=P,Xp=X,Sp=S+1,Up=U,PCp=2;
+FROM: loc1;
+assume(varX >= 1);
+varS := varS + 1;
+TO: loc2;
+
+//    PC=1,X=<0,Ip=I,Pp=P,Xp=X,Sp=S,Up=U,PCp=3;
+FROM: loc1;
+assume(varX <= 0);
+TO: loc3;
+
+//    PC=2,Ip=I,Pp=P,Xp=X,Sp=0,Up=U,PCp=3;
+FROM: loc2;
+varS := 0;
+TO: loc3;
+
+//    PC=3,I<P,Ip=I+1,Pp=P,Xp=X,Sp=S,Up=U,PCp=3;
+FROM: loc3;
+assume(varI < varP);
+varI := varI + 1;
+TO: loc3;
+
+//    PC=3,I<P,Ip=I,Pp=P,Xp=X,Sp=S,Up=U,PCp=4;
+FROM: loc3;
+assume(varI < varP);
+TO: loc4;
+
+//    PC=3,I>=P,Ip=I,Pp=P,Xp=X,Sp=S,Up=U,PCp=4;
+FROM: loc3;
+assume(varI >= varP);
+TO: loc4;
+
+//    PC=4,X=<0,Ip=I,Pp=P,Xp=X,Sp=S,Up=U+1,PCp=5;
+FROM: loc4;
+varU := varU + 1;
+TO: loc5;
+
+//    PC=4,X>=1,Ip=I,Pp=P,Xp=X,Sp=S,Up=U,PCp=6;
+FROM: loc4;
+assume(varX >= 1);
+TO: loc6;
+
+//    PC=5,Ip=I,Pp=P,Xp=X,Sp=S,Up=0,PCp=6.
+FROM: loc5;
+varU := 0;
+TO: loc6;

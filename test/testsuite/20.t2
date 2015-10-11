@@ -1,0 +1,55 @@
+//init(W,PC):=PC=0.
+//nondet_next(W,PC,Wp,PCp,B):=
+//    PC=0,W<0,Wp=W,PCp=0;
+//    PC=0,W>=0,Wp=W,PCp=1;
+//    PC=1,W>5,Wp=W,PCp=2;
+//    PC=1,W=<5,Wp=W,PCp=3;
+//    PC=2,Wp=W+1,PCp=1;
+//    B=0,PC=3,Wp=W,PCp=2;
+//    B=1,PC=3,Wp=W,PCp=4;
+//    PC=4,W=<2,Wp=W,PCp=1;
+//    PC=4,W>2,Wp=W-1,PCp=4.
+
+START: init;
+FROM: init;
+TO: loc0;
+
+FROM: loc0;
+assume(varW < 0);
+TO: loc0;
+
+FROM: loc0;
+assume(varW >= 0);
+TO: loc1;
+
+FROM: loc1;
+assume(varW > 5);
+TO: loc2;
+
+FROM: loc1;
+assume(varW <= 5);
+TO: loc3;
+
+FROM: loc2;
+varW := varW + 1;
+TO: loc1;
+
+FROM: loc3;
+varB := nondet();
+assume(varB == 0);
+TO: loc2;
+
+FROM: loc3;
+varB := nondet();
+assume(varB == 1);
+TO: loc4;
+
+FROM: loc4;
+assume(varW <= 2);
+varW := varW;
+TO: loc1;
+
+FROM: loc4;
+assume(varW> 2);
+varW := varW - 1;
+TO: loc4;
