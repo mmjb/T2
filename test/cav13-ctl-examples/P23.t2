@@ -17,9 +17,6 @@
 START: init;
 FROM: init;
 varW := 1;
-TO: loc0;
-
-FROM: loc0;
 varG := nondet();
 TO: loc1;
 
