@@ -90,6 +90,20 @@ type CTL_Formula =
 
         pp' 0 self
 
+    static member negate formula =
+        match formula with
+        | Atom a -> Atom (Formula.negate a)
+        | CTL_And (f1, f2) -> CTL_Or (CTL_Formula.negate f1, CTL_Formula.negate f2)
+        | CTL_Or (f1, f2) -> CTL_And (CTL_Formula.negate f1, CTL_Formula.negate f2)
+        | AF f -> EG (CTL_Formula.negate f)
+        | AG f -> EF (CTL_Formula.negate f)
+        | AX f -> EX (CTL_Formula.negate f)
+        | EF f -> AG (CTL_Formula.negate f)
+        | EG f -> AF (CTL_Formula.negate f)
+        | EX f -> AX (CTL_Formula.negate f)
+        | AW _
+        | EU _ -> failwith "Negation of AW and EU not supported."
+
     member self.isAtomic =
         match self with
         | Atom _ -> true
