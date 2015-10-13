@@ -15,24 +15,29 @@ developers of the tool and point to some related research papers.
 Windows
 ~~~~~~~
 To build T2, we recommend using Visual Studio (2013 or later), but you can
-also follow the Mono instructions provided below. In VS, the F# Power
-Pack is managed through NuGet in Visual Studio and does not need to be
-downloaded manually.
+also follow the Mono instructions provided below. In Visual Studio, the used
+NuGet packages are managed through Visual Studio and do not need to be
+downloaded manually (i.e., skip step (4)).
+To use the included libz3.dll, you need to install the Visual Studio 2015
+C++ run-time from
+  https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 Using Mono (for Linux and MacOS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To build T2, you first need to build the .NET bindings of z3 using mono.
-For this, get z3 sources from 
-   https://bitbucket.org/mmjb/spacer-dotnet
+To build T2, you will first need to build the .NET bindings of z3/spacer
+using mono. For this, you need to get z3 sources from the "spacer-t2" branch
+of https://bitbucket.org/spacer/code (cf. step (1)).
 
-To install needed .NET libraries, you will need NuGet, which you can
+To install some needed .NET libraries, you will need NuGet, which you can
 obtain from http://nuget.org/nuget.exe.
 
-Let $NUGET be the path to your nuget.exe download, $Z3DIR be the directory
-with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by
-"export Z3DIR=/path/to/z3/") and follow these steps:
+Let $NUGET be the path to your nuget.exe download, $Z3DIR the directory in
+which you want to store your Z3 sources, and $T2DIR the directory in which
+you want to store the T2 sources. You can set these environment variables
+by "export NUGET=/path/to/nuget.exe" in your shell. Then follow these
+steps:
 
-(0) Install software needed for the build process:
+(0) Install software needed for the build process, get T2 sources:
      * g++
      * python
      * mono for .NET 4.0
@@ -47,25 +52,37 @@ with Z3 sources, $T2DIR be the T2 source directory (e.g., set them by
     and install the XCode development tools (e.g., by executing "gcc" in
     a Terminal -- if it's not there yet, OS X will offer to install XCode).
 
+    To download the T2 sources:
+      $ mkdir -p "$T2DIR"
+      $ git clone https://github.com/mmjb/T2.git
+      $ export T2DIR="$T2DIR/T2"
+
 (1) Build z3.
-    On Linux, this suffices:
+    On Linux, the following recipe retrieves the z3 sources and builds z3:
+      $ mkdir -p "$Z3DIR"
       $ pushd "$Z3DIR"
+      $ git clone https://bitbucket.org/spacer/code
+      $ cd code
+      $ git checkout spacer-t2
       $ ./configure
-      $ pushd "$Z3DIR/build"
+      $ cd build
       $ make
-      $ popd && popd
+      $ popd
 
     On OS X, you need to enforce a 32bit build (for compatibility with Mono):
+      $ mkdir -p "$Z3DIR"
       $ pushd "$Z3DIR"
+      $ git clone https://bitbucket.org/spacer/code
+      $ cd code
+      $ git checkout spacer-t2
       $ ./configure
-      $ pushd "$Z3DIR/build"
+      $ cd build
       $ perl -i -pe 's/-D_AMD64_/-arch i386/; s/LINK_EXTRA_FLAGS=/$&-arch i386 /' config.mk
       $ make
-      $ popd && popd
+      $ popd
 
 (2) Build the .NET bindings for z3:
-      $ pushd "$Z3DIR/src/api/dotnet/"
-      $ echo -e '<configuration>\n <dllmap dll="libz3.dll" target="libz3.dylib" os="osx"/>\n <dllmap dll="libz3.so" target="libz3.dylib" os="linux"/>\n</configuration>\n' > Microsoft.Z3.config
+      $ pushd "$Z3DIR/code/src/api/dotnet/"
       $ xbuild Microsoft.Z3.csproj
       $ popd
 
@@ -349,7 +366,7 @@ The following people have contributed to this version of T2:
 * Marc Brockschmidt (MSR Researcher)
 * Hongyi Chen (12 week PhD intern, Lousiana State University)
 * Nathan Chong (12 week PhD intern, Imperial College)
-* Byron Cook (MSR Researcher)
+* Byron Cook (MSR Researcher, University College London)
 * Ruslan Ledesma Garza (12 week PhD intern, Technical University Munich)
 * Mihaela Gheorghiu (12 week PhD intern, University of Toronto)
 * Samin Ishtiaq (MSR Researcher)
