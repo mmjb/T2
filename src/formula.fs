@@ -368,11 +368,15 @@ let subcheck_return_var id = Var.var subcheck_return_prefix + string(id)
 let is_subcheck_return (v:string) = v.StartsWith subcheck_return_prefix
 let contains_var_str (var:string) (v:Var.var) = v.Contains var
 
+let flag_prefix = instrumentation_prefix + "flag_"
+let is_flag_var (v:string) = v.StartsWith flag_prefix
+
 let is_instr_var (v:string) =  is_saved_var v
                             || is_copied_var v
                             || is_init_cond_var v
                             || is_iter_var v
                             || is_subcheck_return v
+                            || is_flag_var v
 
 let contains_instr_var f = f |> freevars |> Seq.exists is_instr_var
 let contains_fair_var f = f |> freevars |> Seq.exists is_fair_var
