@@ -35,7 +35,6 @@ module Microsoft.Research.T2.Main
 [<EntryPoint>]
 let main (arguments: string[]) =
     Stats.startTimer "T2 - Initialization"
-    printfn "T2 program prover/analysis tool."
 
     // Perform the arguments parsing
     let (t2_input_file, runMode, parameters, fairness_constraint_string, output_file, imperative_style, java_nondet_style) = Arguments.parseArguments arguments
