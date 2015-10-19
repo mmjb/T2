@@ -92,7 +92,10 @@ steps:
 
 (4) Get required packages via NuGet (may need to import certificates first):
       $ mozroots --import --sync
-      $ pushd "$T2DIR/src" && mono $NUGET restore && popd
+      $ pushd "$T2DIR/src"
+      $ mono $NUGET restore
+      $ chmod +x packages/FsLexYacc.*/build/*exe
+      $ popd
 
 (5) Build T2, in Debug mode:
       $ pushd "$T2DIR/src" && xbuild && popd
