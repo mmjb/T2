@@ -41,6 +41,11 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <Choose>
+    <When Condition="'$(OS)' == 'Unix' AND Exists('$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets')">
+      <PropertyGroup>
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
     <When Condition="'$(VisualStudioVersion)' == '11.0'">
       <PropertyGroup>
         <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
