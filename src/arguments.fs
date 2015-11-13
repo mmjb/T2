@@ -50,6 +50,8 @@ let parseArguments arguments =
     let parse_output_type_string (s : string) =
         let output_type =
             match s.ToLower () with
+            | "t2" ->
+               Parameters.T2
             | "dot"
             | "dotty" ->
                 Parameters.Dot
