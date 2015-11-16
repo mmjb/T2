@@ -1,0 +1,68 @@
+//init(W,G,PC):=W=1,PC=1.
+//next(W,G,PC,Wp,Gp,PCp):=
+//  PC=1,Wp=1,Gp=G,PCp=2;
+//  PC=2,G=<0,Wp=W,Gp=G,PCp=3;
+//  PC=2,G>0,Wp=W,Gp=0,PCp=3;
+//  PC=2,G>0,Wp=W,Gp=0,PCp=6;
+//  PC=3,W=<0,Wp=W,Gp=G,PCp=4;
+//  PC=3,W>0,Wp=0,Gp=G,PCp=4;
+//  PC=4,W>0,Wp=W,Gp=G,PCp=5;
+//  PC=4,W=<0,Wp=W,Gp=G,PCp=5;
+//  PC=4,W=<0,Wp=1,Gp=G,PCp=5;
+//  PC=5,Wp=W,Gp=G,PCp=6;
+//  PC=5,Wp=W,Gp=G,PCp=2;
+//  PC=6,Wp=W,Gp=G,PCp=6.
+
+START: init;
+FROM: init;
+varW := 1;
+TO: loc1;
+
+FROM: loc1;
+varW := 1;
+TO: loc2;
+
+FROM: loc2;
+assume(varG <= 0);
+TO: loc3;
+
+FROM: loc2;
+assume(varG > 0);
+varG := 0;
+TO: loc3;
+
+FROM: loc2;
+assume(varG > 0);
+varG := 0;
+TO: loc6;
+
+FROM: loc3;
+assume(varW <= 0);
+TO: loc4;
+
+FROM: loc3;
+assume(varW > 0);
+varW := 0;
+TO: loc4;
+
+FROM: loc4;
+assume(varW > 0);
+TO: loc5;
+
+FROM: loc4;
+assume(varW <= 0);
+TO: loc5;
+
+FROM: loc4;
+assume(varW <= 0);
+varW := 1;
+TO: loc5;
+
+FROM: loc5;
+TO: loc6;
+
+FROM: loc5;
+TO: loc2;
+
+FROM: loc6;
+TO: loc6;

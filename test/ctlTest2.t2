@@ -1,0 +1,47 @@
+START: main_bb0;
+
+FROM: main_bb0;
+vj.0 := -100;
+TO: main_bb1;
+
+FROM: main_bb1;
+vy.0 := 0;
+vx.0 := -5;
+vi.0 := vj.0;
+TO: main_bb1_end;
+FROM: main_bb1_end;
+assume(vj.0 < 0);
+TO: main_bb2;
+FROM: main_bb1_end;
+assume(vj.0 >= 0);
+TO: main_bb5;
+
+FROM: main_bb2;
+TO: main_bb2_end;
+FROM: main_bb2_end;
+assume(vi.0 != 0);
+TO: main_bb3;
+FROM: main_bb2_end;
+assume(vi.0 == 0);
+TO: main_bb4;
+
+FROM: main_bb3;
+v2 := vi.0 + 2;
+v3 := vx.0 - 5;
+v4 := vy.0 / v3;
+v5 := vy.0 - v4;
+vy.0 := v5;
+vx.0 := v3;
+vi.0 := v2;
+TO: main_bb2;
+
+FROM: main_bb4;
+nondef.1:= nondet();
+v8 := vj.0 + 2;
+vj.0 := v8;
+TO: main_bb1;
+
+FROM: main_bb5;
+nondef.2:= nondet();
+TO: main_bb5_ret;
+

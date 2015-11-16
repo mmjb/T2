@@ -311,7 +311,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test   "ax_test.t2" "[EX](p <= 0)" None
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (Some "(P == 1, Q == 1)")
+    (*register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (Some "(P == 1, Q == 1)")
     //One with bug + Fairness.
     register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (Some "(P == 1, Q == 1)")
     //No Fairness constraint, should fail
@@ -349,12 +349,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_UNSAT_test "acqrel-succeed.t2" "[AG](Ar == 1 && [AG](Rr == 5)) " None
     register_CTL_UNSAT_test "acqrel-succeed.t2" "[AG](Ar == 0 || [EF](Rr == 5)) " None
     ////////////////////////////////////////////////////////////////////////////////////////
-    register_CTL_SAT_test "pgarch-succeed.t2" "[AG]([AF](wakend == 1))" None
-    register_CTL_SAT_test "pgarch-succeed.t2" "[AG]([EF](wakend == 1))" None
 
-
-    register_CTL_UNSAT_test "pgarch-succeed.t2" "[EF]([EG](wakend == 0))" None 
-    register_CTL_UNSAT_test "pgarch-succeed.t2" "[EF]([AG](wakend == 0))" None
     
     ////////////////////////////////////////////////////////////////////////////////////////
     register_CTL_SAT_test "ppblock.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (Some "(IoCreateDevice == 1, status == 1)")   
@@ -389,9 +384,54 @@ let register_tests (pars : Parameters.parameters) =
 
     register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
     register_CTL_UNSAT_test "st88b.t2" "[AG]([AF](WItemsNum < 1))" None
-    
-    //Timeouts for CTL* are commented out. If known why a comment is left above. 
+ 
+    (*register_CTL_SAT_test "e-pgarch-succeed.t2" "[AG]([AF](wakend == 1))" None
+    register_CTL_SAT_test "e-pgarch-succeed.t2" "[AG]([EF](wakend == 1))" None
 
+    register_CTL_UNSAT_test "e-pgarch-succeed.t2" "[EF]([EG](wakend == 0))" None 
+    register_CTL_UNSAT_test "e-pgarch-succeed.t2" "[EF]([AG](wakend == 0))" Non
+
+    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "A G(F ((tt <= 0) && (E G (wakend == 1)) ))" //Unknown as well
+    register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "E F(G ((tt > 0) || (A F (wakend == 0)) ))" 
+    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E F(G( (wakend == 1) && (E G (F (wakend == 0))) ))"
+    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E G(F (A G (wakend == 1)))"
+    register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "A F(G (E F (wakend == 0)))"
+
+    register_CTLStar_SAT_test "pgarch-succeed.t2" "A G(F(wakend == 1))"
+    register_CTLStar_UNSAT_test "pgarch-succeed.t2" "E F(G(wakend == 0))"*)
+    *)
+
+    register_CTL_SAT_test "cav13-ctl-examples/P1.t2" "[AG](varA != 1 || [AF](varR == 1))" None 
+    register_CTL_SAT_test "cav13-ctl-examples/P2.t2" "[EF](varA == 1 && [EG](varR != 5))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P3.t2" "[AG](varA != 1 || [EF](varR == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P4.t2" "[EF](varA == 1 && [AG](varR != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P5.t2" "[AG](varS != 1 || [AF](varU == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P6.t2" "[EF](varS == 1 || [EG](varU != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P7.t2" "[AG](varS != 1 || [EF](varU == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P8.t2" "[EF](varS == 1 && [AG](varU != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P9.t2" "[AG](varA != 1 || [AF](varR == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P10.t2" "[EF](varA == 1 && [EG](varR != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P11.t2" "[AG](varA != 1 || [EF](varR == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P12.t2" "[EF](varA == 1 && [AG](varR != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P13.t2" "[EG](varP1 != 1) || [EG](varP2 != 1)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P14.t2" "[EG](varP1 != 1) || [EG](varP2 != 1)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P15.t2" "[EF](varP1 == 1) && [EF](varP2 == 1)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P16.t2" "[AG](varP1 != 1) || [AG](varP2 != 1)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P17.t2" "[AG]([AF](varW >= 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P18.t2" "[EF]([EG](varW < 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P19.t2" "[AG]([EF](varW >=1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P20.t2" "[EF]([AG](varW < 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P21.t2" "[AG]([AF](varW == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P22.t2" "[EF]([EG](varW != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P23.t2" "[AG]([EF](varW == 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P24.t2" "[EF]([AG](varW != 1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P25.t2" "(varC <= 5) || ([AF](varR > 5))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P26.t2" "(varC > 5) && [EG](varR <= 5)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P27.t2" "(varC <= 5) || [EF](varR > 5)" None
+    register_CTL_SAT_test "cav13-ctl-examples/P28.t2" "(varC > 5) && [AG](varR <= 5)" None
+
+    
+    //Timeouts for CTL* are commented out. If known why a comment is left above.
     register_CTLStar_UNSAT_test "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
     register_CTLStar_SAT_test "1394complete-succeed-2.t2" "E F((A F(phi_io_compl > 0)) && (A G(F (phi_nSUC_ret <= 0))))"
     //register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) && (A G (keR == 0)))))" //
@@ -400,14 +440,7 @@ let register_tests (pars : Parameters.parameters) =
     //Z3 Out of memory exception for below:
     //register_CTLStar_SAT_test "ppblock.t2" "E F(PPBlockInits > 0  && ( ( (E F(G (IoCreateDevice != 1))) || (A G( F(status == 1))) ) && (E G(PPBunlockInits <= 0)) ) )" 
     //Program is about 110 - 400 lines of code.   
-    register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "E F(G ((tt > 0) || (A F (wakend == 0)) ))" 
-    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E F(G( (wakend == 1) && (E G (F (wakend == 0))) ))"
-    register_CTLStar_SAT_test "e-pgarch-succeed.t2" "E G(F (A G (wakend == 1)))"
-    register_CTLStar_UNSAT_test "e-pgarch-succeed.t2" "A F(G (E F (wakend == 0)))"
 
-    register_CTLStar_SAT_test "pgarch-succeed.t2" "A G(F(wakend == 1))"
-    register_CTLStar_UNSAT_test "pgarch-succeed.t2" "E F(G(wakend == 0))"
-    
     //CTL* Toy examples - About 10-15 lines of code
 
     register_CTLStar_SAT_test "testsuite/ctlstar_5.t2" "E F(G ((x == 1) && (E G(y == 0))))"
@@ -421,15 +454,6 @@ let register_tests (pars : Parameters.parameters) =
     register_CTLStar_SAT_test "testsuite/example10.t2" "A G( (E F (G (x = 0))) && (E F(x = 20)))"
     register_CTLStar_UNSAT_test "ctlstar_test.t2" "(E F(G (x == 0))) && (E F(G (x == 1)))"
     register_CTLStar_SAT_test "ctlstar_test.t2" "A G ((A F(G (x == 0))) || (A F(G (x == 1))))"
-
-
-    //This particular file has revealed a bug in how the termination strategy handles AF
-    //Unsure if these properties hold. It is recommended that we re-write T2 files for this C file.
-    //register_CTL_SAT_test "e-pgarch-succeed.t2" "[EF]([EG](wakend == 0))" None
-    //register_CTL_SAT_test "e-pgarch-succeed.t2" "[EF]([AG](wakend == 0))" None 
-    //register_CTL_UNSAT_test "e-pgarch-succeed.t2" "[AG]([AF](wakend == 1))" None
-    //register_CTL_UNSAT_test "e-pgarch-succeed.t2" "[AG]([EF](wakend == 1))" None
-    //register_CTLStar_SAT_test "e-pgarch-succeed.t2" "A G(F ((tt <= 0) && (E G (wakend == 1)) ))" //Unknown as well
 
     //Small bug to be fixed for stand alone AF. A corner case essentially. 
    // register_CTL_SAT_test "1394complete-succeed.t2" "([AF](phi_io_compl <= 0)) || ([AF](phi_nSUC_ret <= 0))" None 

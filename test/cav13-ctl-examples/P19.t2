@@ -1,0 +1,41 @@
+//init(W,PC):=PC=1.
+//next(W,PC,Wp,PCp):=
+//    PC=1,W>5,Wp=W,PCp=2;
+//    PC=1,W=<5,Wp=W,PCp=3;
+//    PC=2,Wp=W+1,PCp=1;
+//    PC=3,Wp=W,PCp=2;
+//    PC=3,Wp=W,PCp=4;
+//    PC=4,W=<2,Wp=W,PCp=1;
+//    PC=4,W>2,Wp=W-1,PCp=4.
+
+START: init;
+FROM: init;
+TO: loc1;
+
+FROM: loc1;
+assume(varW > 5);
+TO: loc2;
+
+FROM: loc1;
+assume(varW <= 5);
+TO: loc3;
+
+FROM: loc2;
+varW := varW + 1;
+TO: loc1;
+
+FROM: loc3;
+TO: loc2;
+
+FROM: loc3;
+TO: loc4;
+
+FROM: loc4;
+assume(varW <= 2);
+varW := varW;
+TO: loc1;
+
+FROM: loc4;
+assume(varW> 2);
+varW := varW - 1;
+TO: loc4;

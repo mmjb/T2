@@ -1,0 +1,41 @@
+//init(C,R,CS,PC):=C>=1,R=0,CS=8,PC=1.
+//next(C,R,CS,PC,Cp,Rp,CSp,PCp):=
+//    PC=1,CS=<0,Cp=C,Rp=R,CSp=CS,PCp=2;
+//    PC=1,CS>0,Cp=C,Rp=R,CSp=CS,PCp=3;
+//    PC=3,C>=CS,Cp=C-1,Rp=R+1,CSp=CS-1,PCp=1;
+//    PC=3,C<CS,Cp=C-1,Rp=R+1,CSp=CS-1,PCp=1;
+//    PC=3,C<CS,Cp=C,Rp=R,CSp=CS-1,PCp=1.
+
+START: init;
+FROM: init;
+assume(varC >= 1);
+varR := 0;
+varCS := 8;
+TO: loc1;
+
+FROM: loc1;
+assume(varCS <= 0);
+TO: loc2;
+
+FROM: loc1;
+assume(varCS > 0);
+TO: loc3;
+
+FROM: loc3;
+assume(varC >= varCS);
+varC := varC - 1;
+varR := varR + 1;
+varCS := varCS - 1;
+TO: loc1;
+
+FROM: loc3;
+assume(varC < varCS);
+varC := varC - 1;
+varR := varR + 1;
+varCS := varCS - 1;
+TO: loc1;
+
+FROM: loc3;
+assume(varC < varCS);
+varCS := varCS - 1;
+TO: loc1;

@@ -227,6 +227,7 @@ CTL_formula
 	| EU LPAREN CTL_formula RPAREN COMMA LPAREN CTL_formula RPAREN { CTL.CTL_Formula.EU($3, $7) }
     | EX LPAREN CTL_formula RPAREN { CTL.CTL_Formula.EX $3}
 	| LPAREN CTL_formula RPAREN { $2 }
+    | NOT CTL_formula { CTL.CTL_Formula.negate $2 }
 	;
 
 Fairness_constraint
