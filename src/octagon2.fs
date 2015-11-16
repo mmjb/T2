@@ -483,14 +483,14 @@ type Oct =
 
     /// does not introduce variables that are not already in the octagon;
     /// potentially O(n^3) in the size of formula
-    member private self.conservative_assume f =
+    member private self.conservative_assume (f : Formula.formula) =
         if self.is_empty then
             ()
         else
 
         let initial_oct_formula = if sanity_check then self.to_formula else Formula.truec
 
-        let ts = formula_to_linear_terms f |> simplify_as_inequalities
+        let ts = f.ToLinearTerms() |> simplify_as_inequalities
 
         for t in ts do
             let neg_t = mul_by_const t (bigint.MinusOne)

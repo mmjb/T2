@@ -44,6 +44,7 @@
 
 module Microsoft.Research.T2.InterpolantSingle
 
+open Formula
 open SparseLinear
 open Utils
 
@@ -112,10 +113,10 @@ let private gen_system (A: LinearTerm list) (B: LinearTerm list) =
 ///
 /// Return interpolant between two formulas
 ///
-let private synthesis_base (pars : Parameters.parameters) a b =
+let private synthesis_base (pars : Parameters.parameters) (a : formula) (b : formula) =
 
-    let A = formula_to_linear_terms a
-    let B = formula_to_linear_terms b
+    let A = a.ToLinearTerms()
+    let B = b.ToLinearTerms()
 
     let (Phi, intp) = gen_system A B
 
@@ -124,7 +125,7 @@ let private synthesis_base (pars : Parameters.parameters) a b =
         None
     | Some(m) ->
         let intp = Map.map (fun _ coeff -> Z.get_model_int m coeff) intp
-        let intp = linear_term_to_formula intp
+        let intp = formula.OfLinearTerm intp
         if pars.print_interpolants then
             printf "Interpolant: %s\n" (Formula.pp intp)
         m.Dispose()

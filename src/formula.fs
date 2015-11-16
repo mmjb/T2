@@ -42,6 +42,8 @@ module Microsoft.Research.T2.Formula
 open Utils
 open Term
 
+exception FormulaNotConvex
+
 [<StructuredFormatDisplayAttribute("{pp}")>]
 type formula =
     |Not of formula | And of formula * formula | Or of formula * formula | Eq of term * term
@@ -68,6 +70,17 @@ type formula =
 
     override self.ToString () = self.pp
 
+    member self.negate () =
+        match self with
+        | Not e -> e
+        | And (e1, e2) -> Or (e1.negate (), e2.negate ())
+        | Or (e1, e2) -> And (e1.negate (), e2.negate ())
+        | Eq (e1, e2) -> Or (Lt (e1, e2), Lt (e2, e1))
+        | Lt (e1, e2) -> Ge (e1, e2)
+        | Le (e1, e2) -> Gt (e1, e2)
+        | Ge (e1, e2) -> Lt (e1, e2)
+        | Gt (e1, e2) -> Le (e1, e2)
+
     member self.prefix_pp =
         match self with
         | Not(e)     -> sprintf "(not %s)" e.prefix_pp
@@ -89,6 +102,89 @@ type formula =
         | Le(e1, e2) -> sprintf "(%s=<%s)" (e1.clause_pp varPP) (e2.clause_pp varPP)
         | Gt(e1, e2) -> sprintf "(%s>%s)" (e1.clause_pp varPP) (e2.clause_pp varPP)
         | Ge(e1, e2) -> sprintf "(%s>=%s)" (e1.clause_pp varPP) (e2.clause_pp varPP)
+
+    member self.ContainsTerm f = 
+        match self with
+        | Not(e)    -> e.ContainsTerm f
+        | And(e1,e2)
+        | Or(e1,e2) -> e1.ContainsTerm f || e2.ContainsTerm f
+        | Eq(e1,e2)
+        | Lt(e1,e2)
+        | Le(e1,e2)
+        | Ge(e1,e2)
+        | Gt(e1,e2) -> Term.contains f e1 || Term.contains f e2
+
+    member self.ContainsNondet () = self.ContainsTerm (function Nondet -> true | _ -> false)
+
+    /// Break a formula into a list of its conjuncts
+    member self.SplitConjunction () =
+        // Note: we don't use obvious recursive version because it's potentially O(n^2)
+        let rec split f accum =
+            match f with
+            | And (f1, f2) -> split f1 (split f2 accum)
+            | _ -> f::accum
+        split self []
+
+    /// Break a formula into a list of its disjuncts
+    member self.SplitDisjunction () =
+        let rec split f accum =
+            match f with
+            | Or (f1, f2) -> split f1 (split f2 accum)
+            | _ -> f::accum
+        split self []
+
+    /// Convert to DNF where atomic inequalities are of the form t1 <= t2
+    /// (they are supposed to be linear, but it is not checked here)
+    /// This is a preferred way of simplifying formulae. It's supposed to be
+    /// fast: O(size of result).
+    member self.PolyhedraDNF () =
+        match self with
+        | Le (_, _) -> self // for efficiency
+        | Ge (t2, t1)
+        | Not (Lt (t2, t1))
+        | Not (Gt (t1, t2)) -> Le(t1, t2)
+
+        | Lt (t1, t2)
+        | Gt (t2, t1)
+        | Not (Ge (t1, t2))
+        | Not (Le (t2, t1)) -> Le (Term.add t1 (Term.constant 1), t2)
+
+        | Eq (t1, t2) -> And (Le (t1, t2), Le (t2, t1))
+        | Not (Eq (t1, t2)) -> (Or (Lt (t1, t2), Lt (t2, t1))).PolyhedraDNF ()
+
+        | Or (f1, f2) -> Or (f1.PolyhedraDNF (), f2.PolyhedraDNF ())
+        | And (f1, f2) ->
+            let fs1 = f1.PolyhedraDNF().SplitDisjunction()
+            let fs2 = f2.PolyhedraDNF().SplitDisjunction()
+            [
+                for d1 in fs1 do
+                    for d2 in fs2 do
+                        yield And (d1, d2)
+            ] |> List.reduce (fun a b -> Or (a, b))
+
+        | Not (And (f1, f2)) -> (Or (Not f1, Not f2)).PolyhedraDNF ()
+        | Not (Or (f1, f2)) -> (And (Not f1, Not f2)).PolyhedraDNF ()
+        | Not (Not f1) -> f1.PolyhedraDNF ()
+
+
+    static member OfLinearTerm (t: SparseLinear.LinearTerm) =
+        Le (SparseLinear.linear_term_to_term t, Term.constant 0)
+
+    /// Return list ts of linear terms t such that conjunction of t<=0
+    /// is equivalent to given formula.
+    /// Formula is expected to be a conjunction of atomic equalities and inequalities.
+    member self.ToLinearTerms () =
+        let f = match self.PolyhedraDNF().SplitDisjunction() with
+                | [f] -> f
+                | _ -> raise FormulaNotConvex
+
+        let inequality_to_linear_term f =
+            match f with
+            | Le (s, t) -> SparseLinear.sub (SparseLinear.term_to_linear_term s) (SparseLinear.term_to_linear_term t)
+            | _ -> dieWith ("not Le") // polyhedra_dnf always returns Le
+
+        //List.map inequality_to_linear_term (split_conjunction f)
+        List.map inequality_to_linear_term (f.SplitConjunction() |> List.filter (fun x -> not(x.ContainsNondet())))
 
 //
 // Note that we dont have a "true" or "false" in formula
@@ -170,19 +266,6 @@ let rec simplify p =
 
 let pp (f:formula) = f.pp
 
-let rec contains_term f e =
-    match e with
-    | Not(e)     -> contains_term f e
-    | And(e1,e2)
-    | Or(e1,e2)  -> contains_term f e1 || contains_term f e2
-    | Eq(e1,e2)
-    | Lt(e1,e2)
-    | Le(e1,e2)
-    | Ge(e1,e2)
-    | Gt(e1,e2) -> Term.contains f e1 || Term.contains f e2
-
-let contains_nondet = contains_term (function Nondet -> true | _ -> false)
-
 let rec freevars e =
     match e with
     | Not(e)     -> freevars e
@@ -213,62 +296,6 @@ let rec subst env e =
 /// Alpha-renaming
 ///
 let alpha m f = subst (m >> Var) f
-
-///
-/// Break a formulae into a list of its conjuncts
-///
-let split_conjunction f =
-    // Note: we don't use obvious recursive version because it's potentially O(n^2)
-    let rec split f accum =
-        match f with
-        | And (f1, f2) -> split f1 (split f2 accum)
-        | _ -> f::accum
-    split f []
-
-///
-/// Break a formulae into a list of its disjuncts
-///
-let split_disjunction f =
-    let rec split f accum =
-        match f with
-        | Or (f1, f2) -> split f1 (split f2 accum)
-        | _ -> f::accum
-    split f []
-
-///
-/// Convert to DNF where atomic inequalities are of the form t1 <= t2
-/// (they are supposed to be linear, but it is not checked here)
-/// This is a preferred way of simplifying formulae. It's supposed to be
-/// fast: O(size of result).
-///
-let rec polyhedra_dnf f =
-    match f with
-    | Le (_, _) -> f // for efficiency
-    | Ge (t2, t1)
-    | Not (Lt (t2, t1))
-    | Not (Gt (t1, t2)) -> Le(t1, t2)
-
-    | Lt (t1, t2)
-    | Gt (t2, t1)
-    | Not (Ge (t1, t2))
-    | Not (Le (t2, t1)) -> Le (Term.add t1 (Term.constant 1), t2)
-
-    | Eq (t1, t2) -> And (Le (t1, t2), Le (t2, t1))
-    | Not (Eq (t1, t2)) -> polyhedra_dnf (Or (Lt (t1, t2), Lt (t2, t1)))
-
-    | Or (f1, f2) -> Or (polyhedra_dnf f1, polyhedra_dnf f2)
-    | And (f1, f2) ->
-        let fs1 = polyhedra_dnf f1 |> split_disjunction
-        let fs2 = polyhedra_dnf f2 |> split_disjunction
-        [
-            for d1 in fs1 do
-                for d2 in fs2 do
-                    yield And (d1, d2)
-        ] |> List.reduce (fun a b -> Or (a, b))
-
-    | Not (And (f1, f2)) -> polyhedra_dnf (Or (Not f1, Not f2))
-    | Not (Or (f1, f2)) -> polyhedra_dnf (And (Not f1, Not f2))
-    | Not (Not f1) -> polyhedra_dnf f1
 
 // ----------------------------------------------------------------------------
 // Decision procedure tools for formula, via the Z3 decision procedure

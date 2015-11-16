@@ -55,6 +55,7 @@ let number_of_implications = 5
 /// number_of_invars:
 let number_of_invars = 1
 
+open Formula
 open SparseLinear
 open Utils
 
@@ -166,7 +167,7 @@ let private gen_system (pars : Parameters.parameters) try_ignore_beginning remov
 
 let private get_intps_model m intps =
     let model intp = Map.map (fun _ coeff -> Z.get_model_int m coeff) intp
-    List.map (model >> linear_term_to_formula) intps
+    List.map (model >> formula.OfLinearTerm) intps
 
 ///
 /// Compute path interpolants.
@@ -287,8 +288,8 @@ let private synthesis_base_with_entailment (pars : Parameters.parameters) fs ent
 
 let private path_synthesis (pars : Parameters.parameters) try_ignore_beginning entail_distance invar_fs fs =
     assert (fs <> [])
-    let ltfs = List.map formula_to_linear_terms fs
-    let invar_ltfs = List.map formula_to_linear_terms invar_fs
+    let ltfs = List.map (fun (f : formula) -> f.ToLinearTerms()) fs
+    let invar_ltfs = List.map (fun (f : formula) -> f.ToLinearTerms()) invar_fs
 
     let result =
         if entail_distance = 0 then synthesis_base pars try_ignore_beginning ltfs

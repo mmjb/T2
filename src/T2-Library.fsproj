@@ -81,9 +81,9 @@
     <Compile Include="z.fs" />
     <Compile Include="var.fs" />
     <Compile Include="term.fs" />
+    <Compile Include="sparselinear.fs" />
     <Compile Include="formula.fs" />
     <Compile Include="parseError.fs" />
-    <Compile Include="sparselinear.fs" />
     <Compile Include="relation.fs" />
     <Compile Include="interpolantSequence.fs" />
     <Compile Include="interpolantSingle.fs" />

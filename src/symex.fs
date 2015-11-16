@@ -189,9 +189,9 @@ let find_path_interpolant_old (pars : Parameters.parameters) try_ignore_beginnin
     let path_formulae = [for (_, fs, _) in pi -> Formula.conj fs]
     let final_formula = Formula.Not final
 
-    let final_dnf = Formula.polyhedra_dnf final_formula
-                    |> Formula.split_disjunction
-                    |> List.map Formula.split_conjunction
+    let final_dnf = 
+        final_formula.PolyhedraDNF().SplitDisjunction()
+        |> List.map (fun (f : formula) -> f.SplitConjunction())
     let dnf_paths = [for clause in final_dnf -> initial :: path_formulae @ [Formula.conj clause]]
 
     let dnf_interpolants =

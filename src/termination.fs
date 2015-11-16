@@ -190,7 +190,7 @@ let findPreconditionForPath (cex : (int * Programs.Command * int) list) =
     //Fourier-Motzkin elimination done here, removing all non-pre-variables:
     let (cex, var_map) = Symex.path_to_transitions_and_var_map cex Map.empty
     let cex = Symex.project_transitions_to_formulae cex |> List.filter (fun f -> not(Formula.contains_instr_var f)) |> Formula.conj
-    let mutable ts = cex |> SparseLinear.formula_to_linear_terms
+    let mutable ts = cex.ToLinearTerms()
 
     for (var, var_index) in var_map.Items do
         for i in 1..var_index do
@@ -198,12 +198,12 @@ let findPreconditionForPath (cex : (int * Programs.Command * int) list) =
             ts <- SparseLinear.eliminate_var var_prime ts
             ts <- SparseLinear.simplify_as_inequalities ts
 
-    let precondition = List.map SparseLinear.linear_term_to_formula ts |> Formula.conj
+    let precondition = List.map Formula.formula.OfLinearTerm ts |> Formula.conj
     //This formula has an SSA tag, must strip off before returning
     let strip_ssa f = Formula.subst (fun v -> Term.var (Var.unprime_var v)) f
     let precondition = Formula.negate (strip_ssa precondition)
     //If disjunction, we also must split in order to properly instrument in graph.
-    (precondition, Formula.polyhedra_dnf precondition |> Formula.split_disjunction)
+    (precondition, precondition.PolyhedraDNF().SplitDisjunction())
 
 //Now we must either universally or existentially quantify out the prophecy variables
 //from the preconditions.
@@ -214,19 +214,19 @@ let quantify_proph_var isExistential F formulaMap varString =
         let (loc,loc_form) = n
         let loc_form = if isExistential then loc_form else Formula.negate(loc_form)
         let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> x.Contains varString)//"__proph_var_det")
-        //let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> Formula.is_fair_var x)//x.Contains proph_string __proph_var_det")
+        //let proph_var = loc_form |> Formula.freevars |> Set.filter (fun x -> Formula.is_fair_var x)//x.Contains proph_string "__proph_var_det")
         if not(Set.isEmpty proph_var) then
             let mutable disj_fmla = Set.empty
-            let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf loc_form)
+            let split_disj = loc_form.PolyhedraDNF().SplitDisjunction()
             //When doing QE for universal versus existential
             //\forall X.phi(X) === \neg \exists \neg phi(X)
             for var in split_disj do
-                let mutable ts = var |> SparseLinear.formula_to_linear_terms
+                let mutable ts = var.ToLinearTerms()
                 for var in proph_var do
                     ts <- SparseLinear.eliminate_var var ts
                     ts <- SparseLinear.simplify_as_inequalities ts
                 let ts = ts //rebind to use in closure
-                disj_fmla <- Set.add (List.map SparseLinear.linear_term_to_formula ts |> Formula.conj) disj_fmla
+                disj_fmla <- Set.add (List.map Formula.formula.OfLinearTerm ts |> Formula.conj) disj_fmla
             //printfn "Before %A" disj_fmla
             //disj_fmla <- Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) disj_fmla
             //printfn "After %A" disj_fmla
@@ -304,7 +304,7 @@ let findErrorNode (p : Programs.Program) pi =
     assert(endOfPropertyCheckNode <> -1)
     (errorNode, endOfPropertyCheckNode)
 
-let strengthenCond pi_mod p1 =
+let strengthenCond pi_mod (p1 : Formula.formula) =
     let mod_var =
         pi_mod
         |> List.choose
@@ -317,15 +317,15 @@ let strengthenCond pi_mod p1 =
                 | _ -> None)
 
     let mutable disj_fmla = Set.empty
-    let split_disj = Formula.split_disjunction (Formula.polyhedra_dnf p1)
+    let split_disj = p1.PolyhedraDNF().SplitDisjunction()
 
     for var in split_disj do
-        let mutable ts = var |> SparseLinear.formula_to_linear_terms
+        let mutable ts = var.ToLinearTerms()
         for var in mod_var do
             ts <- SparseLinear.eliminate_var var ts
             ts <- SparseLinear.simplify_as_inequalities ts
         let ts = ts //rebind to use in closure
-        disj_fmla <- Set.add (List.map SparseLinear.linear_term_to_formula ts |> Formula.conj) disj_fmla
+        disj_fmla <- Set.add (List.map Formula.formula.OfLinearTerm ts |> Formula.conj) disj_fmla
     disj_fmla <- Set.remove Formula.truec disj_fmla
     disj_fmla
 
@@ -567,12 +567,12 @@ let insertForRerun
             Log.log pars <| sprintf "Extracting preconditions from recurrent set %s on cutpoint %i for rerun" (r.pp) cutp
             //Getting rid of useless instrumented variables
             let fPreCondNeg =
-                Formula.split_conjunction r
+                r.SplitConjunction()
                 |> List.filter (fun f -> not(Formula.contains_instr_var f) && not(Formula.contains_fair_var f))
                                 |> Formula.conj
 
             let precondition = fPreCondNeg |> Formula.negate
-            let preconditionDisjuncts = Formula.polyhedra_dnf precondition |> Formula.split_disjunction
+            let preconditionDisjuncts = precondition.PolyhedraDNF().SplitDisjunction()
             //Now instrument recurrent set and negation of it at the edges going into the loop
             //This is to reassure that within the loop our recurrent sets are progessing and not repeating
             for (l, (k, cmds, k')) in p_final.TransitionsFrom cutp do
@@ -1231,7 +1231,7 @@ let make_program_infinite (p : Programs.Program) =
                             let f_conj = Formula.conj f
                             trans_commands <- [f_conj] @ trans_commands
                     let neg_commands = trans_commands |> List.map(fun x -> Formula.negate(x)) |> Formula.conj
-                    let disj_commands = Formula.polyhedra_dnf neg_commands |> Formula.split_disjunction
+                    let disj_commands = neg_commands.PolyhedraDNF().SplitDisjunction()
                     for i in disj_commands do
                         p.AddTransition k' [Programs.assume i] infinite_loop
         if Set.contains k' dead_ends then

@@ -80,7 +80,7 @@ let relation_to_linear_terms rel =
     // that relation only involve prevars and postvars.
     let evars = existentials rel
 
-    let mutable ts = SparseLinear.formula_to_linear_terms (formula rel)
+    let mutable ts = (formula rel).ToLinearTerms()
 
     for var in evars do
         ts <- SparseLinear.eliminate_var var ts

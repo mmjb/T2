@@ -34,7 +34,6 @@
 module Microsoft.Research.T2.SparseLinear
 
 open Utils
-open Formula
 
 ///
 /// special 'variable' name to represent constants
@@ -113,9 +112,6 @@ let rec add (t1: LinearTerm) (t2: LinearTerm) : LinearTerm =
 
 let sub t1 t2 = add t1 (mul_by_const t2 bigint.MinusOne)
 
-let linear_term_to_formula (t: LinearTerm) =
-        Formula.Le (linear_term_to_term t, Term.constant 0)
-
 ///
 /// divide by gcd
 ///
@@ -178,27 +174,6 @@ let rec term_to_linear_term t : LinearTerm =
     | Term.Mul (tt, Term.Const c) // mloop -> mul_by_const (term_to_linear_term tt) c
     | Term.Mul (Term.Const c, tt) -> mul_by_const (term_to_linear_term tt) c
     | _ -> raise (Nonlinear t)
-
-exception Nonconvex of Formula.formula
-
-///
-/// Return list ts of linear terms t such that conjunction of t<=0
-/// is equivalent to given formula.
-/// Formula is expected to be a conjunction of atomic equalities and inequalities.
-///
-let formula_to_linear_terms f =
-
-    let f = match polyhedra_dnf f |> split_disjunction with
-            | [f] -> f
-            | _ -> raise (Nonconvex f)
-
-    let inequality_to_linear_term f =
-        match f with
-        | Le (s, t) -> sub (term_to_linear_term s) (term_to_linear_term t)
-        | _ -> dieWith ("not Le") // polyhedra_dnf always returns Le
-
-    //List.map inequality_to_linear_term (split_conjunction f)
-    List.map inequality_to_linear_term ((split_conjunction f) |> List.filter (fun x -> not(Formula.contains_nondet x)))
 
 ///
 /// Fourier-Motzkin elimination.

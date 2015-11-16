@@ -625,8 +625,8 @@ let generate_checker_instrumentation_nodes n (p : Programs.Program) =
 
 let eliminate_redun (lst : (int * Formula.formula) list) : (int*Formula.formula) list =
     let var_terms = System.Collections.Generic.Dictionary<Term.term, bigint>()
-    let simplify (x, y) =
-        let disjuncts = (Formula.polyhedra_dnf y |> Formula.split_disjunction)
+    let simplify ((x, y) : ('a * formula)) =
+        let disjuncts = y.PolyhedraDNF().SplitDisjunction()
         let split_var = (disjuncts |> Formula.freevars_list) |> Set.map(fun z -> Term.Var(z))
         let removeRedundantBounds n =
             match n with
@@ -666,7 +666,7 @@ let add_subproperty_conditions (p : Programs.Program) conditions_per_cp cp isExi
     //every disjunction possible. This may be expensive, but it seems that we only get two disjunctions at most.
     //Note that for E we need the disjunction of the pre-conditions for a location, versus the conjunction. This is dealt
     //with in another function through flattening the formulas with the same node through disjunction. This is not done for A
-    let cond = conditions_per_cp |> List.filter (fun (x,_) -> x = cp) |> List.map (fun (_,y) ->  Formula.polyhedra_dnf y |> Formula.split_disjunction)
+    let cond = conditions_per_cp |> List.filter (fun (x,_) -> x = cp) |> List.map (fun ((_,y) : ('a * formula)) -> y.PolyhedraDNF().SplitDisjunction())
 
     //We generate a list of disjunctions of conjunctions (list of lists), then we flatten to just a list of disjunctions
     //between conjucted formulas
@@ -682,7 +682,7 @@ let add_subproperty_conditions (p : Programs.Program) conditions_per_cp cp isExi
     let dnf_cond = distribute cond |> List.map (fun x -> Formula.conj x) |> Set.ofList
     //Generate the equivalent for the negation:
     let neg_cond = conditions_per_cp |> List.filter (fun (x,_) -> x = cp) |> List.map (fun (_,y) -> Formula.negate(y)) |> Formula.disj
-    let neg_cond = neg_cond |> Formula.polyhedra_dnf  |> Formula.split_disjunction |> Set.ofList
+    let neg_cond = neg_cond.PolyhedraDNF().SplitDisjunction() |> Set.ofList
 
     //If existential then we want to reverse dnf_cond and neg_cond because we are doing the negation of A
     let (dnf_cond, neg_cond) = if isExistential then (neg_cond, dnf_cond) else (dnf_cond, neg_cond)
@@ -1235,8 +1235,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
         if fairness_constraint.IsSome then
             let (fair_1,fair_2) = fairness_constraint.Value
             let not_fair_1 =
-                   polyhedra_dnf (Formula.negate(fair_1))
-                |> split_disjunction
+                   (Formula.negate fair_1).PolyhedraDNF().SplitDisjunction()
                 |> List.map(fun x -> [Programs.assume x; Programs.assume (Formula.Eq(proph_old, proph))])
 
             Some(

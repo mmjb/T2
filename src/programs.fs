@@ -527,11 +527,13 @@ type Program private (parameters : Parameters.parameters) =
                 | _ -> Atom cmd
 
             match cmd with
-            | Assume(_, f) when contains_nondet f ->
+            | Assume(_, f) when f.ContainsNondet() ->
                 Seq []
             | Assume(pos, f) ->
-                let f = polyhedra_dnf f
-                match f |> split_disjunction |> List.map split_conjunction with
+                let atoms = 
+                    f.PolyhedraDNF().SplitDisjunction()
+                    |> List.map (fun (f : formula) -> f.SplitConjunction())
+                match atoms with
                 | [[f1]; [f2]] -> // disjunction of two atomic formulae
                     Par [for f' in [f1; f2] -> command_to_seqpar (Assume (pos, f'))]
                 | [fs] -> // conjunction of atomic formulae

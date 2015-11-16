@@ -112,7 +112,7 @@ let separate_conditions_and_assignments prevars conjuncts =
                 //We have to be careful here: If the coefficient on the fresh variable is not 1, then we can be in trouble.
                 //Example: assume(2t = x), where t is fresh. Then, we have to parse this as a constraint, and not as an assignment:
                 let freshVars = Set.removeAll c_vars !seen_vars
-                let formulas_as_linterms = c |> SparseLinear.formula_to_linear_terms
+                let formulas_as_linterms = c.ToLinearTerms()
                 let hasNonUnitCoeff linterm v =
                     match Map.tryFind v linterm with
                     | Some i -> i > bigint.One || i < bigint.MinusOne
@@ -192,7 +192,7 @@ let recurrent_set_from_path_conditions (pars : Parameters.parameters) stem cycle
     // build invariant_renamed && constraints && assignments && not(constraints_renamed) && assignments_renamed to see if we exit after 2nd iteration
     if Formula.unsat exit_after_2nd_iteration then
         // If unsat, eliminate non-pre vars from constraints, rename pre-vars to just vars, return as recurrent set
-        let mutable recurrent_set_terms = constraints |> formula_to_linear_terms
+        let mutable recurrent_set_terms = constraints.ToLinearTerms()
         for var in varMap.Keys do
             for i in 1..(Map.find var varMap) do
                 let var_prime = Var.prime_var var i
@@ -202,7 +202,7 @@ let recurrent_set_from_path_conditions (pars : Parameters.parameters) stem cycle
         let recurrent_set =
             Formula.And(
                 invariant |> Formula.alpha Var.unprime_var, 
-                List.map linear_term_to_formula recurrent_set_terms |> Formula.conj |> Formula.alpha Var.unprime_var)
+                List.map Formula.formula.OfLinearTerm recurrent_set_terms |> Formula.conj |> Formula.alpha Var.unprime_var)
 
         Some recurrent_set
     else

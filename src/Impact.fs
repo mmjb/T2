@@ -521,7 +521,7 @@ type ImpactARG(parameters : Parameters.parameters,
             | Some A ->
                 let update (loc, intp) =
                     if not (self.entails1_psi loc intp) then
-                        let split = Formula.split_conjunction  intp
+                        let split = intp.SplitConjunction()
                         List.iter (self.conjoin_with_psi loc) split
                         self.rm_from_covering (fun (x, y) -> y=loc && not (self.entails_psi x loc))
                 List.zip (self.path_to_locs formulae) A |> List.iter update
