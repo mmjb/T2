@@ -123,7 +123,7 @@ type ImpactARG(parameters : Parameters.parameters,
     let leaves = System.Collections.Generic.HashSet<int>()
 
     /// Mapping from edges in the execution tree to the commands in the original program
-    let abs_edge_to_program_commands = System.Collections.Generic.Dictionary<int * int, Programs.Command list>()
+    let abs_edge_to_program_commands = System.Collections.Generic.Dictionary<int * int, int * Programs.Command list>()
 
     /// Mapping from nodes in the execution tree to the original program
     let abs_node_to_program_loc = DefaultDictionary<int,int>(fun _ -> -1)
@@ -376,7 +376,7 @@ type ImpactARG(parameters : Parameters.parameters,
             let parentNode = self.parent !curNode
             assert (parentNode.IsSome)
             let parentNode = parentNode.Value
-            let curCommands = [for c in abs_edge_to_program_commands.[parentNode, !curNode] -> (parentNode, c, !curNode)]
+            let curCommands = [for c in snd abs_edge_to_program_commands.[parentNode, !curNode] -> (parentNode, c, !curNode)]
             commands <- curCommands @ commands
             curNode := parentNode
         commands
@@ -398,7 +398,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
     /// Make a new node "w" and add the edge expandedNode---commandsOnEdge--->newNode,
     /// where newNode maps to location newNodeLoc from the original program
-    member private __.make_node expandedNode commandsOnEdge newNodeLoc =
+    member private __.make_node expandedNode transId commandsOnEdge newNodeLoc =
         let newNode = new_vertex ()
         add_V newNode
         add_E expandedNode newNode
@@ -406,7 +406,7 @@ type ImpactARG(parameters : Parameters.parameters,
         program_loc_to_abs_nodes.Add (newNodeLoc, newNode)
         let commandsOnEdge = if commandsOnEdge = [] then [Programs.skip] else commandsOnEdge
         assert (not <| abs_edge_to_program_commands.ContainsKey (expandedNode, newNode))
-        abs_edge_to_program_commands.[(expandedNode, newNode)] <- commandsOnEdge
+        abs_edge_to_program_commands.[(expandedNode, newNode)] <- (transId, commandsOnEdge)
         add_leaf newNode
         newNode
 
@@ -422,9 +422,9 @@ type ImpactARG(parameters : Parameters.parameters,
 
         if not (self.is_covered v) then
             self.remove_leaf v
-            [for (_, (_, T, m)) in transition abs_node_to_program_loc.[v] do
+            [for (id, (_, T, m)) in transition abs_node_to_program_loc.[v] do
                 if (not <| Formula.unsat (self.psi v)) then
-                    let new_node = self.make_node v T m
+                    let new_node = self.make_node v id T m
                     Log.log parameters <| sprintf "  Expanded to %d (loc %d)" new_node m
                     yield new_node
             ] |> List.rev
@@ -850,7 +850,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
 
         ///Delete everything from the graph that used/used some program transition:
-        member self.DeleteProgramTransition ((k, cmds, k') : (int * Programs.Command list * int)) =
+        member self.DeleteProgramTransition ((id, (k, cmds, k')) : (int * (int * Programs.Command list * int))) =
             //For each transition to remove, get the representatives of the source, fish out those out-edges that correspond to the trans, remove those children:
             if not(program_loc_to_abs_nodes.ContainsKey k) || not(program_loc_to_abs_nodes.ContainsKey k') then
                 ()
@@ -863,6 +863,6 @@ type ImpactARG(parameters : Parameters.parameters,
                         if (parent.[k_rep_succ] <> -1) then //Avoid accessing things we removed
                             if k'_reps.Contains k_rep_succ then
                                 //Check that we have the right commands here:
-                                if (abs_edge_to_program_commands.[k_rep, k_rep_succ] = cmds) then
+                                if (fst abs_edge_to_program_commands.[k_rep, k_rep_succ] = id) then
                                     //Delete everything that was created using this transition:
                                     self.delete_tree k_rep_succ

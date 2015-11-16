@@ -36,6 +36,6 @@ module Microsoft.Research.T2.SafetyInterface
 type SafetyProver =
     interface
         abstract member ErrorLocationReachable : unit -> (int * Programs.Command * int) list option
-        abstract member DeleteProgramTransition : (int * Programs.Command list * int) -> unit
+        abstract member DeleteProgramTransition : (int * (int * Programs.Command list * int)) -> unit
         abstract member ResetFrom : int -> unit
     end

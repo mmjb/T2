@@ -819,7 +819,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
                 for trans_idx in trans_to_remove do
                     let (k,cmds,k') = p_instrumented.GetTransition trans_idx
                     p_instrumented.RemoveTransition trans_idx
-                    safety.DeleteProgramTransition (k, cmds, k')
+                    safety.DeleteProgramTransition (trans_idx, (k, cmds, k'))
                     safety.ResetFrom k
 
             /////////// Counterexample for which we couldn't find a program refinement:
