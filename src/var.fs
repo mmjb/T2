@@ -48,29 +48,22 @@ let var = id
 let var2str x = sprintf "\" %s \"" (idx2str x)
 let pp = idx2str
 
-///
-/// Assuming that SSA information is after ^
-///
-let unprime_var (v : string) =
+let private splitPrimedVar (v : var) =
     let i = v.LastIndexOf "^"
     if i < 0 then
         dieWith ("Unpriming non-primed var " + v)
-        v
     else
-        v.[0 .. (i-1)]
+        (v.[0 .. i-1], v.[i + 1 ..])
+
+/// Assuming that SSA information is after ^
+let unprime_var (v : string) = fst (splitPrimedVar v)
+
+/// Assuming that SSA information is after ^
+let get_prime_idx (v : string) = int (snd (splitPrimedVar v))
 
 ///
 /// Encoding SSA using numbers after "^"
 ///
 let prime_var v (primes:int) = v + "^" + primes.ToString()
 
-
-///
-/// Assuming that SSA information is after ^
-///
-let get_prime_idx (v : string) =
-    let i = v.LastIndexOf "^"
-    if i < 0 then
-        dieWith ("Unpriming non-primed var " + v)
-    else
-        int (v.[1 + i ..])
+
