@@ -239,3 +239,74 @@ let combine_with_z3_terms (A: LinearTerm list) (coeffs: Microsoft.Z3.ArithExpr l
 /// If it's not linear, Nonlinear exception is thrown
 ///
 let term_as_linear = term_to_linear_term >> linear_term_to_term
+
+let toCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (t : LinearTerm) =
+    writer.WriteStartElement "constant"
+    writer.WriteValue (int (Map.findWithDefault ONE bigint.Zero t))
+    writer.WriteEndElement ()
+
+    Map.iter
+        (fun var value ->
+            if var <> ONE && value <> bigint.Zero then
+                writer.WriteStartElement "addend"
+
+                writer.WriteStartElement "constant"
+                writer.WriteValue (int value)
+                writer.WriteEndElement ()
+
+                varWriter writer var
+
+                writer.WriteEndElement ())
+        t
+
+let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : (bigint list) =
+    let presNLambdas : (LinearTerm * Microsoft.Z3.ArithExpr) list = [ for pre in pres do yield (pre, upcast Z.fresh_var()) ]
+    let allVars = Set.unionMany (Seq.map (fun (t : LinearTerm) -> Set.ofSeq t.Keys) (Seq.append (Seq.singleton post) pres))
+
+    //For t.[v] the v-coefficient of t:
+    //   (\bigwedge_{t \in pres} t <= 0) -> post <= 0
+    //        <=>
+    //   \bigwedge_{v \in (allVars - ONE)} \sum_{t \in pres} lambda_t * t.[v] = post.[v]
+    //   && \sum_{t \in pres} lambda_t * t.[ONE] <= post.[ONE]
+    //   && \bigwedge_{t \in pres} lambda_t >= 0
+    let ZERO = Z.constant bigint.Zero
+    let lambdasPos =
+        presNLambdas
+        |> List.map (fun (_, lambda) -> Z.ge lambda ZERO)
+        |> Z.conj
+    let farkasConstraints =
+        Seq.fold
+            (fun partialConstraint v ->
+                let preCoeffSum =
+                    List.fold
+                        (fun partialSum (pre, lambda) ->
+                            match Map.tryFind v pre with
+                            | Some coeff -> Z.add partialSum (Z.mul lambda (Z.constant coeff))
+                            | None -> partialSum)
+                        (Z.constant bigint.Zero) presNLambdas
+                let postCoeff = Z.constant (Map.findWithDefault v bigint.Zero post)
+                let constr =
+                    if v = ONE then
+                        Z.le preCoeffSum postCoeff
+                    else
+                        Z.eq preCoeffSum postCoeff
+                Z.conj2 partialConstraint constr)
+            lambdasPos allVars
+    match Z.solve [farkasConstraints] with
+    | None ->
+        failwith "Trying to get Farkas coefficients for implication that doesn't hold!"
+    | Some model ->
+        List.map (fun (_, lambda) ->  Z.get_model_int model lambda) presNLambdas
+
+let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : LinearTerm seq) (post : LinearTerm) =
+    let farkasCoeffs = getFarkasCoefficients pres post
+    writer.WriteStartElement "linearImplicationHint"
+    writer.WriteStartElement "linearCombination"
+    List.iter
+        (fun (i : bigint) ->
+            writer.WriteStartElement "constant"
+            writer.WriteValue (int64 i)
+            writer.WriteEndElement ()) //constant end
+        farkasCoeffs
+    writer.WriteEndElement () //linearCombination end
+    writer.WriteEndElement () //linearImplicationHint end

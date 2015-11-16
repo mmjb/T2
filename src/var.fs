@@ -66,4 +66,29 @@ let get_prime_idx (v : string) = int (snd (splitPrimedVar v))
 ///
 let prime_var v (primes:int) = v + "^" + primes.ToString()
 
-
+/// Just writes the variable out to the XmlWriter, ignoring possible post-ness.
+let plainToCeta (writer : System.Xml.XmlWriter) (var : var) =
+    writer.WriteStartElement "variable"
+    writer.WriteStartElement "variableName"
+    writer.WriteElementString ("variableIdentifier", var)
+    writer.WriteEndElement () //variableName end
+    writer.WriteEndElement () //variable end
+
+/// Writes the variable out to the XmlWriter, marking post variables appropriately.
+let toCeta (varToPostIdx : Map<var, int>) (writer : System.Xml.XmlWriter) (var : var)=
+    let (varId, primeIdx) = splitPrimedVar var
+    let isPostVar = primeIdx <> "0" && string (varToPostIdx.FindWithDefault varId 0) = primeIdx
+
+    writer.WriteStartElement "variable"
+
+    if isPostVar then
+        writer.WriteStartElement "post"
+
+    writer.WriteStartElement "variableName"
+    writer.WriteElementString ("variableIdentifier", var)
+    writer.WriteEndElement () //variableName end
+
+    if isPostVar then
+        writer.WriteEndElement() //post end
+
+    writer.WriteEndElement () //variable end

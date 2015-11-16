@@ -186,6 +186,26 @@ type formula =
         //List.map inequality_to_linear_term (split_conjunction f)
         List.map inequality_to_linear_term (f.SplitConjunction() |> List.filter (fun x -> not(x.ContainsNondet())))
 
+    static member LinearTermsToCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (linearTerms : SparseLinear.LinearTerm seq) =
+        writer.WriteStartElement "formula"
+        writer.WriteStartElement "conjunction"
+        Seq.iter
+            (fun t ->
+                writer.WriteStartElement "atom"
+                SparseLinear.toCeta writer varWriter t
+                writer.WriteEndElement())
+            linearTerms
+        writer.WriteEndElement()
+        writer.WriteEndElement()
+
+    ///This will spit out a sequence of atoms into the passed xml writer, to be understood as conjunction
+    member self.ToCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) =
+        try
+            let linearTerms = self.ToLinearTerms()
+            formula.LinearTermsToCeta writer varWriter linearTerms
+        with
+        | FormulaNotConvex -> failwith "CeTA export of disjunctions not supported yet."
+
 //
 // Note that we dont have a "true" or "false" in formula
 // We encode these as arithmetic formulae

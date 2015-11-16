@@ -778,6 +778,43 @@ type ImpactARG(parameters : Parameters.parameters,
         self.close_all_ancestors v
         self.dfs v
 
+    member private self.toCeta (writer : System.Xml.XmlWriter) =
+        let formulasToLinearTerms =
+            Seq.fold (fun res (f : Formula.formula) -> f.ToLinearTerms() @ res) []
+        let rec exportNode nodeId =
+            writer.WriteStartElement "artNode"
+            writer.WriteElementString ("artNodeId", string nodeId)
+            //We are not using Formula.conj here because we absolutely want to control the order of formulas...
+            let linearTermPsi = formulasToLinearTerms psi.[nodeId]
+            Formula.formula.LinearTermsToCeta writer Var.plainToCeta linearTermPsi
+            writer.WriteElementString ("node", string abs_node_to_program_loc.[nodeId])
+            match covering.TryGetValue nodeId with
+            | (true, coverTarget) ->
+                writer.WriteStartElement "coverEdge"
+                writer.WriteElementString ("artNodeId", string coverTarget)
+
+                writer.WriteStartElement "hints"
+                for lt in formulasToLinearTerms psi.[coverTarget] do
+                    SparseLinear.writeCeTALinearImplicationHints writer linearTermPsi lt
+                writer.WriteEndElement () //hints end
+
+                writer.WriteEndElement () //coverEdge end
+            | (false, _) ->
+                writer.WriteStartElement "children"
+                for childId in E.[nodeId] do
+                    let transId = fst abs_edge_to_program_commands.[(nodeId, childId)]
+                    writer.WriteStartElement "child"
+                    writer.WriteElementString ("transitionId", string transId)
+                    exportNode childId
+                    //TODO: implication hints should go here.
+                    writer.WriteEndElement () //child end
+                writer.WriteEndElement () //children end
+            writer.WriteEndElement () //artNode end
+        writer.WriteStartElement "Impact"
+        exportNode loc_init
+        writer.WriteEndElement () //Impact end
+
+
     //
     // Sanity checks
     //
