@@ -326,11 +326,8 @@ let addVarsToVarMap fs varMap =
         | h::t -> addVars t (match Map.tryFind h varMap with | None -> Map.add h 0 varMap | _ -> varMap)
     addVars vars varMap
 
-/// Convert path to path formula, applying SSA transformation.
-/// varMap contains var to SSA version number.
-/// Return pair (<list of transition formulae>, <new varMap>).
-/// If variable is not present in varMap, its version is 0.
-let cmdPathToFormulaPathAndVarMap path varMap =
+/// Translates a sequence of commands into a transition formula over pre (v^0), post (v^varMap.[v]) and intermediate variables.
+let private cmdsToFormulae cmds varMap =
     let cmdToFormula varMap cmd =
         match cmd with
         | Assign(_, v, Nondet) ->
@@ -354,6 +351,14 @@ let cmdPathToFormulaPathAndVarMap path varMap =
                       let (fs', varMap'') = cmdsToFormulae cs' varMap'
                       (fs :: fs', varMap'')
         | [] -> ([], varMap)
+    cmdsToFormulae cmds varMap
+
+/// Convert path to path formula, applying SSA transformation.
+/// varMap contains var to SSA version number.
+/// Return pair (<list of transition formulae>, <new varMap>).
+/// If variable is not present in varMap, its version is 0.
+let cmdPathToFormulaPathAndVarMap path varMap =
+
 
     // Convert a path (sequence of commands) to a sequence of formulae over the program variables.
     let rec pathToFormulae path varMap =
@@ -1091,6 +1096,58 @@ type Program private (parameters : Parameters.parameters) =
                 for transIdx in transIdxSet do
                     transMap.[transIdx] <- newTransIdx
         transMap
+
+    member private self.NodeToCeta (writer : System.Xml.XmlWriter) (node : NodeId) =
+        writer.WriteStartElement "node"
+        let (isCutpointCopy, isCutpointAux, nodeId) = 
+            match self.GetNodeLabel node with
+            | Some label ->
+                match isCutpointCopyLabel label with
+                | Some nodeId -> (true, false, nodeId)
+                | None ->
+                    match isCutpointAuxLabel label with
+                    | Some nodeId -> (false, true, nodeId)
+                    | None -> (false, false, node)
+            | None -> (false, false, node)
+        if isCutpointCopy then
+            writer.WriteStartElement "cutPointDuplicate"
+        else if isCutpointAux then
+            writer.WriteStartElement "cutPointAux"
+        writer.WriteStartElement "nodeIdentifier"
+        writer.WriteValue (int nodeId)
+        writer.WriteEndElement () //nodeIdentifier end
+        if isCutpointCopy || isCutpointAux then
+            writer.WriteEndElement () //cutPointDuplicate / cutPointAux end
+        writer.WriteEndElement () //node end
+
+    member private self.TransitionToCeta (writer : System.Xml.XmlWriter) transId =
+        let (source, cmds, target) = self.GetTransition transId
+        let (pathFormula, varToMaxSSAIdx) = cmdsToFormulae cmds Map.empty
+        writer.WriteStartElement "transition"
+
+        writer.WriteElementString ("transitionId", string transId)
+        
+        writer.WriteStartElement "source"
+        self.NodeToCeta writer source
+        writer.WriteEndElement() //source end
+        
+        writer.WriteStartElement "target"
+        self.NodeToCeta writer target
+        writer.WriteEndElement() //target end
+
+        //We are not using Formula.conj here because we absolutely want to control the order of formulas...
+        let linearTermPaths = Formula.formula.FormulasToLinearTerms (pathFormula :> _)
+        Formula.formula.LinearTermsToCeta writer (Var.toCeta varToMaxSSAIdx) linearTermPaths
+        
+        writer.WriteEndElement() //transition end
+
+    member self.ToCeta (writer : System.Xml.XmlWriter) =
+        writer.WriteStartElement "program"
+        writer.WriteStartElement "initial"
+        self.NodeToCeta writer self.Initial
+        writer.WriteEndElement () //initial end
+        self.ActiveTransitions |> Seq.iter (self.TransitionToCeta writer)
+        writer.WriteEndElement () //program end
 
 /// Merge chains of transitions together.
 let chain_transitions nodes_to_consider transitions =

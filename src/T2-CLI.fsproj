@@ -102,6 +102,7 @@
       <Project>{5f69e273-595d-4a27-816e-cec1bd3c74fc}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	     Other similar extension points exist, see Microsoft.Common.targets.
