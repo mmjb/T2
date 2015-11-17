@@ -91,6 +91,21 @@ let assign v t = Assign(None, v, t)
 let skip = Assume(None,Formula.truec)
 
 type NodeId = int
+let private cutpointCopyPrefix = "cp_copy_"
+let private cutpointAuxPrefix = "cp_aux_"
+let generateCutpointCopyLabel loc = sprintf "%s%i" cutpointCopyPrefix loc
+let generateCutpointAuxLabel loc = sprintf "%s%i" cutpointAuxPrefix loc
+let isCutpointCopyLabel (label : string) =
+    if label.StartsWith cutpointCopyPrefix then
+        Some (int (label.Substring cutpointCopyPrefix.Length))
+    else
+        None
+let isCutpointAuxLabel (label : string) =
+    if label.StartsWith cutpointAuxPrefix then
+        Some (int (label.Substring cutpointAuxPrefix.Length))
+    else
+        None
+
 //
 // Pretty-printing routines
 //

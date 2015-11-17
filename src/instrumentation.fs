@@ -834,7 +834,12 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
     for (_, scc_nodes) in p_sccs.Items do
         for node in scc_nodes do
             if not (loopnode_to_copiednode.ContainsKey node) then
-                let copiednode = p_F.NewNode()
+                let copiednode = 
+                    if p_loops.ContainsKey node then // We have a cutpoint!
+                        let label = Programs.generateCutpointCopyLabel node
+                        p_F.GetLabelledNode label
+                    else
+                        p_F.NewNode()
                 loopnode_to_copiednode.Add(node, copiednode)
 
     /// Gives the copy of the loopnode in the instrumented loop copy if DependencyPair-style lex. rfs are searched for
