@@ -570,7 +570,7 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
 
     //Add information about the used constants to the cycle
     let strengthened_cycle = (-1, Programs.consts_cmds cycle, -1)::cycle
-    let strengthened_cycle_rel = Symex.path_to_relation strengthened_cycle pi_vars_cleaned
+    let strengthened_cycle_rel = Programs.cmdPathToRelation strengthened_cycle pi_vars_cleaned
 
     //Builds a map from variables to their old (copied) counterparts
     let var_to_old_var_mapping = find_var_to_old_var_mapping cp pi_commands
@@ -592,7 +592,7 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
         log pars <| sprintf "Using path invariant %A" invariant
 
         let strengthened_cycle = (-1, [Programs.assume invariant], -1) :: strengthened_cycle
-        let strengthened_cycle_rel = Symex.path_to_relation strengthened_cycle pi_vars_cleaned
+        let strengthened_cycle_rel = Programs.cmdPathToRelation strengthened_cycle pi_vars_cleaned
         ret <- refine_cycle pars p cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
         if ret.IsSome then
             Stats.incCounter "T2 - Counterexample investigation with path invariant successful"

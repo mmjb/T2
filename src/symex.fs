@@ -96,95 +96,6 @@ let slice_path pi relevantCmds =
 
     pi |> List.map (fun (l1, cs, l2) -> (l1, List.collect filter_out cs, l2))
 
-let add_vars_to_map fs var_map =
-    let vars = List.fold (fun accum f -> Set.union accum (Formula.freevars f)) Set.empty fs |> Set.toList
-//    let vars = Formula.freevars f |> Set.toList
-    let rec add_vars vars var_map =
-        match vars with
-        | [] -> var_map
-        | h::t -> add_vars t (match Map.tryFind h var_map with | None -> Map.add h 0 var_map | _ -> var_map)
-    add_vars vars var_map
-
-///
-/// Convert path to path formula, applying SSA transformation.
-/// Var_map contains var to SSA version number.
-/// Return pair (<list of transition formulae>, <new var_map>).
-/// If variable is not present in var_map, its version is 0.
-///
-let path_to_transitions_and_var_map p var_map =
-    let command_to_formula var_map c =
-        match c with
-        | Assign(_, v, Nondet) ->
-            let idx = (get_var_index var_map v) + 1
-            let lhs = Term.var (Var.prime_var v idx)
-            let var_map' = Map.add v idx var_map
-            (Formula.Eq(lhs, lhs), var_map')
-        | Assign(_, v, t) ->
-            let idx = (get_var_index var_map v) + 1
-            let lhs = Term.var(Var.prime_var v idx)
-            let rhs = Term.alpha (fun x -> Var.prime_var x (get_var_index var_map x)) t
-            let var_map' = Map.add v idx var_map
-            (Formula.Eq(lhs, rhs), var_map')
-        | Assume(_, e) ->
-            let var_map = add_vars_to_map [e] var_map
-            let f = Formula.alpha (fun x -> Var.prime_var x (get_var_index var_map x)) e
-            (f, var_map)
-    let rec commands_to_formulae cs var_map =
-        match cs with
-        | c :: cs' -> let (fs, var_map') = command_to_formula var_map c
-                      let (fs', var_map'') = commands_to_formulae cs' var_map'
-                      (fs :: fs', var_map'')
-        | [] -> ([], var_map)
-
-    // Convert a path (sequence of commands) to a sequence of formulae over the program variables.
-    let rec path_to_formulae' p var_map =
-        let is_skip cmd =
-            match cmd with
-            | Assume(_,f) -> Formula.is_true_formula f
-            | _ -> false
-        match p with
-        | (l1, cs_orig, l2) :: rest ->
-            let cs = List.filter (is_skip >> not) cs_orig
-            let (fs, var_map') = commands_to_formulae cs var_map
-            let (rest_formulae, var_map'') = path_to_formulae' rest var_map'
-            (l1, fs, l2) :: rest_formulae, var_map''
-        | [] -> ([], var_map)
-
-    path_to_formulae' p var_map
-
-let path_to_formulae p =
-    path_to_transitions_and_var_map p Map.empty |> fst
-
-let project_transitions_to_formulae ts = List.collect (fun (_, f, _) -> f) ts
-
-/// Vars from 'vars' go to prevars and postvars.
-/// Prevars and postvars are guaranteed to be distinct.
-let path_to_relation path vars =
-    let cmds = List.collect (fun (_, cmds, _) -> cmds) path
-
-    let written_vars = Set.intersect (Programs.modified cmds) vars
-
-    let unwritten_vars = Set.difference vars written_vars
-
-    let (transitions, var_map') = path_to_transitions_and_var_map path Map.empty
-
-    let formulae = project_transitions_to_formulae transitions
-
-    let copy_forward v idx =
-        Formula.Eq(Term.var(Var.prime_var v idx), Term.var(Var.prime_var v (idx + 1)))
-
-    let copy_formulae = [for v in unwritten_vars -> copy_forward v 0]
-
-    let aggregate_formula = Formula.conj (formulae @ copy_formulae)
-
-    let prevars = [for v in written_vars -> Var.var(Var.prime_var v 0)]
-    let postvars = [for v in written_vars -> Var.var(Var.prime_var v (get_var_index var_map' v))]
-
-    let copy_prevars = [for v in unwritten_vars -> Var.var(Var.prime_var v 0)]
-    let copy_postvars = [for v in unwritten_vars -> Var.var(Var.prime_var v 1)]
-
-    Relation.make aggregate_formula (prevars @ copy_prevars) (postvars @ copy_postvars)
-
 let find_path_interpolant_old (pars : Parameters.parameters) try_ignore_beginning distance invar_formulae pi initial final =
     let path_formulae = [for (_, fs, _) in pi -> Formula.conj fs]
     let final_formula = Formula.Not final
@@ -255,7 +166,7 @@ let get_scc_rels_for_lex_rf_synth_from_trans (scc_transitions:Set<Set<int> * Tra
 
     let scc_rels =
            scc_transitions
-        |> Set.map (fun (trans_idx, (k, cmds, k')) -> (trans_idx, k, path_to_relation [(k, cmds |> List.map Programs.const_subst, k')] scc_vars, k'))
+        |> Set.map (fun (trans_idx, (k, cmds, k')) -> (trans_idx, k, Programs.cmdPathToRelation [(k, cmds |> List.map Programs.const_subst, k')] scc_vars, k'))
 
     //Add an extra constant variable to get affine interpretations:
     let extra_pre_var : Var.var = Var.var (Formula.const_var bigint.One + "^0")

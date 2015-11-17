@@ -188,8 +188,8 @@ let findPreconditionForPath (cex : (int * Programs.Command * int) list) =
     let cex = cex |> List.map (fun (x, y, z) -> (x, [Programs.const_subst y], z))
 
     //Fourier-Motzkin elimination done here, removing all non-pre-variables:
-    let (cex, var_map) = Symex.path_to_transitions_and_var_map cex Map.empty
-    let cex = Symex.project_transitions_to_formulae cex |> List.filter (fun f -> not(Formula.contains_instr_var f)) |> Formula.conj
+    let (cex, var_map) = Programs.cmdPathToFormulaPathAndVarMap cex Map.empty
+    let cex = cex |> List.collect (fun (_, f, _) -> f) |> List.filter (Formula.contains_instr_var >> not) |> Formula.conj
     let mutable ts = cex.ToLinearTerms()
 
     for (var, var_index) in var_map.Items do

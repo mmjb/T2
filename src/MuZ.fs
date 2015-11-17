@@ -112,7 +112,7 @@ type MuZWrapper (parameters : Parameters.parameters,
 
         //Then, build rules for all transitions:
         for (idx, (k, cmds, k')) in program.TransitionsWithIdx do
-            let (pathCondition, varToPostIdx) = Symex.path_to_transitions_and_var_map [(k, cmds, k')] Map.empty
+            let (pathCondition, varToPostIdx) = Programs.cmdPathToFormulaPathAndVarMap [(k, cmds, k')] Map.empty
             let (_, pathCondition, _) = List.head pathCondition //One transition in, one relation out...
             let pathCondition = Formula.conj pathCondition
             let usedVars =

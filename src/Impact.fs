@@ -487,9 +487,9 @@ type ImpactARG(parameters : Parameters.parameters,
                 let augmented_path = assume_psi_x :: path @ [assume_not_psi_w]
                 let sliced_path = Symex.slice_path (Programs.collapse_path augmented_path) []
                 let filtered_path = sliced_path |> List.tail |> List.all_but_last
-                Symex.path_to_transitions_and_var_map filtered_path Map.empty
+                Programs.cmdPathToFormulaPathAndVarMap filtered_path Map.empty
             let initial = psi.[x] |> Set.toList
-            let var_map = Symex.add_vars_to_map initial var_map
+            let var_map = Programs.addVarsToVarMap initial var_map
             let initial = List.map (Symex.substitute_map_in_formula Map.empty) initial
             let final = Symex.substitute_map_in_formula var_map psi_w
             initial, formulae, final, var_map
@@ -686,7 +686,7 @@ type ImpactARG(parameters : Parameters.parameters,
         else
             let pi = self.find_path v
             let pi' = Symex.slice_path (Programs.collapse_path pi) []
-            let formulae = pi' |> Symex.path_to_formulae
+            let formulae = pi' |> Programs.cmdPathToFormulaPath
 
             // Try to find interpolants (this may fail if we cannot find an interpolant for a true error)
             match Symex.find_unsat_path_interpolant parameters formulae with

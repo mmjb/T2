@@ -48,8 +48,8 @@ let recurrent_state (pars : Parameters.parameters) vars stem cycle count =
     let var_maps = ref []
     let var_map = ref Map.empty
     for segment in stem :: List.replicate count cycle do
-        let f, new_var_map = path_to_transitions_and_var_map segment !var_map
-        let f = project_transitions_to_formulae f |> Formula.conj
+        let (fs, new_var_map) = Programs.cmdPathToFormulaPathAndVarMap segment !var_map
+        let f = fs |> List.collect (fun (_, f, _) -> f) |> Formula.conj
         var_map := new_var_map
         var_maps := !var_maps @ [!var_map]
         formulae := !formulae @ [f]
@@ -131,8 +131,8 @@ let recurrent_set_from_path_conditions (pars : Parameters.parameters) stem cycle
     Log.log pars <| sprintf "Nontermination: Checking for recurrent set constructed from constraints on counterexample cycle."
 
     //Get formula representation of the cycle, and a map of used variables / prime indices
-    let cycle_formulas, varMap = path_to_transitions_and_var_map cycle Map.empty
-    let cycle_formulas = cycle_formulas |> List.concatMap (fun (_, cs, _) -> cs)
+    let (cycle_formulas, varMap) = Programs.cmdPathToFormulaPathAndVarMap cycle Map.empty
+    let cycle_formulas = cycle_formulas |> List.collect (fun (_, cs, _) -> cs)
     let prevars = varMap.Keys |> Seq.map (fun v -> Var.prime_var v 0) |> Set.ofSeq
 
     //Get path invariant for this CEx:

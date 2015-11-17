@@ -228,7 +228,7 @@ let print_clauses (p : Programs.Program) (fname : string) =
     let preVarsString = p.Variables |> Seq.map (fun v -> varPPPrefix (v + "^0")) |> String.concat ", "
     let postVarsString = p.Variables |> Seq.map (fun v -> varPPPrefix (v + "^post")) |> String.concat ", "
     let trans_to_rule src cmds dst=
-        let io_rel = Symex.path_to_relation [(src, cmds, dst)] p.Variables |> Relation.standardise_postvars
+        let io_rel = Programs.cmdPathToRelation [(src, cmds, dst)] p.Variables |> Relation.standardise_postvars
         let io_formula = Relation.formula io_rel
         sprintf "PC=%i,PCP=%i,%s" src dst (io_formula.clause_pp varPPPrefix)
     let mutable transs = []
@@ -473,7 +473,7 @@ let print_smtpushdown (p : Programs.Program) (fname : string) =
     fprintf out_channel "  (or\n";
 
     for (src, cmds, dst) in p.Transitions do
-        let io_rel = Symex.path_to_relation [(src, cmds, dst)] p.Variables |> Relation.standardise_postvars
+        let io_rel = Programs.cmdPathToRelation [(src, cmds, dst)] p.Variables |> Relation.standardise_postvars
         let io_formula = Relation.formula io_rel
         let ex_vars = Set.fold (fun vars bound_var -> Set.remove bound_var vars) (Formula.freevars io_formula) all_vars
         if ex_vars.IsEmpty then

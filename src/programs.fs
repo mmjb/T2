@@ -302,6 +302,88 @@ let const_subst cmd =
             let f' = Formula.subst Formula.eval_const_var f
             Assume(pos,f')
 
+let addVarsToVarMap fs varMap =
+    let vars = List.fold (fun accum f -> Set.union accum (Formula.freevars f)) Set.empty fs |> Set.toList
+    let rec addVars vars varMap =
+        match vars with
+        | [] -> varMap
+        | h::t -> addVars t (match Map.tryFind h varMap with | None -> Map.add h 0 varMap | _ -> varMap)
+    addVars vars varMap
+
+/// Convert path to path formula, applying SSA transformation.
+/// varMap contains var to SSA version number.
+/// Return pair (<list of transition formulae>, <new varMap>).
+/// If variable is not present in varMap, its version is 0.
+let cmdPathToFormulaPathAndVarMap path varMap =
+    let cmdToFormula varMap cmd =
+        match cmd with
+        | Assign(_, v, Nondet) ->
+            let idx = (Map.findWithDefault v 0 varMap) + 1
+            let lhs = Term.var (Var.prime_var v idx)
+            let varMap' = Map.add v idx varMap
+            (Formula.Eq(lhs, lhs), varMap')
+        | Assign(_, v, t) ->
+            let idx = (Map.findWithDefault v 0 varMap) + 1
+            let lhs = Term.var(Var.prime_var v idx)
+            let rhs = Term.alpha (fun x -> Var.prime_var x (Map.findWithDefault x 0 varMap)) t
+            let varMap' = Map.add v idx varMap
+            (Formula.Eq(lhs, rhs), varMap')
+        | Assume(_, e) ->
+            let varMap = addVarsToVarMap [e] varMap
+            let f = Formula.alpha (fun x -> Var.prime_var x (Map.findWithDefault x 0 varMap)) e
+            (f, varMap)
+    let rec cmdsToFormulae cs varMap =
+        match cs with
+        | c :: cs' -> let (fs, varMap') = cmdToFormula varMap c
+                      let (fs', varMap'') = cmdsToFormulae cs' varMap'
+                      (fs :: fs', varMap'')
+        | [] -> ([], varMap)
+
+    // Convert a path (sequence of commands) to a sequence of formulae over the program variables.
+    let rec pathToFormulae path varMap =
+        let isSkip cmd =
+            match cmd with
+            | Assume (_, f) -> Formula.is_true_formula f
+            | _ -> false
+        match path with
+        | (l1, cmds, l2) :: rest ->
+            let cmds = List.filter (isSkip >> not) cmds
+            let (fs, varMap') = cmdsToFormulae cmds varMap
+            let (rest_formulae, varMap'') = pathToFormulae rest varMap'
+            (l1, fs, l2) :: rest_formulae, varMap''
+        | [] -> ([], varMap)
+
+    pathToFormulae path varMap
+
+let cmdPathToFormulaPath p =
+    cmdPathToFormulaPathAndVarMap p Map.empty |> fst
+
+/// Vars from 'vars' go to prevars and postvars.
+/// Prevars and postvars are guaranteed to be distinct.
+let cmdPathToRelation path vars =
+    let cmds = List.collect (fun (_, cmds, _) -> cmds) path
+    let writtenVars = Set.intersect (modified cmds) vars
+    let unwrittenVars = Set.difference vars writtenVars
+
+    let (transitions, varMap) = cmdPathToFormulaPathAndVarMap path Map.empty
+
+    let formulae = List.collect (fun (_, f, _) -> f) transitions
+
+    let copyForward v idx =
+        Formula.Eq(Term.var(Var.prime_var v idx), Term.var(Var.prime_var v (idx + 1)))
+
+    let copyFormulae = [for v in unwrittenVars -> copyForward v 0]
+
+    let aggregateFormula = Formula.conj (formulae @ copyFormulae)
+
+    let prevars = [for v in writtenVars -> Var.var(Var.prime_var v 0)]
+    let postvars = [for v in writtenVars -> Var.var(Var.prime_var v (Map.findWithDefault v 0 varMap))]
+
+    let copyPrevars = [for v in unwrittenVars -> Var.var(Var.prime_var v 0)]
+    let copyPostvars = [for v in unwrittenVars -> Var.var(Var.prime_var v 1)]
+
+    Relation.make aggregateFormula (prevars @ copyPrevars) (postvars @ copyPostvars)
+
 // Programs as Control Flow Graphs -----------------------------------------------------
 type Transition = int * Command list * int
 type TransitionFunction = int -> (Command list * int) list
