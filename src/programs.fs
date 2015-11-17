@@ -90,6 +90,7 @@ let assume f = Assume(None, f)
 let assign v t = Assign(None, v, t)
 let skip = Assume(None,Formula.truec)
 
+type NodeId = int
 //
 // Pretty-printing routines
 //
@@ -203,7 +204,7 @@ let rec private as_seq sp =
     | _ -> [sp]
 
 //Returns a map of a nested loop, out loop
-let make_isolation_map (loops : Map<int,Set<int>>) =
+let make_isolation_map (loops : Map<NodeId,Set<NodeId>>) =
     let mutable isolation_map = Map.empty
 
     for KeyValue(cp, loop) in loops do
@@ -385,14 +386,15 @@ let cmdPathToRelation path vars =
     Relation.make aggregateFormula (prevars @ copyPrevars) (postvars @ copyPostvars)
 
 // Programs as Control Flow Graphs -----------------------------------------------------
-type Transition = int * Command list * int
-type TransitionFunction = int -> (Command list * int) list
+type TransitionId = int
+type Transition = NodeId * Command list * NodeId
+type TransitionFunction = NodeId -> (Command list * NodeId) list
 
 /// Default size for transitions array
 type Program private (parameters : Parameters.parameters) =
     let mutable initial = -1
-    let mutable labelToNode = Map.empty
-    let mutable nodeToLabel = Map.empty
+    let mutable labelToNode : Map<string, NodeId> = Map.empty
+    let mutable nodeToLabel : Map<NodeId, string> = Map.empty
     let mutable nodeCount = 1
     let mutable transitionCount = 0
     let mutable transitionsArray = Array.create 100 (-1,[],-1)
@@ -407,7 +409,7 @@ type Program private (parameters : Parameters.parameters) =
     /// Flag indicating that we abstracted away things in an incomplete manner and hence should not report non-term
     let mutable incompleteAbstraction = false
 
-    let mutable transitionFromCache : ListDictionary<int, int * (int * Command list * int)> option = None
+    let mutable transitionFromCache : ListDictionary<NodeId, TransitionId * (NodeId * Command list * NodeId)> option = None
     let mutable findLoopsCache = None
 
     member __.Parameters with get () = parameters
@@ -551,7 +553,7 @@ type Program private (parameters : Parameters.parameters) =
 
     member self.TransitionNumber with get () = self.ActiveTransitions.Count
 
-    member self.NewNode () =
+    member self.NewNode () : NodeId =
         let old = self.NodeCount 
         self.NodeCount <- old + 1
         old
@@ -711,7 +713,7 @@ type Program private (parameters : Parameters.parameters) =
                     if transitiveReaches.Contains (w, u) && transitiveReaches.Contains (v, w) then
                         transitiveReaches.Add (v, u) |> ignore
 
-        let reachableLocations = new SetDictionary<int, int>()
+        let reachableLocations = new SetDictionary<NodeId, NodeId>()
         for (v, w) in transitiveReaches do
             reachableLocations.Add (v, w)
 
@@ -741,7 +743,7 @@ type Program private (parameters : Parameters.parameters) =
 
     member self.GetCutpoints () =
         let cuts = ref Set.empty
-        let marks = new System.Collections.Generic.Dictionary<int, bool>()
+        let marks = new System.Collections.Generic.Dictionary<NodeId, bool>()
         let rec dfs_visit node =
             marks.Add(node, false) // false means in progress
             for (_, (_, _, node')) in self.TransitionsFrom node do
@@ -855,7 +857,7 @@ type Program private (parameters : Parameters.parameters) =
     /// function synthesis and interpolation work.
     /// It also special cases instrumentation variables, which might be considered dead, but are still
     /// important to us.
-    member self.LetConvert (liveVariables : System.Collections.Generic.Dictionary<int, Set<Var.var>>) =
+    member self.LetConvert (liveVariables : System.Collections.Generic.Dictionary<NodeId, Set<Var.var>>) =
         // Is the variable read in the later commands before being written to again? We know the livevars
         // at the beginning and end of the command sequence, but not in the intermediate points.
         // We could compute the live
@@ -940,7 +942,7 @@ type Program private (parameters : Parameters.parameters) =
         //For each location, keep a map var -> expr, where expr has the value of var
         let locToVarExprs = System.Collections.Generic.Dictionary()
         // Propagate variables. Continue if the target location set changed (either because of a first visit or because things changed)
-        let rec loop (loc : int) =
+        let rec loop (loc : NodeId) =
             let varToExprs : Map<Var.var, Term.term> = locToVarExprs.GetWithDefault loc Map.empty
             let mutable changedLocs = []
             for (_, (_, cmds, targetLoc)) in self.TransitionsFrom loc do
@@ -1014,7 +1016,7 @@ type Program private (parameters : Parameters.parameters) =
 
     /// Chain linear sequences of program transitions, in-place.
     /// Returns a map from original transition IDs to the freshly chosen transition IDs.
-    member self.ChainTransitions (dontChain : int seq) onlyRemoveUnnamed =
+    member self.ChainTransitions (dontChain : NodeId seq) onlyRemoveUnnamed =
         let dontChain = System.Collections.Generic.HashSet(dontChain)
         // (1) Create map, giving access to all incoming/outgoing transitions for a location
         let incomingTransitions = Utils.SetDictionary()
@@ -1078,13 +1080,13 @@ type Program private (parameters : Parameters.parameters) =
 /// Merge chains of transitions together.
 let chain_transitions nodes_to_consider transitions =
     // (1) Create maps in_trans/out_trans mapping nodes to incoming/outgoing transitions.
-    let in_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Set<int> * Transition>>()
-    let out_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Set<int> * Transition>>()
-    let add_to_set_dict (dict : System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Set<int> * Transition>>) k v =
+    let in_trans = new System.Collections.Generic.Dictionary<NodeId, System.Collections.Generic.HashSet<Set<TransitionId> * Transition>>()
+    let out_trans = new System.Collections.Generic.Dictionary<NodeId, System.Collections.Generic.HashSet<Set<TransitionId> * Transition>>()
+    let add_to_set_dict (dict : System.Collections.Generic.Dictionary<NodeId, System.Collections.Generic.HashSet<Set<TransitionId> * Transition>>) k v =
         if dict.ContainsKey k then
             dict.[k].Add v
         else
-            dict.Add(k, new System.Collections.Generic.HashSet<(Set<int> * Transition)>())
+            dict.Add(k, new System.Collections.Generic.HashSet<(Set<TransitionId> * Transition)>())
             dict.[k].Add v
     for trans in transitions do
         let (_, (k, _, k')) = trans
