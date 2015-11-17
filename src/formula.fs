@@ -198,6 +198,9 @@ type formula =
         writer.WriteEndElement()
         writer.WriteEndElement()
 
+    static member FormulasToLinearTerms =
+        Seq.fold (fun res (f : formula) -> f.ToLinearTerms() @ res) []
+
     ///This will spit out a sequence of atoms into the passed xml writer, to be understood as conjunction
     member self.ToCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) =
         try

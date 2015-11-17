@@ -778,14 +778,12 @@ type ImpactARG(parameters : Parameters.parameters,
         self.close_all_ancestors v
         self.dfs v
 
-    member private self.toCeta (writer : System.Xml.XmlWriter) =
-        let formulasToLinearTerms =
-            Seq.fold (fun res (f : Formula.formula) -> f.ToLinearTerms() @ res) []
+    member __.ToCeta (writer : System.Xml.XmlWriter) =
         let rec exportNode nodeId =
             writer.WriteStartElement "artNode"
             writer.WriteElementString ("artNodeId", string nodeId)
             //We are not using Formula.conj here because we absolutely want to control the order of formulas...
-            let linearTermPsi = formulasToLinearTerms psi.[nodeId]
+            let linearTermPsi = Formula.formula.FormulasToLinearTerms (psi.[nodeId] :> _)
             Formula.formula.LinearTermsToCeta writer Var.plainToCeta linearTermPsi
             writer.WriteElementString ("node", string abs_node_to_program_loc.[nodeId])
             match covering.TryGetValue nodeId with
@@ -794,7 +792,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 writer.WriteElementString ("artNodeId", string coverTarget)
 
                 writer.WriteStartElement "hints"
-                for lt in formulasToLinearTerms psi.[coverTarget] do
+                for lt in Formula.formula.FormulasToLinearTerms (psi.[coverTarget] :> _) do
                     SparseLinear.writeCeTALinearImplicationHints writer linearTermPsi lt
                 writer.WriteEndElement () //hints end
 
