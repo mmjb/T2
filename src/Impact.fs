@@ -785,8 +785,8 @@ type ImpactARG(parameters : Parameters.parameters,
             writer.WriteStartElement "artNode"
             writer.WriteElementString ("artNodeId", string nodeId)
             //We are not using Formula.conj here because we absolutely want to control the order of formulas...
-            let linearTermPsi = Formula.formula.FormulasToLinearTerms (psi.[nodeId] :> _)
-            Formula.formula.LinearTermsToCeta writer Var.plainToCeta linearTermPsi
+            let psiLinearTerms = Formula.formula.FormulasToLinearTerms (psi.[nodeId] :> _)
+            Formula.formula.LinearTermsToCeta writer Var.plainToCeta psiLinearTerms
             writer.WriteElementString ("node", string abs_node_to_program_loc.[nodeId])
             match covering.TryGetValue nodeId with
             | (true, coverTarget) ->
@@ -795,7 +795,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
                 writer.WriteStartElement "hints"
                 for lt in Formula.formula.FormulasToLinearTerms (psi.[coverTarget] :> _) do
-                    SparseLinear.writeCeTALinearImplicationHints writer linearTermPsi lt
+                    SparseLinear.writeCeTALinearImplicationHints writer psiLinearTerms lt
                 writer.WriteEndElement () //hints end
 
                 writer.WriteEndElement () //coverEdge end

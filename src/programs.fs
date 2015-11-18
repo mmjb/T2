@@ -327,7 +327,7 @@ let addVarsToVarMap fs varMap =
     addVars vars varMap
 
 /// Translates a sequence of commands into a transition formula over pre (v^0), post (v^varMap.[v]) and intermediate variables.
-let private cmdsToFormulae cmds varMap =
+let cmdsToFormulae cmds varMap =
     let cmdToFormula varMap cmd =
         match cmd with
         | Assign(_, v, Nondet) ->
@@ -1122,7 +1122,7 @@ type Program private (parameters : Parameters.parameters) =
 
     member private self.TransitionToCeta (writer : System.Xml.XmlWriter) transId =
         let (source, cmds, target) = self.GetTransition transId
-        let (pathFormula, varToMaxSSAIdx) = cmdsToFormulae cmds Map.empty
+        let (transFormula, varToMaxSSAIdx) = cmdsToFormulae cmds Map.empty
         writer.WriteStartElement "transition"
 
         writer.WriteElementString ("transitionId", string transId)
@@ -1136,8 +1136,8 @@ type Program private (parameters : Parameters.parameters) =
         writer.WriteEndElement() //target end
 
         //We are not using Formula.conj here because we absolutely want to control the order of formulas...
-        let linearTermPaths = Formula.formula.FormulasToLinearTerms (pathFormula :> _)
-        Formula.formula.LinearTermsToCeta writer (Var.toCeta varToMaxSSAIdx) linearTermPaths
+        let transLinearTerms = Formula.formula.FormulasToLinearTerms (transFormula :> _)
+        Formula.formula.LinearTermsToCeta writer (Var.toCeta varToMaxSSAIdx) transLinearTerms
         
         writer.WriteEndElement() //transition end
 
