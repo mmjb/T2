@@ -74,6 +74,14 @@ let linear_term_to_term (t:LinearTerm) =
 let alpha (varRenamer : Var.var -> Var.var) (t : LinearTerm) =
     t |> Seq.map (function KeyValue(v, coeff) -> ((if v = ONE then v else varRenamer v), coeff)) |> Map.ofSeq
 
+let linearTermToString lt =
+    lt
+    |> Seq.map
+        (function KeyValue(v, coeff) ->
+                    let vString = if v = ONE then "" else "*" + v
+                    sprintf "%s%s" (coeff.ToString()) vString)
+    |> String.concat " + "
+
 let remove_zeros (t:LinearTerm) : LinearTerm =
     Map.filter (fun _ coeff -> coeff <> bigint.Zero) t
 
@@ -295,6 +303,10 @@ let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : 
                         Z.eq preCoeffSum postCoeff
                 Z.conj2 partialConstraint constr)
             lambdasPos allVars
+    (* // Debug code:
+    printfn "Looking for Farkas coefficients for this:"
+    Seq.iter (fun (t, _) -> printfn "  %s" (linearTermToString t)) presNLambdas
+    printfn " ==> %s" (linearTermToString post) *)
     match Z.solve [farkasConstraints] with
     | None ->
         failwith "Trying to get Farkas coefficients for implication that doesn't hold!"
