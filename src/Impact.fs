@@ -143,6 +143,8 @@ type ImpactARG(parameters : Parameters.parameters,
     /// Helper to create dfs numbers
     let mutable dfs_cnt = 0
 
+    let init_node = 0
+
     /// The priority queue used during DFS.
     let stack = PriorityQueue<int>()
 
@@ -809,7 +811,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 writer.WriteEndElement () //children end
             writer.WriteEndElement () //artNode end
         writer.WriteStartElement "Impact"
-        exportNode loc_init
+        exportNode init_node
         writer.WriteEndElement () //Impact end
 
 
