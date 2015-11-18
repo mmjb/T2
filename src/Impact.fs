@@ -802,11 +802,25 @@ type ImpactARG(parameters : Parameters.parameters,
             | (false, _) ->
                 writer.WriteStartElement "children"
                 for childId in E.[nodeId] do
-                    let transId = fst abs_edge_to_program_commands.[(nodeId, childId)]
+                    let (transId, cmds) = abs_edge_to_program_commands.[(nodeId, childId)]
+                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToFormulae cmds Map.empty
+                    let varToPre var = Var.prime_var var 0
+                    let varToPost var =
+                        match Map.tryFind var varToMaxSSAIdx with
+                        | Some idx -> Var.prime_var var idx
+                        | None -> var
+                    let transLinearTerms = Formula.formula.FormulasToLinearTerms (transFormula :> _)
+                    let nodePsiAndTransLinearTerms = (List.map (SparseLinear.alpha varToPre) psiLinearTerms) @ transLinearTerms
+                    let childPsiLinearTerms = Formula.formula.FormulasToLinearTerms (psi.[childId] :> _)
+
                     writer.WriteStartElement "child"
                     writer.WriteElementString ("transitionId", string transId)
                     exportNode childId
-                    //TODO: implication hints should go here.
+                    writer.WriteStartElement "hints"
+                    for lt in childPsiLinearTerms do
+                        SparseLinear.writeCeTALinearImplicationHints writer nodePsiAndTransLinearTerms (SparseLinear.alpha varToPost lt)
+                    writer.WriteEndElement () //hints end
+
                     writer.WriteEndElement () //child end
                 writer.WriteEndElement () //children end
             writer.WriteEndElement () //artNode end
