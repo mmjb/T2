@@ -44,7 +44,7 @@ let ONE = "1"
 // keys are variable names
 // "1" corresponds to constant term
 //
-type LinearTerm = Map<string, bigint>
+type LinearTerm = Map<Var.var, bigint>
 
 // When treated as inequalities, terms are interpreted as t<=0
 
@@ -70,6 +70,9 @@ let linear_term_to_term (t:LinearTerm) =
     else
         let first = List.head summands
         List.fold (fun x y -> Term.Add(x, y)) first (List.tail summands)
+
+let alpha (varRenamer : Var.var -> Var.var) (t : LinearTerm) =
+    t |> Seq.map (function KeyValue(v, coeff) -> ((if v = ONE then v else varRenamer v), coeff)) |> Map.ofSeq
 
 let remove_zeros (t:LinearTerm) : LinearTerm =
     Map.filter (fun _ coeff -> coeff <> bigint.Zero) t
