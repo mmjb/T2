@@ -192,7 +192,9 @@ type formula =
         Seq.iter
             (fun t ->
                 writer.WriteStartElement "atom"
+                writer.WriteStartElement "term"
                 SparseLinear.toCeta writer varWriter t
+                writer.WriteEndElement()
                 writer.WriteEndElement())
             linearTerms
         writer.WriteEndElement()

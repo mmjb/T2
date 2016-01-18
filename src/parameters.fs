@@ -47,6 +47,9 @@ type parameters = {
     /// Print some statistics about our efforts, after finishing
     mutable print_stats : bool
 
+    /// If set, export a proof certificate to the specified file name
+    mutable export_cert : string option
+
     // ---------------------------- Logging things ----------------------------
     /// Set to true to enable verbose logging spew from across T2
     mutable print_log : bool
@@ -161,6 +164,7 @@ let defaultParameters =
         timeout = 300.0
         print_proof = false
         print_stats = false 
+        export_cert = None
 
         print_log = false
         print_debug = false
@@ -184,7 +188,7 @@ let defaultParameters =
         lex_term_proof_first = true
         mcnp_style_bound_decr = false
 
-        safety_implementation = Spacer
+        safety_implementation = Impact
         dottify_reachability = false
         dottify_input_pgms = false
         sanity_checking = true

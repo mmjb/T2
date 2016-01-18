@@ -67,6 +67,31 @@ let prover (pars : Parameters.parameters) (program : Programs.Program) err =
         Counterexample.print_program pars [cex] "defect.t2"
         Utils.run_clear()
 
+    if pars.export_cert.IsSome then
+        if r.IsNone then
+            let impactARG = safetyImplementation :?> Impact.ImpactARG
+            use streamWriter = new System.IO.StreamWriter (pars.export_cert.Value)
+            use xmlWriter = new System.Xml.XmlTextWriter (streamWriter)
+            xmlWriter.Formatting <- System.Xml.Formatting.Indented
+
+            xmlWriter.WriteStartElement "safetyProblem"
+            
+            xmlWriter.WriteStartElement "safetyProgram"
+            program.ToCeta xmlWriter
+            xmlWriter.WriteStartElement "error"
+            program.NodeToCeta xmlWriter err
+            xmlWriter.WriteEndElement () //end errror 
+            xmlWriter.WriteEndElement () //end safetyProgram
+
+            xmlWriter.WriteStartElement "safetyProof"
+            impactARG.ToCeta xmlWriter
+            xmlWriter.WriteEndElement () //end safetyProof
+
+            xmlWriter.WriteEndElement () //end safetyProblem
+
+        else
+            failwith "Export of safety counterexamples not supported yet."
+
     Utils.reset_timeout()
 
     r

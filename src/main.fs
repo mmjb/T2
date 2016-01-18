@@ -55,6 +55,17 @@ let main (arguments: string[]) =
         eprintfn "You have to specify an input file for T2 with '-input_t2 foo.t2'."
         exit 3
 
+    if parameters.export_cert.IsSome then
+        match runMode with
+        | Arguments.Safety _ -> ()
+        | _ ->
+            eprintfn "Error: Certificate export only supported for safety at this time."
+            exit 4
+
+        if parameters.safety_implementation <> Parameters.Impact then
+            eprintfn "Error: Certificate export only supported for Impact safety backend at this time."
+            exit 5
+
     let protectLocations =
         match runMode with
             | Arguments.CTL _

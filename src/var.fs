@@ -77,7 +77,11 @@ let plainToCeta (writer : System.Xml.XmlWriter) (var : var) =
 /// Writes the variable out to the XmlWriter, marking post variables appropriately.
 let toCeta (varToPostIdx : Map<var, int>) (writer : System.Xml.XmlWriter) (var : var)=
     let (varId, primeIdx) = splitPrimedVar var
+    let isPreVar = primeIdx = "0"
     let isPostVar = primeIdx <> "0" && string (varToPostIdx.FindWithDefault varId 0) = primeIdx
+
+    //Use the actual, unprimed name for the pre- and post-variable, use full (primed) name for intermediates. Pre/post are distinguished by <post>
+    let varName = if isPreVar || isPostVar then varId else var
 
     writer.WriteStartElement "variable"
 
@@ -85,7 +89,7 @@ let toCeta (varToPostIdx : Map<var, int>) (writer : System.Xml.XmlWriter) (var :
         writer.WriteStartElement "post"
 
     writer.WriteStartElement "variableName"
-    writer.WriteElementString ("variableIdentifier", var)
+    writer.WriteElementString ("variableIdentifier", varName)
     writer.WriteEndElement () //variableName end
 
     if isPostVar then

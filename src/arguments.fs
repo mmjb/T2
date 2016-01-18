@@ -119,6 +119,9 @@ let parseArguments arguments =
              .Add( "output_file="
                  , sprintf "Choose output file name (default '%s', use in conjunction with -output_as)" !output_file
                  , fun s -> output_file := s)
+             .Add( "export_cert="
+                 , sprintf "export a proof certificate to the specified file name (default off)"
+                 , fun s -> pars.export_cert <- Some s)
              .Add( "timeout="
                  , "Timeout for the overall proof attempt"
                  , fun s -> pars.timeout <- float s)

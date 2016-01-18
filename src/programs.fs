@@ -1097,7 +1097,7 @@ type Program private (parameters : Parameters.parameters) =
                     transMap.[transIdx] <- newTransIdx
         transMap
 
-    member private self.NodeToCeta (writer : System.Xml.XmlWriter) (node : NodeId) =
+    member self.NodeToCeta (writer : System.Xml.XmlWriter) (node : NodeId) =
         writer.WriteStartElement "node"
         let (isCutpointCopy, isCutpointAux, nodeId) = 
             match self.GetNodeLabel node with

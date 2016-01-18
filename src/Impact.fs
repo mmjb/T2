@@ -781,13 +781,15 @@ type ImpactARG(parameters : Parameters.parameters,
         self.dfs v
 
     member __.ToCeta (writer : System.Xml.XmlWriter) =
-        let rec exportNode nodeId =
+        let exportNode nodeId =
             writer.WriteStartElement "artNode"
             writer.WriteElementString ("artNodeId", string nodeId)
             //We are not using Formula.conj here because we absolutely want to control the order of formulas...
             let psiLinearTerms = Formula.formula.FormulasToLinearTerms (psi.[nodeId] :> _)
             Formula.formula.LinearTermsToCeta writer Var.plainToCeta psiLinearTerms
-            writer.WriteElementString ("node", string abs_node_to_program_loc.[nodeId])
+            writer.WriteStartElement "node"
+            writer.WriteElementString ("nodeIdentifier", string abs_node_to_program_loc.[nodeId])
+            writer.WriteEndElement () //node end
             match covering.TryGetValue nodeId with
             | (true, coverTarget) ->
                 writer.WriteStartElement "coverEdge"
@@ -815,7 +817,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
                     writer.WriteStartElement "child"
                     writer.WriteElementString ("transitionId", string transId)
-                    exportNode childId
+                    writer.WriteElementString ("artNodeId", string childId)
                     writer.WriteStartElement "hints"
                     for lt in childPsiLinearTerms do
                         SparseLinear.writeCeTALinearImplicationHints writer nodePsiAndTransLinearTerms (SparseLinear.alpha varToPost lt)
@@ -824,9 +826,25 @@ type ImpactARG(parameters : Parameters.parameters,
                     writer.WriteEndElement () //child end
                 writer.WriteEndElement () //children end
             writer.WriteEndElement () //artNode end
-        writer.WriteStartElement "Impact"
-        exportNode init_node
-        writer.WriteEndElement () //Impact end
+        writer.WriteStartElement "impact"
+        writer.WriteElementString ("artNodeId", string init_node)
+        writer.WriteStartElement "artNodes"
+        V |> Seq.iter exportNode
+        writer.WriteEndElement () //artNodes end
+
+        writer.WriteStartElement "errorHints"
+        let falseLinTerm = List.head (Formula.falsec.ToLinearTerms())
+        for errNode in V |> Seq.filter (fun v -> abs_node_to_program_loc.[v] = loc_err) do
+            writer.WriteStartElement "errorHint"
+            writer.WriteElementString ("artNodeId", string errNode)
+            writer.WriteStartElement "hints"
+            let errNodeLinTerms = Formula.formula.FormulasToLinearTerms (psi.[errNode] :> _)
+            SparseLinear.writeCeTALinearImplicationHints writer errNodeLinTerms falseLinTerm
+            writer.WriteEndElement () //hints end
+            writer.WriteEndElement ()
+        //TODO...
+        writer.WriteEndElement () //errorHints end
+        writer.WriteEndElement () //impact end
 
 
     //
