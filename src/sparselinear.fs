@@ -298,7 +298,7 @@ let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : 
                 let postCoeff = Z.constant (Map.findWithDefault v bigint.Zero post)
                 let constr =
                     if v = ONE then
-                        Z.le preCoeffSum postCoeff
+                        Z.ge preCoeffSum postCoeff
                     else
                         Z.eq preCoeffSum postCoeff
                 Z.conj2 partialConstraint constr)
