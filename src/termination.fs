@@ -330,7 +330,7 @@ let strengthenCond pi_mod p1 =
     disj_fmla
 
 
-let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
+let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential recur (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
     let (p_orig_loops, _) = p_orig.FindLoops()
     let mutable preStrengthSet = Set.empty
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
@@ -342,7 +342,10 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
         if (x <> elim_node) && (x <> cutp) && not(loopnode_to_copiednode.ContainsKey cutp && loopnode_to_copiednode.[cutp] = x) then
             elim_node <- x
             //We do not want to find a condition for the non-copy of a cp, only the copy cp
-            let(tempfPreCond, _) = findPreconditionForPath pi_wp
+            let(tempfPreCond) = 
+                match recur with
+                |Some(r) -> Formula.negate(r)
+                |None -> fst <| findPreconditionForPath pi_wp
             //Propagate to all cutpoints, not just loops.
             if p_orig_loops.ContainsKey x || Set.contains x cps_checked_for_term || Set.contains x p_orig.Locations  || loopnode_to_copiednode.ContainsValue x then //&& isorigNodeNum x p_orig
                 let visited = loc_to_loopduploc.FindWithDefault x x
@@ -375,7 +378,7 @@ let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existentia
         | Some x -> (x, true)
         | None -> (Formula.falsec, false)
     //First propagate preconditions to sccs contained within the loop
-    let (propertyMap, preStrengthSet) = propagateToTransitions p_orig f pi_mod cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
+    let (propertyMap, preStrengthSet) = propagateToTransitions p_orig f pi_mod cutp existential recur loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
     //Second, propagate upwards to non-cp nodes that are not part of any SCCS.
     let sccs_vals = p_orig_sccs |> Map.filter(fun x _ -> x <> cutp) |> Map.toSeq |> Seq.map snd |> Seq.fold (fun acc elem -> Seq.append elem acc) Seq.empty |> Set.ofSeq
     if sccs_vals.Contains cutp || r then
@@ -405,7 +408,7 @@ let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existentia
 
         if r then
             pi_elim <- (pi_elim)@[(node,Programs.assume(recurs),-1)]
-        propertyMap.Union(propagateToTransitions p_orig f pi_elim cutp existential loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
+        propertyMap.Union(propagateToTransitions p_orig f pi_elim cutp existential recur loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
     let is_dup x = loc_to_loopduploc |> Map.filter(fun _ value -> value = x) |> Map.isEmpty |> not
     let cex_path = pi |> List.map(fun (x,_,_) -> x) |> List.filter(fun x -> Set.contains x p_orig.Locations || loopnode_to_copiednode.ContainsValue x || is_dup x)
     let cex_path = cex_path |> List.map(fun x -> if loopnode_to_copiednode.ContainsValue x then
