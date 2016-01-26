@@ -355,11 +355,10 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
                         else if p_orig_loops.ContainsKey x then x
                         else if (p_orig.Locations).Contains x then x
                                 else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x)                               
-
+                    
                     let truefPreCond = if existential then
                                             Formula.negate(tempfPreCond)
                                        else tempfPreCond
-    
                     if strengthen then
                         let preStrengthf = (orig, truefPreCond)
                         preStrengthSet <- Set.add preStrengthf preStrengthSet
@@ -561,7 +560,6 @@ let insertForRerun
         else if cutp = -1 then
             errorNode
         else cutp
-
     let (strengthen, precondition, preconditionDisjuncts) =
         match recurSet with
         | Some (_, r) ->
@@ -599,10 +597,11 @@ let insertForRerun
                 let (visitedOnCex ,propogateMap, preStrengthSet) =
                     propagate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode true
                 visited_nodes := Set.union !visited_nodes visitedOnCex
-
+                let propagatedNode = preStrengthSet |> Set.map(fun (x,y) -> x)
                 let preStrengthSet = Set.add (orig_cp, p0) preStrengthSet
                 //Saving the properties for formula f before going through the strengthening procedures
                 let preStrengthProps = propertyMap.[propertyToProve]
+                let remainingCPConditions = preStrengthProps |> Set.filter(fun (x,y) -> x <> orig_cp)
                 //We can now replace the properties with their strengthened versions, beginning with orig_cp
                 if isExistentialFormula then
                     propertyMap.Replace propertyToProve (orig_cp, Formula.negate(disjunctiveStrengthenedPrecondition))
@@ -627,6 +626,7 @@ let insertForRerun
                     propertyMap.Add (propertyToProve, x)*)
 
                 propertyMap.Union(propogateMap)
+                remainingCPConditions |> Set.iter(fun (x,y) ->if not(propagatedNode.Contains x) then propertyMap.Add(propertyToProve,(x,y)))
                 (true, disjunctiveStrengthenedPrecondition, List.ofSeq disjunctiveStrengthenedPreconditions)
 
             else
@@ -1386,12 +1386,13 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                         if (!is_ltl) then
                                             is_ltl := false
                                             let ret = bottomUp pars p_dtmz new_F termination_only nest_level None propertyMap
-                                            let formulaMap = propertyMap.[new_F]                                                                               
+                                            let formulaMap = propertyMap.[new_F]                                                                             
                                             propertyMap.Remove(new_F)|> ignore                                       
                                             propertyMap.Union(quantify_proph_var e.IsExistential new_F formulaMap "__proph_var_det")                                         
                                             ret
                                         else
                                              bottomUp pars p new_F termination_only nest_level None propertyMap
+                                   
                                    (ret_value,Some(new_F))
 
                      | CTL.And (e1,e2) 
