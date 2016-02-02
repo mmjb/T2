@@ -345,7 +345,8 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
                 |Some(r) -> Formula.negate(r)
                 |None -> fst <| findPreconditionForPath pi_wp
             //Propagate to all cutpoints, not just loops.
-            if p_orig_loops.ContainsKey x || Set.contains x cps_checked_for_term || Set.contains x p_orig.Locations  || loopnode_to_copiednode.ContainsValue x then //&& isorigNodeNum x p_orig
+            let copies = loc_to_loopduploc |> Map.filter(fun y z -> z = x)
+            if p_orig_loops.ContainsKey x || Set.contains x cps_checked_for_term || Set.contains x p_orig.Locations  || copies.Count > 0 then //&& isorigNodeNum x p_orig
                 let visited = loc_to_loopduploc.FindWithDefault x x
                 if not(visited_BU_cp.ContainsKey visited) then
                     let orig =  
@@ -355,7 +356,6 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
                         else if p_orig_loops.ContainsKey x then x
                         else if (p_orig.Locations).Contains x then x
                                 else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x)                               
-                    
                     let truefPreCond = if existential then
                                             Formula.negate(tempfPreCond)
                                        else tempfPreCond
@@ -401,8 +401,9 @@ let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existentia
                 pi_elim <- List.append [(pi_rev).Head] pi_elim
                 pi_rev <- (pi_rev).Tail
             else
+                pi_elim <- List.append [(pi_rev).Head] pi_elim
                 pi_rev <- (pi_rev).Tail
-
+        let mutable pi_elim = (List.rev (pi_elim))
         if r then
             pi_elim <- (pi_elim)@[(node,Programs.assume(recurs),-1)]
         propertyMap.Union(propagateToTransitions p_orig f pi_elim cutp existential recur loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
@@ -581,7 +582,13 @@ let insertForRerun
                     p_final.AddTransition k (Programs.assume(precondDisjunct)::cmds) k'
             
             let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
-            propogateMap.[propertyToProve] |> Set.iter (fun (x,y) -> if x <> cutp && x <> orig_cp then propertyMap.Add(propertyToProve,(x,y)))             
+            let nontermNode =
+                match (p_orig.GetNodeLabel(orig_cp)) with
+                |None -> false
+                | Some(z) -> if z.Contains"INF_Loop" then true
+                                else false
+            if not(nontermNode)then
+                propogateMap.[propertyToProve] |> Set.iter (fun (x,y) -> if x <> cutp && x <> orig_cp then propertyMap.Add(propertyToProve,(x,y)))             
             //propertyMap.Union(propogateMap)
             visited_nodes := Set.union !visited_nodes visitedOnCex
             (false, precondition, preconditionDisjuncts)
@@ -1093,8 +1100,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 propertyMap.Union(nested_X f (Some(f)) p false Props fairness_constraint)
             | _ ->
                 let Props = snd <| prover pars p f termination_only propertyMap fairness_constraint false true false
-                propertyMap.Union(Props)
-                                                                                                           
+                propertyMap.Union(Props)                                                                                            
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         if nest_level >= 0 then
@@ -1141,14 +1147,14 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 bottomUp pars p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
 
             //Propagate knowledge for non-atomic formulae
-            if not(e1.isAtomic) && e2.isAtomic then
+            (*if not(e1.isAtomic) && e2.isAtomic then
                 propagate_nodes p e1 propertyMap
             else if e1.isAtomic && not(e2.isAtomic) then
                 propagate_nodes p e2 propertyMap
             else
-                if nest_level = 0 || nest_level = -1 then
-                    propagate_nodes p e1 propertyMap
-                    propagate_nodes p e2 propertyMap
+                if nest_level = 0 || nest_level = -1 then*)
+            propagate_nodes p e1 propertyMap
+            propagate_nodes p e2 propertyMap
 
             let preCond_map1 = match e1 with
                                |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
@@ -1387,7 +1393,7 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                             is_ltl := false
                                             let ret = bottomUp pars p_dtmz new_F termination_only nest_level None propertyMap
                                             let formulaMap = propertyMap.[new_F]                                                                             
-                                            propertyMap.Remove(new_F)|> ignore                                       
+                                            propertyMap.Remove(new_F)|> ignore                                      
                                             propertyMap.Union(quantify_proph_var e.IsExistential new_F formulaMap "__proph_var_det")                                         
                                             ret
                                         else

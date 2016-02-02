@@ -335,7 +335,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test "cav13-ctl-examples/P16.t2" "[AG](varP1 != 1) || [AG](varP2 != 1)" None
     register_CTL_SAT_test "cav13-ctl-examples/P17.t2" "[AG]([AF](varW >= 1))" None
     register_CTL_SAT_test "cav13-ctl-examples/P18.t2" "[EF]([EG](varW < 1))" None
-    //register_CTL_SAT_test "cav13-ctl-examples/P19.t2" "[AG]([EF](varW >=1))" None
+    register_CTL_SAT_test "cav13-ctl-examples/P19.t2" "[AG]([EF](varW >=1))" None
     register_CTL_SAT_test "cav13-ctl-examples/P20.t2" "[EF]([AG](varW < 1))" None
     register_CTL_SAT_test "cav13-ctl-examples/P21.t2" "[AG]([AF](varW == 1))" None
     register_CTL_SAT_test "cav13-ctl-examples/P22.t2" "[EF]([EG](varW != 1))" None
@@ -349,7 +349,7 @@ let register_tests (pars : Parameters.parameters) =
     //Timeouts for CTL* are commented out. If known why a comment is left above.
     register_CTLStar_UNSAT_test "1394complete-succeed-2.t2" "A G((E G(phi_io_compl <= 0)) || (E F(G (phi_nSUC_ret > 0))))"
     register_CTLStar_SAT_test "1394complete-succeed-2.t2" "E F((A F(phi_io_compl > 0)) && (A G(F (phi_nSUC_ret <= 0))))"
-    //register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) && (A G (keR == 0)))))" //
+    register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) && (A G (keR == 0)))))" //
     register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) || (E F (keR == 1)))))"  //
 
     //register_CTLStar_SAT_test "ppblock.t2" "E F(PPBlockInits > 0  && ( ( (E F(G (IoCreateDevice != 1))) || (A G( F(status == 1))) ) && (E G(PPBunlockInits <= 0)) ) )" 
@@ -365,7 +365,7 @@ let register_tests (pars : Parameters.parameters) =
 
     //Z3 Out of memory exception for program below 
     //register_CTLStar_SAT_test "testsuite/ctlstar_4.t2" "A G(F(b == 0)) && (W(x == 0),(b == 0))"
-    register_CTLStar_SAT_test "testsuite/example10.t2" "A G( (E F (G (x = 0))) && (E F(x = 20)))"
+    //register_CTLStar_SAT_test "testsuite/example10.t2" "A G( (E F (G (x = 0))) && (E F(x = 20)))"
     register_CTLStar_UNSAT_test "ctlstar_test.t2" "(E F(G (x == 0))) && (E F(G (x == 1)))"
     register_CTLStar_SAT_test "ctlstar_test.t2" "A G ((A F(G (x == 0))) || (A F(G (x == 1))))"
 
