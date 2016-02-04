@@ -227,9 +227,7 @@ let quantify_proph_var isExistential F formulaMap varString =
                     ts <- SparseLinear.simplify_as_inequalities ts
                 let ts = ts //rebind to use in closure
                 disj_fmla <- Set.add (List.map SparseLinear.linear_term_to_formula ts |> Formula.conj) disj_fmla
-            //printfn "Before %A" disj_fmla
             //disj_fmla <- Set.remove (Formula.Le(Term.Const(bigint.Zero),Term.Const(bigint.Zero))) disj_fmla
-            //printfn "After %A" disj_fmla
             let strength_f = if isExistential then Formula.disj disj_fmla else Formula.negate(Formula.disj disj_fmla)
             propertyMap_temp.Add(F,(loc,strength_f))
         else
@@ -347,7 +345,8 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
                 |Some(r) -> Formula.negate(r)
                 |None -> fst <| findPreconditionForPath pi_wp
             //Propagate to all cutpoints, not just loops.
-            if p_orig_loops.ContainsKey x || Set.contains x cps_checked_for_term || Set.contains x p_orig.Locations  || loopnode_to_copiednode.ContainsValue x then //&& isorigNodeNum x p_orig
+            let copies = loc_to_loopduploc |> Map.filter(fun y z -> z = x)
+            if p_orig_loops.ContainsKey x || Set.contains x cps_checked_for_term || Set.contains x p_orig.Locations  || copies.Count > 0 then //&& isorigNodeNum x p_orig
                 let visited = loc_to_loopduploc.FindWithDefault x x
                 if not(visited_BU_cp.ContainsKey visited) then
                     let orig =  
@@ -357,11 +356,9 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
                         else if p_orig_loops.ContainsKey x then x
                         else if (p_orig.Locations).Contains x then x
                                 else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x)                               
-
                     let truefPreCond = if existential then
                                             Formula.negate(tempfPreCond)
                                        else tempfPreCond
-    
                     if strengthen then
                         let preStrengthf = (orig, truefPreCond)
                         preStrengthSet <- Set.add preStrengthf preStrengthSet
@@ -404,8 +401,9 @@ let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existentia
                 pi_elim <- List.append [(pi_rev).Head] pi_elim
                 pi_rev <- (pi_rev).Tail
             else
+                pi_elim <- List.append [(pi_rev).Head] pi_elim
                 pi_rev <- (pi_rev).Tail
-
+        let mutable pi_elim = (List.rev (pi_elim))
         if r then
             pi_elim <- (pi_elim)@[(node,Programs.assume(recurs),-1)]
         propertyMap.Union(propagateToTransitions p_orig f pi_elim cutp existential recur loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
@@ -563,7 +561,6 @@ let insertForRerun
         else if cutp = -1 then
             errorNode
         else cutp
-
     let (strengthen, precondition, preconditionDisjuncts) =
         match recurSet with
         | Some (_, r) ->
@@ -585,7 +582,13 @@ let insertForRerun
                     p_final.AddTransition k (Programs.assume(precondDisjunct)::cmds) k'
             
             let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
-            propogateMap.[propertyToProve] |> Set.iter (fun (x,y) -> if x <> cutp && x <> orig_cp then propertyMap.Add(propertyToProve,(x,y)))             
+            let nontermNode =
+                match (p_orig.GetNodeLabel(orig_cp)) with
+                |None -> false
+                | Some(z) -> if z.Contains"INF_Loop" then true
+                                else false
+            if not(nontermNode)then
+                propogateMap.[propertyToProve] |> Set.iter (fun (x,y) -> if x <> cutp && x <> orig_cp then propertyMap.Add(propertyToProve,(x,y)))             
             //propertyMap.Union(propogateMap)
             visited_nodes := Set.union !visited_nodes visitedOnCex
             (false, precondition, preconditionDisjuncts)
@@ -594,17 +597,18 @@ let insertForRerun
             let p0 = if isExistentialFormula then Formula.negate(precondition) else precondition
             let precond_length = propertyMap.[propertyToProve] |> List.count (fun (x,_) -> x = orig_cp)
             //Checking for repeated counterexamples/preconditions for strengthening
-            if Set.contains (orig_cp, p0) propertyMap.[propertyToProve] || (precond_length > 3 )then
+            if Set.contains (orig_cp, p0) propertyMap.[propertyToProve] || (precond_length >= 3 )then
                 let disjunctiveStrengthenedPreconditions = strengthenCond pi_mod precondition
                 let disjunctiveStrengthenedPrecondition = Formula.disj disjunctiveStrengthenedPreconditions
                 //Add strength formula here to propertyMap
                 let (visitedOnCex ,propogateMap, preStrengthSet) =
                     propagate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode true
                 visited_nodes := Set.union !visited_nodes visitedOnCex
-
+                let propagatedNode = preStrengthSet |> Set.map(fun (x,y) -> x)
                 let preStrengthSet = Set.add (orig_cp, p0) preStrengthSet
                 //Saving the properties for formula f before going through the strengthening procedures
                 let preStrengthProps = propertyMap.[propertyToProve]
+                let remainingCPConditions = preStrengthProps |> Set.filter(fun (x,y) -> x <> orig_cp)
                 //We can now replace the properties with their strengthened versions, beginning with orig_cp
                 if isExistentialFormula then
                     propertyMap.Replace propertyToProve (orig_cp, Formula.negate(disjunctiveStrengthenedPrecondition))
@@ -614,20 +618,22 @@ let insertForRerun
                 //preStrengthSet (x,formula) indicates the property before it is strengthened that
                 //would definitely need to be removed. Later propogateMap will replace it with
                 //a strengthened verison of the formula
+
                 let strengthPropogation = Set.difference preStrengthProps preStrengthSet
                 //The case where preconditon may not be repeating, but getting infinitely more refined
                 //We spot the formulas that need to be strengthened by checking if the newly produced (non-strengthened)
                 //precondition would imply the old one. If so, then we also remove it, as it will be replaced by propagateMap
-                let StrengthPropagation2 = preStrengthSet |> Set.map(fun (x,y) ->
+                (*let StrengthPropagation2 = preStrengthSet |> Set.map(fun (x,y) ->
                                                                 //Furtherstrength contains the set of values that should be removed from
                                                                 //the non-strenghtened property list.
                                                                 let furtherstrength =
                                                                     preStrengthProps |> Set.filter(fun (z,w) -> x = z && (Formula.entails y w))
                                                                 furtherstrength) |> Set.unionMany
                 for x in Set.difference strengthPropogation StrengthPropagation2 do
-                    propertyMap.Add (propertyToProve, x)
+                    propertyMap.Add (propertyToProve, x)*)
 
                 propertyMap.Union(propogateMap)
+                remainingCPConditions |> Set.iter(fun (x,y) ->if not(propagatedNode.Contains x) then propertyMap.Add(propertyToProve,(x,y)))
                 (true, disjunctiveStrengthenedPrecondition, List.ofSeq disjunctiveStrengthenedPreconditions)
 
             else
@@ -1094,8 +1100,7 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 propertyMap.Union(nested_X f (Some(f)) p false Props fairness_constraint)
             | _ ->
                 let Props = snd <| prover pars p f termination_only propertyMap fairness_constraint false true false
-                propertyMap.Union(Props)
-                                                                                                           
+                propertyMap.Union(Props)                                                                                            
     | CTL.AW(e1, e2) -> 
         //First get subresults for the subformulae
         if nest_level >= 0 then
@@ -1142,17 +1147,14 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
                 bottomUp pars p e2 termination_only (nest_level+1) fairness_constraint propertyMap |> ignore
 
             //Propagate knowledge for non-atomic formulae
-            if not(e1.isAtomic) && e2.isAtomic then
+            (*if not(e1.isAtomic) && e2.isAtomic then
                 propagate_nodes p e1 propertyMap
             else if e1.isAtomic && not(e2.isAtomic) then
                 propagate_nodes p e2 propertyMap
-                (*for (n,l) in propertyMap do
-                    for m in l do
-                        printfn "%A, is %A" n m*)
             else
-                if nest_level = 0 || nest_level = -1 then
-                    propagate_nodes p e1 propertyMap
-                    propagate_nodes p e2 propertyMap
+                if nest_level = 0 || nest_level = -1 then*)
+            propagate_nodes p e1 propertyMap
+            propagate_nodes p e2 propertyMap
 
             let preCond_map1 = match e1 with
                                |CTL.EF _ |CTL.EG _ |CTL.EU _ |CTL.EX _ 
@@ -1384,19 +1386,19 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                        | CTL.Path_Formula.F e2 | CTL.Path_Formula.G e2 
                                        | CTL.Path_Formula.X e2 -> (snd<|starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl, None)
                                        | CTL.Path_Formula.W (e2,e3) -> (snd <| starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e2 termination_only is_ltl,
-                                                                        snd <| starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e3 termination_only is_ltl)
-
+                                                                        snd <| starBottomUp pars p p_dtmz (nest_level - 1) propertyMap e3 termination_only is_ltl)                                  
                                    let new_F = convert_star_CTL f e_sub1 e_sub2       
                                    let ret_value = 
                                         if (!is_ltl) then
                                             is_ltl := false
                                             let ret = bottomUp pars p_dtmz new_F termination_only nest_level None propertyMap
-                                            let formulaMap = propertyMap.[new_F]                                                                                   
-                                            propertyMap.Remove(new_F)|> ignore                                        
+                                            let formulaMap = propertyMap.[new_F]                                                                             
+                                            propertyMap.Remove(new_F)|> ignore                                      
                                             propertyMap.Union(quantify_proph_var e.IsExistential new_F formulaMap "__proph_var_det")                                         
                                             ret
                                         else
                                              bottomUp pars p new_F termination_only nest_level None propertyMap
+                                   
                                    (ret_value,Some(new_F))
 
                      | CTL.And (e1,e2) 
@@ -1460,6 +1462,8 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
             proph_map := (!proph_map).Add(n,(set [(nodes_count.[n]).[0]],set [(nodes_count.[n]).[1]]))
         //Adding the prophecy variable for branching point n.
         p_det.AddVariable ((Formula.proph_var_det) + n.ToString())
+    
+    let determinizedNodes = new System.Collections.Generic.Dictionary<int, int>()
     //Now we determinize the program using the prophecy predicates in proph_map 
     for (n, (k,c,k')) in p_det.TransitionsWithIdx do 
         if (!proph_map).ContainsKey k then
@@ -1467,12 +1471,24 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
             let proph_var : Var.var = (Formula.proph_var_det) + k.ToString()
             let same_loc = (Set.difference sccnode outnode).IsEmpty
             if Set.contains k' sccnode then
-                let cmd = [Programs.assume (Formula.Gt(Term.Var(proph_var),Term.Const(bigint.Zero)));
-                            Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
-                p_det.SetTransition n (k,c@cmd,k')
-                let cmd = [Programs.assume (Formula.Lt(Term.Var(proph_var),Term.Const(bigint.Zero)));
-                            Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
-                p_det.AddTransition k (c@cmd) k'
+                if not(determinizedNodes.ContainsKey k) then
+                    let cmd = [Programs.assume (Formula.Gt(Term.Var(proph_var),Term.Const(bigint.Zero)));
+                                Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
+                    let detNode = p_det.NewNode()
+                    p_det.AddTransition k cmd detNode
+                    p_det.AddTransition detNode c k'
+                    //p_det.SetTransition n (k,c@cmd,k')
+                    p_det.RemoveTransition n
+                    let cmd = [Programs.assume (Formula.Lt(Term.Var(proph_var),Term.Const(bigint.Zero)));
+                                Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
+                    p_det.AddTransition k cmd detNode
+                    //p_det.AddTransition k (c@cmd) k'
+                    determinizedNodes.Add(k,detNode)
+                else
+                    p_det.RemoveTransition n
+                    p_det.AddTransition determinizedNodes.[k] c k'
+                     
+
                 if same_loc then
                     proph_map := (!proph_map).Remove(k)
                     proph_map := (!proph_map).Add(k,(Set.empty,outnode))
