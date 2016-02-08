@@ -311,11 +311,11 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test   "ax_test.t2" "[EX](p <= 0)" None*)
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    (*register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (Some "(P == 1, Q == 1)")
+    register_CTL_SAT_test "bakery.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (Some "(P == 1, Q == 1)")
     register_CTL_UNSAT_test "bakerybug.t2" "[AG](NONCRITICAL <= 0 || ([AF](CRITICAL > 0)))" (Some "(P == 1, Q == 1)")
     register_CTL_SAT_test "ppblock.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (Some "(IoCreateDevice == 1, status == 1)")   
     register_CTL_FAIL_test "ppblockbug.t2" "[AG](PPBlockInits <= 0 || ([AF](PPBunlockInits > 0)))" (Some "(IoCreateDevice == 1, status == 1)")
-    *)
+    
 
     register_CTL_SAT_test "cav13-ctl-examples/P1.t2" "[AG](varA != 1 || [AF](varR == 1))" None 
     register_CTL_SAT_test "cav13-ctl-examples/P2.t2" "[EF](varA == 1 && [EG](varR != 5))" None
@@ -342,7 +342,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTL_SAT_test "cav13-ctl-examples/P23.t2" "[AG]([EF](varW == 1))" None
     register_CTL_SAT_test "cav13-ctl-examples/P24.t2" "[EF]([AG](varW != 1))" None
     register_CTL_SAT_test "cav13-ctl-examples/P25.t2" "(varC <= 5) || ([AF](varR > 5))" None
-    register_CTL_SAT_test "cav13-ctl-examples/P26.t2" "(varC > 5) && [EG](varR <= 5)" None
+    register_CTL_UNSAT_test "cav13-ctl-examples/P26.t2" "(varC > 5) && [EG](varR <= 5)" None
     register_CTL_UNSAT_test "cav13-ctl-examples/P27.t2" "(varC <= 5) || [EF](varR > 5)" None
     register_CTL_UNSAT_test "cav13-ctl-examples/P28.t2" "(varC > 5) && [AG](varR <= 5)" None
 
@@ -352,7 +352,7 @@ let register_tests (pars : Parameters.parameters) =
     register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) && (A G (keR == 0)))))" //
     register_CTLStar_SAT_test "1394-succeed-2.t2" "E F(G (((keA <= 0) || (E F (keR == 1)))))"  //
 
-    //register_CTLStar_SAT_test "ppblock.t2" "E F(PPBlockInits > 0  && ( ( (E F(G (IoCreateDevice != 1))) || (A G( F(status == 1))) ) && (E G(PPBunlockInits <= 0)) ) )" 
+    register_CTLStar_SAT_test "ppblock.t2" "E F(PPBlockInits > 0  && ( ( (E F(G (IoCreateDevice != 1))) || (A G( F(status == 1))) ) && (E G(PPBunlockInits <= 0)) ) )" 
     //Program is about 110 - 400 lines of code.   
 
     //CTL* Toy examples - About 10-15 lines of code
@@ -365,7 +365,7 @@ let register_tests (pars : Parameters.parameters) =
 
     //Z3 Out of memory exception for program below 
     //register_CTLStar_SAT_test "testsuite/ctlstar_4.t2" "A G(F(b == 0)) && (W(x == 0),(b == 0))"
-    //register_CTLStar_SAT_test "testsuite/example10.t2" "A G( (E F (G (x = 0))) && (E F(x = 20)))"
+    register_CTLStar_UNSAT_test "testsuite/example10.t2" "A G( (E F (G (x = 0))) && (E F(x = 20)))"
     register_CTLStar_UNSAT_test "ctlstar_test.t2" "(E F(G (x == 0))) && (E F(G (x == 1)))"
     register_CTLStar_SAT_test "ctlstar_test.t2" "A G ((A F(G (x == 0))) || (A F(G (x == 1))))"
 
