@@ -26,7 +26,7 @@ open Microsoft.FSharp.Reflection
 type runMode =
     | Output of Parameters.outputFormat
     | Test
-    | Safety of int
+    | Safety of string
     | Termination
     | CTL of string
     | CTLStar of string
@@ -100,7 +100,7 @@ let parseArguments arguments =
                  , fun s -> t2_input_file := s)
              .Add( "safety="
                  , "Run safety prover, checking reachability of given location"
-                 , fun n -> setMode (Safety (int n)))
+                 , fun s -> setMode (Safety s))
              .Add( "termination"
                  , "Run termination prover"
                  , fun _ -> setMode Termination)
