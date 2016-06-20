@@ -353,6 +353,22 @@ let cmdsToFormulae cmds varMap =
         | [] -> ([], varMap)
     cmdsToFormulae cmds varMap
 
+let cmdsToCetaFormula (variables : Var.var seq) cmds =
+    let (formula, varMap) = cmdsToFormulae cmds Map.empty
+    //Extend to reflect unchanged variables:
+    let (formula, varMap) =
+        Seq.fold 
+            (fun (formula, varMap) var ->
+                if Map.findWithDefault var 0 varMap = 0 then
+                    let newVarMap = Map.add var 1 varMap
+                    let newFormula = (Formula.Eq (Var (Var.prime_var var 0), Var (Var.prime_var var 1))) :: formula
+                    (newFormula, newVarMap)
+                else
+                    (formula, varMap))
+            (formula, varMap)
+            variables
+    (formula, varMap)
+
 /// Convert path to path formula, applying SSA transformation.
 /// varMap contains var to SSA version number.
 /// Return pair (<list of transition formulae>, <new varMap>).
@@ -1122,7 +1138,7 @@ type Program private (parameters : Parameters.parameters) =
 
     member private self.TransitionToCeta (writer : System.Xml.XmlWriter) transId =
         let (source, cmds, target) = self.GetTransition transId
-        let (transFormula, varToMaxSSAIdx) = cmdsToFormulae cmds Map.empty
+        let (transFormula, varToMaxSSAIdx) = cmdsToCetaFormula self.Variables cmds
         writer.WriteStartElement "transition"
 
         writer.WriteElementString ("transitionId", string transId)

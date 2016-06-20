@@ -805,7 +805,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 writer.WriteStartElement "children"
                 for childId in E.[nodeId] do
                     let (transId, cmds) = abs_edge_to_program_commands.[(nodeId, childId)]
-                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToFormulae cmds Map.empty
+                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula program.Variables cmds
                     let varToPre var = Var.prime_var var 0
                     let varToPost var =
                         match Map.tryFind var varToMaxSSAIdx with
