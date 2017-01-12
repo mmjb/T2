@@ -168,7 +168,7 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
     p_final.SetTransition pre_check_trans (l, cmds', new_node)
     
     let rfCheckTrans = p_final.AddTransition new_node [Programs.assume (Formula.Not(rf))] k
-    let bndCheckTrans = p_final.AddTransition new_node [Programs.assume (Formula.Not(bnd))] k
+    let _ = p_final.AddTransition new_node [Programs.assume (Formula.Not(bnd))] k
     cp_rf.[cp] <- rfCheckTrans
 
     Log.log pars <| sprintf "Instrumented in disjunctive RF between %i and %i" new_node k
@@ -179,7 +179,7 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
         Output.print_dot_program p_final "input__instrumented_disjunctive_rf.dot"
 
 ///Takes in the indexes of the transitions that are lexicographic checkers, deletes them, and returns start and end node of the old check transition (so that you can stuff new checkers in there)
-let delete_lex_checkers (pars : Parameters.parameters) (lex_checkers:int list) (p:Programs.Program) =
+let delete_lex_checkers (lex_checkers : int list) (p : Programs.Program) =
     let (first_check_node,_,_) = p.GetTransition (List.head lex_checkers)
     let (_,_,last_check_node) = p.GetTransition (List.last lex_checkers)
 
@@ -190,9 +190,9 @@ let delete_lex_checkers (pars : Parameters.parameters) (lex_checkers:int list) (
     (first_check_node, last_check_node)
 
 ///Replaces a list of old lexicographic checkers by a new list
-let replace_lex_rf_checkers (pars : Parameters.parameters) p old_checker_trans_ids number_of_checkers (ith_checker_formulas: int -> formula list) =
+let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_checker_formulas: int -> formula list) =
     //remove old lex checkers for this counter
-    let (k,k') = delete_lex_checkers pars old_checker_trans_ids p
+    let (k, k') = delete_lex_checkers old_checker_trans_ids p
 
     //Now we insert new lexicographic RF checkers from k to k'
     let new_nodes = k::[for _ in 1..(number_of_checkers-1) -> p.NewNode()]@[k']
@@ -216,7 +216,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         found_lex_rfs := !found_lex_rfs |> Map.remove cp |> Map.add cp (decr_list, not_incr_list, bnd_list)
         //This gives the formulas that should hold for the i-th step in the check:
         let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_trans_formula
         cp_rf_lex.[cp] <- new_lex_checker_trans_ids
         safety.ResetFrom first_checker_node
 
@@ -230,7 +230,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         let old_checker_trans_ids = counters_to_checkers.[counter]
         //This gives the formulas that should hold for the i-th step in the check:
         let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_trans_formula
         let new_counter_checkers_map = Map.add counter new_lex_checker_trans_ids counters_to_checkers
         lex_info.cp_rf_init_cond <- Map.add cp new_counter_checkers_map lex_info.cp_rf_init_cond
 
@@ -247,7 +247,7 @@ let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.
     //Here we extract the first and last node, k and k'
     let old_checker_trans_ids = cp_rf_lex.[cp]
     let ith_trans_formula i = poly_checkers.[i-1]
-    let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
+    let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
     cp_rf_lex.[cp] <- new_lex_checker_trans_ids
 
     safety.ResetFrom first_checker_node
@@ -273,7 +273,7 @@ let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf
 
     //remove old checkers at cutpoint
     let lex_checkers = cp_rf_lex.[failure_cp]
-    let (k,k') = delete_lex_checkers pars lex_checkers p_final
+    let (k,k') = delete_lex_checkers lex_checkers p_final
     let checkTransition = p_final.AddTransition k [Programs.assume Formula.truec] k'
 
     //and update cp_rf_lex and clear partial_order for cp
@@ -387,7 +387,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let lex_checkers = cp_rf_lex.[cp]
-    let (k,k') = delete_lex_checkers pars lex_checkers p
+    let (k, k') = delete_lex_checkers lex_checkers p
 
     let mutable counter_checker_map : Map<int,int list> = Map.empty
 
@@ -432,8 +432,7 @@ let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
         Output.print_dot_program p_final "input__init_cond.dot"
 
 ///Performs that transformation that counts how many times we've looped through cp, and only checks for more than some number of iterations
-let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p:Programs.Program) (termination_only:bool) =
-
+let unrolling_trans (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p:Programs.Program) (termination_only:bool) =
     //make iteration variable for cp
     let iters:var = Formula.iters_var cp
 
@@ -475,7 +474,7 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
         if transFromCP.IsEmpty then
             dieWith "?"
         else
-            let (n, (_, _, k')) = List.head transFromCP
+            let (_, (_, _, k')) = List.head transFromCP
             match p.GetNodeLabel k' with
             | None -> dieWith "?"
             | Some label -> 
@@ -483,7 +482,6 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
                 let endPropertyNode = p.GetLabelledNode endLabel
                 let trans_from_cp_with_copied_lt_1 =
                     [for (n, (k, cmds, k')) in p.TransitionsWithIdx do
-                        let (k,cmds,k') = p.GetTransition n
                         if (k=endPropertyNode) && (contains_copied_lt_1 cp cmds) then
                             let is_trans_in_loop =
                                    p.TransitionsFrom k'
@@ -501,7 +499,7 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let lex_checkers = cp_rf_lex.[cp]
-    let (k,k') = delete_lex_checkers pars lex_checkers p
+    let (k, k') = delete_lex_checkers lex_checkers p
 
     //guard the checkers with assume(iters>=2)
     let new_node = p.NewNode()
@@ -533,7 +531,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 
         //Performs the transformation that counts how many iterations of cp's loop we've done
         //This returns the index of where the guard is
-        let guard_index = unrolling_trans pars failure_cp cp_rf_lex p_final termination_only
+        let guard_index = unrolling_trans failure_cp cp_rf_lex p_final termination_only
 
         //Put the new info in lex_info
         lex_info.cp_unrolling <- Map.add failure_cp true lex_info.cp_unrolling
@@ -553,7 +551,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 
             //remove lex checkers at cutpoint
             let lex_checkers = cp_rf_lex.[failure_cp]
-            let (j,j') = delete_lex_checkers pars lex_checkers p_final
+            let (j,j') = delete_lex_checkers lex_checkers p_final
             let rfCheckTrans = p_final.AddTransition j [] j'
             cp_rf_lex.[failure_cp] <- [rfCheckTrans]
 
@@ -1284,7 +1282,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
 
     //Maps first node on the path out of an instrumented loop (to the error location) to the corresponding CP:
     let cp_rf_init = new System.Collections.Generic.Dictionary<int, int>()
-    for (n, (_, cmds, k')) in p_final.TransitionsWithIdx do
+    for (_, (_, cmds, k')) in p_final.TransitionsWithIdx do
         for cmd in cmds do
             match cmd with
             |   Programs.Assume(_,Formula.Ge(Term.Var(v), Term.Const(c))) when is_copied_var v && c = bigint.One ->
@@ -1293,7 +1291,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
                 cp_rf_init.Add(k', num_cp)
             | _ -> ()
     //Maps CP to the the transition leading from the first node on the corresponding path to the error location
-    for (n, (k, cmds, k')) in p_final.TransitionsWithIdx do
+    for (n, (k, cmds, _)) in p_final.TransitionsWithIdx do
         if cp_rf_init.ContainsKey(k) then
             match cmds with
             | [Programs.Assume(_,Formula.Eq(Term.Const(c1), Term.Const(c2)))] when c1 = bigint.Zero && c2 = bigint.Zero ->
