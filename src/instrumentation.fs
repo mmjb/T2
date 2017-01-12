@@ -206,6 +206,14 @@ let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_chec
 //Instruments a lexicographic RF to p_final
 let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) lex_info =
     let doing_init_cond = (lex_info.cp_init_cond).[cp]
+    let ith_lex_RF_check_formula i =
+        [
+            yield decr_list.[i-1] // i-th RF actually decreases
+            for j in 0..i-1 do
+                yield bnd_list.[j] // current and all earlier RFs are bounded from below
+            for j in 1..i-2 do
+                yield not_incr_list.[j-1] // all earlier RFs are not increasing
+        ]
 
     //Standard lexicographic RFs:
     if not doing_init_cond then
@@ -214,9 +222,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
         let old_checker_trans_ids = cp_rf_lex.[cp]
         found_lex_rfs := !found_lex_rfs |> Map.remove cp |> Map.add cp (decr_list, not_incr_list, bnd_list)
-        //This gives the formulas that should hold for the i-th step in the check:
-        let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_trans_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_lex_RF_check_formula
         cp_rf_lex.[cp] <- new_lex_checker_trans_ids
         safety.ResetFrom first_checker_node
 
@@ -228,12 +234,9 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         //map from counters to the index locations of the counter's lex checkers
         let counters_to_checkers = (lex_info.cp_rf_init_cond).[cp]
         let old_checker_trans_ids = counters_to_checkers.[counter]
-        //This gives the formulas that should hold for the i-th step in the check:
-        let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_trans_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_lex_RF_check_formula
         let new_counter_checkers_map = Map.add counter new_lex_checker_trans_ids counters_to_checkers
         lex_info.cp_rf_init_cond <- Map.add cp new_counter_checkers_map lex_info.cp_rf_init_cond
-
         safety.ResetFrom first_checker_node
 
     if pars.dottify_input_pgms then
