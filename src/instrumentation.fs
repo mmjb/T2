@@ -195,12 +195,15 @@ let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_chec
     let (k, k') = delete_lex_checkers old_checker_trans_ids p
 
     //Now we insert new lexicographic RF checkers from k to k'
-    let new_nodes = k::[for _ in 1..(number_of_checkers-1) -> p.NewNode()]@[k']
-    let mutable new_checker_trans_ids = []
-    for i in 1..number_of_checkers do
-        for trans in ith_checker_formulas i do
-            let trans_id = p.AddTransition new_nodes.[i-1] [Programs.assume (Formula.Not(trans))] new_nodes.[i]
-            new_checker_trans_ids <- new_checker_trans_ids@[trans_id]
+    let checker_nodes = k::[for _ in 1..(number_of_checkers - 1) -> p.NewNode()]@[k']
+    let new_checker_trans_ids =
+        [ for i in 0 .. number_of_checkers - 1 do
+              for trans in ith_checker_formulas i do
+                  yield p.AddTransition
+                            checker_nodes.[i]
+                            [Programs.assume (Formula.Not(trans))]
+                            checker_nodes.[i + 1]
+        ]
     (k, new_checker_trans_ids)
 
 //Instruments a lexicographic RF to p_final
@@ -208,11 +211,11 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
     let doing_init_cond = (lex_info.cp_init_cond).[cp]
     let ith_lex_RF_check_formula i =
         [
-            yield decr_list.[i-1] // i-th RF actually decreases
-            for j in 0..i-1 do
+            yield decr_list.[i] // i-th RF actually decreases
+            for j in 0..i do
                 yield bnd_list.[j] // current and all earlier RFs are bounded from below
-            for j in 1..i-2 do
-                yield not_incr_list.[j-1] // all earlier RFs are not increasing
+            for j in 0..i-1 do
+                yield not_incr_list.[j] // all earlier RFs are not increasing
         ]
 
     //Standard lexicographic RFs:
@@ -249,7 +252,7 @@ let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let old_checker_trans_ids = cp_rf_lex.[cp]
-    let ith_trans_formula i = poly_checkers.[i-1]
+    let ith_trans_formula i = poly_checkers.[i]
     let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
     cp_rf_lex.[cp] <- new_lex_checker_trans_ids
 
