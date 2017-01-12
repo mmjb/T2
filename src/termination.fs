@@ -495,19 +495,19 @@ let insertForRerun
                         if p_orig_loops.ContainsKey k then
                             visited_BU_cp := (!visited_BU_cp).Add(k, (k, k'))
                             if k = cutp then
-                                p_final.AddTransition k [] (get_copy_of_loopnode k)
+                                p_final.AddTransition k [] (get_copy_of_loopnode k) |> ignore
                             else
-                                p_final.AddTransition (get_copy_of_loopnode k) [] k
+                                p_final.AddTransition (get_copy_of_loopnode k) [] k |> ignore
                             safety.ResetFrom k
 
                     for (k, cmds, k') in p_orig.Transitions do
                         //if (k' <> cutp && not(loopnode_to_copiednode.ContainsKey k')) || p_orig_sccs.[cutp].Contains k then
                         if (p_orig_loops.ContainsKey k' && not(loopnode_to_copiednode.ContainsKey k')) || loopnode_to_copiednode.ContainsKey k then
                             if loopnode_to_copiednode.ContainsKey k || loopnode_to_copiednode.ContainsKey k' then
-                                p_final.AddTransition (get_copy_of_loopnode k) cmds (get_copy_of_loopnode k')
+                                p_final.AddTransition (get_copy_of_loopnode k) cmds (get_copy_of_loopnode k') |> ignore
                                 if p_orig_loops.ContainsKey k' && not ((!visited_BU_cp).ContainsKey k') && loopnode_to_copiednode.ContainsKey k' then
                                 //if p_orig_loops.ContainsKey k' && k' <> cutp && not ((!visited_BU_cp).ContainsKey k') && loopnode_to_copiednode.ContainsKey k' then
-                                    p_final.AddTransition (get_copy_of_loopnode k') [] k'
+                                    p_final.AddTransition (get_copy_of_loopnode k') [] k' |> ignore
                         safety.ResetFrom k
                     //Output.print_dot_program p_final "input__final2.dot"
                     //NOW PROPAGATE UPWARDS TO COPIES
@@ -530,7 +530,7 @@ let insertForRerun
             //if (k = m && k' = m') then
                 if not(strengthen) then
                     for x in preCond do
-                        p_final.AddTransition k (Programs.assume(x)::cmds) k'
+                        p_final.AddTransition k (Programs.assume(x)::cmds) k' |> ignore
                     p_final.RemoveTransition l
                 //If we strengthened, we require the elimination of already existing precondition transitions
                 else
@@ -538,14 +538,14 @@ let insertForRerun
                     transitionToStrengthen <- Some (k, k')
             //Redirect loop to cut-point without assumption: For soundness
             else if cutp <> -1 && k' = origNode && p_bu_sccs.[cutp].Contains k then
-                p_final.AddTransition k cmds copiedNode
+                p_final.AddTransition k cmds copiedNode |> ignore
                 p_final.RemoveTransition l
             safety.ResetFrom k //Marc's note: This resets from EVERY location. Really needed?
         if strengthen then
             match transitionToStrengthen with
             | Some (k, k') ->
                 for x in preCond do
-                    p_final.AddTransition k [Programs.assume x] k'
+                    p_final.AddTransition k [Programs.assume x] k' |> ignore
                 safety.ResetFrom k
             | None ->
                 () //Didn't find anything to insert
@@ -579,7 +579,7 @@ let insertForRerun
             for (l, (k, cmds, k')) in p_final.TransitionsFrom cutp do
                 p_final.RemoveTransition l
                 for precondDisjunct in preconditionDisjuncts do
-                    p_final.AddTransition k (Programs.assume(precondDisjunct)::cmds) k'
+                    p_final.AddTransition k (Programs.assume(precondDisjunct)::cmds) k' |> ignore
             
             let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
             let nontermNode =
@@ -1209,7 +1209,7 @@ let make_program_infinite (p : Programs.Program) =
     let infinite_loop = p.GetLabelledNode "INF_Loop"
 
     //Creating self-loop
-    p.AddTransition infinite_loop [Programs.assign Formula.fair_term_var (Term.Const(bigint.One))] infinite_loop
+    p.AddTransition infinite_loop [Programs.assign Formula.fair_term_var (Term.Const(bigint.One))] infinite_loop |> ignore
 
     //Find dead end locations
     let mutable dead_ends = p.Locations
@@ -1243,9 +1243,9 @@ let make_program_infinite (p : Programs.Program) =
                     let neg_commands = trans_commands |> List.map(fun x -> Formula.negate(x)) |> Formula.conj
                     let disj_commands = Formula.polyhedra_dnf neg_commands |> Formula.split_disjunction
                     for i in disj_commands do
-                        p.AddTransition k' [Programs.assume i] infinite_loop
+                        p.AddTransition k' [Programs.assume i] infinite_loop |> ignore
         if Set.contains k' dead_ends then
-            p.AddTransition k' [Programs.assume (Formula.truec)] infinite_loop
+            p.AddTransition k' [Programs.assume (Formula.truec)] infinite_loop |> ignore
 
 let rec nTerm f =
     match f with
@@ -1475,18 +1475,18 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
                     let cmd = [Programs.assume (Formula.Gt(Term.Var(proph_var),Term.Const(bigint.Zero)));
                                 Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
                     let detNode = p_det.NewNode()
-                    p_det.AddTransition k cmd detNode
-                    p_det.AddTransition detNode c k'
+                    p_det.AddTransition k cmd detNode |> ignore
+                    p_det.AddTransition detNode c k' |> ignore
                     //p_det.SetTransition n (k,c@cmd,k')
                     p_det.RemoveTransition n
                     let cmd = [Programs.assume (Formula.Lt(Term.Var(proph_var),Term.Const(bigint.Zero)));
                                 Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
-                    p_det.AddTransition k cmd detNode
+                    p_det.AddTransition k cmd detNode |> ignore
                     //p_det.AddTransition k (c@cmd) k'
                     determinizedNodes.Add(k,detNode)
                 else
                     p_det.RemoveTransition n
-                    p_det.AddTransition determinizedNodes.[k] c k'
+                    p_det.AddTransition determinizedNodes.[k] c k' |> ignore
                      
 
                 if same_loc then
@@ -1494,8 +1494,8 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
                     proph_map := (!proph_map).Add(k,(Set.empty,outnode))
             else if Set.contains k' outnode then
                 let proph_node = p_det.NewNode()
-                p_det.AddTransition k (c@[Programs.assume (Formula.Eq(Term.Var(proph_var),Term.Const(bigint.Zero)))]) proph_node
-                p_det.AddTransition proph_node [Programs.assign proph_var (Term.Nondet)] k'
+                p_det.AddTransition k (c@[Programs.assume (Formula.Eq(Term.Var(proph_var),Term.Const(bigint.Zero)))]) proph_node |> ignore
+                p_det.AddTransition proph_node [Programs.assign proph_var (Term.Nondet)] k' |> ignore
                 p_det.RemoveTransition n
 
     if pars.dottify_input_pgms then
