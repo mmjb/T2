@@ -186,30 +186,8 @@ type formula =
         //List.map inequality_to_linear_term (split_conjunction f)
         List.map inequality_to_linear_term (f.SplitConjunction() |> List.filter (fun x -> not(x.ContainsNondet())))
 
-    static member LinearTermsToCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (linearTerms : SparseLinear.LinearTerm seq) =
-        writer.WriteStartElement "formula"
-        writer.WriteStartElement "conjunction"
-        Seq.iter
-            (fun t ->
-                writer.WriteStartElement "atom"
-                writer.WriteStartElement "term"
-                SparseLinear.toCeta writer varWriter t
-                writer.WriteEndElement()
-                writer.WriteEndElement())
-            linearTerms
-        writer.WriteEndElement()
-        writer.WriteEndElement()
-
     static member FormulasToLinearTerms =
         Seq.fold (fun res (f : formula) -> f.ToLinearTerms() @ res) []
-
-    ///This will spit out a sequence of atoms into the passed xml writer, to be understood as conjunction
-    member self.ToCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) =
-        try
-            let linearTerms = self.ToLinearTerms()
-            formula.LinearTermsToCeta writer varWriter linearTerms
-        with
-        | FormulaNotConvex -> failwith "CeTA export of disjunctions not supported yet."
 
 //
 // Note that we dont have a "true" or "false" in formula
@@ -581,3 +559,33 @@ let fromZ3 f =
        memo.[f] <- !res
        !res
    z3f(get f)
+
+let maybe_filter_instr_vars (filterInstrumentationVars : bool) (linearTerms : SparseLinear.LinearTerm seq) =
+    if filterInstrumentationVars then
+        linearTerms
+        |> Seq.filter (fun t -> not <| Map.exists (fun key _ -> is_instr_var key) t)
+        |> List.ofSeq
+    else
+        linearTerms
+        |> List.ofSeq
+
+let linear_terms_to_ceta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (linearTerms : SparseLinear.LinearTerm list) (filterInstrumentationVars : bool) =
+    writer.WriteStartElement "conjunction"
+    linearTerms
+    |> maybe_filter_instr_vars filterInstrumentationVars
+    |> Seq.iter
+        (fun t ->
+            writer.WriteStartElement "leq"
+            SparseLinear.toCeta writer varWriter t
+            SparseLinear.toCeta writer varWriter Map.empty
+            writer.WriteEndElement())
+    writer.WriteEndElement()
+
+///This will spit out a sequence of atoms into the passed xml writer, to be understood as conjunction
+let formula_to_ceta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (filterInstrumentationVars : bool) (formula : formula) =
+    try
+        writer.WriteStartElement "formula"
+        linear_terms_to_ceta writer varWriter (formula.ToLinearTerms()) filterInstrumentationVars
+        writer.WriteEndElement ()
+    with
+    | FormulaNotConvex -> failwith "CeTA export of disjunctions not supported yet."

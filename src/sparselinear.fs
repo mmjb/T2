@@ -252,23 +252,28 @@ let combine_with_z3_terms (A: LinearTerm list) (coeffs: Microsoft.Z3.ArithExpr l
 let term_as_linear = term_to_linear_term >> linear_term_to_term
 
 let toCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (t : LinearTerm) =
-    writer.WriteStartElement "constant"
-    writer.WriteValue (int (Map.findWithDefault ONE bigint.Zero t))
-    writer.WriteEndElement ()
+    if Map.isEmpty t then
+        writer.WriteElementString ("constant", "0")
+    else
+        writer.WriteStartElement "sum"
 
-    Map.iter
-        (fun var value ->
-            if var <> ONE && value <> bigint.Zero then
-                writer.WriteStartElement "addend"
+        match Map.tryFind ONE t with
+        | Some constant ->
+            writer.WriteElementString ("constant", string constant)
+        | _ -> ()
 
-                writer.WriteStartElement "constant"
-                writer.WriteValue (int value)
-                writer.WriteEndElement ()
-
-                varWriter writer var
-
-                writer.WriteEndElement ())
-        t
+        Map.iter
+            (fun var value ->
+                if var <> ONE && value <> bigint.Zero then
+                    if value = bigint.One then
+                        varWriter writer var
+                    else
+                        writer.WriteStartElement "product"
+                        writer.WriteElementString ("constant", string value)
+                        varWriter writer var
+                        writer.WriteEndElement ())
+            t
+        writer.WriteEndElement () //end sum
 
 let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : (bigint list) =
     let presNLambdas : (LinearTerm * Microsoft.Z3.ArithExpr) list = [ for pre in pres do yield (pre, upcast Z.fresh_var()) ]
@@ -303,12 +308,11 @@ let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : 
                         Z.eq preCoeffSum postCoeff
                 Z.conj2 partialConstraint constr)
             lambdasPos allVars
-    (* // Debug code:
-    printfn "Looking for Farkas coefficients for this:"
-    Seq.iter (fun (t, _) -> printfn "  %s" (linearTermToString t)) presNLambdas
-    printfn " ==> %s" (linearTermToString post) *)
     match Z.solve [farkasConstraints] with
     | None ->
+        printfn "Looking for Farkas coefficients for this:"
+        Seq.iter (fun (t, _) -> printfn "  %s <= 0" (linearTermToString t)) presNLambdas
+        printfn " ==> %s <= 0" (linearTermToString post)
         failwith "Trying to get Farkas coefficients for implication that doesn't hold!"
     | Some model ->
         List.map (fun (_, lambda) ->  Z.get_model_int model lambda) presNLambdas
@@ -325,3 +329,22 @@ let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : Line
         farkasCoeffs
     writer.WriteEndElement () //linearCombination end
     writer.WriteEndElement () //linearImplicationHint end
+
+let linear_term_to_z3 (t : LinearTerm) =
+    t
+    |> Map.toSeq
+    |> Seq.fold
+        (fun res (var, coeff) ->
+            let summand =
+                if var = ONE then 
+                    Z.constant coeff
+                else
+                    Z.mul (Z.constant coeff) (Z.var var)
+            Z.add res summand)
+            (Z.constantInt 0)
+
+let le_linear_term_to_z3 (t : LinearTerm) =
+    Z.le (linear_term_to_z3 t) (Z.constantInt 0)
+
+let le_linear_terms_to_z3 (ts : LinearTerm list) =
+    Z.conj (ts |> List.map le_linear_term_to_z3)

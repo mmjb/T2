@@ -91,20 +91,23 @@ let assign v t = Assign(None, v, t)
 let skip = Assume(None,Formula.truec)
 
 type NodeId = int
+type CoopProgramNode =
+    | OriginalNode of NodeId
+    | DuplicatedNode of NodeId
+    | InstrumentationNode of NodeId
 let private cutpointCopyPrefix = "cp_copy_"
 let private cutpointAuxPrefix = "cp_aux_"
 let generateCutpointCopyLabel loc = sprintf "%s%i" cutpointCopyPrefix loc
 let generateCutpointAuxLabel loc = sprintf "%s%i" cutpointAuxPrefix loc
-let isCutpointCopyLabel (label : string) =
-    if label.StartsWith cutpointCopyPrefix then
-        Some (int (label.Substring cutpointCopyPrefix.Length))
-    else
-        None
-let isCutpointAuxLabel (label : string) =
-    if label.StartsWith cutpointAuxPrefix then
-        Some (int (label.Substring cutpointAuxPrefix.Length))
-    else
-        None
+
+let nodeToCeta (writer : System.Xml.XmlWriter) (node : CoopProgramNode) =
+    match node with
+    | InstrumentationNode id ->
+        assert false
+    | DuplicatedNode id ->
+        writer.WriteElementString ("locationDuplicate", string id)
+    | OriginalNode id ->
+        writer.WriteElementString ("locationId", string id)
 
 //
 // Pretty-printing routines
@@ -1113,56 +1116,43 @@ type Program private (parameters : Parameters.parameters) =
                     transMap.[transIdx] <- newTransIdx
         transMap
 
-    member self.NodeToCeta (writer : System.Xml.XmlWriter) (node : NodeId) =
-        writer.WriteStartElement "node"
-        let (isCutpointCopy, isCutpointAux, nodeId) = 
-            match self.GetNodeLabel node with
-            | Some label ->
-                match isCutpointCopyLabel label with
-                | Some nodeId -> (true, false, nodeId)
-                | None ->
-                    match isCutpointAuxLabel label with
-                    | Some nodeId -> (false, true, nodeId)
-                    | None -> (false, false, node)
-            | None -> (false, false, node)
-        if isCutpointCopy then
-            writer.WriteStartElement "cutPointDuplicate"
-        else if isCutpointAux then
-            writer.WriteStartElement "cutPointAux"
-        writer.WriteStartElement "nodeIdentifier"
-        writer.WriteValue (int nodeId)
-        writer.WriteEndElement () //nodeIdentifier end
-        if isCutpointCopy || isCutpointAux then
-            writer.WriteEndElement () //cutPointDuplicate / cutPointAux end
-        writer.WriteEndElement () //node end
-
-    member private self.TransitionToCeta (writer : System.Xml.XmlWriter) transId =
-        let (source, cmds, target) = self.GetTransition transId
+    member self.TransitionToCeta (writer : System.Xml.XmlWriter) transId source cmds target filterInstrumentationVars =
         let (transFormula, varToMaxSSAIdx) = cmdsToCetaFormula self.Variables cmds
         writer.WriteStartElement "transition"
 
         writer.WriteElementString ("transitionId", string transId)
         
         writer.WriteStartElement "source"
-        self.NodeToCeta writer source
+        nodeToCeta writer source
         writer.WriteEndElement() //source end
         
         writer.WriteStartElement "target"
-        self.NodeToCeta writer target
+        nodeToCeta writer target
         writer.WriteEndElement() //target end
 
         //We are not using Formula.conj here because we absolutely want to control the order of formulas...
         let transLinearTerms = Formula.formula.FormulasToLinearTerms (transFormula :> _)
-        Formula.formula.LinearTermsToCeta writer (Var.toCeta varToMaxSSAIdx) transLinearTerms
+        writer.WriteStartElement "formula"
+        Formula.linear_terms_to_ceta writer (Var.toCeta varToMaxSSAIdx) transLinearTerms filterInstrumentationVars
+        writer.WriteEndElement () //formula end
         
         writer.WriteEndElement() //transition end
 
-    member self.ToCeta (writer : System.Xml.XmlWriter) =
-        writer.WriteStartElement "program"
+    member self.ToCeta (writer : System.Xml.XmlWriter) (elementName : string) (nodeToCertRepr : System.Collections.Generic.Dictionary<int, CoopProgramNode> option) filterInstrumentationVars =
+        writer.WriteStartElement elementName
         writer.WriteStartElement "initial"
-        self.NodeToCeta writer self.Initial
+        nodeToCeta writer (OriginalNode self.Initial)
         writer.WriteEndElement () //initial end
-        self.ActiveTransitions |> Seq.iter (self.TransitionToCeta writer)
+        for (transIdx, (source, cmds, target)) in self.TransitionsWithIdx do
+            let source_repr = if nodeToCertRepr.IsSome then nodeToCertRepr.Value.[source] else OriginalNode source
+            let target_repr = if nodeToCertRepr.IsSome then nodeToCertRepr.Value.[target] else OriginalNode target
+            let target_label = self.GetNodeLabel target
+            match (source_repr, target_repr) with
+            | (InstrumentationNode _, _)
+            | (_, InstrumentationNode _) ->
+                ()
+            | _ ->
+                self.TransitionToCeta writer transIdx source_repr cmds target_repr filterInstrumentationVars
         writer.WriteEndElement () //program end
 
 /// Merge chains of transitions together.

@@ -780,44 +780,102 @@ type ImpactARG(parameters : Parameters.parameters,
         self.close_all_ancestors v
         self.dfs v
 
-    member __.ToCeta (writer : System.Xml.XmlWriter) =
+    member __.GetCetaFilteredARGNodes (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramNode> option) =
+        let res = System.Collections.Generic.HashSet()
+        let seen = System.Collections.Generic.HashSet()
+        let rec dfs nodeId =
+            if seen.Add nodeId then
+                let isDead = garbage.Contains nodeId || dead.Contains nodeId
+                let progLocId = abs_node_to_program_loc.[nodeId]
+                let isInstrumentation =
+                    if locationToCertRepr.IsSome then
+                        match locationToCertRepr.Value.[progLocId] with
+                        | Programs.InstrumentationNode _ -> true
+                        | _ -> false
+                    else
+                        false
+                if not isDead && not isInstrumentation then
+                    res.Add nodeId |> ignore
+                    Seq.iter dfs E.[nodeId]
+        dfs init_node
+        res
+
+    // Returns a list of formulas that are proven invariants for a program location, to be understood as a disjunction of conjunctions.
+    // Note: The result only makes sense for an ARG that has been proven safe.
+    member self.GetNodeInvariant (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramNode> option) progLoc : (Formula.formula list) list =
+        let nodesToReport = self.GetCetaFilteredARGNodes locationToCertRepr
+        program_loc_to_abs_nodes.[progLoc]
+        |> Seq.filter nodesToReport.Contains
+        |> List.ofSeq
+        |> List.map (fun node -> psi.[node] |> List.ofSeq)
+
+    member self.ToCeta
+      (writer : System.Xml.XmlWriter)
+      (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramNode> option)
+      (transWriter : (System.Xml.XmlWriter -> int -> unit) option)
+      (filterInstrumentationVars : bool) =
+        let getLocationRepr location =
+            if locationToCertRepr.IsSome then
+                locationToCertRepr.Value.[location]
+            else
+                Programs.OriginalNode location
+
+        //Fun story. As allow to filter some nodes, whole parts of the ART may become unreachable.
+        //Thus, first compute set of nodes to print overall
+        let artNodesToPrint = self.GetCetaFilteredARGNodes locationToCertRepr
+
+        let writeTransId transId =
+            match transWriter with
+            | Some f -> f writer transId
+            | None -> writer.WriteElementString ("transitionId", string transId)
+
         let exportNode nodeId =
-            writer.WriteStartElement "artNode"
-            writer.WriteElementString ("artNodeId", string nodeId)
-            //We are not using Formula.conj here because we absolutely want to control the order of formulas...
-            let psiLinearTerms = Formula.formula.FormulasToLinearTerms (psi.[nodeId] :> _)
-            Formula.formula.LinearTermsToCeta writer Var.plainToCeta psiLinearTerms
             writer.WriteStartElement "node"
-            writer.WriteElementString ("nodeIdentifier", string abs_node_to_program_loc.[nodeId])
-            writer.WriteEndElement () //node end
+            writer.WriteElementString ("nodeId", string nodeId)
+            //We are not using Formula.conj here because we absolutely want to control the order of formulas...
+            let psiLinearTerms =
+                Formula.formula.FormulasToLinearTerms (psi.[nodeId] :> _)
+                |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+            writer.WriteStartElement "invariant"
+            Formula.linear_terms_to_ceta writer Var.plainToCeta psiLinearTerms filterInstrumentationVars
+            writer.WriteEndElement () //end element
+            let progLocRepr = getLocationRepr abs_node_to_program_loc.[nodeId]
+            //printfn "ARG node to export: %i (%A)" nodeId progLocRepr
+            writer.WriteStartElement "location"
+            Programs.nodeToCeta writer progLocRepr
+            writer.WriteEndElement () //end location
             match covering.TryGetValue nodeId with
             | (true, coverTarget) ->
                 writer.WriteStartElement "coverEdge"
-                writer.WriteElementString ("artNodeId", string coverTarget)
+                writer.WriteElementString ("nodeId", string coverTarget)
 
                 writer.WriteStartElement "hints"
-                for lt in Formula.formula.FormulasToLinearTerms (psi.[coverTarget] :> _) do
+                for lt in Formula.formula.FormulasToLinearTerms (psi.[coverTarget] :> _) |> Formula.maybe_filter_instr_vars filterInstrumentationVars do
                     SparseLinear.writeCeTALinearImplicationHints writer psiLinearTerms lt
                 writer.WriteEndElement () //hints end
 
                 writer.WriteEndElement () //coverEdge end
             | (false, _) ->
                 writer.WriteStartElement "children"
-                for childId in E.[nodeId] do
+                for childId in E.[nodeId] |> Seq.filter artNodesToPrint.Contains do
                     let (transId, cmds) = abs_edge_to_program_commands.[(nodeId, childId)]
+                    //printfn "  ARG child: %i (%A) for trans %i" childId childNodeRepr transId
                     let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula program.Variables cmds
                     let varToPre var = Var.prime_var var 0
                     let varToPost var =
                         match Map.tryFind var varToMaxSSAIdx with
                         | Some idx -> Var.prime_var var idx
                         | None -> var
-                    let transLinearTerms = Formula.formula.FormulasToLinearTerms (transFormula :> _)
-                    let nodePsiAndTransLinearTerms = (List.map (SparseLinear.alpha varToPre) psiLinearTerms) @ transLinearTerms
-                    let childPsiLinearTerms = Formula.formula.FormulasToLinearTerms (psi.[childId] :> _)
-
+                    let transLinearTerms =
+                        Formula.formula.FormulasToLinearTerms (transFormula :> _)
+                        |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+                    let nodePsiAndTransLinearTerms = Seq.append (Seq.map (SparseLinear.alpha varToPre) psiLinearTerms) transLinearTerms
+                    let childPsiLinearTerms =
+                        Formula.formula.FormulasToLinearTerms (psi.[childId] :> _)
+                        |> Formula.maybe_filter_instr_vars filterInstrumentationVars
                     writer.WriteStartElement "child"
-                    writer.WriteElementString ("transitionId", string transId)
-                    writer.WriteElementString ("artNodeId", string childId)
+                    writeTransId transId
+                    writer.WriteElementString ("nodeId", string childId)
                     writer.WriteStartElement "hints"
                     for lt in childPsiLinearTerms do
                         SparseLinear.writeCeTALinearImplicationHints writer nodePsiAndTransLinearTerms (SparseLinear.alpha varToPost lt)
@@ -825,27 +883,27 @@ type ImpactARG(parameters : Parameters.parameters,
 
                     writer.WriteEndElement () //child end
                 writer.WriteEndElement () //children end
-            writer.WriteEndElement () //artNode end
+            writer.WriteEndElement () //node end
         writer.WriteStartElement "impact"
-        writer.WriteElementString ("artNodeId", string init_node)
-        writer.WriteStartElement "artNodes"
-        V |> Seq.iter exportNode
-        writer.WriteEndElement () //artNodes end
+        writer.WriteElementString ("initial", string init_node)
+        writer.WriteStartElement "nodes"
+        V |> Seq.filter artNodesToPrint.Contains |> Seq.iter exportNode
+        writer.WriteEndElement () //nodes end
 
-        writer.WriteStartElement "errorHints"
-        let falseLinTerm = List.head (Formula.falsec.ToLinearTerms())
-        for errNode in V |> Seq.filter (fun v -> abs_node_to_program_loc.[v] = loc_err) do
-            writer.WriteStartElement "errorHint"
-            writer.WriteElementString ("artNodeId", string errNode)
-            writer.WriteStartElement "hints"
-            let errNodeLinTerms = Formula.formula.FormulasToLinearTerms (psi.[errNode] :> _)
-            SparseLinear.writeCeTALinearImplicationHints writer errNodeLinTerms falseLinTerm
-            writer.WriteEndElement () //hints end
-            writer.WriteEndElement ()
-        //TODO...
-        writer.WriteEndElement () //errorHints end
+        let errNodes = V |> Seq.filter (fun v -> abs_node_to_program_loc.[v] = loc_err && artNodesToPrint.Contains v)
+        if not <| Seq.isEmpty errNodes then
+            writer.WriteStartElement "errorHints"
+            let falseLinTerm = List.head (Formula.falsec.ToLinearTerms())
+            for errNode in errNodes do
+                writer.WriteStartElement "errorHint"
+                writer.WriteElementString ("nodeId", string errNode)
+                writer.WriteStartElement "hints"
+                let errNodeLinTerms = Formula.formula.FormulasToLinearTerms (psi.[errNode] :> _) |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+                SparseLinear.writeCeTALinearImplicationHints writer errNodeLinTerms falseLinTerm
+                writer.WriteEndElement () //hints end
+                writer.WriteEndElement ()
+            writer.WriteEndElement () //errorHints end
         writer.WriteEndElement () //impact end
-
 
     //
     // Sanity checks
