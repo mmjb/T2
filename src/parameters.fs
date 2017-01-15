@@ -58,6 +58,9 @@ type parameters = {
     mutable print_debug : bool
 
     // ---------------------------- Program things ----------------------------
+    /// Propagate constants.
+    mutable constant_propagation : bool
+
     /// Symbolic abstraction: change constants in the program from 5 to var5.  Constraints are added
     /// so that var5<var6,etc. This is needed because otherwise, the reachability graph is unwound
     /// (i.e., the program is executed!) until actually reaching the constants. Not so bad for 5, but
@@ -169,23 +172,26 @@ let defaultParameters =
         print_log = false
         print_debug = false
 
-        elim_constants = true
+        constant_propagation = false
+        chaining = false
+        elim_constants = false
         elim_temp_vars = false
-        do_ai_threshold = 50
+        do_ai_threshold = 0
         did_ai_first = false
         ai_domain = Box
 
         prove_nonterm = true
         init_cond = false
-        unrolling = true
+        unrolling = false
         unrolling_limit = 3
         lexicographic = true
         lex_opt_fewer_rfs = false
         lex_opt_max_unaffect = false
         lex_opt_scc_unaffected = false
-        polyrank = true
+        polyrank = false
         polyrank_max_depth = 4
-        lex_term_proof_first = true
+
+        lex_term_proof_first = false
         mcnp_style_bound_decr = false
 
         safety_implementation = Impact
@@ -197,7 +203,6 @@ let defaultParameters =
         fc_remove_on_fail = false
         fc_unsat_core = false
         iterative_reachability = true
-        chaining = true 
 
         print_interpolants = false
         check_interpolants = true

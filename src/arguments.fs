@@ -193,6 +193,10 @@ let parseArguments arguments =
                         | "box" | "boxes"   | "invervals" -> pars.ai_domain <- Parameters.Box
                         | _ -> Utils.dieWith <| sprintf "Do not know numerical abstract domain %s" s
                  , true)
+             .Add( "constant_propagation="
+                 , "Propagate constants"
+                 , fun s -> pars.constant_propagation <- Utils.true_string s
+                 , true)
              .Add( "elim_constants="
                  , "Abstract away unusual constants"
                  , fun s -> pars.elim_constants <- Utils.true_string s
@@ -200,6 +204,10 @@ let parseArguments arguments =
              .Add( "elim_temp_vars="
                  , "Try to eliminate variables that are only in temporary use"
                  , fun s -> pars.elim_temp_vars <- Utils.true_string s
+                 , true)
+             .Add( "chaining="
+                 , "Try to chain sequences of transitions"
+                 , fun s -> pars.chaining <- Utils.true_string s
                  , true)
 
              ///// Safety things:
@@ -240,6 +248,9 @@ let parseArguments arguments =
              .Add( "lexicographic="
                  , "Try to find lexicographic ranking functions instead of disjunctive ones"
                  , fun s -> pars.lexicographic <- Utils.true_string s
+             .Add( "try_unrolling="
+                 , "Try to unroll loops"
+                 , fun s -> pars.unrolling <- Utils.true_string s
                  , true)
              .Add( "lex_opt_fewer_rfs="
                  , "Try to choose shorter lexicographic RFs (overrides other -lex_opt options)"

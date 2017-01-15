@@ -57,14 +57,35 @@ let main (arguments: string[]) =
 
     if parameters.export_cert.IsSome then
         match runMode with
-        | Arguments.Safety _ -> ()
+        | Arguments.Safety _
+        | Arguments.Termination -> ()
         | _ ->
-            eprintfn "Error: Certificate export only supported for safety at this time."
+            eprintfn "Error: Certificate export only supported for safety and termination at this time."
+            exit 4
+
+        if fairness_constraint_string <> "" then
+            eprintfn "Error: Certificate export for fair termination not supported at this time."
             exit 4
 
         if parameters.safety_implementation <> Parameters.Impact then
             eprintfn "Error: Certificate export only supported for Impact safety backend at this time."
-            exit 5
+            exit 4
+
+        if parameters.chaining then
+            eprintf "Error: Certificate export for chaining not supported at this time."
+            exit 4
+
+        if parameters.elim_temp_vars then
+            eprintf "Error: Certificate export for temporary variable elimination not supported at this time."
+            exit 4
+ 
+        if parameters.elim_constants then
+            eprintf "Error: Certificate export for constant elimination not supported at this time."
+            exit 4
+
+        if parameters.do_ai_threshold > 0 then
+            eprintf "Error: Certificate export for initial abstract interpretation-based invariant generation not supported at this time."
+            exit 4
 
     let protectLocations =
         match runMode with
