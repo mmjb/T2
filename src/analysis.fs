@@ -173,7 +173,7 @@ let path_invariant stem cycle =
 
 let program_absint start_pp start_intdom transitions command_filter =
     let outgoing_trans = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Programs.Command list * int>>()
-    for (_, (k, trans, k')) in transitions do
+    for (k, trans, k') in transitions do
         if not(outgoing_trans.ContainsKey k) then
             outgoing_trans.Add(k, new System.Collections.Generic.HashSet<Programs.Command list * int>())
         outgoing_trans.[k].Add((trans, k')) |> ignore
@@ -206,17 +206,3 @@ let program_absint start_pp start_intdom transitions command_filter =
                     todo.Enqueue(target_pp)
 
     pp_to_intdom
-
-let get_interval_analysis (p:Programs.Program) (e : Formula.formula)=
-    let pp_to_interval =
-            program_absint
-                p.Initial
-                (IntervalIntDom.Intervals.create())
-                (p.Transitions |> Seq.map (fun (k,c,k') -> (k, (k,c,k'))))
-                id
-    let pp_to_seq = pp_to_interval |> Seq.sortBy (fun (KeyValue(k,_)) -> k)
-    let pp_to_form = pp_to_seq |> Seq.map(fun x -> (x.Key,x.Value.to_formula()))
-    let to_check = pp_to_form |> Seq.filter(fun (_,y) ->  not(Formula.entails y e) || Formula.unsat (Formula.conj[y;e]))
-                                    |> Seq.map(fun (x,_) -> x)
-
-    to_check

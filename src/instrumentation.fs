@@ -797,8 +797,10 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
     let cutpoint_to_after_cp_varcopy_node = System.Collections.Generic.Dictionary()
     for (transId, (k, cmds, k')) in p.TransitionsWithIdx do
         if (k <> p_F.Initial) then
-            //If we do the AI first, every transition has a new assume at the beginning. We only want that in the instr loop
-            let cmds_without_ai_res = if pars.did_ai_first then List.tail cmds else cmds
+            //If we do the AI first, every transition has a new assume at the beginning, generate that here. This also explains the liberally sprinkled in extra assumes further down...
+            let true_assume = Programs.assume Formula.truec
+            let abstrInterInv = if pars.did_ai_first then List.head cmds else true_assume
+            let cmdsWithoutAbstrInterInv = if pars.did_ai_first then List.tail cmds else cmds
             let copied_k = get_copy_of_loopnode k
 
             if p_loops.ContainsKey k then //Source of the transition is a CP!
@@ -814,16 +816,17 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                     //copying magic first:
                     if not(cutpoint_to_after_cp_varcopy_node.ContainsKey k) then
                         // Add a jump edge from the original node to its new copy:
-                        let to_coop_transId = p_F.AddTransition k [Programs.skip] copied_k
+                        let to_coop_transId = p_F.AddTransition k [true_assume ; Programs.skip] copied_k
                         cpId_to_toCoopTransId.Add(k, to_coop_transId)
 
                         // Create a new node in which we have copied all the variables, and do the copying:
                         let after_varcopy_node = p_F.NewNodeWithLabel (AFTER_VARCOPY_LOC_LABEL + string k)
                         p_F.AddTransition
                             copied_k
-                                ((Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))
-                                 ::(Programs.assign copied_var (Term.Const(bigint.One)))
-                                 ::(var_copy_commands p_F copied_k))
+                                 (true_assume
+                                  ::(Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))
+                                  ::(Programs.assign copied_var (Term.Const(bigint.One)))
+                                  ::(var_copy_commands p_F copied_k))
                             after_varcopy_node
                             |> ignore
 
@@ -837,22 +840,24 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                         let pre_RF_check_node = p_F.GetLabelledNode (PRERF_CHECK_LOC_LABEL + k.ToString())
                         p_F.AddTransition
                             copied_k
-                                    (Programs.assume (Formula.Ge(Term.Var(copied_var), Term.Const(bigint.One)))
-                                    ::[])
+                                    [ true_assume
+                                    ; Programs.assume (Formula.Ge(Term.Var(copied_var), Term.Const(bigint.One))) ]
                             pre_RF_check_node |> ignore
 
                         let after_RF_check_node = p_F.GetLabelledNode (POSTRF_CHECK_LOC_LABEL + k.ToString())
                         // Start with rf 'true' (0=0).
                         p_F.AddTransition
                             pre_RF_check_node
-                                [ Programs.assume (Formula.Eq(Term.Const(bigint.Zero), Term.Const(bigint.Zero))) ]
+                                [ true_assume
+                                ; Programs.assume (Formula.Eq(Term.Const(bigint.Zero), Term.Const(bigint.Zero))) ]
                             after_RF_check_node |> ignore
 
                         //If we reach the (pre-)final location, we had no ranking function => AF p might never be true!
                         //Hence, we return false to allow for backtracking
                         p_F.AddTransition
                             after_RF_check_node
-                                [ Programs.assign ret (Term.Const(bigint.Zero)) ]
+                                [ true_assume
+                                ; Programs.assign ret (Term.Const(bigint.Zero)) ]
                             final_loc |> ignore
 
                     //Instead of original transition from CP, add one from the node in which we copied the program variables:
@@ -863,11 +868,14 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                     let dup_transId = p_F.AddTransition after_varcopy_node cmds copied_k'
                     transDupId_to_transId.Add(dup_transId, transId)
                     //One transition copy from the duplicated node, asserting that we haven't copied the program variables:
-                    let dup_transId = p_F.AddTransition copied_k ((Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))::cmds) copied_k'
+                    let dup_transId = p_F.AddTransition 
+                                            copied_k 
+                                            (abstrInterInv::(Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))::cmdsWithoutAbstrInterInv)
+                                            copied_k'
                     transDupId_to_transId.Add(dup_transId, transId)
                     
                 else // if Set.contains k' current_cfg_scc_nodes
-                    let new_out_cmmd = Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One)))::cmds_without_ai_res
+                    let new_out_cmmd = abstrInterInv::(Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))::cmdsWithoutAbstrInterInv
                     let copied_k' = get_copy_of_loopnode k'
                     let dup_transId = p_F.AddTransition copied_k new_out_cmmd copied_k'
                     transDupId_to_transId.Add(dup_transId, transId)
@@ -877,7 +885,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                 let trans_in_loop = (loopnode_to_copiednode.ContainsKey k) && (loopnode_to_copiednode.ContainsKey k')
                 if trans_in_loop then
                     let copied_k' = loopnode_to_copiednode.[k']
-                    let dup_transId = p_F.AddTransition copied_k (cmds) copied_k'
+                    let dup_transId = p_F.AddTransition copied_k cmds copied_k'
                     transDupId_to_transId.Add(dup_transId, transId)
 
         else // if(k <> p_F.initial)
@@ -904,10 +912,6 @@ let bottomUp_AF (pars : Parameters.parameters) p formula propertyMap isTerminati
 /// the error location and a map from cutpoints to the first transition leading to
 /// the error location (this is where the rfs are later added in)
 let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program) actl_prop (is_false : bool) propertyMap (fairness_constraint : (Formula.formula * Formula.formula) option) findPreconds next =
-    p.RemoveUnreachableLocations()
-    if pars.dottify_input_pgms then
-        Output.print_dot_program p "input.dot"
-
     //Propechy variable old and new
     let proph_var = Formula.fair_proph_var
     let proph = Term.Var Formula.fair_proph_var
@@ -951,7 +955,11 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
         | AF e -> bottomUp_AF pars p e propertyMap is_false fairness_constraint findPreconds
         | _ -> raise (new System.NotImplementedException "Not yet implemented")
     let error_loc = p_final.NewNode()
-    p_final.AddTransition final_loc [(Programs.assume (Formula.Le(Term.Var(prop_return), Term.Const(bigint.Zero))))] error_loc |> ignore
+    p_final.AddTransition 
+        final_loc 
+            [ Programs.assume Formula.truec
+            ; (Programs.assume (Formula.Le(Term.Var(prop_return), Term.Const(bigint.Zero))))]
+        error_loc |> ignore
 
     ///Maps cutpoint to the index of the transition from it that leads to the error location (that's where the RFs will go!)
     let cp_rf = new System.Collections.Generic.Dictionary<int, int>()
@@ -970,7 +978,11 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
     for (n, (k, cmds, _)) in p_final.TransitionsWithIdx do
         if cp_rf_init.ContainsKey(k) then
             match cmds with
-            | [Programs.Assume(_,Formula.Eq(Term.Const(c1), Term.Const(c2)))] when c1 = bigint.Zero && c2 = bigint.Zero ->
+            | [ Programs.Assume (_, trueFormula) 
+              ; Programs.Assume(_, Formula.Eq(Term.Const(c1), Term.Const(c2)))]
+                when trueFormula = Formula.truec && c1 = bigint.Zero && c2 = bigint.Zero ->
+                cp_rf.Add(cp_rf_init.[k], n)
+            | [ Programs.Assume(_,Formula.Eq(Term.Const(c1), Term.Const(c2)))] when c1 = bigint.Zero && c2 = bigint.Zero ->
                 cp_rf.Add(cp_rf_init.[k], n)
             | _ -> ()
 
@@ -982,7 +994,4 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
     // Clean up program using live variable analysis (guard variables occurring in our properties, though)
 
     p_final.LetConvert (Analysis.liveness p_final (CTL_Formula.freevars actl_prop))
-    if pars.dottify_input_pgms then
-        Output.print_dot_program p_final ("input__instrumented.dot")
-
     (p_final, final_loc, error_loc, cp_rf, loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId)
