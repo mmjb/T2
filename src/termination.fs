@@ -1341,7 +1341,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
     //Maybe let's do some AI first:
     let locToAIInvariant =
         if pars.do_ai_threshold > p_orig.TransitionNumber then
-            Log.log pars <| sprintf "Performing Abstract Interpretation with domain %s ... " (string pars.ai_domain)
+            Log.log pars <| sprintf "Performing Abstract Interpretation with domain %A ... " pars.ai_domain
             pars.did_ai_first <- true
             let invariants = generate_invariants_with_AI pars p_orig
             Log.log pars <| sprintf "done."

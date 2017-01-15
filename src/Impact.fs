@@ -216,7 +216,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 n <- n+1
                 filename <- sprintf "impact%03d.dot" n
 
-            Log.log parameters <| sprintf "Reachability graph dumped to file %s" filename
+            Log.debug parameters <| sprintf "Reachability graph dumped to file %s" filename
 
             let f = System.IO.File.CreateText filename
             f.Write s
@@ -419,15 +419,15 @@ type ImpactARG(parameters : Parameters.parameters,
         self.check_not_removed v
 
         Stats.incCounter "Impact - Expanded vertices"
-        if parameters.print_log then
-            Log.log parameters <| sprintf "Expanding leaf %d (loc %d)" v abs_node_to_program_loc.[v]
+        if parameters.print_debug then
+            Log.debug parameters <| sprintf "Expanding leaf %d (loc %d)" v abs_node_to_program_loc.[v]
 
         if not (self.is_covered v) then
             self.remove_leaf v
             [for (id, (_, T, m)) in transition abs_node_to_program_loc.[v] do
                 if (not <| Formula.unsat (self.psi v)) then
                     let new_node = self.make_node v id T m
-                    Log.log parameters <| sprintf "  Expanded to %d (loc %d)" new_node m
+                    Log.debug parameters <| sprintf "  Expanded to %d (loc %d)" new_node m
                     yield new_node
             ] |> List.rev
         else
@@ -678,8 +678,8 @@ type ImpactARG(parameters : Parameters.parameters,
         assert (abs_node_to_program_loc.[v] = loc_err)
         self.check_not_removed v
 
-        if parameters.print_log then
-            Log.log parameters <| sprintf "Refining %d (loc %d)..." v abs_node_to_program_loc.[v]
+        if parameters.print_debug then
+            Log.debug parameters <| sprintf "Refining %d (loc %d)..." v abs_node_to_program_loc.[v]
 
         if Formula.unsat (self.psi v) then
             // In this case the error location is just not satisfible.
@@ -705,8 +705,8 @@ type ImpactARG(parameters : Parameters.parameters,
                 for loc, intp in List.zip (self.path_to_locs formulae) interpolants do
                     self.check_not_removed loc
                     if not (self.entails1_psi loc intp) then
-                        if parameters.print_log then
-                            Log.log parameters <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs_node_to_program_loc.[loc]
+                        if parameters.print_debug then
+                            Log.debug parameters <| sprintf " Adding interpolant %s to %i (loc %i)" intp.pp loc abs_node_to_program_loc.[loc]
                         self.conjoin_with_psi loc intp
                         self.rm_from_covering (fun (x, y) -> y=loc && not (self.entails_psi x loc))
 
@@ -776,7 +776,7 @@ type ImpactARG(parameters : Parameters.parameters,
     member private self.unwind () =
         self.db ()
         let v = self.pick_vertex ()
-        Log.log parameters <| sprintf "Unwinding node %d (loc %d)" v abs_node_to_program_loc.[v]
+        Log.debug parameters <| sprintf "Unwinding node %d (loc %d)" v abs_node_to_program_loc.[v]
         self.close_all_ancestors v
         self.dfs v
 
