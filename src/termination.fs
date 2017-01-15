@@ -714,36 +714,36 @@ let private getLocToCertLocRepr (progOrig : Program) (progCoopInstrumented : Pro
         let sourceLocOrig = duplLocToOrigLoc.TryFind sourceLoc
         let targetLocOrig = duplLocToOrigLoc.TryFind targetLoc
         if isRFCheck then
-            printfn "Check trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
+            //printfn "Check trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
             locToCertLocRepr.[targetLoc] <- InstrumentationLocation targetLoc
         else
             if locsOrig.Contains sourceLoc then
                 locToCertLocRepr.[sourceLoc] <- OriginalLocation sourceLoc
                 if locsOrig.Contains targetLoc then
-                    printfn "Orig trans %i: %i->%i" idx sourceLoc targetLoc
+                    //printfn "Orig trans %i: %i->%i" idx sourceLoc targetLoc
                     locToCertLocRepr.[targetLoc] <- OriginalLocation targetLoc
                 else
-                    printfn "Switch trans %i: %i->%i (copy of %A)" idx sourceLoc targetLoc targetLocOrig
+                    //printfn "Switch trans %i: %i->%i (copy of %A)" idx sourceLoc targetLoc targetLocOrig
                     locToCertLocRepr.[targetLoc] <- DuplicatedLocation targetLocOrig.Value
             else
                 if locsOrig.Contains targetLoc then
-                    printfn "Strange trans %i: %i (copy of %A)->%i" idx sourceLoc sourceLocOrig targetLoc
+                    //printfn "Strange trans %i: %i (copy of %A)->%i" idx sourceLoc sourceLocOrig targetLoc
                     assert false
                     ()
                 else
                     let isCopyTrans = targetLocLabel.StartsWith Instrumentation.AFTER_VARCOPY_LOC_LABEL
                     let isAfterCopyTrans = sourceLocLabel.StartsWith Instrumentation.AFTER_VARCOPY_LOC_LABEL
                     if isCopyTrans then
-                        printfn "Var copy trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
+                        //printfn "Var copy trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
                         locToCertLocRepr.[sourceLoc] <- DuplicatedLocation sourceLocOrig.Value
                         locToCertLocRepr.[targetLoc] <- InstrumentationLocation targetLoc
                     elif isAfterCopyTrans then
-                        printfn "Copied trans after var copy %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
+                        //printfn "Copied trans after var copy %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
                         let copiedLoc = int (sourceLocLabel.Substring Instrumentation.AFTER_VARCOPY_LOC_LABEL.Length)
                         locToCertLocRepr.[sourceLoc] <- InstrumentationLocation copiedLoc
                         locToCertLocRepr.[targetLoc] <- DuplicatedLocation targetLocOrig.Value
                     else
-                        printfn "Copied trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
+                        //printfn "Copied trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
                         locToCertLocRepr.[sourceLoc] <- DuplicatedLocation sourceLocOrig.Value
                         locToCertLocRepr.[targetLoc] <- DuplicatedLocation targetLocOrig.Value
     locToCertLocRepr
