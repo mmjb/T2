@@ -167,11 +167,9 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
     let new_node = p_final.NewNode()
     p_final.SetTransition pre_check_trans (l, cmds', new_node)
     
-    //Store the ID of one of the new checker transitions, use it in cp_rf
-    let cnt = p_final.TransitionCount
-    p_final.AddTransition new_node [Programs.assume (Formula.Not(rf))] k
-    p_final.AddTransition new_node [Programs.assume (Formula.Not(bnd))] k
-    cp_rf.[cp] <- (cnt)
+    let rfCheckTrans = p_final.AddTransition new_node [Programs.assume (Formula.Not(rf))] k
+    let _ = p_final.AddTransition new_node [Programs.assume (Formula.Not(bnd))] k
+    cp_rf.[cp] <- rfCheckTrans
 
     Log.log pars <| sprintf "Instrumented in disjunctive RF between %i and %i" new_node k
     
@@ -181,7 +179,7 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
         Output.print_dot_program p_final "input__instrumented_disjunctive_rf.dot"
 
 ///Takes in the indexes of the transitions that are lexicographic checkers, deletes them, and returns start and end node of the old check transition (so that you can stuff new checkers in there)
-let delete_lex_checkers (pars : Parameters.parameters) (lex_checkers:int list) (p:Programs.Program) =
+let delete_lex_checkers (lex_checkers : int list) (p : Programs.Program) =
     let (first_check_node,_,_) = p.GetTransition (List.head lex_checkers)
     let (_,_,last_check_node) = p.GetTransition (List.last lex_checkers)
 
@@ -192,23 +190,33 @@ let delete_lex_checkers (pars : Parameters.parameters) (lex_checkers:int list) (
     (first_check_node, last_check_node)
 
 ///Replaces a list of old lexicographic checkers by a new list
-let replace_lex_rf_checkers (pars : Parameters.parameters) p old_checker_trans_ids number_of_checkers (ith_checker_formulas: int -> formula list) =
+let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_checker_formulas: int -> formula list) =
     //remove old lex checkers for this counter
-    let (k,k') = delete_lex_checkers pars old_checker_trans_ids p
+    let (k, k') = delete_lex_checkers old_checker_trans_ids p
 
     //Now we insert new lexicographic RF checkers from k to k'
-    let new_nodes = k::[for _ in 1..(number_of_checkers-1) -> p.NewNode()]@[k']
-    let mutable new_checker_trans_ids = []
-    for i in 1..number_of_checkers do
-        for trans in ith_checker_formulas i do
-            let trans_id = p.TransitionCount
-            p.AddTransition new_nodes.[i-1] [Programs.assume (Formula.Not(trans))] new_nodes.[i]
-            new_checker_trans_ids <- new_checker_trans_ids@[trans_id]
+    let checker_nodes = k::[for _ in 1..(number_of_checkers - 1) -> p.NewNode()]@[k']
+    let new_checker_trans_ids =
+        [ for i in 0 .. number_of_checkers - 1 do
+              for trans in ith_checker_formulas i do
+                  yield p.AddTransition
+                            checker_nodes.[i]
+                            [Programs.assume (Formula.Not(trans))]
+                            checker_nodes.[i + 1]
+        ]
     (k, new_checker_trans_ids)
 
 //Instruments a lexicographic RF to p_final
 let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) lex_info =
     let doing_init_cond = (lex_info.cp_init_cond).[cp]
+    let ith_lex_RF_check_formula i =
+        [
+            yield decr_list.[i] // i-th RF actually decreases
+            for j in 0..i do
+                yield bnd_list.[j] // current and all earlier RFs are bounded from below
+            for j in 0..i-1 do
+                yield not_incr_list.[j] // all earlier RFs are not increasing
+        ]
 
     //Standard lexicographic RFs:
     if not doing_init_cond then
@@ -217,9 +225,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
         let old_checker_trans_ids = cp_rf_lex.[cp]
         found_lex_rfs := !found_lex_rfs |> Map.remove cp |> Map.add cp (decr_list, not_incr_list, bnd_list)
-        //This gives the formulas that should hold for the i-th step in the check:
-        let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_lex_RF_check_formula
         cp_rf_lex.[cp] <- new_lex_checker_trans_ids
         safety.ResetFrom first_checker_node
 
@@ -231,12 +237,9 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         //map from counters to the index locations of the counter's lex checkers
         let counters_to_checkers = (lex_info.cp_rf_init_cond).[cp]
         let old_checker_trans_ids = counters_to_checkers.[counter]
-        //This gives the formulas that should hold for the i-th step in the check:
-        let ith_trans_formula i = decr_list.[i-1]::bnd_list.[i-1]::[for j in 1..i-1 -> not_incr_list.[j-1]]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids decr_list.Length ith_trans_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_lex_RF_check_formula
         let new_counter_checkers_map = Map.add counter new_lex_checker_trans_ids counters_to_checkers
         lex_info.cp_rf_init_cond <- Map.add cp new_counter_checkers_map lex_info.cp_rf_init_cond
-
         safety.ResetFrom first_checker_node
 
     if pars.dottify_input_pgms then
@@ -249,8 +252,8 @@ let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let old_checker_trans_ids = cp_rf_lex.[cp]
-    let ith_trans_formula i = poly_checkers.[i-1]
-    let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers pars p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
+    let ith_trans_formula i = poly_checkers.[i]
+    let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids poly_checkers.Length ith_trans_formula
     cp_rf_lex.[cp] <- new_lex_checker_trans_ids
 
     safety.ResetFrom first_checker_node
@@ -276,12 +279,11 @@ let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf
 
     //remove old checkers at cutpoint
     let lex_checkers = cp_rf_lex.[failure_cp]
-    let (k,k') = delete_lex_checkers pars lex_checkers p_final
-    let cnt = p_final.TransitionCount
-    p_final.AddTransition k [Programs.assume Formula.truec] k'
+    let (k,k') = delete_lex_checkers lex_checkers p_final
+    let checkTransition = p_final.AddTransition k [Programs.assume Formula.truec] k'
 
     //and update cp_rf_lex and clear partial_order for cp
-    cp_rf_lex.[failure_cp]<-[cnt]
+    cp_rf_lex.[failure_cp]<- [checkTransition]
     lex_info.partial_orders <- Map.add failure_cp [] lex_info.partial_orders
 
     safety.ResetFrom k
@@ -362,7 +364,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
     for index in copier_trans_from_imp_node do
         let (imp_node,cmds,_) = p.GetTransition index
         let new_cmds = assume_rho_le_m1::cmds
-        p.AddTransition imp_node new_cmds new_node
+        p.AddTransition imp_node new_cmds new_node |> ignore
 
     //for ord trans from imp node, make copies and add on assume(rho<=-1) and the rho counter assignment to the copies
     for index in ord_trans_from_imp_node do
@@ -370,7 +372,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
         let counter = counter_map.[index]
         let assign_rho_counter = Programs.assign rho (Term.constant counter)
         let new_cmds = [assume_rho_le_m1;assign_rho_counter]@cmds
-        p.AddTransition imp_node new_cmds k'
+        p.AddTransition imp_node new_cmds k' |> ignore
 
     //for each ord_trans_from_imp_node,
     //then create a copy from new_node, with the rho assignment
@@ -379,7 +381,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
         let counter = counter_map.[index]
         let assign_rho_counter = Programs.assign rho (Term.constant counter)
         let new_cmds = assign_rho_counter::cmds
-        p.AddTransition new_node new_cmds k'
+        p.AddTransition new_node new_cmds k' |> ignore
 
     //for each ord_trans_from_imp_node and copier_trans_from_imp_node, add assume(rho>=0)
     for index in copier_trans_from_imp_node@ord_trans_from_imp_node do
@@ -391,7 +393,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let lex_checkers = cp_rf_lex.[cp]
-    let (k,k') = delete_lex_checkers pars lex_checkers p
+    let (k, k') = delete_lex_checkers lex_checkers p
 
     let mutable counter_checker_map : Map<int,int list> = Map.empty
 
@@ -402,10 +404,9 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
         let counter = entry.Value
         let new_node = p.NewNode()
         let assume_rho_counter = Programs.assume (Formula.Eq(Term.Var(rho),Term.constant counter))
-        p.AddTransition k [assume_rho_counter] new_node
-        let cnt = p.TransitionCount
-        p.AddTransition new_node [] k'
-        counter_checker_map <- Map.add counter [cnt] counter_checker_map
+        p.AddTransition k [assume_rho_counter] new_node |> ignore
+        let counterCheckTrans = p.AddTransition new_node [] k'
+        counter_checker_map <- Map.add counter [counterCheckTrans] counter_checker_map
 
     //like cp_rf_lex, but maps from a cutpoint to a map
     //and the map goes from the rho-counter to the list of indexes of lex checkers, in order
@@ -437,8 +438,7 @@ let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
         Output.print_dot_program p_final "input__init_cond.dot"
 
 ///Performs that transformation that counts how many times we've looped through cp, and only checks for more than some number of iterations
-let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p:Programs.Program) (termination_only:bool) =
-
+let unrolling_trans (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p:Programs.Program) (termination_only:bool) =
     //make iteration variable for cp
     let iters:var = Formula.iters_var cp
 
@@ -480,7 +480,7 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
         if transFromCP.IsEmpty then
             dieWith "?"
         else
-            let (n, (_, _, k')) = List.head transFromCP
+            let (_, (_, _, k')) = List.head transFromCP
             match p.GetNodeLabel k' with
             | None -> dieWith "?"
             | Some label -> 
@@ -488,7 +488,6 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
                 let endPropertyNode = p.GetLabelledNode endLabel
                 let trans_from_cp_with_copied_lt_1 =
                     [for (n, (k, cmds, k')) in p.TransitionsWithIdx do
-                        let (k,cmds,k') = p.GetTransition n
                         if (k=endPropertyNode) && (contains_copied_lt_1 cp cmds) then
                             let is_trans_in_loop =
                                    p.TransitionsFrom k'
@@ -506,18 +505,16 @@ let unrolling_trans (pars : Parameters.parameters) (cp:int) (cp_rf_lex:System.Co
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let lex_checkers = cp_rf_lex.[cp]
-    let (k,k') = delete_lex_checkers pars lex_checkers p
+    let (k, k') = delete_lex_checkers lex_checkers p
 
     //guard the checkers with assume(iters>=2)
     let new_node = p.NewNode()
-    let cnt1 = p.TransitionCount
-    p.AddTransition k [assume_iters_ge_n 2] new_node
-    let cnt2 = p.TransitionCount
-    p.AddTransition new_node [] k'
-    cp_rf_lex.[cp] <- [cnt2]
+    let iterCheckTrans = p.AddTransition k [assume_iters_ge_n 2] new_node
+    let rfCheckTrans = p.AddTransition new_node [] k'
+    cp_rf_lex.[cp] <- [rfCheckTrans]
 
-    //cnt1 is the location of the guard
-    cnt1
+    //iterCheckTrans is the location of the guard
+    iterCheckTrans
 
 ///Return true if we can use unrolling technique:
 let can_unroll (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp =
@@ -540,7 +537,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 
         //Performs the transformation that counts how many iterations of cp's loop we've done
         //This returns the index of where the guard is
-        let guard_index = unrolling_trans pars failure_cp cp_rf_lex p_final termination_only
+        let guard_index = unrolling_trans failure_cp cp_rf_lex p_final termination_only
 
         //Put the new info in lex_info
         lex_info.cp_unrolling <- Map.add failure_cp true lex_info.cp_unrolling
@@ -560,10 +557,9 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 
             //remove lex checkers at cutpoint
             let lex_checkers = cp_rf_lex.[failure_cp]
-            let (j,j') = delete_lex_checkers pars lex_checkers p_final
-            let cnt = p_final.TransitionCount
-            p_final.AddTransition j [] j'
-            cp_rf_lex.[failure_cp] <- [cnt]
+            let (j,j') = delete_lex_checkers lex_checkers p_final
+            let rfCheckTrans = p_final.AddTransition j [] j'
+            cp_rf_lex.[failure_cp] <- [rfCheckTrans]
 
             lex_info.partial_orders <- Map.add failure_cp [] lex_info.partial_orders
             lex_info.past_lex_options <- Map.add failure_cp [] lex_info.past_lex_options
@@ -695,14 +691,14 @@ let add_subproperty_conditions (p : Programs.Program) conditions_per_cp cp isExi
         p.AddTransition
             start_node_for_subproperty
                 [ (Programs.assume l) ]
-            ret_true_node
+            ret_true_node |> ignore
 
     //Handling neg_cond instrumentation
     for l in neg_cond do
         p.AddTransition
             start_node_for_subproperty
                 [ (Programs.assume l) ]
-            ret_false_node
+            ret_false_node |> ignore
     ()
 
 /// Add transitions that ensure the fairness constraint (which may well be None) to the program p, between nodes ret_true_node/ret_false_node and end_node_of_subproperty.
@@ -710,21 +706,21 @@ let add_subproperty_conditions (p : Programs.Program) conditions_per_cp cp isExi
 /// This also takes care of assigning the correct value to ret_var, based on whether we are coming from ret_true_node/ret_false_node.
 let add_fairness_check_transititions (p : Programs.Program) (fairness_constraint : ((Programs.Command list * Programs.Command list) * Programs.Command list list) option) trans_idx ret_var ret_true_node ret_false_node end_node_of_subproperty =
     if fairness_constraint.IsNone then
-        p.AddTransition ret_true_node [Programs.assign ret_var (Term.Const(bigint.One))] end_node_of_subproperty
-        p.AddTransition ret_false_node [Programs.assign ret_var (Term.Const(bigint.Zero))] end_node_of_subproperty
+        p.AddTransition ret_true_node [Programs.assign ret_var (Term.Const(bigint.One))] end_node_of_subproperty |> ignore
+        p.AddTransition ret_false_node [Programs.assign ret_var (Term.Const(bigint.Zero))] end_node_of_subproperty |> ignore
 
     else
         let fair_node = p.GetLabelledNode ("FAIR_" + trans_idx.ToString())
-        p.AddTransition ret_true_node [Programs.assign ret_var (Term.Const(bigint.One))] fair_node
-        p.AddTransition ret_false_node [Programs.assign ret_var (Term.Const(bigint.Zero))] fair_node
+        p.AddTransition ret_true_node [Programs.assign ret_var (Term.Const(bigint.One))] fair_node |> ignore
+        p.AddTransition ret_false_node [Programs.assign ret_var (Term.Const(bigint.Zero))] fair_node |> ignore
 
         let fair_node2 = p.NewNode()
         let((fair, fair_1), fair_2) = fairness_constraint.Value
-        p.AddTransition fair_node fair fair_node2
-        p.AddTransition fair_node2 fair_1 end_node_of_subproperty
+        p.AddTransition fair_node fair fair_node2 |> ignore
+        p.AddTransition fair_node2 fair_1 end_node_of_subproperty |> ignore
 
         for n in fair_2 do
-            p.AddTransition fair_node n end_node_of_subproperty
+            p.AddTransition fair_node n end_node_of_subproperty |> ignore
 
 let instrument_X (p : Programs.Program) formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.Command list * Programs.Command list) * Programs.Command list list) option) isExistential =
     let p_X = p.Clone()
@@ -758,18 +754,18 @@ let instrument_X (p : Programs.Program) formula (propertyMap : SetDictionary<CTL
 
             //Very similar to traditional AG, except we are only adding propositional conditions where there are cut-points
             //We're also handling disjunctions
-            p_X.AddTransition k [] start_node_for_subproperty
+            p_X.AddTransition k [] start_node_for_subproperty |> ignore
 
             add_subproperty_conditions p_X cp_conditions k isExistential start_node_for_subproperty ret_true_node ret_false_node
             
             add_fairness_check_transititions p_X fairness_constraint n ret ret_true_node ret_false_node end_node_of_subproperty
 
             //Hmm in the old AG we just repeated the commands, but it could just be a skip
-            p_X.AddTransition end_node_of_subproperty [] final_loc
+            p_X.AddTransition end_node_of_subproperty [] final_loc |> ignore
 
             node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
 
-            p_X.AddTransition end_node_of_subproperty c k'
+            p_X.AddTransition end_node_of_subproperty c k' |> ignore
             //Remove original transition
             p_X.RemoveTransition n
 
@@ -793,14 +789,14 @@ let instrument_G (p : Programs.Program) formula (propertyMap : SetDictionary<CTL
             let ret_true_node = p_G.GetLabelledNode ("RET_TRUE_" + n.ToString())
             let ret_false_node = p_G.GetLabelledNode ("RET_FALSE_" + n.ToString())
 
-            p_G.AddTransition k [] start_node_for_subproperty
+            p_G.AddTransition k [] start_node_for_subproperty |> ignore
 
             add_subproperty_conditions p_G cp_conditions k isExistential start_node_for_subproperty ret_true_node ret_false_node
 
             add_fairness_check_transititions p_G fairness_constraint n ret ret_true_node ret_false_node end_node_of_subproperty
 
             //Hmm in the old AG we just repeated the commands, but it could just be a skip
-            p_G.AddTransition end_node_of_subproperty [] final_loc
+            p_G.AddTransition end_node_of_subproperty [] final_loc |> ignore
 
             node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
 
@@ -809,7 +805,7 @@ let instrument_G (p : Programs.Program) formula (propertyMap : SetDictionary<CTL
             let end_node_of_subproperty = node_to_end_of_subproperty_node_map.[k]
             //let cmd = [Programs.assume (Formula.Gt(Term.Var ret,Term.Const(bigint.Zero)))]
             //p_G.AddTransition end_node_of_subproperty (cmd@c) k'
-            p_G.AddTransition end_node_of_subproperty c k'
+            p_G.AddTransition end_node_of_subproperty c k' |> ignore
             p_G.RemoveTransition n
 
     (p_G, ret, final_loc, [], Map.empty)
@@ -876,7 +872,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                 let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_F
                 let proper_k = get_copy_of_loopnode k
 
-                p_F.AddTransition proper_k [] start_node_for_subproperty
+                p_F.AddTransition proper_k [] start_node_for_subproperty |> ignore
 
                 //See comments in AG to understand how this works.
                 if List.contains k cp_propMap then
@@ -895,18 +891,18 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                     p_F.AddTransition
                         start_node_for_subproperty
                             [ (Programs.assign ret (Term.Const(bigint.One))) ]
-                        end_node_of_subproperty
+                        end_node_of_subproperty |> ignore
                     p_F.AddTransition
                         start_node_for_subproperty
                             [ Programs.assume (Formula.falsec)
                             ; (Programs.assign ret (Term.Const(bigint.Zero))) ]
-                        end_node_of_subproperty
+                        end_node_of_subproperty  |> ignore
 
                 // If the subproperty holds, we may now go on to the final location. Otherwise, we will have to loop.
                 p_F.AddTransition
                     end_node_of_subproperty
                         [Programs.assume (Formula.Ge(Term.Var(ret),Term.Const(bigint.One)))]
-                    final_loc
+                    final_loc |> ignore
                 node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
 
     (*
@@ -953,7 +949,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                             end_of_subproperty_node
                                 (  Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One)))
                                  ::assume_ret_value_false_cmd)
-                            not_copied_node
+                            not_copied_node |> ignore
 
                         let copying = p_F.NewNode()
                         //Below is for transitions where variables are not copied
@@ -961,7 +957,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                             not_copied_node
                                 ((Programs.assign copied_var (Term.Const(bigint.One)))
                                 ::List.ofSeq(var_copy_commands p_F copied_k))
-                            copying
+                            copying |> ignore
 
                         visited_cp_map.Add(k, (copying, not_copied_node))
 
@@ -971,7 +967,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                         // - copy of CP to node_after_copying, where we check that we actually did copy values
                         // - node_after_copying to pre_final, where later on the rfs are added in
                         // - pre_final to final - we only need this for the CTL encoding
-                        p_F.AddTransition k [] copied_k
+                        p_F.AddTransition k [] copied_k |> ignore
 
                         let node_after_copying = p_F.GetLabelledNode ("pre_RF_check_" + k.ToString())
                         if not(isTerminationOnly) then
@@ -979,70 +975,67 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                                 node_to_end_of_subproperty_node_map.[k]
                                       (Programs.assume (Formula.Ge(Term.Var(copied_var), Term.Const(bigint.One)))
                                       ::assume_ret_value_false_cmd)
-                                node_after_copying
+                                node_after_copying |> ignore
                         else
                             p_F.AddTransition
                                 copied_k
                                         (Programs.assume (Formula.Ge(Term.Var(copied_var), Term.Const(bigint.One)))
                                         ::assume_ret_value_false_cmd)
-                                node_after_copying
+                                node_after_copying |> ignore
 
                         let pre_final = p_F.GetLabelledNode ("after_RF_check_" + k.ToString())
                         // Start with rf 'true' (0=0).
                         p_F.AddTransition
                             node_after_copying
                                 [ Programs.assume (Formula.Eq(Term.Const(bigint.Zero), Term.Const(bigint.Zero))) ]
-                            pre_final
+                            pre_final |> ignore
 
                         //If we reach the (pre-)final location, we had no ranking function => AF p might never be true! Hence, we return false to allow for backtracking
                         p_F.AddTransition
                             pre_final
                                 [ Programs.assign ret (Term.Const(bigint.Zero)) ]
-                            final_loc
+                            final_loc |> ignore
 
                     //Instead of original transition from CP, add one from the node in which we copied the variables:
                     let (copying, not_copied_node) = visited_cp_map.[k]
                     let copied_k' = get_copy_of_loopnode k'
                     //Add a copy of the transition starting in the node after we did the copying - but if we copied the loop out, we only need to do that for transitions in the loop.
                     if trans_stays_in_scc then
-                        p_F.AddTransition copying cmds_without_ai_res copied_k'
+                        p_F.AddTransition copying cmds_without_ai_res copied_k' |> ignore
                     if pars.lexicographic then
                         //If we do lex rfs, also add one from the node in which we did not copy the variables (and don't, if we don't need it as above)
                         if trans_stays_in_scc then
                             if not(findPreconds) then
-                                p_F.AddTransition not_copied_node
-                                    (assume_ret_value_false_cmd@cmds) copied_k'
+                                p_F.AddTransition not_copied_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
                             else if p_sccs.ContainsKey k' then
                                 if p_sccs.[k'].Contains k then
-                                     p_F.AddTransition not_copied_node
-                                        (assume_ret_value_false_cmd@cmds) copied_k'
+                                     p_F.AddTransition not_copied_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
                             else
-                                p_F.AddTransition not_copied_node cmds copied_k'
+                                p_F.AddTransition not_copied_node cmds copied_k' |> ignore
                         else
-                            p_F.AddTransition end_of_subproperty_node cmds copied_k'
+                            p_F.AddTransition end_of_subproperty_node cmds copied_k' |> ignore
                     else
                         //If we're going to be finding lexicographic RFs, then we don't need to check for transitive closure,
                         //so we put extra assume(copied<1) on transitions out of a cutpoint.
                         if not(findPreconds) then
                             p_F.AddTransition
-                                end_of_subproperty_node (assume_ret_value_false_cmd@cmds) copied_k'
+                                end_of_subproperty_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
                          else if p_sccs.ContainsKey k' then
                                 if p_sccs.[k'].Contains k then
-                                    p_F.AddTransition
-                                        end_of_subproperty_node (assume_ret_value_false_cmd@cmds) copied_k'
+                                    p_F.AddTransition end_of_subproperty_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
                         else
-                            p_F.AddTransition end_of_subproperty_node cmds copied_k'
+                            p_F.AddTransition end_of_subproperty_node cmds copied_k' |> ignore
 
                     //Now also add a new transition from the original k to k' (where the iteration variable is incremented, if we need that)
-                    p_F.AddTransition k (cmds_without_ai_res) k'
+                    p_F.AddTransition k (cmds_without_ai_res) k' |> ignore
 
                 else // if Set.contains k' in_set
                     let new_out_cmmd = Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One)))::cmds_without_ai_res
                     let proper_k' = get_copy_of_loopnode k'
                     if not(findPreconds) then
-                        p_F.AddTransition end_of_subproperty_node (new_out_cmmd@assume_ret_value_false_cmd) proper_k'
+                        p_F.AddTransition end_of_subproperty_node (new_out_cmmd@assume_ret_value_false_cmd) proper_k' |> ignore
                     else
-                        p_F.AddTransition end_of_subproperty_node new_out_cmmd proper_k'
+                        p_F.AddTransition end_of_subproperty_node new_out_cmmd proper_k' |> ignore
 
             else // if(F_loops.ContainsKey k)
                 // Other transitions are just copied. If we do loop duplication, we can avoid a few cases:
@@ -1055,14 +1048,14 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                 if trans_in_loop then
                     let copied_k' = loopnode_to_copiednode.[k']
                     if not(findPreconds) then
-                        p_F.AddTransition selected_node (assume_ret_value_false_cmd@cmds) copied_k'
+                        p_F.AddTransition selected_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
                     else if p_sccs.ContainsKey k' then
                             if p_sccs.[k'].Contains k then
-                                p_F.AddTransition selected_node (assume_ret_value_false_cmd@cmds) copied_k'
+                                p_F.AddTransition selected_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
                             else
-                                p_F.AddTransition selected_node cmds copied_k'
+                                p_F.AddTransition selected_node cmds copied_k' |> ignore
                     else
-                        p_F.AddTransition selected_node cmds copied_k'
+                        p_F.AddTransition selected_node cmds copied_k' |> ignore
 
         else // if(k <> p_F.initial)
             let init_copied_var_cmmds = copy_loop_var |> Seq.map (fun x -> (Programs.assign x.Value (Term.Const(bigint.Zero))))
@@ -1104,17 +1097,17 @@ let instrument_AndOr (p : Programs.Program) formula (propertyMap : SetDictionary
             let ret_true_node = p_AndOr.GetLabelledNode ("RET_TRUE_" + n.ToString())
             let ret_false_node = p_AndOr.GetLabelledNode ("RET_FALSE_" + n.ToString())
 
-            p_AndOr.AddTransition k [] start_node_for_subproperty
+            p_AndOr.AddTransition k [] start_node_for_subproperty |> ignore
 
             add_subproperty_conditions p_AndOr cp_conditions k false start_node_for_subproperty ret_true_node ret_false_node
 
-            p_AndOr.AddTransition ret_true_node [Programs.assign ret (Term.Const(bigint.One))] end_node_of_subproperty
-            p_AndOr.AddTransition ret_false_node [Programs.assign ret (Term.Const(bigint.Zero))] end_node_of_subproperty
+            p_AndOr.AddTransition ret_true_node [Programs.assign ret (Term.Const(bigint.One))] end_node_of_subproperty |> ignore
+            p_AndOr.AddTransition ret_false_node [Programs.assign ret (Term.Const(bigint.Zero))] end_node_of_subproperty |> ignore
 
-            p_AndOr.AddTransition end_node_of_subproperty c k'
+            p_AndOr.AddTransition end_node_of_subproperty c k' |> ignore
             p_AndOr.RemoveTransition n
 
-            p_AndOr.AddTransition end_node_of_subproperty [] final_loc
+            p_AndOr.AddTransition end_node_of_subproperty [] final_loc |> ignore
 
     (p_AndOr, ret, final_loc, [], Map.empty)
 
@@ -1144,7 +1137,7 @@ let bottomUp_AW (p : Programs.Program) formula1 formula2 (propertyMap : SetDicti
 
                 let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_AW
                 
-                p_AW.AddTransition k [] start_node_for_subproperty
+                p_AW.AddTransition k [] start_node_for_subproperty |> ignore
 
                 // Create two nodes to check the first subproperty we consider:
                 let ret_true_node1 = p_AW.GetLabelledNode ("RET1_TRUE_" + n.ToString())
@@ -1155,9 +1148,9 @@ let bottomUp_AW (p : Programs.Program) formula1 formula2 (propertyMap : SetDicti
                 // Connect these to a checker for the second subproperty:
                 let second_node_for_subproperty = p_AW.GetLabelledNode ("second_node_for_subproperty" + n.ToString())
                 p_AW.AddTransition ret_true_node1 [Programs.assign ret1 (Term.Const(bigint.One));
-                                                                        Programs.assign ret (Term.Const(bigint.One))] second_node_for_subproperty
+                                                                        Programs.assign ret (Term.Const(bigint.One))] second_node_for_subproperty |> ignore
                 p_AW.AddTransition ret_false_node1 [Programs.assign ret1 (Term.Const(bigint.Zero));
-                                                                        Programs.assign ret (Term.Const(bigint.Zero))] second_node_for_subproperty
+                                                                        Programs.assign ret (Term.Const(bigint.Zero))] second_node_for_subproperty |> ignore
                                  
                 // Create two nodes to check the second subproperty we consider:
                 let ret_true_node2 = p_AW.GetLabelledNode ("RET_TRUE_" + n.ToString())
@@ -1167,24 +1160,26 @@ let bottomUp_AW (p : Programs.Program) formula1 formula2 (propertyMap : SetDicti
 
                 // Connect these to the end of the overall checker
                 p_AW.AddTransition ret_true_node2 [Programs.assign ret2 (Term.Const(bigint.One));
-                                            Programs.assign ret (Term.Const(bigint.One))] end_node_of_subproperty
-                p_AW.AddTransition ret_false_node2 [Programs.assign ret2 (Term.Const(bigint.Zero))] end_node_of_subproperty
+                                            Programs.assign ret (Term.Const(bigint.One))] end_node_of_subproperty |> ignore
+                p_AW.AddTransition ret_false_node2 [Programs.assign ret2 (Term.Const(bigint.Zero))] end_node_of_subproperty |> ignore
 
                 p_AW.AddTransition
                     end_node_of_subproperty
                         [Programs.assume (Formula.Le(Term.var(ret2),(Term.Const(bigint.Zero))));
                          Programs.assume (Formula.Le(Term.var(ret1),(Term.Const(bigint.Zero))))]
-                    final_loc
+                    final_loc |> ignore
 
                 p_AW.AddTransition
                     end_node_of_subproperty
                         [Programs.assume (Formula.Ge(Term.var(ret2),(Term.Const(bigint.One))))]
-                    final_loc
+                    final_loc |> ignore
 
                 //Only continue to the next transition if the first property is satisfied, but the second isn't.
-                p_AW.AddTransition end_node_of_subproperty
-                    ([Programs.assume (Formula.Le(Term.var(ret2),(Term.Const(bigint.Zero)))); Programs.assume (Formula.Ge(Term.var(ret),(Term.Const(bigint.One))))]@c)
-                  k'
+                p_AW.AddTransition
+                    end_node_of_subproperty
+                        ([Programs.assume (Formula.Le(Term.var(ret2),(Term.Const(bigint.Zero)))); 
+                          Programs.assume (Formula.Ge(Term.var(ret),(Term.Const(bigint.One))))]@c)
+                    k' |> ignore
                 //Remove original transition
                 p_AW.RemoveTransition n
 
@@ -1216,7 +1211,7 @@ let instrument_Prop (p_orig : Programs.Program) e =
             p_Prop.SetTransition n (k, (c@[(Programs.assume e)]), k')
 
     let error_loc = p_Prop.NewNode()
-    p_Prop.AddTransition -1 [Programs.assume (Formula.Not(e))] error_loc
+    p_Prop.AddTransition -1 [Programs.assume (Formula.Not(e))] error_loc |> ignore
 
     (p_Prop, error_loc, e)
 
@@ -1289,7 +1284,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
             (error_loc,error_loc, p_Prop, Map.empty)
         |Either.IsNotAProp (p_final,p_ret,final_loc, _, loc_copy_pair) ->
             let error_loc = p_final.NewNode()
-            p_final.AddTransition final_loc [(Programs.assume (Formula.Le(Term.Var(p_ret), Term.Const(bigint.Zero))))] error_loc
+            p_final.AddTransition final_loc [(Programs.assume (Formula.Le(Term.Var(p_ret), Term.Const(bigint.Zero))))] error_loc |> ignore
             (final_loc,error_loc, p_final, loc_copy_pair)
 
     ///Maps cutpoint to the index of the transition from it that leads to the error location (that's where the RFs will go!)
@@ -1297,7 +1292,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
 
     //Maps first node on the path out of an instrumented loop (to the error location) to the corresponding CP:
     let cp_rf_init = new System.Collections.Generic.Dictionary<int, int>()
-    for (n, (_, cmds, k')) in p_final.TransitionsWithIdx do
+    for (_, (_, cmds, k')) in p_final.TransitionsWithIdx do
         for cmd in cmds do
             match cmd with
             |   Programs.Assume(_,Formula.Ge(Term.Var(v), Term.Const(c))) when is_copied_var v && c = bigint.One ->
@@ -1306,7 +1301,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
                 cp_rf_init.Add(k', num_cp)
             | _ -> ()
     //Maps CP to the the transition leading from the first node on the corresponding path to the error location
-    for (n, (k, cmds, k')) in p_final.TransitionsWithIdx do
+    for (n, (k, cmds, _)) in p_final.TransitionsWithIdx do
         if cp_rf_init.ContainsKey(k) then
             match cmds with
             | [Programs.Assume(_,Formula.Eq(Term.Const(c1), Term.Const(c2)))] when c1 = bigint.Zero && c2 = bigint.Zero ->

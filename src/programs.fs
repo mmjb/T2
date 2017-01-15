@@ -465,7 +465,7 @@ type Program private (parameters : Parameters.parameters) =
         with private get ()    = nodeCount
         and  private set count = nodeCount <- count
     member __.TransitionCount 
-        with         get ()    = transitionCount
+        with private get ()    = transitionCount
         and  private set count = transitionCount <- count
     member __.TransitionsArray
         with private get ()         = transitionsArray
@@ -507,7 +507,7 @@ type Program private (parameters : Parameters.parameters) =
 
         let mutable init_is_target = false
         for (x, cmds, y) in ts do
-            program.AddTransitionMapped x cmds y
+            program.AddTransitionMapped x cmds y |> ignore
             if y = init then
                 init_is_target <- true
         done
@@ -516,7 +516,7 @@ type Program private (parameters : Parameters.parameters) =
         //Make sure that an initial state is not in a loop:
         if not(is_temporal) && init_is_target then
             let new_initial = program.NewNode()
-            program.AddTransition new_initial [] program.Initial
+            program.AddTransition new_initial [] program.Initial |> ignore
             program.Initial <- new_initial
         else
             if init_is_target then
@@ -625,21 +625,22 @@ type Program private (parameters : Parameters.parameters) =
         self.InvalidateCaches()
 
     /// add transition source -- cmds --> target as it is, without any preprocessing
-    member self.AddTransition source cmds target =
-        let cnt = self.TransitionCount
-        self.TransitionCount <- cnt + 1
-        self.ActiveTransitions <- Set.add cnt self.ActiveTransitions
-        if cnt >= self.TransitionsArray.Length then
+    member self.AddTransition source cmds target : int =
+        let newTransIdx = self.TransitionCount
+        self.TransitionCount <- newTransIdx + 1
+        self.ActiveTransitions <- Set.add newTransIdx self.ActiveTransitions
+        if newTransIdx >= self.TransitionsArray.Length then
             let newTransArray = Array.create (2 * self.TransitionsArray.Length) (-1,[],-1)
             System.Array.Copy (self.TransitionsArray, newTransArray, self.TransitionsArray.Length)
             self.TransitionsArray <- newTransArray
-        transitionsArray.[cnt] <- (source, cmds, target)
+        transitionsArray.[newTransIdx] <- (source, cmds, target)
         self.Variables <- Set.union self.Variables (freevars cmds)
         self.Locations <- Set.add source <| Set.add target self.Locations
         self.InvalidateCaches()
+        newTransIdx
 
     /// add transition n--T-->M with preprocessing (eliminates constants, creates DNF)
-    member self.AddTransitionMapped (input_n : string) (cmds : Command list) (input_m : string) =
+    member self.AddTransitionMapped (input_n : string) (cmds : Command list) (input_m : string) : int list =
         let n = self.GetLabelledNode input_n
         let m = self.GetLabelledNode input_m
 
@@ -702,10 +703,13 @@ type Program private (parameters : Parameters.parameters) =
                 cmds
         let sp = cmds |> List.map command_to_seqpar |> Seq
 
+        let addedTransitions = ref []
+
         let rec addTransitionSeqPar n sp m =
             let parts = as_seq sp
             if List.length parts = 0 then
-                self.AddTransition n [] m
+                let newTransIdx = self.AddTransition n [] m
+                addedTransitions := newTransIdx :: !addedTransitions
             else
                 let len = List.length parts
 
@@ -721,7 +725,8 @@ type Program private (parameters : Parameters.parameters) =
                         // see command_to_seqpar
                         if unsaved_commands <> [] then
                             let loc = self.NewNode()
-                            self.AddTransition last_loc (List.rev unsaved_commands) loc
+                            let newTransIdx = self.AddTransition last_loc (List.rev unsaved_commands) loc
+                            addedTransitions := newTransIdx :: !addedTransitions
                             unsaved_commands <- []
                             last_loc <- loc
                         let next_loc = if number = len-1 then m else self.NewNode()
@@ -732,10 +737,12 @@ type Program private (parameters : Parameters.parameters) =
                     | Seq _ -> die()
                 if unsaved_commands <> [] then
                     assert (n = m || last_loc <> m)
-                    self.AddTransition last_loc (List.rev unsaved_commands) m
+                    let newTransIdx = self.AddTransition last_loc (List.rev unsaved_commands) m
+                    addedTransitions := newTransIdx :: !addedTransitions
 
         addTransitionSeqPar n sp m
         self.InvalidateCaches()
+        !addedTransitions
 
     /// Return a mapping from nodes to nodes that are reachable using the CFG edges
     member self.GetTransitiveCFG () =
@@ -1050,7 +1057,7 @@ type Program private (parameters : Parameters.parameters) =
         if not <| Set.isEmpty self.UsedConstants then
             let commands = symbolic_consts_cmds self.UsedConstants
             let new_init = self.NewNode()
-            self.AddTransition new_init commands self.Initial
+            self.AddTransition new_init commands self.Initial |> ignore
             self.Initial <- new_init
 
     /// Chain linear sequences of program transitions, in-place.
@@ -1110,8 +1117,7 @@ type Program private (parameters : Parameters.parameters) =
         let transMap = System.Collections.Generic.Dictionary()
         for (startLoc, outgoings) in outgoingTransitions do
             for (transIdxSet, cmds, endLoc) in outgoings do
-                let newTransIdx = self.TransitionCount //This will be the new idx of the added transition
-                self.AddTransition startLoc cmds endLoc
+                let newTransIdx = self.AddTransition startLoc cmds endLoc
                 for transIdx in transIdxSet do
                     transMap.[transIdx] <- newTransIdx
         transMap
