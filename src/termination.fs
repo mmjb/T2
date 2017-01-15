@@ -819,9 +819,7 @@ let private exportNonSCCRemovalProof
 
                 xmlWriter.WriteStartElement "boundHints"
                 xmlWriter.WriteStartElement "linearImplicationHint"
-                xmlWriter.WriteStartElement "linearCombination"
-                Seq.iter (fun _ -> xmlWriter.WriteElementString ("constant", "0")) transLinearTerms
-                xmlWriter.WriteEndElement () //linearCombination end
+                xmlWriter.WriteElementString ("simplex", "")
                 xmlWriter.WriteEndElement () //linearImplicationHint end
                 xmlWriter.WriteEndElement () //end boundHints
             else
@@ -830,9 +828,7 @@ let private exportNonSCCRemovalProof
 
             xmlWriter.WriteStartElement "decreaseHints"
             xmlWriter.WriteStartElement "linearImplicationHint"
-            xmlWriter.WriteStartElement "linearCombination"
-            Seq.iter (fun _ -> xmlWriter.WriteElementString ("constant", "0")) transLinearTerms
-            xmlWriter.WriteEndElement () //linearCombination end
+            xmlWriter.WriteElementString ("simplex", "")
             xmlWriter.WriteEndElement () //linearImplicationHint end
             xmlWriter.WriteEndElement () //end decreaseHints
 
