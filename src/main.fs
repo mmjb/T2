@@ -92,7 +92,7 @@ let main (arguments: string[]) =
             | Arguments.CTL _
             | Arguments.CTLStar _
             | Arguments.Safety _ -> true
-            | _ -> false
+            | _ -> true
 
     //Turn off tricks that don't always work for sepcific cases (this influences the input, thus we do it now) in the program representation that change the input program when just outputting
     match runMode with

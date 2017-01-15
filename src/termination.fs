@@ -39,6 +39,7 @@
 module Microsoft.Research.T2.Termination
 open Utils
 open SafetyInterface
+open Programs
 
 /// Tries to remove as many transitions as possible from a SCC. Returns a list of used rank functions/bounds.
 let simplify_scc (pars : Parameters.parameters) p termination_only (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all_cutpoints: Set<int>) scc_nodes =
@@ -68,7 +69,7 @@ let simplify_scc (pars : Parameters.parameters) p termination_only (cp_rf: Syste
                 p.RemoveTransition cp_checker_trans
         Some (rfs, trans_to_remove)
 
-let do_interval_AI_on_program (pars : Parameters.parameters) (p:Programs.Program) =
+let do_interval_AI_on_program (pars : Parameters.parameters) (p:Program) =
     let pp_to_interval =
         Analysis.program_absint
             p.Initial
@@ -106,9 +107,9 @@ let do_interval_AI_on_program (pars : Parameters.parameters) (p:Programs.Program
             if pp_to_interval.ContainsKey k then
                 //if(node_to_scc_nodes.ContainsKey k then
                     //let used_vars = scc_to_scc_vars.[node_to_scc_nodes.[k]]
-                    let used_vars = Programs.freevars c
+                    let used_vars = freevars c
                     let inv = pp_to_interval.[k].to_formula_filtered (fun v -> used_vars.Contains v)
-                    p.SetTransition n (k, (Programs.assume inv)::c,k')
+                    p.SetTransition n (k, (assume inv)::c,k')
 
 let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs (outWriter : System.IO.TextWriter) =
     //Print out initial rank functions that we used to remove transitions before safety proofs:
@@ -183,12 +184,12 @@ let output_nocex existential (outWriter : System.IO.TextWriter) =
         outWriter.WriteLine("Property true!")
 
 //Generating precondition using Fourier-Motzkin
-let findPreconditionForPath (cex : (int * Programs.Command * int) list) =
+let findPreconditionForPath (cex : (int * Command * int) list) =
     //Instantiate constants:
-    let cex = cex |> List.map (fun (x, y, z) -> (x, [Programs.const_subst y], z))
+    let cex = cex |> List.map (fun (x, y, z) -> (x, [const_subst y], z))
 
     //Fourier-Motzkin elimination done here, removing all non-pre-variables:
-    let (cex, var_map) = Programs.cmdPathToFormulaPathAndVarMap cex Map.empty
+    let (cex, var_map) = cmdPathToFormulaPathAndVarMap cex Map.empty
     let cex = cex |> List.collect (fun (_, f, _) -> f) |> List.filter (Formula.contains_instr_var >> not) |> Formula.conj
     let mutable ts = cex.ToLinearTerms()
 
@@ -263,7 +264,7 @@ let findCP (p_loops : Map<int, Set<int>>) (all_cutpoints : Set<int>) (copy_pair 
             pi_mod <- pi_mod.Tail
     (cutp, pi_mod)
 
-let isorigNodeNum x (p_BU : Programs.Program) =
+let isorigNodeNum x (p_BU : Program) =
     match p_BU.GetNodeLabel x with
     | Some(nodeLabel) when nodeLabel.Contains "loc_" -> true
     | _ -> false
@@ -278,7 +279,7 @@ let fold_by_loc collector (formulas : Set<int * Formula.formula>) =
             preCond_map.Add (x,y)
     preCond_map
 
-let findErrorNode (p : Programs.Program) pi =
+let findErrorNode (p : Program) pi =
     let mutable errorNode = -1
     let mutable endOfPropertyCheckNode = -1
 
@@ -308,9 +309,9 @@ let strengthenCond pi_mod (p1 : Formula.formula) =
         |> List.choose
             (fun (_, cmd, _) ->
                 match cmd with
-                | Programs.Assign(_, v, _) ->
+                | Assign(_, v, _) ->
                     Some v
-                | Programs.Assume(_, f) when Formula.contains_var f "__proph_var_det" ->
+                | Assume(_, f) when Formula.contains_var f "__proph_var_det" ->
                     Some (f |> Formula.freevars |> Seq.find (Formula.contains_var_str "__proph_var_det"))
                 | _ -> None)
 
@@ -328,7 +329,7 @@ let strengthenCond pi_mod (p1 : Formula.formula) =
     disj_fmla
 
 
-let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential recur (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
+let propagateToTransitions (p_orig : Program) f pi_mod cutp existential recur (locToLoopDuplLoc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
     let (p_orig_loops, _) = p_orig.FindLoops()
     let mutable preStrengthSet = Set.empty
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
@@ -345,9 +346,9 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
                 |Some(r) -> Formula.negate(r)
                 |None -> fst <| findPreconditionForPath pi_wp
             //Propagate to all cutpoints, not just loops.
-            let copies = loc_to_loopduploc |> Map.filter(fun y z -> z = x)
+            let copies = locToLoopDuplLoc |> Map.filter(fun y z -> z = x)
             if p_orig_loops.ContainsKey x || Set.contains x cps_checked_for_term || Set.contains x p_orig.Locations  || copies.Count > 0 then //&& isorigNodeNum x p_orig
-                let visited = loc_to_loopduploc.FindWithDefault x x
+                let visited = locToLoopDuplLoc.FindWithDefault x x
                 if not(visited_BU_cp.ContainsKey visited) then
                     let orig =  
                         if loopnode_to_copiednode.ContainsValue x then
@@ -355,7 +356,7 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
                                     orig_node.Key
                         else if p_orig_loops.ContainsKey x then x
                         else if (p_orig.Locations).Contains x then x
-                                else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x)                               
+                                else locToLoopDuplLoc |> Map.findKey(fun _ value -> value = x)                               
                     let truefPreCond = if existential then
                                             Formula.negate(tempfPreCond)
                                        else tempfPreCond
@@ -368,14 +369,14 @@ let propagateToTransitions (p_orig : Programs.Program) f pi_mod cutp existential
         pi_wp <- (pi_wp).Tail
     (propertyMap, preStrengthSet)
 
-let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existential (loc_to_loopduploc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) loopnode_to_copiednode strengthen=
+let propagate_func (p_orig : Program) f recur pi pi_mod cutp existential (locToLoopDuplLoc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) loopnode_to_copiednode strengthen=
     let (p_orig_loops, p_orig_sccs) = p_orig.FindLoops()
     let recurs, r =
         match recur with
         | Some x -> (x, true)
         | None -> (Formula.falsec, false)
     //First propagate preconditions to sccs contained within the loop
-    let (propertyMap, preStrengthSet) = propagateToTransitions p_orig f pi_mod cutp existential recur loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
+    let (propertyMap, preStrengthSet) = propagateToTransitions p_orig f pi_mod cutp existential recur locToLoopDuplLoc visited_BU_cp cps_checked_for_term loopnode_to_copiednode false strengthen
     //Second, propagate upwards to non-cp nodes that are not part of any SCCS.
     let sccs_vals = p_orig_sccs |> Map.filter(fun x _ -> x <> cutp) |> Map.toSeq |> Seq.map snd |> Seq.fold (fun acc elem -> Seq.append elem acc) Seq.empty |> Set.ofSeq
     if sccs_vals.Contains cutp || r then
@@ -388,15 +389,15 @@ let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existentia
 
         while not(cp_reached) && pi_rev <> [] do
             let (_,_,x) = (pi_rev).Head
-            if (x = cutp || not(Map.isEmpty (loc_to_loopduploc |> Map.filter(fun y value -> value = x && y = cutp)))) && not(found_cp) then
+            if (x = cutp || not(Map.isEmpty (locToLoopDuplLoc |> Map.filter(fun y value -> value = x && y = cutp)))) && not(found_cp) then
                 pi_elim <- List.append [(pi_rev).Head] pi_elim
                 pi_rev <- (pi_rev).Tail
                 found_cp <- true
             else if found_cp then
                 if p_orig_loops.ContainsKey x || Set.contains x cps_checked_for_term || Set.contains x p_orig.Locations then
-                    let visited = loc_to_loopduploc.FindWithDefault x x
+                    let visited = locToLoopDuplLoc.FindWithDefault x x
                     if not(visited_BU_cp.ContainsKey visited) then
-                        if x = p_orig.Initial || p_orig_loops.ContainsKey x || not(Map.isEmpty (loc_to_loopduploc |> Map.filter(fun _ value -> value = x)))then
+                        if x = p_orig.Initial || p_orig_loops.ContainsKey x || not(Map.isEmpty (locToLoopDuplLoc |> Map.filter(fun _ value -> value = x)))then
                             cp_reached <- true
                 pi_elim <- List.append [(pi_rev).Head] pi_elim
                 pi_rev <- (pi_rev).Tail
@@ -405,15 +406,16 @@ let propagate_func (p_orig : Programs.Program) f recur pi pi_mod cutp existentia
                 pi_rev <- (pi_rev).Tail
         let mutable pi_elim = (List.rev (pi_elim))
         if r then
-            pi_elim <- (pi_elim)@[(node,Programs.assume(recurs),-1)]
-        propertyMap.Union(propagateToTransitions p_orig f pi_elim cutp existential recur loc_to_loopduploc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
-    let is_dup x = loc_to_loopduploc |> Map.filter(fun _ value -> value = x) |> Map.isEmpty |> not
+            pi_elim <- (pi_elim)@[(node, assume(recurs),-1)]
+
+        propertyMap.Union(propagateToTransitions p_orig f pi_elim cutp existential recur locToLoopDuplLoc visited_BU_cp cps_checked_for_term loopnode_to_copiednode true strengthen|> fst)
+    let is_dup x = locToLoopDuplLoc |> Map.filter(fun _ value -> value = x) |> Map.isEmpty |> not
     let cex_path = pi |> List.map(fun (x,_,_) -> x) |> List.filter(fun x -> Set.contains x p_orig.Locations || loopnode_to_copiednode.ContainsValue x || is_dup x)
     let cex_path = cex_path |> List.map(fun x -> if loopnode_to_copiednode.ContainsValue x then
                                                     let orig_node = loopnode_to_copiednode |> Seq.find(fun y -> y.Value = x)
                                                     orig_node.Key
                                                  else if (p_orig.Locations).Contains x then x
-                                                 else loc_to_loopduploc |> Map.findKey(fun _ value -> value = x) )
+                                                 else locToLoopDuplLoc |> Map.findKey(fun _ value -> value = x) )
     (Set.ofList cex_path, propertyMap, preStrengthSet)
 
 /// Prepare the program for another prover run, slowly enumerating all different pre-conditions
@@ -425,18 +427,18 @@ let insertForRerun
     (isExistentialFormula : bool)
     (propertyToProve : CTL.CTL_Formula)
     (final_loc : int)
-    (p_orig : Programs.Program)
+    (p_orig : Program)
     (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>)
-    (loc_to_loopduploc : Map<int,int>)
+    (locToLoopDuplLoc : Map<int,int>)
     (isAFFormula : bool)
     (p_bu_sccs : Map<int,Set<int>>)
     (safety : SafetyProver)
     (cps_checked_for_term : Set<int>)
-    (pi : (int * Programs.Command * int) list)
+    (pi : (int * Command * int) list)
     (propertyMap: SetDictionary<CTL.CTL_Formula, (int*Formula.formula)>)
     (visited_BU_cp : Map<int, int*int> ref)
     (visited_nodes : Set<int> ref)
-    (p_final : Programs.Program) =
+    (p_final : Program) =
     Stats.startTimer "T2 - Insert for rerun"
     //Store in a slot of the datastructure as the original formula (Versus the disjunction splits)
     let (p_orig_loops, p_orig_sccs) = p_orig.FindLoops()
@@ -530,7 +532,7 @@ let insertForRerun
             //if (k = m && k' = m') then
                 if not(strengthen) then
                     for x in preCond do
-                        p_final.AddTransition k (Programs.assume(x)::cmds) k' |> ignore
+                        p_final.AddTransition k (assume(x)::cmds) k' |> ignore
                     p_final.RemoveTransition l
                 //If we strengthened, we require the elimination of already existing precondition transitions
                 else
@@ -545,19 +547,19 @@ let insertForRerun
             match transitionToStrengthen with
             | Some (k, k') ->
                 for x in preCond do
-                    p_final.AddTransition k [Programs.assume x] k' |> ignore
+                    p_final.AddTransition k [assume x] k' |> ignore
                 safety.ResetFrom k
             | None ->
                 () //Didn't find anything to insert
 
     //if cutp = -1, then we are checking a node that occurs before checking any cut-points.
-    let(cutp, pi_mod) = findCP p_orig_loops cps_checked_for_term loc_to_loopduploc pi
+    let(cutp, pi_mod) = findCP p_orig_loops cps_checked_for_term locToLoopDuplLoc pi
 
     let(errorNode, endOfPropertyCheckNode) = findErrorNode p_final pi
     let orig_cp =
         if isAFFormula then
             if p_orig_loops.ContainsKey cutp then cutp
-            else loc_to_loopduploc |> Map.findKey(fun _ value -> value = cutp)
+            else locToLoopDuplLoc |> Map.findKey(fun _ value -> value = cutp)
         else if cutp = -1 then
             errorNode
         else cutp
@@ -579,9 +581,9 @@ let insertForRerun
             for (l, (k, cmds, k')) in p_final.TransitionsFrom cutp do
                 p_final.RemoveTransition l
                 for precondDisjunct in preconditionDisjuncts do
-                    p_final.AddTransition k (Programs.assume(precondDisjunct)::cmds) k' |> ignore
+                    p_final.AddTransition k (assume(precondDisjunct)::cmds) k' |> ignore
             
-            let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
+            let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve (Some(fPreCondNeg)) pi pi_mod orig_cp isExistentialFormula locToLoopDuplLoc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
             let nontermNode =
                 match (p_orig.GetNodeLabel(orig_cp)) with
                 |None -> false
@@ -602,7 +604,7 @@ let insertForRerun
                 let disjunctiveStrengthenedPrecondition = Formula.disj disjunctiveStrengthenedPreconditions
                 //Add strength formula here to propertyMap
                 let (visitedOnCex ,propogateMap, preStrengthSet) =
-                    propagate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode true
+                    propagate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula locToLoopDuplLoc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode true
                 visited_nodes := Set.union !visited_nodes visitedOnCex
                 let propagatedNode = preStrengthSet |> Set.map(fun (x,y) -> x)
                 let preStrengthSet = Set.add (orig_cp, p0) preStrengthSet
@@ -637,15 +639,15 @@ let insertForRerun
                 (true, disjunctiveStrengthenedPrecondition, List.ofSeq disjunctiveStrengthenedPreconditions)
 
             else
-                let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula loc_to_loopduploc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
+                let (visitedOnCex, propogateMap,_) = propagate_func p_orig propertyToProve None pi pi_mod orig_cp isExistentialFormula locToLoopDuplLoc !visited_BU_cp cps_checked_for_term loopnode_to_copiednode false
                 visited_nodes := Set.add orig_cp (Set.union !visited_nodes visitedOnCex)
                 propertyMap.Union(propogateMap)
                 (false, precondition, preconditionDisjuncts)
                             
     //First, we must find the original cutpoint, versus a copy if it's in AF.
     let uncopied_cutp =
-        if loc_to_loopduploc.IsEmpty then cutp
-        else loc_to_loopduploc |> Map.findKey(fun _ value -> value = cutp)
+        if locToLoopDuplLoc.IsEmpty then cutp
+        else locToLoopDuplLoc |> Map.findKey(fun _ value -> value = cutp)
 
     //If doing existential, we instrument the negation of the precondition, yet store the precondition
     //in propertyMap. This is due to the fact that a counterexample in A is a witness of E!
@@ -663,10 +665,10 @@ let insertForRerun
     updateInstrumentation preconditionDisjuncts cutp errorNode endOfPropertyCheckNode strengthen
     Stats.endTimer "T2 - Insert for rerun"
 
-let find_instrumented_loops (p_instrumented : Programs.Program) (p_orig_loops : Map<int, Set<int>>) (loc_to_loopduploc: Map<int, int>) =
+let find_instrumented_loops (p_instrumented : Program) (p_orig_loops : Map<int, Set<int>>) (locToLoopDuplLoc: Map<int, int>) =
     let (p_instrumented_loops, p_instrumented_sccs) = p_instrumented.FindLoops()
-    let loc_to_loopduploc = loc_to_loopduploc |> Map.filter (fun x _ -> p_orig_loops.ContainsKey x)
-    let duplicated_nodes = loc_to_loopduploc |> Map.toList |> List.map snd
+    let locToLoopDuplLoc = locToLoopDuplLoc |> Map.filter (fun x _ -> p_orig_loops.ContainsKey x)
+    let duplicated_nodes = locToLoopDuplLoc |> Map.toList |> List.map snd
     let to_add = Set.difference (Set.ofList duplicated_nodes) (Set.ofSeq p_instrumented_loops.Keys)
 
     let regions = p_instrumented.GetIsolatedRegionsNonCP to_add
@@ -688,8 +690,415 @@ let find_instrumented_loops (p_instrumented : Programs.Program) (p_orig_loops : 
 
     (cps_to_loops,cps_to_sccs)
 
-let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) precondMap (fairness_constraint : (Formula.formula * Formula.formula) option) existential findPreconds next =
-    
+
+///Produce a mapping from program locations to an (int option), where
+///map.[a] = InstrumentationLocation means that a is not to be exported in a certificate (it's an internal location),
+///map.[a] = DuplicatedLocation b means that a is a copy of location b, and
+///map.[a] = OriginalLocation means that a is a location of the input program
+let private getLocToCertLocRepr (progOrig : Program) (progCoopInstrumented : Program) locToLoopDuplLoc =
+    let locToCertLocRepr = System.Collections.Generic.Dictionary()
+    let locsOrig = progOrig.Locations
+    let duplLocToOrigLoc = locToLoopDuplLoc |> Map.toSeq |> Seq.map (fun (x, y) -> (y, x)) |> Map.ofSeq
+    for (idx, (sourceLoc, _, targetLoc)) in progCoopInstrumented.TransitionsWithIdx |> Seq.sortBy (fun (_, (s, _, _)) -> s) do
+        let sourceLocLabel = defaultArg (progCoopInstrumented.GetLocationLabel sourceLoc) ""
+        let targetLocLabel = defaultArg (progCoopInstrumented.GetLocationLabel targetLoc) ""
+        let isRFCheck =
+            let sourceIsRFCheck = sourceLocLabel.StartsWith Instrumentation.PRERF_CHECK_LOC_LABEL 
+                                  || sourceLocLabel.StartsWith Instrumentation.POSTRF_CHECK_LOC_LABEL
+                                  || sourceLocLabel.StartsWith Instrumentation.FINAL_LOC_LABEL
+            let targetIsRFCheck = targetLocLabel.StartsWith Instrumentation.PRERF_CHECK_LOC_LABEL 
+                                  || targetLocLabel.StartsWith Instrumentation.POSTRF_CHECK_LOC_LABEL
+                                  || targetLocLabel.StartsWith Instrumentation.FINAL_LOC_LABEL
+            sourceIsRFCheck || targetIsRFCheck
+
+        let sourceLocOrig = duplLocToOrigLoc.TryFind sourceLoc
+        let targetLocOrig = duplLocToOrigLoc.TryFind targetLoc
+        if isRFCheck then
+            printfn "Check trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
+            locToCertLocRepr.[targetLoc] <- InstrumentationLocation targetLoc
+        else
+            if locsOrig.Contains sourceLoc then
+                locToCertLocRepr.[sourceLoc] <- OriginalLocation sourceLoc
+                if locsOrig.Contains targetLoc then
+                    printfn "Orig trans %i: %i->%i" idx sourceLoc targetLoc
+                    locToCertLocRepr.[targetLoc] <- OriginalLocation targetLoc
+                else
+                    printfn "Switch trans %i: %i->%i (copy of %A)" idx sourceLoc targetLoc targetLocOrig
+                    locToCertLocRepr.[targetLoc] <- DuplicatedLocation targetLocOrig.Value
+            else
+                if locsOrig.Contains targetLoc then
+                    printfn "Strange trans %i: %i (copy of %A)->%i" idx sourceLoc sourceLocOrig targetLoc
+                    assert false
+                    ()
+                else
+                    let isCopyTrans = targetLocLabel.StartsWith Instrumentation.AFTER_VARCOPY_LOC_LABEL
+                    let isAfterCopyTrans = sourceLocLabel.StartsWith Instrumentation.AFTER_VARCOPY_LOC_LABEL
+                    if isCopyTrans then
+                        printfn "Var copy trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
+                        locToCertLocRepr.[sourceLoc] <- DuplicatedLocation sourceLocOrig.Value
+                        locToCertLocRepr.[targetLoc] <- InstrumentationLocation targetLoc
+                    elif isAfterCopyTrans then
+                        printfn "Copied trans after var copy %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
+                        let copiedLoc = int (sourceLocLabel.Substring Instrumentation.AFTER_VARCOPY_LOC_LABEL.Length)
+                        locToCertLocRepr.[sourceLoc] <- InstrumentationLocation copiedLoc
+                        locToCertLocRepr.[targetLoc] <- DuplicatedLocation targetLocOrig.Value
+                    else
+                        printfn "Copied trans %i: %i (copy of %A)->%i (copy of %A)" idx sourceLoc sourceLocOrig targetLoc targetLocOrig
+                        locToCertLocRepr.[sourceLoc] <- DuplicatedLocation sourceLocOrig.Value
+                        locToCertLocRepr.[targetLoc] <- DuplicatedLocation targetLocOrig.Value
+    locToCertLocRepr
+
+let private writeTransitionId (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>) (xmlWriter : System.Xml.XmlWriter) transId =
+    match transDuplIdToTransId.TryGetValue transId with
+    | (true, duplicatedTransId) ->
+        xmlWriter.WriteElementString ("transitionDuplicate", string duplicatedTransId)
+    | _ ->
+        xmlWriter.WriteElementString ("transitionId", string transId)
+
+let private exportNonSCCRemovalProof 
+        (progOrig : Programs.Program) 
+        (progCoopInstrumented : Programs.Program)
+        (locToLoopDuplLoc : Map<NodeId, int>)
+        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
+        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (xmlWriter : System.Xml.XmlWriter) =
+    //Invent a "full" cooperation program here, by taking the one we have, and extend it by additional locations/transitions:
+    let progFullCoop = progCoopInstrumented.Clone()
+    let locToCoopDupl = System.Collections.Generic.Dictionary()
+    let progFullExtraTrans = System.Collections.Generic.HashSet()
+    let getCoopLocDupl loc =
+        match locToLoopDuplLoc.TryFind loc with
+        | Some dup -> dup
+        | None ->
+            match locToCoopDupl.TryGetValue loc with
+            | (true, dup) -> dup
+            | (false, _) ->
+                let dup = progFullCoop.NewNode()
+                locToCoopDupl.[loc] <- dup
+                locToCertLocRepr.[dup] <- DuplicatedLocation loc
+                dup
+    for loc in progOrig.Locations |> Seq.filter (fun loc -> not <| Map.containsKey loc locToLoopDuplLoc) do
+        let coopLocDupl = getCoopLocDupl loc
+        for (transIdx, (_, cmds, targetLoc)) in progOrig.TransitionsFrom loc do
+            let targetLocDupl = getCoopLocDupl targetLoc
+            let copiedTransIdx = progFullCoop.AddTransition coopLocDupl cmds targetLocDupl
+            transDuplIdToTransId.Add(copiedTransIdx, transIdx)
+            progFullExtraTrans.Add copiedTransIdx |> ignore
+
+    //Now remove all the extra invented transitions again, by doing a trivial termination argument encoding
+    //simple SCC structure, assigning a constant rank to each location
+    xmlWriter.WriteStartElement "transitionRemoval"
+    xmlWriter.WriteStartElement "rankingFunctions"
+    let progFullCoopSCCs = progFullCoop.GetSCCSGs true
+    progFullCoopSCCs
+    |> List.iteri
+        (fun idx scc ->
+            //This is one of the SCC on the non-duplicated side, leave as they are:
+            let rank =
+                if Set.exists (fun loc -> progOrig.Locations.Contains loc) scc then
+                    0
+                else
+                    -idx - 1
+            for loc in scc do
+                let locRepr = locToCertLocRepr.[loc]
+                match locRepr with
+                | DuplicatedLocation _ ->
+                    xmlWriter.WriteStartElement "rankingFunction"
+                    xmlWriter.WriteStartElement "location"
+                    Programs.exportLocation xmlWriter locRepr
+                    xmlWriter.WriteEndElement () //end location
+                    xmlWriter.WriteStartElement "expression"
+                    xmlWriter.WriteElementString ("constant", string rank)
+                    xmlWriter.WriteEndElement () //end expression
+                    xmlWriter.WriteEndElement () //end rankingFunction
+                | _ -> ())
+    xmlWriter.WriteEndElement () //end rankingFunctions
+    xmlWriter.WriteStartElement "bound"
+    xmlWriter.WriteElementString ("constant", string (-(List.length progFullCoopSCCs) - 1))
+    xmlWriter.WriteEndElement () //end bound
+
+    xmlWriter.WriteStartElement "remove"
+    progFullExtraTrans |> Seq.iter (writeTransitionId transDuplIdToTransId xmlWriter)
+    xmlWriter.WriteEndElement () //end remove
+
+    // Write out the hints, which are trivially 0 for everything, as all rank functions are
+    // just constants. However, getting the numbers of hints right is a bit of a song and dance...
+    xmlWriter.WriteStartElement "hints"
+    for (transIdx, (source, cmds, target)) in progFullCoop.TransitionsWithIdx do
+        match (locToCertLocRepr.[source], locToCertLocRepr.[target]) with
+        | (InstrumentationLocation _, _)
+        | (OriginalLocation _, _)
+        | (_, InstrumentationLocation _) ->
+            ()
+        | _ ->
+            let (transFormula, _) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
+            let transLinearTerms =
+                Formula.formula.FormulasToLinearTerms (transFormula :> _)
+                |> Formula.maybe_filter_instr_vars true
+            // We need more trivial hints for those transitions that we want to delete, but all require decreaseHints:
+            if progFullExtraTrans.Contains transIdx then
+                xmlWriter.WriteStartElement "strictDecrease"
+                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+
+                xmlWriter.WriteStartElement "boundHints"
+                xmlWriter.WriteStartElement "linearImplicationHint"
+                xmlWriter.WriteStartElement "linearCombination"
+                Seq.iter (fun _ -> xmlWriter.WriteElementString ("constant", "0")) transLinearTerms
+                xmlWriter.WriteEndElement () //linearCombination end
+                xmlWriter.WriteEndElement () //linearImplicationHint end
+                xmlWriter.WriteEndElement () //end boundHints
+            else
+                xmlWriter.WriteStartElement "weakDecrease"
+                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+
+            xmlWriter.WriteStartElement "decreaseHints"
+            xmlWriter.WriteStartElement "linearImplicationHint"
+            xmlWriter.WriteStartElement "linearCombination"
+            Seq.iter (fun _ -> xmlWriter.WriteElementString ("constant", "0")) transLinearTerms
+            xmlWriter.WriteEndElement () //linearCombination end
+            xmlWriter.WriteEndElement () //linearImplicationHint end
+            xmlWriter.WriteEndElement () //end decreaseHints
+
+            xmlWriter.WriteEndElement () //end strictDecrease / weakDecrease
+    xmlWriter.WriteEndElement () //end hints
+
+    nextProofStep xmlWriter
+    xmlWriter.WriteEndElement () //end transitionRemoval (trivial SCC argument)
+
+let private exportToCooperationTerminationProof
+        (progCoopInstrumented : Programs.Program)
+        (cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<int, int>)
+        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (xmlWriter : System.Xml.XmlWriter) =
+    xmlWriter.WriteStartElement "switchToCooperationTermination"
+
+    xmlWriter.WriteStartElement "cutPoints"
+    for KeyValue(cp, cpToCoopDupTrans) in cpToToCpDuplicateTransId do
+        xmlWriter.WriteStartElement "cutPoint"
+        Programs.exportLocation xmlWriter (OriginalLocation cp)
+        xmlWriter.WriteElementString ("skipId", string cpToCoopDupTrans)
+
+        let (_, cmds, _) = progCoopInstrumented.GetTransition cpToCoopDupTrans
+        let (transFormula, varToMaxSSAIdx) = cmdsToCetaFormula progCoopInstrumented.Variables cmds
+        let transLinearTerms =
+            Formula.formula.FormulasToLinearTerms (transFormula :> _)
+            |> Formula.maybe_filter_instr_vars true
+        xmlWriter.WriteStartElement "skipFormula"
+        Formula.linear_terms_to_ceta xmlWriter (Var.toCeta varToMaxSSAIdx) transLinearTerms true
+        xmlWriter.WriteEndElement () //skipFormula end
+
+        xmlWriter.WriteEndElement () //end cutPoint
+    xmlWriter.WriteEndElement () //end cutPoints
+
+    nextProofStep xmlWriter
+    xmlWriter.WriteEndElement () //end switchToCooperationTermination
+
+let private exportNewImpactInvariantsProof
+        (safety : SafetyInterface.SafetyProver)
+        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
+        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (xmlWriter : System.Xml.XmlWriter) =
+    let impactArg = safety :?> Impact.ImpactARG
+    xmlWriter.WriteStartElement "newInvariants"
+    xmlWriter.WriteStartElement "invariants"
+    for KeyValue(loc, locRepr) in locToCertLocRepr do
+        match locRepr with
+        | DuplicatedLocation _
+        | OriginalLocation _ ->
+            let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) loc
+            xmlWriter.WriteStartElement "invariant"
+
+            xmlWriter.WriteStartElement "location"
+            Programs.exportLocation xmlWriter locRepr
+            xmlWriter.WriteEndElement () //end location
+
+            xmlWriter.WriteStartElement "formula"
+            xmlWriter.WriteStartElement "disjunction"
+            for locInvariant in locInvariants do
+                Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta (Formula.formula.FormulasToLinearTerms (locInvariant :> _)) true
+            xmlWriter.WriteEndElement () //end disjunction
+            xmlWriter.WriteEndElement () //end formula
+            xmlWriter.WriteEndElement () //end invariant
+        | _ -> ()
+
+    xmlWriter.WriteEndElement () //end invariants
+
+    impactArg.ToCeta xmlWriter (Some locToCertLocRepr) (Some (writeTransitionId transDuplIdToTransId)) true
+
+    nextProofStep xmlWriter
+    xmlWriter.WriteEndElement () //end newInvariants
+
+let private exportSafetyTransitionRemovalProof
+        (progCoopInstrumented : Programs.Program)
+        (safety : SafetyInterface.SafetyProver)
+        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
+        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        foundLexRankFunctions
+        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (xmlWriter : System.Xml.XmlWriter) =
+    let impactArg = safety :?> Impact.ImpactARG
+
+    xmlWriter.WriteStartElement "transitionRemoval"
+    xmlWriter.WriteStartElement "rankingFunctions"
+    xmlWriter.WriteStartElement "rankingFunction"
+    let sccs = progCoopInstrumented.GetSCCSGs false
+    //TODO: Extend to lists (for lexicographic RFs)
+    let mutable rf = Map.empty
+    let mutable bound = System.Int32.MaxValue
+    !foundLexRankFunctions
+    |> Map.iter
+        (fun cutpoint (decreasingCheckFormulas, _, boundCheckFormulas) ->
+            let scc = List.find (Set.contains cutpoint) sccs
+            assert ((List.length decreasingCheckFormulas) = 1)
+            for loc in scc do
+                let locRepr = locToCertLocRepr.[loc]
+                match locRepr with
+                | DuplicatedLocation _ ->
+                    for (decreasingCheckFormula, boundCheckFormula) in List.zip decreasingCheckFormulas boundCheckFormulas do
+                        //This is rather brittle, as it depends on the formulas we generate in rankfunction.fs for this case...
+                        let rankFunctionExpr = 
+                            match decreasingCheckFormula with
+                            | Formula.Lt(rankFunctionOnNewVars, _) -> SparseLinear.term_to_linear_term rankFunctionOnNewVars
+                            | _ -> dieWith "Could not retrieve rank function from internal proof structure."
+                        match boundCheckFormula with
+                        | Formula.Ge(_, Term.Const c) ->
+                            bound <- min bound (int c)
+                        | _ ->
+                            dieWith "Could not retrieve bound for rank function from internal proof structure."
+                        xmlWriter.WriteStartElement "location"
+                        Programs.exportLocation xmlWriter locRepr
+                        xmlWriter.WriteEndElement () //end location
+                        xmlWriter.WriteStartElement "expression"
+                        rf <- rankFunctionExpr
+                        SparseLinear.toCeta xmlWriter Var.plainToCeta rankFunctionExpr
+                        xmlWriter.WriteEndElement () //end expression
+                | OriginalLocation _ -> failwith "Have termination argument for an original program location!"
+                | _ -> ())
+    xmlWriter.WriteEndElement () //end rankingFunction
+    xmlWriter.WriteEndElement () //end rankingFunctions
+    xmlWriter.WriteStartElement "bound"
+    xmlWriter.WriteElementString ("constant", string (bound - 1))
+    xmlWriter.WriteEndElement () //end bound
+
+    let mutable strictDecreaseHintInfo = []
+    let mutable weakDecreaseHintInfo = []
+    for (transIdx, (source, cmds, target)) in progCoopInstrumented.TransitionsWithIdx do
+        let sourceRepr = locToCertLocRepr.[source]
+        let targetRepr = locToCertLocRepr.[target]
+        //printfn "Hint for loc %i (%A) -> %i (%A)" source source_repr target target_repr
+        match (sourceRepr, targetRepr) with
+        | (InstrumentationLocation _, _)
+        | (OriginalLocation _, _)
+        | (_, InstrumentationLocation _) ->
+            ()
+        | _ ->
+            //Get transition encoding
+            let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
+            let varToPre var = Var.prime_var var 0
+            let varToPost var =
+                match Map.tryFind var varToMaxSSAIdx with
+                | Some idx -> Var.prime_var var idx
+                | None -> var
+            let transLinearTerms =
+                Formula.formula.FormulasToLinearTerms (transFormula :> _)
+                |> Formula.maybe_filter_instr_vars true
+
+            //Now do the hinting for every disjunct of the invariant:
+            let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) source
+            let mutable decreaseHintTerms = []
+            let mutable boundHintTerms = []
+            let mutable isStrict = true
+            for locInvariant in locInvariants do
+                let locInvariantTerms = 
+                    Formula.formula.FormulasToLinearTerms (locInvariant :> _)
+                    |> Formula.maybe_filter_instr_vars true
+                let locInvariantAndTransLinearTerms =
+                    List.append (List.map (SparseLinear.alpha varToPre) locInvariantTerms) 
+                                transLinearTerms
+                let rankFunctionOnPreVars = SparseLinear.linear_term_to_term (SparseLinear.alpha varToPre rf)
+                let rankFunctionOnPostVars = SparseLinear.linear_term_to_term (SparseLinear.alpha varToPost rf)
+                let strictDecreaseZ3 = Formula.z3 <| Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)
+                let boundZ3 = Formula.z3 <| Formula.formula.Ge (rankFunctionOnPreVars, Term.constant bound)
+                let locInvariantAndTransZ3 = SparseLinear.le_linear_terms_to_z3 locInvariantAndTransLinearTerms
+                if Z.valid (Z.implies locInvariantAndTransZ3 (Z.conj2 strictDecreaseZ3 boundZ3)) then
+                    let strictDecreaseTerms = (Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
+                    let boundTerms = (Formula.formula.Ge (rankFunctionOnPreVars, Term.constant bound)).ToLinearTerms()
+                    assert (1 = List.length strictDecreaseTerms)
+                    assert (1 = List.length boundTerms)
+                    decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head strictDecreaseTerms) :: decreaseHintTerms
+                    boundHintTerms <- (locInvariantAndTransLinearTerms, List.head boundTerms) :: boundHintTerms
+                else
+                    let weakDecreaseTerms = (Formula.formula.Ge (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
+                    assert (1 = List.length weakDecreaseTerms)
+                    decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head weakDecreaseTerms)::decreaseHintTerms
+                    isStrict <- false
+
+            if isStrict then
+                strictDecreaseHintInfo <- (transIdx, decreaseHintTerms, boundHintTerms)::strictDecreaseHintInfo
+            else
+                weakDecreaseHintInfo <- (transIdx, decreaseHintTerms)::weakDecreaseHintInfo
+
+    xmlWriter.WriteStartElement "remove"
+    for (transIdx, _, _) in strictDecreaseHintInfo do
+        writeTransitionId transDuplIdToTransId xmlWriter transIdx
+    xmlWriter.WriteEndElement () //end remove
+
+    xmlWriter.WriteStartElement "hints"
+    for (transIdx, decreaseHintTerms, boundHintTerms) in strictDecreaseHintInfo do
+        xmlWriter.WriteStartElement "strictDecrease"
+        writeTransitionId transDuplIdToTransId xmlWriter transIdx
+        xmlWriter.WriteStartElement "boundHints"
+        for (invAndTransLinearTerms, boundTerm) in boundHintTerms do
+            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms boundTerm
+        xmlWriter.WriteEndElement () //end boundHints
+        xmlWriter.WriteStartElement "decreaseHints"
+        for (invAndTransLinearTerms, strictDecreaseTerm) in decreaseHintTerms do
+            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms strictDecreaseTerm
+        xmlWriter.WriteEndElement () //end decreaseHints
+        xmlWriter.WriteEndElement () //end strictDecrease
+    for (transIdx, decreaseHintTerms) in weakDecreaseHintInfo do
+        xmlWriter.WriteStartElement "weakDecrease"
+        writeTransitionId transDuplIdToTransId xmlWriter transIdx
+        xmlWriter.WriteStartElement "decreaseHints"
+        for (invAndTransLinearTerms, weakDecreaseTerm) in decreaseHintTerms do
+            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms weakDecreaseTerm
+        xmlWriter.WriteEndElement () //end decreaseHints
+        xmlWriter.WriteEndElement () //end weakDecrease
+    xmlWriter.WriteEndElement () //end hints
+
+    nextProofStep xmlWriter
+    xmlWriter.WriteEndElement () //end transitionRemoval
+
+let private exportTrivialProof (xmlWriter : System.Xml.XmlWriter) =
+    xmlWriter.WriteElementString ("trivial", "")
+
+let private exportTerminationProofToCeta
+        (progOrig : Programs.Program) 
+        (progCoopInstrumented : Programs.Program)
+        locToLoopDuplLoc
+        (cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<int, int>)
+        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
+        (safety : SafetyInterface.SafetyProver)
+        foundLexRankFunctions
+        (xmlWriter : System.Xml.XmlWriter) =
+    let locToCertLocRepr = getLocToCertLocRepr progOrig progCoopInstrumented locToLoopDuplLoc
+
+    xmlWriter.WriteStartElement "certificate"
+    progOrig.ToCeta xmlWriter "inputProgram" None false
+
+    xmlWriter
+    |> exportToCooperationTerminationProof progCoopInstrumented cpToToCpDuplicateTransId (
+        exportNonSCCRemovalProof progOrig progCoopInstrumented locToLoopDuplLoc transDuplIdToTransId locToCertLocRepr (
+         exportNewImpactInvariantsProof safety transDuplIdToTransId locToCertLocRepr (
+          exportSafetyTransitionRemovalProof progCoopInstrumented safety transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
+           exportTrivialProof))))
+
+    xmlWriter.WriteEndElement () //end certificate
+
+
+let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Formula) (termination_only:bool) precondMap (fairness_constraint : (Formula.formula * Formula.formula) option) existential findPreconds next =
     Utils.timeout pars.timeout
     //Maybe let's do some AI first:
     if pars.do_ai_threshold > p_orig.TransitionNumber then
@@ -702,11 +1111,13 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
 
     ///bottomUp: propertyMap represents a map from subformulas to a set of locations/pre-conditions pairs.
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
-    let (p_instrumented, final_loc, error_loc, cp_rf, loc_to_loopduploc) = Instrumentation.mergeProgramAndProperty pars p_orig f termination_only precondMap fairness_constraint findPreconds next
+    let (p_instrumented, final_loc, error_loc, cp_rf, locToLoopDuplLoc, transDuplIdToTransId, cpToToCpDuplicateTransId) =
+        Instrumentation.mergeProgramAndProperty pars p_orig f termination_only precondMap fairness_constraint findPreconds next
+    let p_instrumented_orig = p_instrumented.Clone()
     if pars.chaining then
         let transMap = 
             p_instrumented.ChainTransitions
-                (Seq.append cp_rf.Keys (Seq.collect (function (l1,l2) -> [l1;l2]) loc_to_loopduploc.Items))
+                (Seq.append cp_rf.Keys (Seq.collect (function (l1,l2) -> [l1;l2]) locToLoopDuplLoc.Items))
                 true
         //Rewrite cp_rf to new transition names:
         let cp_rf_serialized = cp_rf |> List.ofSeq
@@ -714,7 +1125,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             let mappedCheckerTrans = transMap.[checkerTrans]
             cp_rf.[cp] <- mappedCheckerTrans
 
-    for KeyValue(loc, duploc) in loc_to_loopduploc do
+    for KeyValue(loc, duploc) in locToLoopDuplLoc do
         if not (Set.contains loc p_instrumented.Locations) then
             Log.log pars <| sprintf "Removed duplicated location %i" loc
         if not (Set.contains duploc p_instrumented.Locations) then
@@ -725,7 +1136,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
     let scc_simplification_rfs = ref []
     let cps = cps_checked_for_term |> Set.ofSeq
     if pars.lex_term_proof_first then
-        let sccs = p_instrumented.GetSCCSGs()
+        let sccs = p_instrumented.GetSCCSGs false
         //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
         for scc_nodes in sccs do
             if not(Set.isEmpty (Set.intersect scc_nodes cps)) then //Only process loops in the duplicated part of the graph
@@ -756,7 +1167,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
     let f_contains_AF = cps_checked_for_term.Count > 0
 
     //BottomUp changes the instrumentation, so make a copy for that purpose here, as we do not want the pre-conditions to persist in other runs
-    let (_, p_bu_sccs) = find_instrumented_loops p_instrumented p_orig_loops loc_to_loopduploc
+    let (_, p_bu_sccs) = find_instrumented_loops p_instrumented p_orig_loops locToLoopDuplLoc
     let safety = Safety.GetProver pars p_instrumented error_loc
 
     ///////////////////////////////////////////////////////////////////////////
@@ -803,7 +1214,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
                 //straight-line path to the error loc)
                 //dieWith "Obtained counterexample to termination without a cycle!"
                 if findPreconds then
-                    insertForRerun pars None existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_instrumented
+                    insertForRerun pars None existential f final_loc p_orig loopnode_to_copiednode locToLoopDuplLoc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_instrumented
 
                     if pars.dottify_input_pgms then
                         Output.print_dot_program p_instrumented "input__instrumented_cleaned_rerun.dot"
@@ -898,7 +1309,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
                     if terminating = Some false then
                         finished <- false
                         terminating <- None
-                        insertForRerun pars recurrent_set existential f final_loc p_orig loopnode_to_copiednode loc_to_loopduploc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_instrumented
+                        insertForRerun pars recurrent_set existential f final_loc p_orig loopnode_to_copiednode locToLoopDuplLoc f_contains_AF p_bu_sccs safety cps_checked_for_term pi propertyMap visited_BU_cp visited_nodes p_instrumented
                     else if terminating = None && finished = true then
                         //Giving up, if no lex/recurrent set found, then false and entail giving up.
                         //TODO: Exit recursive bottomUp all together, as we cannot proceed with verification
@@ -924,9 +1335,16 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
 
     Utils.reset_timeout()
 
-    let is_eg f = match f with
-                  | CTL.EG _ -> true
-                  | _ -> false
+    match pars.export_cert with
+    | None -> ()
+    | Some cert_file ->
+        match terminating with
+        | Some true -> 
+            use streamWriter = new System.IO.StreamWriter (cert_file)
+            use xmlWriter = new System.Xml.XmlTextWriter (streamWriter)
+            xmlWriter.Formatting <- System.Xml.Formatting.Indented
+            exportTerminationProofToCeta p_orig p_instrumented_orig locToLoopDuplLoc cpToToCpDuplicateTransId transDuplIdToTransId safety found_lex_rfs xmlWriter
+        | _ -> ()
 
     let return_option =
         if termination_only then
@@ -942,6 +1360,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
             | None ->
                 None
         else
+            let is_eg = function | CTL.EG _ -> true | _ -> false
             if cex_found && not(existential) then
                 Some (false, output_cex cex existential)
             else if cex_found && (is_eg f) && (recurrent_set).IsSome then
@@ -957,7 +1376,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Programs.Program) (f:C
 
     (return_option, propertyMap)
 
-let propagate_nodes (p : Programs.Program) f (propertyMap : SetDictionary<CTL.CTL_Formula, int * Formula.formula>) =
+let propagate_nodes (p : Program) f (propertyMap : SetDictionary<CTL.CTL_Formula, int * Formula.formula>) =
     //Propagate to non-cutpoints if those have not been reached yet.
     let locs = p.Locations
     let preCond_map = fold_by_loc Formula.And propertyMap.[f]
@@ -965,7 +1384,7 @@ let propagate_nodes (p : Programs.Program) f (propertyMap : SetDictionary<CTL.CT
         if not(preCond_map.ContainsKey n) && n <> p.Initial then
             propertyMap.Add(f,(n ,Formula.truec))
 
-let nested_X f f_opt (p : Programs.Program) x_formula (props : SetDictionary<CTL.CTL_Formula, int * Formula.formula>) (fairness_constraint : (Formula.formula*Formula.formula) option) =
+let nested_X f f_opt (p : Program) x_formula (props : SetDictionary<CTL.CTL_Formula, int * Formula.formula>) (fairness_constraint : (Formula.formula*Formula.formula) option) =
     let (p_loops, _) = p.FindLoops()
     let (orig_f,f) =
         match f_opt with
@@ -1016,7 +1435,7 @@ let set_Rest (props : SetDictionary<CTL.CTL_Formula, int * Formula.formula>) loc
 /// The parameter propertyMap represents a list with the first element being the nested CTL property
 /// and the second being a seq of locations/pre-conditions pairs.
 /// Note that this map is mutated throughout the proof process.
-let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) nest_level fairness_constraint (propertyMap : SetDictionary<CTL.CTL_Formula, (int*Formula.formula)>)=
+let rec bottomUp (pars : Parameters.parameters) (p:Program) (f:CTL.CTL_Formula) (termination_only:bool) nest_level fairness_constraint (propertyMap : SetDictionary<CTL.CTL_Formula, (int*Formula.formula)>)=
     let mutable ret_value = None
 
     //Recurse through the formula, try finding preconditions for each (loc, subformula) pair:
@@ -1203,13 +1622,13 @@ let rec bottomUp (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_
 
     ret_value
 
-let make_program_infinite (p : Programs.Program) =
+let make_program_infinite (p : Program) =
     let (p_loops, p_sccs) = p.FindLoops()
     let mutable visited = Set.empty
     let infinite_loop = p.GetLabelledNode "INF_Loop"
 
     //Creating self-loop
-    p.AddTransition infinite_loop [Programs.assign Formula.fair_term_var (Term.Const(bigint.One))] infinite_loop |> ignore
+    p.AddTransition infinite_loop [assign Formula.fair_term_var (Term.Const(bigint.One))] infinite_loop |> ignore
 
     //Find dead end locations
     let mutable dead_ends = p.Locations
@@ -1219,7 +1638,7 @@ let make_program_infinite (p : Programs.Program) =
 
     for (n, (k, c, k')) in p.TransitionsWithIdx do
         if k = p.Initial then
-            p.SetTransition n (k, c @ [Programs.assign Formula.fair_term_var (Term.Const(bigint.Zero))],k')
+            p.SetTransition n (k, c @ [assign Formula.fair_term_var (Term.Const(bigint.Zero))],k')
         else if (p_loops.ContainsKey k') && not(Set.contains k' visited) then
             visited <- Set.add k' visited
             //Want to make sure that it's not a nested loop.
@@ -1236,16 +1655,16 @@ let make_program_infinite (p : Programs.Program) =
                     for (m, c, m') in p.Transitions do
                         if (m = k') && not(Set.contains m' trans_visited) then
                             trans_visited <- Set.add m' trans_visited
-                            let f = c |> List.map(function | (Programs.Assume(_,f)) -> f
+                            let f = c |> List.map(function | (Assume(_,f)) -> f
                                                            | _ -> Formula.truec )
                             let f_conj = Formula.conj f
                             trans_commands <- [f_conj] @ trans_commands
                     let neg_commands = trans_commands |> List.map(fun x -> Formula.negate(x)) |> Formula.conj
                     let disj_commands = neg_commands.PolyhedraDNF().SplitDisjunction()
                     for i in disj_commands do
-                        p.AddTransition k' [Programs.assume i] infinite_loop |> ignore
+                        p.AddTransition k' [assume i] infinite_loop |> ignore
         if Set.contains k' dead_ends then
-            p.AddTransition k' [Programs.assume (Formula.truec)] infinite_loop |> ignore
+            p.AddTransition k' [assume (Formula.truec)] infinite_loop |> ignore
 
 let rec nTerm f =
     match f with
@@ -1264,7 +1683,7 @@ let rec nTerm f =
     | CTL.AW(e1,e2) -> CTL.AW(nTerm e1, (CTL.CTL_Or(nTerm e2, CTL.AF(CTL.Atom(Formula.falsec)))))
     | CTL.EU _ -> raise (new System.NotImplementedException "EU constraints not yet implemented")
     
-let bottomUpProver (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTL_Formula) (termination_only:bool) (fairness_constraint : (Formula.formula * Formula.formula) option) =
+let bottomUpProver (pars : Parameters.parameters) (p:Program) (f:CTL.CTL_Formula) (termination_only:bool) (fairness_constraint : (Formula.formula * Formula.formula) option) =
     Z.refreshZ3Context()
     Utils.timeout pars.timeout
 
@@ -1356,7 +1775,7 @@ let convert_star_CTL (f:CTL.CTLStar_Formula) (e_sub1:CTL.CTL_Formula option) e_s
                      | CTL.Or _ ->  CTL.CTL_Or(retrieve_formula e_sub1 ,retrieve_formula e_sub2)
                      | CTL.Atm a->  CTL.Atom a  
     
-let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz:Programs.Program) nest_level propertyMap (f:CTL.CTLStar_Formula) (termination_only:bool) is_ltl  =
+let rec starBottomUp (pars : Parameters.parameters) (p:Program) (p_dtmz:Program) nest_level propertyMap (f:CTL.CTLStar_Formula) (termination_only:bool) is_ltl  =
     //You'll notice that the syntax for CTL* is disconnected from the original CTL implementation. Below however,
     //I parse the CTL* syntax and call on the CTL implementation. The same thing is done for LTL with the "morally equivalent"
     //property in CTL.
@@ -1417,7 +1836,7 @@ let rec starBottomUp (pars : Parameters.parameters) (p:Programs.Program) (p_dtmz
                                     (ret_value,Some(new_F))
                      
 
-let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CTLStar_Formula) (termination_only:bool) =             
+let CTLStar_Prover (pars : Parameters.parameters) (p:Program) (f:CTL.CTLStar_Formula) (termination_only:bool) =             
     //Now collect all branching points, with the initial node being a and branching nodes being
     //b and ~b. That is, we are looking for branching points such as a &&b
     // and a && ~b. We then add prophecy variables to partially determinize the program, and carry
@@ -1472,30 +1891,29 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Programs.Program) (f:CTL.CT
             let same_loc = (Set.difference sccnode outnode).IsEmpty
             if Set.contains k' sccnode then
                 if not(determinizedNodes.ContainsKey k) then
-                    let cmd = [Programs.assume (Formula.Gt(Term.Var(proph_var),Term.Const(bigint.Zero)));
-                                Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
+                    let cmd = [assume (Formula.Gt(Term.Var(proph_var),Term.Const(bigint.Zero)));
+                                assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
                     let detNode = p_det.NewNode()
                     p_det.AddTransition k cmd detNode |> ignore
                     p_det.AddTransition detNode c k' |> ignore
                     //p_det.SetTransition n (k,c@cmd,k')
                     p_det.RemoveTransition n
-                    let cmd = [Programs.assume (Formula.Lt(Term.Var(proph_var),Term.Const(bigint.Zero)));
-                                Programs.assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
+                    let cmd = [assume (Formula.Lt(Term.Var(proph_var),Term.Const(bigint.Zero)));
+                                assign proph_var (Term.Sub(Term.Var(proph_var),Term.Const(bigint.One)))]
                     p_det.AddTransition k cmd detNode |> ignore
                     //p_det.AddTransition k (c@cmd) k'
                     determinizedNodes.Add(k,detNode)
                 else
                     p_det.RemoveTransition n
                     p_det.AddTransition determinizedNodes.[k] c k' |> ignore
-                     
 
                 if same_loc then
                     proph_map := (!proph_map).Remove(k)
                     proph_map := (!proph_map).Add(k,(Set.empty,outnode))
             else if Set.contains k' outnode then
                 let proph_node = p_det.NewNode()
-                p_det.AddTransition k (c@[Programs.assume (Formula.Eq(Term.Var(proph_var),Term.Const(bigint.Zero)))]) proph_node |> ignore
-                p_det.AddTransition proph_node [Programs.assign proph_var (Term.Nondet)] k' |> ignore
+                p_det.AddTransition k (c@[assume (Formula.Eq(Term.Var(proph_var),Term.Const(bigint.Zero)))]) proph_node |> ignore
+                p_det.AddTransition proph_node [assign proph_var (Term.Nondet)] k' |> ignore
                 p_det.RemoveTransition n
 
     if pars.dottify_input_pgms then

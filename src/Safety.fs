@@ -79,7 +79,7 @@ let prover (pars : Parameters.parameters) (program : Programs.Program) err =
             xmlWriter.WriteStartElement "safetyProgram"
             program.ToCeta xmlWriter "program" None false
             xmlWriter.WriteStartElement "error"
-            Programs.nodeToCeta xmlWriter (Programs.OriginalNode err)
+            Programs.exportLocation xmlWriter (Programs.OriginalLocation err)
             xmlWriter.WriteEndElement () //end errror 
             xmlWriter.WriteEndElement () //end safetyProgram
 

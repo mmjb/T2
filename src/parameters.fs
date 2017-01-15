@@ -91,9 +91,6 @@ type parameters = {
     mutable unrolling : bool
     mutable unrolling_limit : int
 
-    /// Try to find lexicographic rank functions for all cutpoints
-    mutable lexicographic : bool
-
     ///Try to find lexicographic RFs of shorter length?
     ///Don't have this on at the same time as max_unaffect
     mutable lex_opt_fewer_rfs : bool
@@ -184,7 +181,6 @@ let defaultParameters =
         init_cond = false
         unrolling = false
         unrolling_limit = 3
-        lexicographic = true
         lex_opt_fewer_rfs = false
         lex_opt_max_unaffect = false
         lex_opt_scc_unaffected = false

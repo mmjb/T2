@@ -34,7 +34,7 @@ module Microsoft.Research.T2.SCC
 
 open Utils
 
-let find_sccs (graph : ListDictionary<int, 'a * ('b * 'c * int)>) entry =
+let find_sccs (graph : ListDictionary<int, 'a * ('b * 'c * int)>) entry includeTrivial =
     let lowlink = System.Collections.Generic.Dictionary()
     let number = System.Collections.Generic.Dictionary()
 
@@ -64,9 +64,8 @@ let find_sccs (graph : ListDictionary<int, 'a * ('b * 'c * int)>) entry =
                 let w = stack.Pop ()
                 stackContents.Remove w |> ignore
                 newComponent <- Set.add w newComponent
-
             //Add to result, but remove trivial SCCs without self-cycles:
-            if newComponent.Count > 1 || (Seq.exists (fun (_, (_, _, w)) -> v = w) graph.[v]) then
+            if includeTrivial || newComponent.Count > 1 || (Seq.exists (fun (_, (_, _, w)) -> v = w) graph.[v]) then
                 sccs := newComponent :: !sccs
 
     strongconnect entry

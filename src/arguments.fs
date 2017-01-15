@@ -245,9 +245,6 @@ let parseArguments arguments =
                  , "Try to prove nontermination (using very simple, cheap methods)"
                  , fun s -> pars.prove_nonterm <- Utils.true_string s
                  , true)
-             .Add( "lexicographic="
-                 , "Try to find lexicographic ranking functions instead of disjunctive ones"
-                 , fun s -> pars.lexicographic <- Utils.true_string s
              .Add( "try_unrolling="
                  , "Try to unroll loops"
                  , fun s -> pars.unrolling <- Utils.true_string s

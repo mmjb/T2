@@ -91,22 +91,22 @@ let assign v t = Assign(None, v, t)
 let skip = Assume(None,Formula.truec)
 
 type NodeId = int
-type CoopProgramNode =
-    | OriginalNode of NodeId
-    | DuplicatedNode of NodeId
-    | InstrumentationNode of NodeId
+type CoopProgramLocation =
+    | OriginalLocation of NodeId
+    | DuplicatedLocation of NodeId
+    | InstrumentationLocation of NodeId
 let private cutpointCopyPrefix = "cp_copy_"
 let private cutpointAuxPrefix = "cp_aux_"
 let generateCutpointCopyLabel loc = sprintf "%s%i" cutpointCopyPrefix loc
 let generateCutpointAuxLabel loc = sprintf "%s%i" cutpointAuxPrefix loc
 
-let nodeToCeta (writer : System.Xml.XmlWriter) (node : CoopProgramNode) =
-    match node with
-    | InstrumentationNode id ->
+let exportLocation (writer : System.Xml.XmlWriter) (loc : CoopProgramLocation) =
+    match loc with
+    | InstrumentationLocation id ->
         assert false
-    | DuplicatedNode id ->
+    | DuplicatedLocation id ->
         writer.WriteElementString ("locationDuplicate", string id)
-    | OriginalNode id ->
+    | OriginalLocation id ->
         writer.WriteElementString ("locationId", string id)
 
 //
@@ -596,6 +596,13 @@ type Program private (parameters : Parameters.parameters) =
         let old = self.NodeCount 
         self.NodeCount <- old + 1
         old
+    
+    /// Creates a new node and assigns a label to it. If the label already existed, it will be overwritten
+    member self.NewNodeWithLabel label : NodeId =
+        let newNode = self.NewNode ()
+        labelToNode <- Map.add label newNode labelToNode
+        nodeToLabel <- Map.add newNode label nodeToLabel
+        newNode
 
     /// Returns the node in the program with the given label. If no such node existed, creates a new one.
     member self.GetLabelledNode label =
@@ -609,6 +616,9 @@ type Program private (parameters : Parameters.parameters) =
 
     member self.GetNodeLabel node =
         Map.tryFind node self.NodeToLabel
+
+    member inline self.GetLocationLabel node =
+        self.GetNodeLabel node
 
     member private __.InvalidateCaches () =
         transitionFromCache <- None
@@ -780,8 +790,8 @@ type Program private (parameters : Parameters.parameters) =
 
     /// Returns strongly connected subgraphs in the transitive closure of the program's
     /// control-flow graph.
-    member self.GetSCCSGs () =
-        SCC.find_sccs (self.CacheTransitionsFrom()) self.Initial
+    member self.GetSCCSGs includeTrivial =
+        SCC.find_sccs (self.CacheTransitionsFrom()) self.Initial includeTrivial
 
     /// Compute dominators tree
     member private self.GetDominatorsFrom loc =
@@ -808,7 +818,7 @@ type Program private (parameters : Parameters.parameters) =
     ///
     /// Return list of pairs (cutpoint, corresponding region)
     member self.GetIsolatedRegions () =
-        let scs = self.GetSCCSGs()
+        let scs = self.GetSCCSGs false
         let dtree = self.GetDominatorsFrom self.Initial
         let cps = self.GetCutpoints()
 
@@ -840,7 +850,7 @@ type Program private (parameters : Parameters.parameters) =
         ]
 
     member self.GetIsolatedRegionsNonCP nodes =
-        let scs = self.GetSCCSGs()
+        let scs = self.GetSCCSGs false
         let dtree = self.GetDominatorsFrom self.Initial
 
         //Check out all CPs
@@ -1129,11 +1139,11 @@ type Program private (parameters : Parameters.parameters) =
         writer.WriteElementString ("transitionId", string transId)
         
         writer.WriteStartElement "source"
-        nodeToCeta writer source
+        exportLocation writer source
         writer.WriteEndElement() //source end
         
         writer.WriteStartElement "target"
-        nodeToCeta writer target
+        exportLocation writer target
         writer.WriteEndElement() //target end
 
         //We are not using Formula.conj here because we absolutely want to control the order of formulas...
@@ -1144,18 +1154,18 @@ type Program private (parameters : Parameters.parameters) =
         
         writer.WriteEndElement() //transition end
 
-    member self.ToCeta (writer : System.Xml.XmlWriter) (elementName : string) (nodeToCertRepr : System.Collections.Generic.Dictionary<int, CoopProgramNode> option) filterInstrumentationVars =
+    member self.ToCeta (writer : System.Xml.XmlWriter) (elementName : string) (nodeToCertRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation> option) filterInstrumentationVars =
         writer.WriteStartElement elementName
         writer.WriteStartElement "initial"
-        nodeToCeta writer (OriginalNode self.Initial)
+        exportLocation writer (OriginalLocation self.Initial)
         writer.WriteEndElement () //initial end
         for (transIdx, (source, cmds, target)) in self.TransitionsWithIdx do
-            let source_repr = if nodeToCertRepr.IsSome then nodeToCertRepr.Value.[source] else OriginalNode source
-            let target_repr = if nodeToCertRepr.IsSome then nodeToCertRepr.Value.[target] else OriginalNode target
+            let source_repr = if nodeToCertRepr.IsSome then nodeToCertRepr.Value.[source] else OriginalLocation source
+            let target_repr = if nodeToCertRepr.IsSome then nodeToCertRepr.Value.[target] else OriginalLocation target
             let target_label = self.GetNodeLabel target
             match (source_repr, target_repr) with
-            | (InstrumentationNode _, _)
-            | (_, InstrumentationNode _) ->
+            | (InstrumentationLocation _, _)
+            | (_, InstrumentationLocation _) ->
                 ()
             | _ ->
                 self.TransitionToCeta writer transIdx source_repr cmds target_repr filterInstrumentationVars

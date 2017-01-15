@@ -205,7 +205,7 @@ let register_tests (pars : Parameters.parameters) =
     register_term_test "testsuite/traverse_seg.t2"
     register_term_test "testsuite/traverse_seg2.t2"
     register_term_test "testsuite/traverse_twice.t2"
-    if pars.lexicographic || pars.lex_term_proof_first then
+    if pars.lex_term_proof_first then
         register_term_test "testsuite/nested2.t2"
 
     //
@@ -273,7 +273,7 @@ let register_tests (pars : Parameters.parameters) =
     register_safety_test "testsuite/db.t2"
 
     //Abi's Polyranking examples. They will only pass if Arguments.polyrank and Arguments.lexicographic are on
-    if pars.polyrank && pars.lexicographic then
+    if pars.polyrank then
         register_term_test "testsuite/polyrank1.t2"
         register_term_test "testsuite/polyrank2.t2"
         register_term_test "testsuite/polyrank3.t2"

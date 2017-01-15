@@ -780,7 +780,7 @@ type ImpactARG(parameters : Parameters.parameters,
         self.close_all_ancestors v
         self.dfs v
 
-    member __.GetCetaFilteredARGNodes (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramNode> option) =
+    member __.GetCetaFilteredARGNodes (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramLocation> option) =
         let res = System.Collections.Generic.HashSet()
         let seen = System.Collections.Generic.HashSet()
         let rec dfs nodeId =
@@ -790,7 +790,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 let isInstrumentation =
                     if locationToCertRepr.IsSome then
                         match locationToCertRepr.Value.[progLocId] with
-                        | Programs.InstrumentationNode _ -> true
+                        | Programs.InstrumentationLocation _ -> true
                         | _ -> false
                     else
                         false
@@ -802,7 +802,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
     // Returns a list of formulas that are proven invariants for a program location, to be understood as a disjunction of conjunctions.
     // Note: The result only makes sense for an ARG that has been proven safe.
-    member self.GetNodeInvariant (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramNode> option) progLoc : (Formula.formula list) list =
+    member self.GetLocationInvariant (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramLocation> option) progLoc : (Formula.formula list) list =
         let nodesToReport = self.GetCetaFilteredARGNodes locationToCertRepr
         program_loc_to_abs_nodes.[progLoc]
         |> Seq.filter nodesToReport.Contains
@@ -811,14 +811,14 @@ type ImpactARG(parameters : Parameters.parameters,
 
     member self.ToCeta
       (writer : System.Xml.XmlWriter)
-      (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramNode> option)
+      (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramLocation> option)
       (transWriter : (System.Xml.XmlWriter -> int -> unit) option)
       (filterInstrumentationVars : bool) =
         let getLocationRepr location =
             if locationToCertRepr.IsSome then
                 locationToCertRepr.Value.[location]
             else
-                Programs.OriginalNode location
+                Programs.OriginalLocation location
 
         //Fun story. As allow to filter some nodes, whole parts of the ART may become unreachable.
         //Thus, first compute set of nodes to print overall
@@ -842,7 +842,7 @@ type ImpactARG(parameters : Parameters.parameters,
             let progLocRepr = getLocationRepr abs_node_to_program_loc.[nodeId]
             //printfn "ARG node to export: %i (%A)" nodeId progLocRepr
             writer.WriteStartElement "location"
-            Programs.nodeToCeta writer progLocRepr
+            Programs.exportLocation writer progLocRepr
             writer.WriteEndElement () //end location
             match covering.TryGetValue nodeId with
             | (true, coverTarget) ->

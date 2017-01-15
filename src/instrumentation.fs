@@ -39,6 +39,11 @@ open Var
 open CTL
 open SafetyInterface
 
+let FINAL_LOC_LABEL = "__instr_final_loc"
+let AFTER_VARCOPY_LOC_LABEL = "__instr_after_varcopy_"
+let PRERF_CHECK_LOC_LABEL = "__instr_pre_RF_check_"
+let POSTRF_CHECK_LOC_LABEL = "__instr_post_RF_check_"
+
 //This is a data structure to keep all the relevant information about the search for lexicographic RFs
 type LexicographicInfo =
     {
@@ -101,7 +106,7 @@ let init_lex_info (pars : Parameters.parameters) (cutpoints : Set<int>) =
     {
         partial_orders= [for cp in cutpoints -> (cp,[])] |> Map.ofList
         past_lex_options = [for cp in cutpoints -> (cp,[])] |> Map.ofList
-        cp_attempt_lex = [for cp in cutpoints -> (cp,pars.lexicographic)] |> Map.ofList
+        cp_attempt_lex = [for cp in cutpoints -> (cp,true)] |> Map.ofList
 
         cp_init_cond = [for cp in cutpoints -> (cp,false)] |> Map.ofList
         cp_rf_init_cond = Map.empty
@@ -598,7 +603,7 @@ let var_copy_commands (p_c : Programs.Program) cp =
     let copy_vars_to_vars = (vars,copy_vars) ||> Seq.zip |> Seq.fold (fun (acc:Map<var,var>) (x,y) -> acc.Add(y,x)) Map.empty
 
     //Make new command list that assigns var to var_old_CP
-    copy_vars_to_vars |> Seq.map (fun x -> Programs.assign x.Key (Term.Var(x.Value)))
+    copy_vars_to_vars |> Seq.map (fun x -> Programs.assign x.Key (Term.Var(x.Value))) |> List.ofSeq
 
 // Either it's a Prop or not (AG, AF, AW).
 // Used to unify return types from instrument_prop and instrument_*.
@@ -722,97 +727,12 @@ let add_fairness_check_transititions (p : Programs.Program) (fairness_constraint
         for n in fair_2 do
             p.AddTransition fair_node n end_node_of_subproperty |> ignore
 
-let instrument_X (p : Programs.Program) formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.Command list * Programs.Command list) * Programs.Command list list) option) isExistential =
-    let p_X = p.Clone()
-    let final_loc = p_X.GetLabelledNode "final_loc"
-    let mutable first_states = Set.empty
-    let mutable next_states = Set.empty
-    //Add return value to instrumented program, and also add it to set to keep track of all the return values
-    let ret = Formula.subcheck_return_var "0"
-
-    //let cp_conditions = eliminate_redun propertyMap.[formula]
-    let cp_conditions = propertyMap.[formula] |> List.ofSeq
-    let cp = cp_conditions |> List.map(fun (x,_) -> x)
-
-    for (_, (_, _, k')) in p.TransitionsFrom p.Initial do
-        first_states <- Set.add k' first_states
-
-    for (k, _, k') in p.Transitions do
-        if(Set.contains k first_states) then
-            next_states <- Set.add k' next_states
-
-    // 2. Instrument in the sub-property: Only for the next state.
-    let node_to_end_of_subproperty_node_map = new Dictionary<int,int>()
-    for (n, (k, c, k')) in p.TransitionsWithIdx do
-        //For Bottom up, we're also checking that it's a node/cp that has a pre-condition
-        if (Set.contains k next_states) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (List.contains k cp) then
-
-            // Create the two nodes between which we nest the encoding of the subproperty we consider:
-            let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_X
-            let ret_true_node = p_X.GetLabelledNode ("RET_TRUE_" + n.ToString())
-            let ret_false_node = p_X.GetLabelledNode ("RET_FALSE_" + n.ToString())
-
-            //Very similar to traditional AG, except we are only adding propositional conditions where there are cut-points
-            //We're also handling disjunctions
-            p_X.AddTransition k [] start_node_for_subproperty |> ignore
-
-            add_subproperty_conditions p_X cp_conditions k isExistential start_node_for_subproperty ret_true_node ret_false_node
-            
-            add_fairness_check_transititions p_X fairness_constraint n ret ret_true_node ret_false_node end_node_of_subproperty
-
-            //Hmm in the old AG we just repeated the commands, but it could just be a skip
-            p_X.AddTransition end_node_of_subproperty [] final_loc |> ignore
-
-            node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
-
-            p_X.AddTransition end_node_of_subproperty c k' |> ignore
-            //Remove original transition
-            p_X.RemoveTransition n
-
-    (p_X, ret, final_loc, [], Map.empty)
-
-let instrument_G (p : Programs.Program) formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) (fairness_constraint : ((Programs.Command list * Programs.Command list) * Programs.Command list list) option) isExistential =
-    let p_G = p.Clone()
-    let final_loc = p_G.GetLabelledNode "final_loc"
-    //Add return value to instrumented program, and also add it to set to keep track of all the return values
-    let ret = Formula.subcheck_return_var "0"
-    //let cp_conditions = eliminate_redun propertyMap.[formula]
-    let cp_conditions = propertyMap.[formula] |> List.ofSeq
-    let cp = cp_conditions |> List.map(fun (x,_) -> x)
-    // 2. Instrument in the sub-property: Visit every state, and add links to the check for the sub-property.
-    let node_to_end_of_subproperty_node_map = new System.Collections.Generic.Dictionary<int,int>()
-    for (n, (k, _, _)) in p_G.TransitionsWithIdx do
-        //For Bottom up, we're also checking that it's a node/cp that has a pre-condition
-        if (k <> p_G.Initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) && (List.contains k cp) then
-            // Create the two nodes between which we nest the encoding of the subproperty we consider:
-            let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_G
-            let ret_true_node = p_G.GetLabelledNode ("RET_TRUE_" + n.ToString())
-            let ret_false_node = p_G.GetLabelledNode ("RET_FALSE_" + n.ToString())
-
-            p_G.AddTransition k [] start_node_for_subproperty |> ignore
-
-            add_subproperty_conditions p_G cp_conditions k isExistential start_node_for_subproperty ret_true_node ret_false_node
-
-            add_fairness_check_transititions p_G fairness_constraint n ret ret_true_node ret_false_node end_node_of_subproperty
-
-            //Hmm in the old AG we just repeated the commands, but it could just be a skip
-            p_G.AddTransition end_node_of_subproperty [] final_loc |> ignore
-
-            node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
-
-    for (n, (k, c, k')) in p.TransitionsWithIdx do
-        if(k <> p_G.Initial && (List.contains k cp)) then
-            let end_node_of_subproperty = node_to_end_of_subproperty_node_map.[k]
-            //let cmd = [Programs.assume (Formula.Gt(Term.Var ret,Term.Const(bigint.Zero)))]
-            //p_G.AddTransition end_node_of_subproperty (cmd@c) k'
-            p_G.AddTransition end_node_of_subproperty c k' |> ignore
-            p_G.RemoveTransition n
-
-    (p_G, ret, final_loc, [], Map.empty)
-
 let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly (fairness_constraint : ((Programs.Command list * Programs.Command list) * Programs.Command list list) option) findPreconds isExistential =
+    assert (isTerminationOnly)
+    assert (not findPreconds)
+    assert (not isExistential)
     let p_F = p.Clone()
-    let final_loc = p_F.GetLabelledNode "final_loc"
+    let final_loc = p_F.GetLabelledNode FINAL_LOC_LABEL
 
     //Add return value to instrumented program, and also add it to set to keep track of all the return values
     let ret = Formula.subcheck_return_var "0"
@@ -826,7 +746,9 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
     let cp_propMap = cp_conditions |> List.map(fun (x,_) -> x)
 
     //Prepare node copies for the splitted-out AF instrumentation
-    let loopnode_to_copiednode = new System.Collections.Generic.Dictionary<int,int>()
+    let loopnode_to_copiednode = System.Collections.Generic.Dictionary()
+    let transDupId_to_transId = System.Collections.Generic.Dictionary()
+    let cpId_to_toCoopTransId = System.Collections.Generic.Dictionary()
     for (_, scc_nodes) in p_sccs.Items do
         for node in scc_nodes do
             if not (loopnode_to_copiednode.ContainsKey node) then
@@ -861,49 +783,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
     |> Map.ofSeq
 
     // 2. Instrument in the sub-property if we do more than termination.
-    //    Visit every state, and check/add links to the check for the sub-property.
-    //    If the sub-property holds, we may go to the final location directly, otherwise we just dangle there
-    let node_to_end_of_subproperty_node_map = new System.Collections.Generic.Dictionary<int,int>()
-    if not(isTerminationOnly) then
-        for (n, (k, _, _)) in p.TransitionsWithIdx do
-            if (k <> p.Initial) && not(node_to_end_of_subproperty_node_map.ContainsKey k) 
-                                && (List.contains k cp_propMap || p_loops.ContainsKey k) then
-                // Create the two nodes between which we nest the encoding of the subproperty we consider:
-                let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_F
-                let proper_k = get_copy_of_loopnode k
-
-                p_F.AddTransition proper_k [] start_node_for_subproperty |> ignore
-
-                //See comments in AG to understand how this works.
-                if List.contains k cp_propMap then
-                    let ret_true_node = p_F.GetLabelledNode ("RET_TRUE_" + n.ToString())
-                    let ret_false_node = p_F.GetLabelledNode ("RET_FALSE_" + n.ToString())
-                    
-                    add_subproperty_conditions p_F cp_conditions k isExistential start_node_for_subproperty ret_true_node ret_false_node
-
-                    add_fairness_check_transititions p_F fairness_constraint n ret ret_true_node ret_false_node end_node_of_subproperty
-
-                else if p_loops.ContainsKey k then
-                    //Meaning that this cutpoint had no preconditions associated with it, meaning it was true.
-                     //In G we ignored these cases, but in F they're necessary because it means we can exit!
-                     //Thus this is the old strategy for instrumenting properties into F
-                    // Set RET to 1/0 depending on the truth value of the subproperty:
-                    p_F.AddTransition
-                        start_node_for_subproperty
-                            [ (Programs.assign ret (Term.Const(bigint.One))) ]
-                        end_node_of_subproperty |> ignore
-                    p_F.AddTransition
-                        start_node_for_subproperty
-                            [ Programs.assume (Formula.falsec)
-                            ; (Programs.assign ret (Term.Const(bigint.Zero))) ]
-                        end_node_of_subproperty  |> ignore
-
-                // If the subproperty holds, we may now go on to the final location. Otherwise, we will have to loop.
-                p_F.AddTransition
-                    end_node_of_subproperty
-                        [Programs.assume (Formula.Ge(Term.Var(ret),Term.Const(bigint.One)))]
-                    final_loc |> ignore
-                node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
+    // [killed for certified termination]
 
     (*
       3. Add the instrumentation for the termination proof.
@@ -914,306 +794,111 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
           (3) Add jumps from cutpoints in the original version to cutpoints in the copied version
     *)
 
-    let visited_cp_map = new System.Collections.Generic.Dictionary<int,(int*int)>()
-    for (n, (k, cmds, k')) in p.TransitionsWithIdx do
+    let cutpoint_to_after_cp_varcopy_node = System.Collections.Generic.Dictionary()
+    for (transId, (k, cmds, k')) in p.TransitionsWithIdx do
         if (k <> p_F.Initial) then
-            let assume_ret_value_false_cmd =
-                if isTerminationOnly then []
-                else [Programs.assume (Formula.Eq(Term.Var(ret),Term.Const(bigint.Zero)))]
-
-            let trans_stays_in_scc = if node_to_scc_nodes.ContainsKey k then node_to_scc_nodes.[k].Contains k' else false
             //If we do the AI first, every transition has a new assume at the beginning. We only want that in the instr loop
             let cmds_without_ai_res = if pars.did_ai_first then List.tail cmds else cmds
             let copied_k = get_copy_of_loopnode k
 
-            if (p_loops.ContainsKey k) then //Source of the transition is a CP!
-                let end_of_subproperty_node =
-                    if isTerminationOnly then get_copy_of_loopnode k
-                    else node_to_end_of_subproperty_node_map.[k]
+            if p_loops.ContainsKey k then //Source of the transition is a CP!
+                let copied_k = get_copy_of_loopnode k
                 let copied_var = copy_loop_var.[copied_k]
 
-                //This contains all nodes in the loop:
-                let in_set = Map.find k p_loops
+                //This contains all nodes in k's loop:
+                let current_cfg_scc_nodes = Map.find k p_loops
 
-                if Set.contains k' in_set then
-                    //Remove the old transition. We replace it.
-                    p_F.RemoveTransition n
+                // Case 1: This is a transition inside our SCC
+                if Set.contains k' current_cfg_scc_nodes then
+                    //This is a CP, but we haven't visited it yet and thus have to add the nodes for the variable 
+                    //copying magic first:
+                    if not(cutpoint_to_after_cp_varcopy_node.ContainsKey k) then
+                        // Add a jump edge from the original node to its new copy:
+                        let to_coop_transId = p_F.AddTransition k [Programs.skip] copied_k
+                        cpId_to_toCoopTransId.Add(k, to_coop_transId)
 
-                    //This is a CP, but we haven't visited it yet and thus have to add the nodes for the copying magic first:
-                    if not(visited_cp_map.ContainsKey k) then
-                        //First new path: Do the actual copying:
-                        // - copy of CP to not_copied_node, where we check that we didn't copy yet (or the corresponding end of the nested subproperty check)
-                        // - not_copied_node to copying, where we perform the actual copying
-                        let not_copied_node = p_F.NewNode()
+                        // Create a new node in which we have copied all the variables, and do the copying:
+                        let after_varcopy_node = p_F.NewNodeWithLabel (AFTER_VARCOPY_LOC_LABEL + string k)
                         p_F.AddTransition
-                            end_of_subproperty_node
-                                (  Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One)))
-                                 ::assume_ret_value_false_cmd)
-                            not_copied_node |> ignore
+                            copied_k
+                                ((Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))
+                                 ::(Programs.assign copied_var (Term.Const(bigint.One)))
+                                 ::(var_copy_commands p_F copied_k))
+                            after_varcopy_node
+                            |> ignore
 
-                        let copying = p_F.NewNode()
-                        //Below is for transitions where variables are not copied
+                        cutpoint_to_after_cp_varcopy_node.Add(k, after_varcopy_node)
+
+                        // Now also add the instrumentation for the ranking function in:
+                        // - copy of CP to pre_RF_check_node, where we check that we actually did copy values
+                        // - pre_RF_check_node to after_RF_check_node, where later on the rfs are added in
+                        // - after_RF_check_node to final - we only need this for the CTL encoding
+
+                        let pre_RF_check_node = p_F.GetLabelledNode (PRERF_CHECK_LOC_LABEL + k.ToString())
                         p_F.AddTransition
-                            not_copied_node
-                                ((Programs.assign copied_var (Term.Const(bigint.One)))
-                                ::List.ofSeq(var_copy_commands p_F copied_k))
-                            copying |> ignore
+                            copied_k
+                                    (Programs.assume (Formula.Ge(Term.Var(copied_var), Term.Const(bigint.One)))
+                                    ::[])
+                            pre_RF_check_node |> ignore
 
-                        visited_cp_map.Add(k, (copying, not_copied_node))
-
-                        //Second new path: We already copied our vars - now add path to the error loc on which we instrument in the rfs later on:
-                        //This path has four steps:
-                        // - CP to copy of CP (if we do a copy of the loop)
-                        // - copy of CP to node_after_copying, where we check that we actually did copy values
-                        // - node_after_copying to pre_final, where later on the rfs are added in
-                        // - pre_final to final - we only need this for the CTL encoding
-                        p_F.AddTransition k [] copied_k |> ignore
-
-                        let node_after_copying = p_F.GetLabelledNode ("pre_RF_check_" + k.ToString())
-                        if not(isTerminationOnly) then
-                            p_F.AddTransition
-                                node_to_end_of_subproperty_node_map.[k]
-                                      (Programs.assume (Formula.Ge(Term.Var(copied_var), Term.Const(bigint.One)))
-                                      ::assume_ret_value_false_cmd)
-                                node_after_copying |> ignore
-                        else
-                            p_F.AddTransition
-                                copied_k
-                                        (Programs.assume (Formula.Ge(Term.Var(copied_var), Term.Const(bigint.One)))
-                                        ::assume_ret_value_false_cmd)
-                                node_after_copying |> ignore
-
-                        let pre_final = p_F.GetLabelledNode ("after_RF_check_" + k.ToString())
+                        let after_RF_check_node = p_F.GetLabelledNode (POSTRF_CHECK_LOC_LABEL + k.ToString())
                         // Start with rf 'true' (0=0).
                         p_F.AddTransition
-                            node_after_copying
+                            pre_RF_check_node
                                 [ Programs.assume (Formula.Eq(Term.Const(bigint.Zero), Term.Const(bigint.Zero))) ]
-                            pre_final |> ignore
+                            after_RF_check_node |> ignore
 
-                        //If we reach the (pre-)final location, we had no ranking function => AF p might never be true! Hence, we return false to allow for backtracking
+                        //If we reach the (pre-)final location, we had no ranking function => AF p might never be true!
+                        //Hence, we return false to allow for backtracking
                         p_F.AddTransition
-                            pre_final
+                            after_RF_check_node
                                 [ Programs.assign ret (Term.Const(bigint.Zero)) ]
                             final_loc |> ignore
 
-                    //Instead of original transition from CP, add one from the node in which we copied the variables:
-                    let (copying, not_copied_node) = visited_cp_map.[k]
+                    //Instead of original transition from CP, add one from the node in which we copied the program variables:
+                    let after_varcopy_node = cutpoint_to_after_cp_varcopy_node.[k]
                     let copied_k' = get_copy_of_loopnode k'
-                    //Add a copy of the transition starting in the node after we did the copying - but if we copied the loop out, we only need to do that for transitions in the loop.
-                    if trans_stays_in_scc then
-                        p_F.AddTransition copying cmds_without_ai_res copied_k' |> ignore
-                    if pars.lexicographic then
-                        //If we do lex rfs, also add one from the node in which we did not copy the variables (and don't, if we don't need it as above)
-                        if trans_stays_in_scc then
-                            if not(findPreconds) then
-                                p_F.AddTransition not_copied_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
-                            else if p_sccs.ContainsKey k' then
-                                if p_sccs.[k'].Contains k then
-                                     p_F.AddTransition not_copied_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
-                            else
-                                p_F.AddTransition not_copied_node cmds copied_k' |> ignore
-                        else
-                            p_F.AddTransition end_of_subproperty_node cmds copied_k' |> ignore
-                    else
-                        //If we're going to be finding lexicographic RFs, then we don't need to check for transitive closure,
-                        //so we put extra assume(copied<1) on transitions out of a cutpoint.
-                        if not(findPreconds) then
-                            p_F.AddTransition
-                                end_of_subproperty_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
-                         else if p_sccs.ContainsKey k' then
-                                if p_sccs.[k'].Contains k then
-                                    p_F.AddTransition end_of_subproperty_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
-                        else
-                            p_F.AddTransition end_of_subproperty_node cmds copied_k' |> ignore
 
-                    //Now also add a new transition from the original k to k' (where the iteration variable is incremented, if we need that)
-                    p_F.AddTransition k (cmds_without_ai_res) k' |> ignore
-
-                else // if Set.contains k' in_set
+                    //One transition copy from where the node in which we copied the variables:
+                    let dup_transId = p_F.AddTransition after_varcopy_node cmds copied_k'
+                    transDupId_to_transId.Add(dup_transId, transId)
+                    //One transition copy from the duplicated node, asserting that we haven't copied the program variables:
+                    let dup_transId = p_F.AddTransition copied_k ((Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))::cmds) copied_k'
+                    transDupId_to_transId.Add(dup_transId, transId)
+                    
+                else // if Set.contains k' current_cfg_scc_nodes
                     let new_out_cmmd = Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One)))::cmds_without_ai_res
-                    let proper_k' = get_copy_of_loopnode k'
-                    if not(findPreconds) then
-                        p_F.AddTransition end_of_subproperty_node (new_out_cmmd@assume_ret_value_false_cmd) proper_k' |> ignore
-                    else
-                        p_F.AddTransition end_of_subproperty_node new_out_cmmd proper_k' |> ignore
+                    let copied_k' = get_copy_of_loopnode k'
+                    let dup_transId = p_F.AddTransition copied_k new_out_cmmd copied_k'
+                    transDupId_to_transId.Add(dup_transId, transId)
 
             else // if(F_loops.ContainsKey k)
                 // Other transitions are just copied. If we do loop duplication, we can avoid a few cases:
-                let selected_node = if List.contains k cp_propMap then
-                                        if isTerminationOnly then copied_k
-                                        else node_to_end_of_subproperty_node_map.[k]
-                                    else copied_k
-
                 let trans_in_loop = (loopnode_to_copiednode.ContainsKey k) && (loopnode_to_copiednode.ContainsKey k')
                 if trans_in_loop then
                     let copied_k' = loopnode_to_copiednode.[k']
-                    if not(findPreconds) then
-                        p_F.AddTransition selected_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
-                    else if p_sccs.ContainsKey k' then
-                            if p_sccs.[k'].Contains k then
-                                p_F.AddTransition selected_node (assume_ret_value_false_cmd@cmds) copied_k' |> ignore
-                            else
-                                p_F.AddTransition selected_node cmds copied_k' |> ignore
-                    else
-                        p_F.AddTransition selected_node cmds copied_k' |> ignore
+                    let dup_transId = p_F.AddTransition copied_k (cmds) copied_k'
+                    transDupId_to_transId.Add(dup_transId, transId)
 
         else // if(k <> p_F.initial)
             let init_copied_var_cmmds = copy_loop_var |> Seq.map (fun x -> (Programs.assign x.Value (Term.Const(bigint.Zero))))
             if fairness_constraint.IsSome then
-                p_F.SetTransition n 
+                p_F.SetTransition transId
                     (k, (cmds@(List.ofSeq(init_copied_var_cmmds))@
                         ([Programs.assume (Formula.Gt(Term.Var Formula.fair_proph_var,Term.Const(bigint.MinusOne)));
                             Programs.assign Formula.fair_proph_old_var (Term.Var Formula.fair_proph_var);
                                 Programs.assign Formula.fair_term_var (Term.Const(bigint.Zero))])), 
                      k')
             else
-                p_F.SetTransition n (k, (cmds@(List.ofSeq(init_copied_var_cmmds))), k')
+                p_F.SetTransition transId (k, (cmds@(List.ofSeq(init_copied_var_cmmds))), k')
 
     let loop_var_cmmd = copy_loop_var |> Seq.map (fun x -> Programs.assign x.Value (Term.Const(bigint.Zero)))
 
     let loopnode_to_copiednode = loopnode_to_copiednode |> Seq.map (fun x -> (x.Key, x.Value)) |> Map.ofSeq
-    (p_F, ret, final_loc, List.ofSeq(loop_var_cmmd), loopnode_to_copiednode)
-
-let instrument_AndOr (p : Programs.Program) formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) =
-    let p_AndOr = p.Clone()
-    let final_loc = p_AndOr.GetLabelledNode "final_loc"
-    //Add return value to instrumented program, and also add it to set to keep track of all the return values
-    let ret = Formula.subcheck_return_var "0"
-
-    let cp_conditions = propertyMap.[formula] |> List.ofSeq
-
-    // 2. Instrument in the sub-property only for the initial state
-    let mutable init_check_node = -1
-
-    for (k, _, k') in p_AndOr.Transitions do
-        if k = p_AndOr.Initial then
-            init_check_node <- k'
-    assert(init_check_node <> -1)
-
-    for (n, (k, c, k')) in p_AndOr.TransitionsWithIdx do
-        if k = init_check_node then
-            // Create the two nodes between which we nest the encoding of the subproperty we consider:
-            let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_AndOr
-            let ret_true_node = p_AndOr.GetLabelledNode ("RET_TRUE_" + n.ToString())
-            let ret_false_node = p_AndOr.GetLabelledNode ("RET_FALSE_" + n.ToString())
-
-            p_AndOr.AddTransition k [] start_node_for_subproperty |> ignore
-
-            add_subproperty_conditions p_AndOr cp_conditions k false start_node_for_subproperty ret_true_node ret_false_node
-
-            p_AndOr.AddTransition ret_true_node [Programs.assign ret (Term.Const(bigint.One))] end_node_of_subproperty |> ignore
-            p_AndOr.AddTransition ret_false_node [Programs.assign ret (Term.Const(bigint.Zero))] end_node_of_subproperty |> ignore
-
-            p_AndOr.AddTransition end_node_of_subproperty c k' |> ignore
-            p_AndOr.RemoveTransition n
-
-            p_AndOr.AddTransition end_node_of_subproperty [] final_loc |> ignore
-
-    (p_AndOr, ret, final_loc, [], Map.empty)
-
-let bottomUp_AW (p : Programs.Program) formula1 formula2 (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
-    let p_AW = p.Clone()
-
-    if fairness_constraint <> None then
-        raise (new System.NotImplementedException "Fairness for AW constaints not yet implemented")
-
-    let final_loc = p_AW.GetLabelledNode "final_loc"
-    //Add return value to instrumented program, and also add it to set to keep track of all the return values
-    let ret1 = Formula.subcheck_return_var "1_1"
-    let ret2 = Formula.subcheck_return_var "2_1"
-    let ret = Formula.subcheck_return_var "0"
-    
-    let cp_conditions1 = propertyMap.[formula1] |> List.ofSeq
-    let cp_conditions2 = propertyMap.[formula2] |> List.ofSeq
-    let cps = Set.union (Set.ofList (cp_conditions1 |> List.map(fun (x,_) -> x)))
-                             (Set.ofList (cp_conditions2 |> List.map(fun (x,_) -> x)))
-
-    //Need to add true if the cp in one propertyMaps isn't there for the other.
-
-    let node_to_end_of_subproperty_node_map = new System.Collections.Generic.Dictionary<int,int>()
-    for (n, (k, c, k')) in p_AW.TransitionsWithIdx do
-        if (k <> p_AW.Initial) then
-            if not(node_to_end_of_subproperty_node_map.ContainsKey k) && (cps.Contains k) then
-
-                let (end_node_of_subproperty, start_node_for_subproperty) = generate_checker_instrumentation_nodes k p_AW
-                
-                p_AW.AddTransition k [] start_node_for_subproperty |> ignore
-
-                // Create two nodes to check the first subproperty we consider:
-                let ret_true_node1 = p_AW.GetLabelledNode ("RET1_TRUE_" + n.ToString())
-                let ret_false_node1 = p_AW.GetLabelledNode ("RET1_FALSE_" + n.ToString())
-
-                add_subproperty_conditions p_AW cp_conditions1 k false start_node_for_subproperty ret_true_node1 ret_false_node1
-
-                // Connect these to a checker for the second subproperty:
-                let second_node_for_subproperty = p_AW.GetLabelledNode ("second_node_for_subproperty" + n.ToString())
-                p_AW.AddTransition ret_true_node1 [Programs.assign ret1 (Term.Const(bigint.One));
-                                                                        Programs.assign ret (Term.Const(bigint.One))] second_node_for_subproperty |> ignore
-                p_AW.AddTransition ret_false_node1 [Programs.assign ret1 (Term.Const(bigint.Zero));
-                                                                        Programs.assign ret (Term.Const(bigint.Zero))] second_node_for_subproperty |> ignore
-                                 
-                // Create two nodes to check the second subproperty we consider:
-                let ret_true_node2 = p_AW.GetLabelledNode ("RET_TRUE_" + n.ToString())
-                let ret_false_node2 = p_AW.GetLabelledNode ("RET_FALSE_" + n.ToString())
-
-                add_subproperty_conditions p_AW cp_conditions2 k false start_node_for_subproperty ret_true_node2 ret_false_node2
-
-                // Connect these to the end of the overall checker
-                p_AW.AddTransition ret_true_node2 [Programs.assign ret2 (Term.Const(bigint.One));
-                                            Programs.assign ret (Term.Const(bigint.One))] end_node_of_subproperty |> ignore
-                p_AW.AddTransition ret_false_node2 [Programs.assign ret2 (Term.Const(bigint.Zero))] end_node_of_subproperty |> ignore
-
-                p_AW.AddTransition
-                    end_node_of_subproperty
-                        [Programs.assume (Formula.Le(Term.var(ret2),(Term.Const(bigint.Zero))));
-                         Programs.assume (Formula.Le(Term.var(ret1),(Term.Const(bigint.Zero))))]
-                    final_loc |> ignore
-
-                p_AW.AddTransition
-                    end_node_of_subproperty
-                        [Programs.assume (Formula.Ge(Term.var(ret2),(Term.Const(bigint.One))))]
-                    final_loc |> ignore
-
-                //Only continue to the next transition if the first property is satisfied, but the second isn't.
-                p_AW.AddTransition
-                    end_node_of_subproperty
-                        ([Programs.assume (Formula.Le(Term.var(ret2),(Term.Const(bigint.Zero)))); 
-                          Programs.assume (Formula.Ge(Term.var(ret),(Term.Const(bigint.One))))]@c)
-                    k' |> ignore
-                //Remove original transition
-                p_AW.RemoveTransition n
-
-                node_to_end_of_subproperty_node_map.Add (k, end_node_of_subproperty)
-    (p_AW, ret, final_loc, [], Map.empty)
-
-let bottomUp_AX p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
-    instrument_X p formula propertyMap fairness_constraint false
-let bottomUp_EX p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
-    instrument_X p formula propertyMap fairness_constraint true
-
-let bottomUp_AG p formula propertyMap fairness_constraint =
-    instrument_G p formula propertyMap fairness_constraint false
-let bottomUp_EG (pars : Parameters.parameters) p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly fairness_constraint findPreconds =
-    //is_false in EG is meant for the purpose of recurrent sets, so in this case we attempt to find termination only for AF
-    instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds true
+    (p_F, ret, final_loc, List.ofSeq(loop_var_cmmd), loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId)
 
 let bottomUp_AF (pars : Parameters.parameters) p formula propertyMap isTerminationOnly fairness_constraint findPreconds =
     instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds false
-let bottomUp_EF p formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) fairness_constraint =
-    instrument_G p formula propertyMap fairness_constraint true
-
-//Instrumentation of the proposition happens here because in the AF/AG case, I automatically incorporate it.
-//Thus, this is for the case that we have something just like x = 0 without AF or AG
-let instrument_Prop (p_orig : Programs.Program) e =
-    let p_Prop = p_orig.Clone()
-    for (n, (k, c, k')) in p_Prop.TransitionsWithIdx do
-        if k = -1 then
-            p_Prop.SetTransition n (k, (c@[(Programs.assume e)]), k')
-
-    let error_loc = p_Prop.NewNode()
-    p_Prop.AddTransition -1 [Programs.assume (Formula.Not(e))] error_loc |> ignore
-
-    (p_Prop, error_loc, e)
 
 /// Returns the programs that encodes both input program and the checked property,
 /// the error location and a map from cutpoints to the first transition leading to
@@ -1260,32 +945,13 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
                 )
 
         else None
-
-    //Do the actual instrumentation, calling the right method depending on the outermost atom:
-    let instrument ctl_prop =
-        match ctl_prop with
-        | Atom a -> instrument_Prop p a |> Either.IsAProp
-        | CTL_And(_,_)
-        | CTL_Or(_,_)  -> instrument_AndOr p ctl_prop propertyMap |> Either.IsNotAProp
-        | AW(e1,e2) -> bottomUp_AW p e1 e2 propertyMap fairness_constraint |> Either.IsNotAProp
-        | AX e -> bottomUp_AX p e propertyMap fairness_constraint |> Either.IsNotAProp
-        | EX e -> bottomUp_EX p e propertyMap fairness_constraint |> Either.IsNotAProp
-        | AF e -> bottomUp_AF pars p e propertyMap is_false fairness_constraint findPreconds |> Either.IsNotAProp
-        | EF e -> bottomUp_EF p e propertyMap fairness_constraint |> Either.IsNotAProp
-        | AG e -> bottomUp_AG p e propertyMap fairness_constraint |> Either.IsNotAProp
-        | EG e -> bottomUp_EG pars p e propertyMap is_false fairness_constraint findPreconds |> Either.IsNotAProp
-        | EU _ -> raise (new System.NotImplementedException "EU constraints not yet implemented")
-
-    //Returns error location, and modifies the program to include it
-    let (final_loc, error_loc, p_final, loc_copy_pair) = 
-        match instrument actl_prop with
-        |Either.IsAProp (p_Prop : Programs.Program, error_loc, _) ->
-            Output.print_dot_program p_Prop "input__Prop_converted.dot"
-            (error_loc,error_loc, p_Prop, Map.empty)
-        |Either.IsNotAProp (p_final,p_ret,final_loc, _, loc_copy_pair) ->
-            let error_loc = p_final.NewNode()
-            p_final.AddTransition final_loc [(Programs.assume (Formula.Le(Term.Var(p_ret), Term.Const(bigint.Zero))))] error_loc |> ignore
-            (final_loc,error_loc, p_final, loc_copy_pair)
+ 
+    let (p_final, prop_return, final_loc, loc_copy_pair, loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId) =
+        match actl_prop with
+        | AF e -> bottomUp_AF pars p e propertyMap is_false fairness_constraint findPreconds
+        | _ -> raise (new System.NotImplementedException "Not yet implemented")
+    let error_loc = p_final.NewNode()
+    p_final.AddTransition final_loc [(Programs.assume (Formula.Le(Term.Var(prop_return), Term.Const(bigint.Zero))))] error_loc |> ignore
 
     ///Maps cutpoint to the index of the transition from it that leads to the error location (that's where the RFs will go!)
     let cp_rf = new System.Collections.Generic.Dictionary<int, int>()
@@ -1309,7 +975,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
             | _ -> ()
 
     //Constants propagation
-    if not(next) then
+    if not(next) && pars.constant_propagation then
         p_final.ConstantPropagation (Analysis.constants p_final)
     p_final.AddSymbolConstantInformation()
 
@@ -1319,4 +985,4 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
     if pars.dottify_input_pgms then
         Output.print_dot_program p_final ("input__instrumented.dot")
 
-    (p_final, final_loc, error_loc, cp_rf, loc_copy_pair)
+    (p_final, final_loc, error_loc, cp_rf, loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId)
