@@ -83,10 +83,6 @@ let main (arguments: string[]) =
             eprintf "Error: Certificate export for constant elimination not supported at this time."
             exit 4
 
-        if parameters.do_ai_threshold > 0 then
-            eprintf "Error: Certificate export for initial abstract interpretation-based invariant generation not supported at this time."
-            exit 4
-
     let protectLocations =
         match runMode with
             | Arguments.CTL _

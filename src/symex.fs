@@ -198,6 +198,9 @@ let get_scc_rels_for_lex_rf_synth_from_program (pars : Parameters.parameters) (p
         |> List.ofSeq
                           
     let chainableLocs = if cp.IsSome then Set.remove cp.Value scc_nodes else scc_nodes
-    let scc_transitions = Programs.chain_transitions chainableLocs scc_transitions
+    let scc_transitions =
+        match pars.export_cert with // Disable chaining in certification mode
+        | Some _ -> scc_transitions |> Set.ofList
+        | None -> Programs.chain_transitions chainableLocs scc_transitions
 
     get_scc_rels_for_lex_rf_synth_from_trans scc_transitions

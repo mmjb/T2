@@ -173,7 +173,7 @@ let defaultParameters =
         chaining = false
         elim_constants = false
         elim_temp_vars = false
-        do_ai_threshold = 0
+        do_ai_threshold = 50
         did_ai_first = false
         ai_domain = Box
 
@@ -187,7 +187,7 @@ let defaultParameters =
         polyrank = false
         polyrank_max_depth = 4
 
-        lex_term_proof_first = false
+        lex_term_proof_first = true 
         mcnp_style_bound_decr = false
 
         safety_implementation = Impact

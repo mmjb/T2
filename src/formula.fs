@@ -170,6 +170,9 @@ type formula =
     static member OfLinearTerm (t: SparseLinear.LinearTerm) =
         Le (SparseLinear.linear_term_to_term t, Term.constant 0)
 
+    static member False = Le(Const(bigint.One),Const(bigint.Zero))
+    static member True = Le(Const(bigint.Zero),Const(bigint.Zero))
+
     /// Return list ts of linear terms t such that conjunction of t<=0
     /// is equivalent to given formula.
     /// Formula is expected to be a conjunction of atomic equalities and inequalities.
@@ -184,7 +187,10 @@ type formula =
             | _ -> dieWith ("not Le") // polyhedra_dnf always returns Le
 
         //List.map inequality_to_linear_term (split_conjunction f)
-        List.map inequality_to_linear_term (f.SplitConjunction() |> List.filter (fun x -> not(x.ContainsNondet())))
+        if self = formula.True then
+            []
+        else
+            List.map inequality_to_linear_term (f.SplitConjunction() |> List.filter (fun x -> not(x.ContainsNondet())))
 
     static member FormulasToLinearTerms =
         Seq.fold (fun res (f : formula) -> f.ToLinearTerms() @ res) []
@@ -193,8 +199,8 @@ type formula =
 // Note that we dont have a "true" or "false" in formula
 // We encode these as arithmetic formulae
 //
-let falsec = Le(Const(bigint.One),Const(bigint.Zero))
-let truec = Le(Const(bigint.Zero),Const(bigint.Zero))
+let falsec = formula.False
+let truec = formula.True
 
 let conj fs =
     let mutable result = truec

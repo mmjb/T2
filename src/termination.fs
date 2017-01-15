@@ -877,9 +877,9 @@ let private exportToCooperationTerminationProof
 // program transitions are "child" edges in the ARG. 
 let private exportAIInvariantsProof
         (progCoopInstrumented : Programs.Program)
-        (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
         (nextProofStep : System.Xml.XmlWriter -> unit)
         (xmlWriter : System.Xml.XmlWriter) =
     match locToAIInvariant with
@@ -971,6 +971,158 @@ let private exportAIInvariantsProof
     | None ->
         nextProofStep xmlWriter
 
+let private exportInitialLexRFTransRemovalProof
+        (progCoopInstrumented : Programs.Program)
+        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
+        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
+        (foundInitialLexRankFunctions : ((Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list)
+        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (xmlWriter : System.Xml.XmlWriter) =
+    for (rfs, removed_transitions) in foundInitialLexRankFunctions do
+        for (locToRF, bnds) in rfs do
+            //Compute minimal bound:
+            let bound = bnds |> Map.toSeq |> Seq.map snd |> Seq.fold min (bigint System.Int32.MaxValue)
+            (* //Code to compute bound per location:
+            let locToBound = DefaultDictionary(fun _ -> bigint System.Int32.MaxValue)
+            for KeyValue(transitions, bnd) in bnds do
+                for transIdx in transitions do
+                    let (sourceLoc, _, _) = progCoopInstrumented.GetTransition transIdx
+                    locToBound.[sourceLoc] <- min bnd locToBound.[sourceLoc]
+            *)
+
+            xmlWriter.WriteStartElement "transitionRemoval"
+
+            (** Step 1: Define rank functions and bound. *)
+            xmlWriter.WriteStartElement "rankingFunctions"
+            xmlWriter.WriteStartElement "rankingFunction"
+            let locToRFTerm = System.Collections.Generic.Dictionary()
+            for loc in progCoopInstrumented.Locations do
+                let locRepr = locToCertLocRepr.[loc]
+                match locRepr with
+                | DuplicatedLocation _ ->
+                    let rfTerm =
+                        locToRF.[loc]
+                        |> Map.toSeq
+                        |> Seq.map 
+                            (fun (var, coeff) -> 
+                                let var = Var.unprime_var var
+                                if var.Equals(Formula.const_var bigint.One) then 
+                                    Term.Const(coeff) 
+                                else 
+                                    Term.Mul(Term.Const(coeff), Term.Var(var)))
+                        |> Seq.fold Term.add (Term.constant 0)
+                    locToRFTerm.[loc] <- rfTerm
+                    let rfLinearTerm = SparseLinear.term_to_linear_term rfTerm
+
+                    xmlWriter.WriteStartElement "location"
+                    Programs.exportLocation xmlWriter locRepr
+                    xmlWriter.WriteEndElement () //end location
+
+                    xmlWriter.WriteStartElement "expression"
+                    SparseLinear.toCeta xmlWriter Var.plainToCeta rfLinearTerm
+                    xmlWriter.WriteEndElement () //end expression
+                    ()
+                | _ -> () //Ignore original program and instrumentation nodes
+            xmlWriter.WriteEndElement () //end rankingFunction
+            xmlWriter.WriteEndElement () //end rankingFunctions
+            xmlWriter.WriteStartElement "bound"
+            xmlWriter.WriteElementString ("constant", string (bound - bigint.One))
+            xmlWriter.WriteEndElement () //end bound
+
+            (** Step 2: Compute decreasing transitions and hints *)
+            let mutable strictDecreaseHintInfo = []
+            let mutable weakDecreaseHintInfo = []
+            for (transIdx, (sourceLoc, cmds, targetLoc)) in progCoopInstrumented.TransitionsWithIdx do
+                let sourceLocRepr = locToCertLocRepr.[sourceLoc]
+                let targetLocRepr = locToCertLocRepr.[targetLoc]
+                match (sourceLocRepr, targetLocRepr) with
+                | (InstrumentationLocation _, _)
+                | (OriginalLocation _, _)
+                | (_, InstrumentationLocation _) ->
+                    ()
+                | (DuplicatedLocation origSourceLoc, _) ->
+                    let sourceRFTerm = locToRFTerm.[sourceLoc]
+                    let targetRFTerm = locToRFTerm.[targetLoc]
+                    //Get transition encoding
+                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
+                    let varToPre var = Var.prime_var var 0
+                    let varToPost var =
+                        match Map.tryFind var varToMaxSSAIdx with
+                        | Some idx -> Var.prime_var var idx
+                        | None -> var
+                    let transLinearTerms =
+                        Formula.formula.FormulasToLinearTerms (transFormula :> _)
+                        |> Formula.maybe_filter_instr_vars true
+
+                    //Now do the hinting for every disjunct of the invariant:
+                    let locInvariant =
+                        match locToAIInvariant with 
+                        | Some locToAIInvariant -> locToAIInvariant.[origSourceLoc].to_formula ()
+                        | _ -> Formula.truec
+                    let mutable decreaseHintTerms = []
+                    let mutable boundHintTerms = []
+                    let mutable isStrict = true
+                    let locInvariantTerms = locInvariant.ToLinearTerms()
+                    let locInvariantAndTransLinearTerms =
+                        List.append (List.map (SparseLinear.alpha varToPre) locInvariantTerms) 
+                                    transLinearTerms
+                    let rankFunctionOnPreVars = Term.alpha varToPre sourceRFTerm
+                    let rankFunctionOnPostVars = Term.alpha varToPost targetRFTerm
+                    let strictDecreaseZ3 = Formula.z3 <| Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)
+                    let boundZ3 = Formula.z3 <| Formula.formula.Ge (rankFunctionOnPreVars, Term.Const bound)
+                    let locInvariantAndTransZ3 = SparseLinear.le_linear_terms_to_z3 locInvariantAndTransLinearTerms
+                    if Z.valid (Z.implies locInvariantAndTransZ3 (Z.conj2 strictDecreaseZ3 boundZ3)) then
+                        let strictDecreaseTerms = (Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
+                        let boundTerms = (Formula.formula.Ge (rankFunctionOnPreVars, Term.Const bound)).ToLinearTerms()
+                        assert (1 = List.length strictDecreaseTerms)
+                        assert (1 = List.length boundTerms)
+                        decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head strictDecreaseTerms) :: decreaseHintTerms
+                        boundHintTerms <- (locInvariantAndTransLinearTerms, List.head boundTerms) :: boundHintTerms
+                    else
+                        let weakDecreaseTerms = (Formula.formula.Ge (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
+                        assert (1 = List.length weakDecreaseTerms)
+                        decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head weakDecreaseTerms)::decreaseHintTerms
+                        isStrict <- false
+
+                    if isStrict then
+                        strictDecreaseHintInfo <- (transIdx, decreaseHintTerms, boundHintTerms)::strictDecreaseHintInfo
+                    else
+                        weakDecreaseHintInfo <- (transIdx, decreaseHintTerms)::weakDecreaseHintInfo
+
+            xmlWriter.WriteStartElement "remove"
+            for (transIdx, _, _) in strictDecreaseHintInfo do
+                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+            xmlWriter.WriteEndElement () //end remove
+
+            xmlWriter.WriteStartElement "hints"
+            for (transIdx, decreaseHintTerms, boundHintTerms) in strictDecreaseHintInfo do
+                xmlWriter.WriteStartElement "strictDecrease"
+                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                xmlWriter.WriteStartElement "boundHints"
+                for (invAndTransLinearTerms, boundTerm) in boundHintTerms do
+                    SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms boundTerm
+                xmlWriter.WriteEndElement () //end boundHints
+                xmlWriter.WriteStartElement "decreaseHints"
+                for (invAndTransLinearTerms, strictDecreaseTerm) in decreaseHintTerms do
+                    SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms strictDecreaseTerm
+                xmlWriter.WriteEndElement () //end decreaseHints
+                xmlWriter.WriteEndElement () //end strictDecrease
+            for (transIdx, decreaseHintTerms) in weakDecreaseHintInfo do
+                xmlWriter.WriteStartElement "weakDecrease"
+                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                xmlWriter.WriteStartElement "decreaseHints"
+                for (invAndTransLinearTerms, weakDecreaseTerm) in decreaseHintTerms do
+                    SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms weakDecreaseTerm
+                xmlWriter.WriteEndElement () //end decreaseHints
+                xmlWriter.WriteEndElement () //end weakDecrease
+            xmlWriter.WriteEndElement () //end hints
+
+    nextProofStep xmlWriter
+
+    for (rfs, _) in foundInitialLexRankFunctions do
+        for _ in rfs do
+            xmlWriter.WriteEndElement () //end transitionRemoval
 
 let private exportNewImpactInvariantsProof
         (safety : SafetyInterface.SafetyProver)
@@ -1016,138 +1168,142 @@ let private exportSafetyTransitionRemovalProof
         foundLexRankFunctions
         (nextProofStep : System.Xml.XmlWriter -> unit)
         (xmlWriter : System.Xml.XmlWriter) =
-    let impactArg = safety :?> Impact.ImpactARG
 
-    xmlWriter.WriteStartElement "transitionRemoval"
-    xmlWriter.WriteStartElement "rankingFunctions"
-    xmlWriter.WriteStartElement "rankingFunction"
-    let sccs = progCoopInstrumented.GetSCCSGs false
-    //TODO: Extend to lists (for lexicographic RFs)
-    let mutable rf = Map.empty
-    let mutable bound = System.Int32.MaxValue
-    !foundLexRankFunctions
-    |> Map.iter
-        (fun cutpoint (decreasingCheckFormulas, _, boundCheckFormulas) ->
-            let scc = List.find (Set.contains cutpoint) sccs
-            assert ((List.length decreasingCheckFormulas) = 1)
-            for loc in scc do
-                let locRepr = locToCertLocRepr.[loc]
-                match locRepr with
-                | DuplicatedLocation _ ->
-                    for (decreasingCheckFormula, boundCheckFormula) in List.zip decreasingCheckFormulas boundCheckFormulas do
-                        //This is rather brittle, as it depends on the formulas we generate in rankfunction.fs for this case...
-                        let rankFunctionExpr = 
-                            match decreasingCheckFormula with
-                            | Formula.Lt(rankFunctionOnNewVars, _) -> SparseLinear.term_to_linear_term rankFunctionOnNewVars
-                            | _ -> dieWith "Could not retrieve rank function from internal proof structure."
-                        match boundCheckFormula with
-                        | Formula.Ge(_, Term.Const c) ->
-                            bound <- min bound (int c)
-                        | _ ->
-                            dieWith "Could not retrieve bound for rank function from internal proof structure."
-                        xmlWriter.WriteStartElement "location"
-                        Programs.exportLocation xmlWriter locRepr
-                        xmlWriter.WriteEndElement () //end location
-                        xmlWriter.WriteStartElement "expression"
-                        rf <- rankFunctionExpr
-                        SparseLinear.toCeta xmlWriter Var.plainToCeta rankFunctionExpr
-                        xmlWriter.WriteEndElement () //end expression
-                | OriginalLocation _ -> failwith "Have termination argument for an original program location!"
-                | _ -> ())
-    xmlWriter.WriteEndElement () //end rankingFunction
-    xmlWriter.WriteEndElement () //end rankingFunctions
-    xmlWriter.WriteStartElement "bound"
-    xmlWriter.WriteElementString ("constant", string (bound - 1))
-    xmlWriter.WriteEndElement () //end bound
+    if not <| Map.isEmpty foundLexRankFunctions then
+        let impactArg = safety :?> Impact.ImpactARG
 
-    let mutable strictDecreaseHintInfo = []
-    let mutable weakDecreaseHintInfo = []
-    for (transIdx, (source, cmds, target)) in progCoopInstrumented.TransitionsWithIdx do
-        let sourceRepr = locToCertLocRepr.[source]
-        let targetRepr = locToCertLocRepr.[target]
-        //printfn "Hint for loc %i (%A) -> %i (%A)" source source_repr target target_repr
-        match (sourceRepr, targetRepr) with
-        | (InstrumentationLocation _, _)
-        | (OriginalLocation _, _)
-        | (_, InstrumentationLocation _) ->
-            ()
-        | _ ->
-            //Get transition encoding
-            let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
-            let varToPre var = Var.prime_var var 0
-            let varToPost var =
-                match Map.tryFind var varToMaxSSAIdx with
-                | Some idx -> Var.prime_var var idx
-                | None -> var
-            let transLinearTerms =
-                Formula.formula.FormulasToLinearTerms (transFormula :> _)
-                |> Formula.maybe_filter_instr_vars true
+        xmlWriter.WriteStartElement "transitionRemoval"
+        xmlWriter.WriteStartElement "rankingFunctions"
+        xmlWriter.WriteStartElement "rankingFunction"
+        let sccs = progCoopInstrumented.GetSCCSGs false
+        //TODO: Extend to lists (for lexicographic RFs)
+        let mutable rf = Map.empty
+        let mutable bound = System.Int32.MaxValue
+        foundLexRankFunctions
+        |> Map.iter
+            (fun cutpoint (decreasingCheckFormulas, _, boundCheckFormulas) ->
+                let scc = List.find (Set.contains cutpoint) sccs
+                assert ((List.length decreasingCheckFormulas) = 1)
+                for loc in scc do
+                    let locRepr = locToCertLocRepr.[loc]
+                    match locRepr with
+                    | DuplicatedLocation _ ->
+                        for (decreasingCheckFormula, boundCheckFormula) in List.zip decreasingCheckFormulas boundCheckFormulas do
+                            //This is rather brittle, as it depends on the formulas we generate in rankfunction.fs for this case...
+                            let rankFunctionExpr = 
+                                match decreasingCheckFormula with
+                                | Formula.Lt(rankFunctionOnNewVars, _) -> SparseLinear.term_to_linear_term rankFunctionOnNewVars
+                                | _ -> dieWith "Could not retrieve rank function from internal proof structure."
+                            match boundCheckFormula with
+                            | Formula.Ge(_, Term.Const c) ->
+                                bound <- min bound (int c)
+                            | _ ->
+                                dieWith "Could not retrieve bound for rank function from internal proof structure."
+                            xmlWriter.WriteStartElement "location"
+                            Programs.exportLocation xmlWriter locRepr
+                            xmlWriter.WriteEndElement () //end location
+                            xmlWriter.WriteStartElement "expression"
+                            rf <- rankFunctionExpr
+                            SparseLinear.toCeta xmlWriter Var.plainToCeta rankFunctionExpr
+                            xmlWriter.WriteEndElement () //end expression
+                    | OriginalLocation _ -> failwith "Have termination argument for an original program location!"
+                    | _ -> ())
+        xmlWriter.WriteEndElement () //end rankingFunction
+        xmlWriter.WriteEndElement () //end rankingFunctions
+        xmlWriter.WriteStartElement "bound"
+        xmlWriter.WriteElementString ("constant", string (bound - 1))
+        xmlWriter.WriteEndElement () //end bound
 
-            //Now do the hinting for every disjunct of the invariant:
-            let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) source
-            let mutable decreaseHintTerms = []
-            let mutable boundHintTerms = []
-            let mutable isStrict = true
-            for locInvariant in locInvariants do
-                let locInvariantTerms = 
-                    Formula.formula.FormulasToLinearTerms (locInvariant :> _)
+        let mutable strictDecreaseHintInfo = []
+        let mutable weakDecreaseHintInfo = []
+        for (transIdx, (source, cmds, target)) in progCoopInstrumented.TransitionsWithIdx do
+            let sourceRepr = locToCertLocRepr.[source]
+            let targetRepr = locToCertLocRepr.[target]
+            //printfn "Hint for loc %i (%A) -> %i (%A)" source source_repr target target_repr
+            match (sourceRepr, targetRepr) with
+            | (InstrumentationLocation _, _)
+            | (OriginalLocation _, _)
+            | (_, InstrumentationLocation _) ->
+                ()
+            | _ ->
+                //Get transition encoding
+                let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
+                let varToPre var = Var.prime_var var 0
+                let varToPost var =
+                    match Map.tryFind var varToMaxSSAIdx with
+                    | Some idx -> Var.prime_var var idx
+                    | None -> var
+                let transLinearTerms =
+                    Formula.formula.FormulasToLinearTerms (transFormula :> _)
                     |> Formula.maybe_filter_instr_vars true
-                let locInvariantAndTransLinearTerms =
-                    List.append (List.map (SparseLinear.alpha varToPre) locInvariantTerms) 
-                                transLinearTerms
-                let rankFunctionOnPreVars = SparseLinear.linear_term_to_term (SparseLinear.alpha varToPre rf)
-                let rankFunctionOnPostVars = SparseLinear.linear_term_to_term (SparseLinear.alpha varToPost rf)
-                let strictDecreaseZ3 = Formula.z3 <| Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)
-                let boundZ3 = Formula.z3 <| Formula.formula.Ge (rankFunctionOnPreVars, Term.constant bound)
-                let locInvariantAndTransZ3 = SparseLinear.le_linear_terms_to_z3 locInvariantAndTransLinearTerms
-                if Z.valid (Z.implies locInvariantAndTransZ3 (Z.conj2 strictDecreaseZ3 boundZ3)) then
-                    let strictDecreaseTerms = (Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
-                    let boundTerms = (Formula.formula.Ge (rankFunctionOnPreVars, Term.constant bound)).ToLinearTerms()
-                    assert (1 = List.length strictDecreaseTerms)
-                    assert (1 = List.length boundTerms)
-                    decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head strictDecreaseTerms) :: decreaseHintTerms
-                    boundHintTerms <- (locInvariantAndTransLinearTerms, List.head boundTerms) :: boundHintTerms
+
+                //Now do the hinting for every disjunct of the invariant:
+                let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) source
+                let mutable decreaseHintTerms = []
+                let mutable boundHintTerms = []
+                let mutable isStrict = true
+                for locInvariant in locInvariants do
+                    let locInvariantTerms = 
+                        Formula.formula.FormulasToLinearTerms (locInvariant :> _)
+                        |> Formula.maybe_filter_instr_vars true
+                    let locInvariantAndTransLinearTerms =
+                        List.append (List.map (SparseLinear.alpha varToPre) locInvariantTerms) 
+                                    transLinearTerms
+                    let rankFunctionOnPreVars = SparseLinear.linear_term_to_term (SparseLinear.alpha varToPre rf)
+                    let rankFunctionOnPostVars = SparseLinear.linear_term_to_term (SparseLinear.alpha varToPost rf)
+                    let strictDecreaseZ3 = Formula.z3 <| Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)
+                    let boundZ3 = Formula.z3 <| Formula.formula.Ge (rankFunctionOnPreVars, Term.constant bound)
+                    let locInvariantAndTransZ3 = SparseLinear.le_linear_terms_to_z3 locInvariantAndTransLinearTerms
+                    if Z.valid (Z.implies locInvariantAndTransZ3 (Z.conj2 strictDecreaseZ3 boundZ3)) then
+                        let strictDecreaseTerms = (Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
+                        let boundTerms = (Formula.formula.Ge (rankFunctionOnPreVars, Term.constant bound)).ToLinearTerms()
+                        assert (1 = List.length strictDecreaseTerms)
+                        assert (1 = List.length boundTerms)
+                        decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head strictDecreaseTerms) :: decreaseHintTerms
+                        boundHintTerms <- (locInvariantAndTransLinearTerms, List.head boundTerms) :: boundHintTerms
+                    else
+                        let weakDecreaseTerms = (Formula.formula.Ge (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
+                        assert (1 = List.length weakDecreaseTerms)
+                        decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head weakDecreaseTerms)::decreaseHintTerms
+                        isStrict <- false
+
+                if isStrict then
+                    strictDecreaseHintInfo <- (transIdx, decreaseHintTerms, boundHintTerms)::strictDecreaseHintInfo
                 else
-                    let weakDecreaseTerms = (Formula.formula.Ge (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
-                    assert (1 = List.length weakDecreaseTerms)
-                    decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head weakDecreaseTerms)::decreaseHintTerms
-                    isStrict <- false
+                    weakDecreaseHintInfo <- (transIdx, decreaseHintTerms)::weakDecreaseHintInfo
 
-            if isStrict then
-                strictDecreaseHintInfo <- (transIdx, decreaseHintTerms, boundHintTerms)::strictDecreaseHintInfo
-            else
-                weakDecreaseHintInfo <- (transIdx, decreaseHintTerms)::weakDecreaseHintInfo
+        xmlWriter.WriteStartElement "remove"
+        for (transIdx, _, _) in strictDecreaseHintInfo do
+            writeTransitionId transDuplIdToTransId xmlWriter transIdx
+        xmlWriter.WriteEndElement () //end remove
 
-    xmlWriter.WriteStartElement "remove"
-    for (transIdx, _, _) in strictDecreaseHintInfo do
-        writeTransitionId transDuplIdToTransId xmlWriter transIdx
-    xmlWriter.WriteEndElement () //end remove
-
-    xmlWriter.WriteStartElement "hints"
-    for (transIdx, decreaseHintTerms, boundHintTerms) in strictDecreaseHintInfo do
-        xmlWriter.WriteStartElement "strictDecrease"
-        writeTransitionId transDuplIdToTransId xmlWriter transIdx
-        xmlWriter.WriteStartElement "boundHints"
-        for (invAndTransLinearTerms, boundTerm) in boundHintTerms do
-            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms boundTerm
-        xmlWriter.WriteEndElement () //end boundHints
-        xmlWriter.WriteStartElement "decreaseHints"
-        for (invAndTransLinearTerms, strictDecreaseTerm) in decreaseHintTerms do
-            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms strictDecreaseTerm
-        xmlWriter.WriteEndElement () //end decreaseHints
-        xmlWriter.WriteEndElement () //end strictDecrease
-    for (transIdx, decreaseHintTerms) in weakDecreaseHintInfo do
-        xmlWriter.WriteStartElement "weakDecrease"
-        writeTransitionId transDuplIdToTransId xmlWriter transIdx
-        xmlWriter.WriteStartElement "decreaseHints"
-        for (invAndTransLinearTerms, weakDecreaseTerm) in decreaseHintTerms do
-            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms weakDecreaseTerm
-        xmlWriter.WriteEndElement () //end decreaseHints
-        xmlWriter.WriteEndElement () //end weakDecrease
-    xmlWriter.WriteEndElement () //end hints
+        xmlWriter.WriteStartElement "hints"
+        for (transIdx, decreaseHintTerms, boundHintTerms) in strictDecreaseHintInfo do
+            xmlWriter.WriteStartElement "strictDecrease"
+            writeTransitionId transDuplIdToTransId xmlWriter transIdx
+            xmlWriter.WriteStartElement "boundHints"
+            for (invAndTransLinearTerms, boundTerm) in boundHintTerms do
+                SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms boundTerm
+            xmlWriter.WriteEndElement () //end boundHints
+            xmlWriter.WriteStartElement "decreaseHints"
+            for (invAndTransLinearTerms, strictDecreaseTerm) in decreaseHintTerms do
+                SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms strictDecreaseTerm
+            xmlWriter.WriteEndElement () //end decreaseHints
+            xmlWriter.WriteEndElement () //end strictDecrease
+        for (transIdx, decreaseHintTerms) in weakDecreaseHintInfo do
+            xmlWriter.WriteStartElement "weakDecrease"
+            writeTransitionId transDuplIdToTransId xmlWriter transIdx
+            xmlWriter.WriteStartElement "decreaseHints"
+            for (invAndTransLinearTerms, weakDecreaseTerm) in decreaseHintTerms do
+                SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms weakDecreaseTerm
+            xmlWriter.WriteEndElement () //end decreaseHints
+            xmlWriter.WriteEndElement () //end weakDecrease
+        xmlWriter.WriteEndElement () //end hints
 
     nextProofStep xmlWriter
-    xmlWriter.WriteEndElement () //end transitionRemoval
+
+    if not <| Map.isEmpty foundLexRankFunctions then
+        xmlWriter.WriteEndElement () //end transitionRemoval
 
 let private exportTrivialProof (xmlWriter : System.Xml.XmlWriter) =
     xmlWriter.WriteElementString ("trivial", "")
@@ -1159,6 +1315,7 @@ let private exportTerminationProofToCeta
         (cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<int, int>)
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
+        (foundInitialLexRankFunctions : ((Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list)
         (safety : SafetyInterface.SafetyProver)
         foundLexRankFunctions
         (xmlWriter : System.Xml.XmlWriter) =
@@ -1170,9 +1327,11 @@ let private exportTerminationProofToCeta
     xmlWriter
     |> exportToCooperationTerminationProof progCoopInstrumented cpToToCpDuplicateTransId (
         exportNonSCCRemovalProof progOrig progCoopInstrumented locToLoopDuplLoc transDuplIdToTransId locToCertLocRepr (
-         exportNewImpactInvariantsProof safety transDuplIdToTransId locToCertLocRepr (
-          exportSafetyTransitionRemovalProof progCoopInstrumented safety transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
-           exportTrivialProof))))
+         exportAIInvariantsProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant (
+          exportInitialLexRFTransRemovalProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant foundInitialLexRankFunctions (
+           exportNewImpactInvariantsProof safety transDuplIdToTransId locToCertLocRepr (
+            exportSafetyTransitionRemovalProof progCoopInstrumented safety transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
+             exportTrivialProof))))))
 
     xmlWriter.WriteEndElement () //end certificate
 
@@ -1224,7 +1383,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
     (*** End chaining ***)
     
     (*** Start initial transitional removal proof ***)
-    let scc_simplification_rfs = ref []
+    let initial_lex_term_proof_RFs : ((Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list ref = ref []
     let cps_checked_for_term = Set.ofSeq cp_rf.Keys
     let cps = cps_checked_for_term |> Set.ofSeq
     if pars.lex_term_proof_first then
@@ -1236,12 +1395,12 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
                 Stats.startTimer "T2 - Initial lex. termination proof"
                 match simplify_scc pars p_instrumented termination_only cp_rf cps_checked_for_term scc_nodes with
                 | Some (rfs, removed_transitions) ->
-                    scc_simplification_rfs := (rfs, removed_transitions)::(!scc_simplification_rfs)
+                    initial_lex_term_proof_RFs := (rfs, removed_transitions)::(!initial_lex_term_proof_RFs)
                 | None ->
                     ()
                 Stats.endTimer "T2 - Initial lex. termination proof"
         if pars.print_log then
-            Log.log pars <| (List.map snd !scc_simplification_rfs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
+            Log.log pars <| (List.map snd !initial_lex_term_proof_RFs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
     
         if pars.dottify_input_pgms then
             Output.print_dot_program p_instrumented "input__instrumented_after_init_LexRF.dot"
@@ -1450,14 +1609,14 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
             use streamWriter = new System.IO.StreamWriter (cert_file)
             use xmlWriter = new System.Xml.XmlTextWriter (streamWriter)
             xmlWriter.Formatting <- System.Xml.Formatting.Indented
-            exportTerminationProofToCeta p_orig p_instrumented_orig locToLoopDuplLoc cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant safety found_lex_rfs xmlWriter
+            exportTerminationProofToCeta p_orig p_instrumented_orig locToLoopDuplLoc cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant !initial_lex_term_proof_RFs safety !found_lex_rfs xmlWriter
         | _ -> ()
 
     let return_option =
         if termination_only then
             match terminating with
             | Some true ->
-                Some (true, output_term_proof !scc_simplification_rfs !found_lex_rfs !found_disj_rfs)
+                Some (true, output_term_proof !initial_lex_term_proof_RFs !found_lex_rfs !found_disj_rfs)
             | Some false ->
                 if not(p_instrumented.IncompleteAbstraction) then
                     assert (!unhandled_counterexample <> None)
