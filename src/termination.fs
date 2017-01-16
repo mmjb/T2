@@ -754,13 +754,22 @@ let private exportNonSCCRemovalProof
                 locToCoopDupl.[loc] <- dup
                 locToCertLocRepr.[dup] <- DuplicatedLocation loc
                 dup
-    for loc in progOrig.Locations |> Seq.filter (fun loc -> not <| Map.containsKey loc locToLoopDuplLoc) do
-        let coopLocDupl = getCoopLocDupl loc
+    for loc in progOrig.Locations do
         for (transIdx, (_, cmds, targetLoc)) in progOrig.TransitionsFrom loc do
-            let targetLocDupl = getCoopLocDupl targetLoc
-            let copiedTransIdx = progFullCoop.AddTransition coopLocDupl cmds targetLocDupl
-            transDuplIdToTransId.Add(copiedTransIdx, transIdx)
-            progFullExtraTrans.Add copiedTransIdx |> ignore
+            let needToAddCopiedTransition =
+                match Map.tryFind loc locToLoopDuplLoc with
+                | None -> true
+                | Some duplLoc ->
+                    //Check if we created a copy, of if this is one of those transitions that leave the SCC:
+                    progCoopInstrumented.TransitionsFrom duplLoc
+                    |> Seq.exists (fun (copiedTransIdx, _) -> transDuplIdToTransId.ContainsKey copiedTransIdx && transDuplIdToTransId.[copiedTransIdx] = transIdx)
+                    |> not
+            if needToAddCopiedTransition then
+                let coopLocDupl = getCoopLocDupl loc
+                let targetLocDupl = getCoopLocDupl targetLoc
+                let copiedTransIdx = progFullCoop.AddTransition coopLocDupl cmds targetLocDupl
+                transDuplIdToTransId.Add(copiedTransIdx, transIdx)
+                progFullExtraTrans.Add copiedTransIdx |> ignore
 
     //Now remove all the extra invented transitions again, by doing a trivial termination argument encoding
     //simple SCC structure, assigning a constant rank to each location
@@ -919,11 +928,11 @@ let private exportAIInvariantsProof
                 xmlWriter.WriteStartElement "node"
 
                 xmlWriter.WriteElementString ("nodeId", string loc)
-                
+
                 xmlWriter.WriteStartElement "invariant"
                 Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta invariantLinearTerms true 
                 xmlWriter.WriteEndElement () // invariant end
-                
+
                 xmlWriter.WriteStartElement "location"
                 Programs.exportLocation xmlWriter locRepr
                 xmlWriter.WriteEndElement () //end location
@@ -946,7 +955,7 @@ let private exportAIInvariantsProof
                             | None -> var
                         let transLinearTerms =
                             Formula.formula.FormulasToLinearTerms (transFormula :> _)
-                            |> Formula.maybe_filter_instr_vars true 
+                            |> Formula.maybe_filter_instr_vars true
                         let locInvariantAndTransLinearTerms = Seq.append (Seq.map (SparseLinear.alpha varToPre) invariantLinearTerms) transLinearTerms
                         xmlWriter.WriteStartElement "child"
                         writeTransitionId transDuplIdToTransId xmlWriter transIdx
@@ -993,12 +1002,12 @@ let private exportInitialLexRFTransRemovalProof
             xmlWriter.WriteStartElement "rankingFunctions"
             xmlWriter.WriteStartElement "rankingFunction"
             let locToRFTerm = System.Collections.Generic.Dictionary()
-            for loc in progCoopInstrumented.Locations do
+            for KeyValue(loc, locRF) in locToRF do
                 let locRepr = locToCertLocRepr.[loc]
                 match locRepr with
                 | DuplicatedLocation _ ->
                     let rfTerm =
-                        locToRF.[loc]
+                        locRF
                         |> Map.toSeq
                         |> Seq.map 
                             (fun (var, coeff) -> 
@@ -1033,11 +1042,7 @@ let private exportInitialLexRFTransRemovalProof
                 let sourceLocRepr = locToCertLocRepr.[sourceLoc]
                 let targetLocRepr = locToCertLocRepr.[targetLoc]
                 match (sourceLocRepr, targetLocRepr) with
-                | (InstrumentationLocation _, _)
-                | (OriginalLocation _, _)
-                | (_, InstrumentationLocation _) ->
-                    ()
-                | (DuplicatedLocation origSourceLoc, _) ->
+                | (DuplicatedLocation origSourceLoc, DuplicatedLocation _) when locToRFTerm.ContainsKey sourceLoc && locToRFTerm.ContainsKey targetLoc ->
                     let sourceRFTerm = locToRFTerm.[sourceLoc]
                     let targetRFTerm = locToRFTerm.[targetLoc]
                     //Get transition encoding
@@ -1053,7 +1058,7 @@ let private exportInitialLexRFTransRemovalProof
 
                     //Now do the hinting for every disjunct of the invariant:
                     let locInvariant =
-                        match locToAIInvariant with 
+                        match locToAIInvariant with
                         | Some locToAIInvariant -> locToAIInvariant.[origSourceLoc].to_formula ()
                         | _ -> Formula.truec
                     let mutable decreaseHintTerms = []
@@ -1061,7 +1066,7 @@ let private exportInitialLexRFTransRemovalProof
                     let mutable isStrict = true
                     let locInvariantTerms = locInvariant.ToLinearTerms()
                     let locInvariantAndTransLinearTerms =
-                        List.append (List.map (SparseLinear.alpha varToPre) locInvariantTerms) 
+                        List.append (List.map (SparseLinear.alpha varToPre) locInvariantTerms)
                                     transLinearTerms
                     let rankFunctionOnPreVars = Term.alpha varToPre sourceRFTerm
                     let rankFunctionOnPostVars = Term.alpha varToPost targetRFTerm
@@ -1085,6 +1090,7 @@ let private exportInitialLexRFTransRemovalProof
                         strictDecreaseHintInfo <- (transIdx, decreaseHintTerms, boundHintTerms)::strictDecreaseHintInfo
                     else
                         weakDecreaseHintInfo <- (transIdx, decreaseHintTerms)::weakDecreaseHintInfo
+                | _ -> ()
 
             xmlWriter.WriteStartElement "remove"
             for (transIdx, _, _) in strictDecreaseHintInfo do
