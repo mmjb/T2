@@ -90,7 +90,7 @@ let generate_invariants_with_AI (pars : Parameters.parameters) (prog : Program) 
 let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs (outWriter : System.IO.TextWriter) =
     //Print out initial rank functions that we used to remove transitions before safety proofs:
     if not(List.isEmpty scc_simplification_rfs) then
-        let print_one_simplification (rfs, removed_transitions) =
+        let print_one_simplification (_, rfs, removed_transitions) =
             outWriter.WriteLine(" * Removed transitions {0} using the following rank functions:", (removed_transitions |> Seq.map string |> String.concat ", "))
             let print_one_scc_rf i (rf, bnds) =
                 let print_rf_per_loc (loc, loc_rf) =
@@ -847,7 +847,7 @@ let private exportNonSCCRemovalProof
     nextProofStep xmlWriter
     xmlWriter.WriteEndElement () //end transitionRemoval (trivial SCC argument)
 
-let private exportToCooperationTerminationProof
+let private exportSwitchToCooperationTerminationProof
         (progCoopInstrumented : Programs.Program)
         (cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<int, int>)
         (nextProofStep : System.Xml.XmlWriter -> unit)
@@ -976,15 +976,38 @@ let private exportAIInvariantsProof
     | None ->
         nextProofStep xmlWriter
 
+let private exportSccDecompositionProof
+        (progCoopSCCs : Set<int> list)
+        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
+        (xmlWriter : System.Xml.XmlWriter) =
+    xmlWriter.WriteStartElement "sccDecomposition"
+    for scc in progCoopSCCs do
+        xmlWriter.WriteStartElement "sccWithProof"
+        xmlWriter.WriteStartElement "scc"
+        for loc in scc do
+            let certLocRepr = locToCertLocRepr.[loc]
+            match certLocRepr with
+            | DuplicatedLocation _ -> Programs.exportLocation xmlWriter certLocRepr
+            | _ -> ()
+        xmlWriter.WriteEndElement () //end scc
+        nextProofStep scc xmlWriter
+        xmlWriter.WriteEndElement () //end sccWithProof
+    xmlWriter.WriteEndElement () //end sccDecomposition
+
 let private exportInitialLexRFTransRemovalProof
         (progCoopInstrumented : Programs.Program)
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
         (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
-        (foundInitialLexRankFunctions : ((Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list)
-        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (foundInitialLexRankFunctions : (Set<int> * (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list)
+        (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
+        (scc : Set<int>)
         (xmlWriter : System.Xml.XmlWriter) =
-    for (rfs, removed_transitions) in foundInitialLexRankFunctions do
+    let thisSCCRankFunctions =
+        foundInitialLexRankFunctions
+        |> Seq.filter (fun (sccLocs, _, _) -> not <| Set.isEmpty (Set.intersect sccLocs scc))
+    for (_, rfs, removed_transitions) in thisSCCRankFunctions do
         for (locToRF, bnds) in rfs do
             //Compute minimal bound:
             let bound = bnds |> Map.toSeq |> Seq.map snd |> Seq.fold min (bigint System.Int32.MaxValue)
@@ -1120,9 +1143,9 @@ let private exportInitialLexRFTransRemovalProof
                 xmlWriter.WriteEndElement () //end weakDecrease
             xmlWriter.WriteEndElement () //end hints
 
-    nextProofStep xmlWriter
+    nextProofStep scc xmlWriter
 
-    for (rfs, _) in foundInitialLexRankFunctions do
+    for (_, rfs, _) in thisSCCRankFunctions do
         for _ in rfs do
             xmlWriter.WriteEndElement () //end transitionRemoval
 
@@ -1130,7 +1153,8 @@ let private exportNewImpactInvariantsProof
         (safety : SafetyInterface.SafetyProver)
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
-        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
+        (scc : Set<int>)
         (xmlWriter : System.Xml.XmlWriter) =
     let impactArg = safety :?> Impact.ImpactARG
     xmlWriter.WriteStartElement "newInvariants"
@@ -1159,7 +1183,7 @@ let private exportNewImpactInvariantsProof
 
     impactArg.ToCeta xmlWriter (Some locToCertLocRepr) (Some (writeTransitionId transDuplIdToTransId)) true
 
-    nextProofStep xmlWriter
+    nextProofStep scc xmlWriter
     xmlWriter.WriteEndElement () //end newInvariants
 
 let private exportSafetyTransitionRemovalProof
@@ -1168,22 +1192,22 @@ let private exportSafetyTransitionRemovalProof
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
         foundLexRankFunctions
-        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
+        (scc : Set<int>)
         (xmlWriter : System.Xml.XmlWriter) =
+    let thisSccLexRankFunctions = foundLexRankFunctions |> Map.filter (fun cp _ -> Set.contains cp scc)
 
-    if not <| Map.isEmpty foundLexRankFunctions then
+    if not <| Map.isEmpty thisSccLexRankFunctions then
         let impactArg = safety :?> Impact.ImpactARG
 
         xmlWriter.WriteStartElement "transitionRemoval"
         xmlWriter.WriteStartElement "rankingFunctions"
-        let sccs = progCoopInstrumented.GetSCCSGs false
         //TODO: Extend to lists (for lexicographic RFs)
         let mutable rf = Map.empty
         let mutable bound = System.Int32.MaxValue
-        foundLexRankFunctions
+        thisSccLexRankFunctions
         |> Map.iter
             (fun cutpoint (decreasingCheckFormulas, _, boundCheckFormulas) ->
-                let scc = List.find (Set.contains cutpoint) sccs
                 assert ((List.length decreasingCheckFormulas) = 1)
                 for loc in scc do
                     let locRepr = locToCertLocRepr.[loc]
@@ -1302,12 +1326,12 @@ let private exportSafetyTransitionRemovalProof
             xmlWriter.WriteEndElement () //end weakDecrease
         xmlWriter.WriteEndElement () //end hints
 
-    nextProofStep xmlWriter
+    nextProofStep scc xmlWriter
 
     if not <| Map.isEmpty foundLexRankFunctions then
         xmlWriter.WriteEndElement () //end transitionRemoval
 
-let private exportTrivialProof (xmlWriter : System.Xml.XmlWriter) =
+let private exportTrivialProof _ (xmlWriter : System.Xml.XmlWriter) =
     xmlWriter.WriteElementString ("trivial", "")
 
 let private exportTerminationProofToCeta
@@ -1317,7 +1341,8 @@ let private exportTerminationProofToCeta
         (cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<int, int>)
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
-        (foundInitialLexRankFunctions : ((Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list)
+        (progCoopSCCs : Set<int> list)
+        (foundInitialLexRankFunctions : (Set<int> * (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list)
         (safety : SafetyInterface.SafetyProver)
         foundLexRankFunctions
         (xmlWriter : System.Xml.XmlWriter) =
@@ -1327,13 +1352,14 @@ let private exportTerminationProofToCeta
     progOrig.ToCeta xmlWriter "inputProgram" None false
 
     xmlWriter
-    |> exportToCooperationTerminationProof progCoopInstrumented cpToToCpDuplicateTransId (
+    |> exportSwitchToCooperationTerminationProof progCoopInstrumented cpToToCpDuplicateTransId (
         exportNonSCCRemovalProof progOrig progCoopInstrumented locToLoopDuplLoc transDuplIdToTransId locToCertLocRepr (
          exportAIInvariantsProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant (
-          exportInitialLexRFTransRemovalProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant foundInitialLexRankFunctions (
-           exportNewImpactInvariantsProof safety transDuplIdToTransId locToCertLocRepr (
-            exportSafetyTransitionRemovalProof progCoopInstrumented safety transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
-             exportTrivialProof))))))
+          exportSccDecompositionProof progCoopSCCs locToCertLocRepr (
+           exportInitialLexRFTransRemovalProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant foundInitialLexRankFunctions (
+            exportNewImpactInvariantsProof safety transDuplIdToTransId locToCertLocRepr (
+             exportSafetyTransitionRemovalProof progCoopInstrumented safety transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
+              exportTrivialProof)))))))
 
     xmlWriter.WriteEndElement () //end certificate
 
@@ -1385,25 +1411,27 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
     (*** End chaining ***)
     
     (*** Start initial transitional removal proof ***)
-    let initial_lex_term_proof_RFs : ((Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list ref = ref []
+    let initial_lex_term_proof_RFs : (Set<int> * (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list ref = ref []
     let cps_checked_for_term = Set.ofSeq cp_rf.Keys
     let cps = cps_checked_for_term |> Set.ofSeq
+    /// The SCCs of the termination part of the cooperation graph:
+    let p_instrumented_SCCs =
+        p_instrumented.GetSCCSGs false
+        |> List.filter (fun scc_locs -> not <| Set.isEmpty (Set.intersect scc_locs cps))
     if pars.lex_term_proof_first then
-        let sccs = p_instrumented.GetSCCSGs false
         //First, try to remove/simplify loops by searching for lexicographic arguments that don't need invariants:
-        for scc_nodes in sccs do
-            if not(Set.isEmpty (Set.intersect scc_nodes cps)) then //Only process loops in the duplicated part of the graph
-                Log.debug pars <| sprintf "Trying initial term proof for SCC [%s]" (String.concat ", " (Seq.map string scc_nodes))
-                Stats.startTimer "T2 - Initial lex. termination proof"
-                match simplify_scc pars p_instrumented termination_only cp_rf cps_checked_for_term scc_nodes with
-                | Some (rfs, removed_transitions) ->
-                    initial_lex_term_proof_RFs := (rfs, removed_transitions)::(!initial_lex_term_proof_RFs)
-                | None ->
-                    ()
-                Stats.endTimer "T2 - Initial lex. termination proof"
-        if pars.print_log then
-            Log.log pars <| (List.map snd !initial_lex_term_proof_RFs |> Set.unionMany |> sprintf "Initial lex proof removed transitions %A")
-    
+        for scc_locs in p_instrumented_SCCs do
+            Log.debug pars <| sprintf "Trying initial term proof for SCC [%s]" (String.concat ", " (Seq.map string scc_locs))
+            Stats.startTimer "T2 - Initial lex. termination proof"
+            match simplify_scc pars p_instrumented termination_only cp_rf cps_checked_for_term scc_locs with
+            | Some (rfs, removed_transitions) ->
+                initial_lex_term_proof_RFs := (scc_locs, rfs, removed_transitions)::(!initial_lex_term_proof_RFs)
+                if pars.print_log then
+                    Log.log pars <| sprintf "Initial lex proof removed transitions %A" removed_transitions
+            | None ->
+                ()
+            Stats.endTimer "T2 - Initial lex. termination proof"
+
         if pars.dottify_input_pgms then
             Output.print_dot_program p_instrumented "input__instrumented_after_init_LexRF.dot"
     (*** End initial transitional removal proof ***)
@@ -1611,7 +1639,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
             use streamWriter = new System.IO.StreamWriter (cert_file)
             use xmlWriter = new System.Xml.XmlTextWriter (streamWriter)
             xmlWriter.Formatting <- System.Xml.Formatting.Indented
-            exportTerminationProofToCeta p_orig p_instrumented_orig locToLoopDuplLoc cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant !initial_lex_term_proof_RFs safety !found_lex_rfs xmlWriter
+            exportTerminationProofToCeta p_orig p_instrumented_orig locToLoopDuplLoc cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant p_instrumented_SCCs !initial_lex_term_proof_RFs safety !found_lex_rfs xmlWriter
         | _ -> ()
 
     let return_option =
