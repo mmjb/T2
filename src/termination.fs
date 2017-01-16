@@ -1176,7 +1176,6 @@ let private exportSafetyTransitionRemovalProof
 
         xmlWriter.WriteStartElement "transitionRemoval"
         xmlWriter.WriteStartElement "rankingFunctions"
-        xmlWriter.WriteStartElement "rankingFunction"
         let sccs = progCoopInstrumented.GetSCCSGs false
         //TODO: Extend to lists (for lexicographic RFs)
         let mutable rf = Map.empty
@@ -1201,6 +1200,7 @@ let private exportSafetyTransitionRemovalProof
                                 bound <- min bound (int c)
                             | _ ->
                                 dieWith "Could not retrieve bound for rank function from internal proof structure."
+                            xmlWriter.WriteStartElement "rankingFunction"
                             xmlWriter.WriteStartElement "location"
                             Programs.exportLocation xmlWriter locRepr
                             xmlWriter.WriteEndElement () //end location
@@ -1208,9 +1208,9 @@ let private exportSafetyTransitionRemovalProof
                             rf <- rankFunctionExpr
                             SparseLinear.toCeta xmlWriter Var.plainToCeta rankFunctionExpr
                             xmlWriter.WriteEndElement () //end expression
+                            xmlWriter.WriteEndElement () //end rankingFunction
                     | OriginalLocation _ -> failwith "Have termination argument for an original program location!"
                     | _ -> ())
-        xmlWriter.WriteEndElement () //end rankingFunction
         xmlWriter.WriteEndElement () //end rankingFunctions
         xmlWriter.WriteStartElement "bound"
         xmlWriter.WriteElementString ("constant", string (bound - 1))
