@@ -808,7 +808,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                 let copied_var = copy_loop_var.[copied_k]
 
                 //This contains all nodes in k's loop:
-                let current_cfg_scc_nodes = Map.find k p_loops
+                let current_cfg_scc_nodes = Map.find k p_sccs
 
                 // Case 1: This is a transition inside our SCC
                 if Set.contains k' current_cfg_scc_nodes then
@@ -875,10 +875,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                     transDupId_to_transId.Add(dup_transId, transId)
                     
                 else // if Set.contains k' current_cfg_scc_nodes
-                    let new_out_cmmd = abstrInterInv::(Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))::cmdsWithoutAbstrInterInv
-                    let copied_k' = get_copy_of_loopnode k'
-                    let dup_transId = p_F.AddTransition copied_k new_out_cmmd copied_k'
-                    transDupId_to_transId.Add(dup_transId, transId)
+                    () //Other transitions are ignored; reachability of the other SCCs is ensured through the safety lobe of the cooperation graph
 
             else // if(F_loops.ContainsKey k)
                 // Other transitions are just copied. If we do loop duplication, we can avoid a few cases:
