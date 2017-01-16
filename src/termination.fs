@@ -879,7 +879,7 @@ let private exportToCooperationTerminationProof
 // Note: We re-use the existing definition of Impact-style proofs here, as the
 // certifier does not enforce the tree property on the generated ARG. Thus, each
 // program location corresponds to exactly one node in the generated ARG, and
-// program transitions are "child" edges in the ARG. 
+// program transitions are "child" edges in the ARG.
 let private exportAIInvariantsProof
         (progCoopInstrumented : Programs.Program)
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
@@ -922,7 +922,7 @@ let private exportAIInvariantsProof
             | InstrumentationLocation _ ->
                 () //Do not export
             | OriginalLocation origLoc
-            | DuplicatedLocation origLoc -> 
+            | DuplicatedLocation origLoc ->
                 let invariant = locToAIInvariant.[origLoc].to_formula ()
                 let invariantLinearTerms = invariant.ToLinearTerms ()
                 xmlWriter.WriteStartElement "node"
@@ -930,7 +930,7 @@ let private exportAIInvariantsProof
                 xmlWriter.WriteElementString ("nodeId", string loc)
 
                 xmlWriter.WriteStartElement "invariant"
-                Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta invariantLinearTerms true 
+                Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta invariantLinearTerms true
                 xmlWriter.WriteEndElement () // invariant end
 
                 xmlWriter.WriteStartElement "location"
@@ -968,7 +968,7 @@ let private exportAIInvariantsProof
                 xmlWriter.WriteEndElement () // children end
                 xmlWriter.WriteEndElement () // node end
         xmlWriter.WriteEndElement () // nodes end
-        xmlWriter.WriteEndElement () // impact end  
+        xmlWriter.WriteEndElement () // impact end
         (*** End of proving soundness of new invariants ***)
 
         nextProofStep xmlWriter
@@ -1009,12 +1009,12 @@ let private exportInitialLexRFTransRemovalProof
                     let rfTerm =
                         locRF
                         |> Map.toSeq
-                        |> Seq.map 
-                            (fun (var, coeff) -> 
+                        |> Seq.map
+                            (fun (var, coeff) ->
                                 let var = Var.unprime_var var
-                                if var.Equals(Formula.const_var bigint.One) then 
-                                    Term.Const(coeff) 
-                                else 
+                                if var.Equals(Formula.const_var bigint.One) then
+                                    Term.Const(coeff)
+                                else
                                     Term.Mul(Term.Const(coeff), Term.Var(var)))
                         |> Seq.fold Term.add (Term.constant 0)
                     locToRFTerm.[loc] <- rfTerm
@@ -1311,7 +1311,7 @@ let private exportTrivialProof (xmlWriter : System.Xml.XmlWriter) =
     xmlWriter.WriteElementString ("trivial", "")
 
 let private exportTerminationProofToCeta
-        (progOrig : Programs.Program) 
+        (progOrig : Programs.Program)
         (progCoopInstrumented : Programs.Program)
         locToLoopDuplLoc
         (cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<int, int>)
