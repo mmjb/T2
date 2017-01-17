@@ -317,7 +317,7 @@ let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : 
     | Some model ->
         List.map (fun (_, lambda) ->  Z.get_model_int model lambda) presNLambdas
 
-let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : LinearTerm seq) (post : LinearTerm) =
+let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : LinearTerm list) (post : LinearTerm) =
     let farkasCoeffs = getFarkasCoefficients pres post
     writer.WriteStartElement "linearImplicationHint"
     writer.WriteStartElement "linearCombination"

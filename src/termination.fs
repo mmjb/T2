@@ -956,7 +956,7 @@ let private exportAIInvariantsProof
                         let transLinearTerms =
                             Formula.formula.FormulasToLinearTerms (transFormula :> _)
                             |> Formula.maybe_filter_instr_vars true
-                        let locInvariantAndTransLinearTerms = Seq.append (Seq.map (SparseLinear.alpha varToPre) invariantLinearTerms) transLinearTerms
+                        let locInvariantAndTransLinearTerms = List.append (List.map (SparseLinear.alpha varToPre) invariantLinearTerms) transLinearTerms
                         xmlWriter.WriteStartElement "child"
                         writeTransitionId transDuplIdToTransId xmlWriter transIdx
                         xmlWriter.WriteElementString ("nodeId", string childLoc)

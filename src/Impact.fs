@@ -869,7 +869,7 @@ type ImpactARG(parameters : Parameters.parameters,
                     let transLinearTerms =
                         Formula.formula.FormulasToLinearTerms (transFormula :> _)
                         |> Formula.maybe_filter_instr_vars filterInstrumentationVars
-                    let nodePsiAndTransLinearTerms = Seq.append (Seq.map (SparseLinear.alpha varToPre) psiLinearTerms) transLinearTerms
+                    let nodePsiAndTransLinearTerms = List.append (List.map (SparseLinear.alpha varToPre) psiLinearTerms) transLinearTerms
                     let childPsiLinearTerms =
                         Formula.formula.FormulasToLinearTerms (psi.[childId] :> _)
                         |> Formula.maybe_filter_instr_vars filterInstrumentationVars
