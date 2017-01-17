@@ -1023,7 +1023,6 @@ let private exportInitialLexRFTransRemovalProof
 
             (** Step 1: Define rank functions and bound. *)
             xmlWriter.WriteStartElement "rankingFunctions"
-            xmlWriter.WriteStartElement "rankingFunction"
             let locToRFTerm = System.Collections.Generic.Dictionary()
             for KeyValue(loc, locRF) in locToRF do
                 let locRepr = locToCertLocRepr.[loc]
@@ -1043,6 +1042,7 @@ let private exportInitialLexRFTransRemovalProof
                     locToRFTerm.[loc] <- rfTerm
                     let rfLinearTerm = SparseLinear.term_to_linear_term rfTerm
 
+                    xmlWriter.WriteStartElement "rankingFunction"
                     xmlWriter.WriteStartElement "location"
                     Programs.exportLocation xmlWriter locRepr
                     xmlWriter.WriteEndElement () //end location
@@ -1050,9 +1050,8 @@ let private exportInitialLexRFTransRemovalProof
                     xmlWriter.WriteStartElement "expression"
                     SparseLinear.toCeta xmlWriter Var.plainToCeta rfLinearTerm
                     xmlWriter.WriteEndElement () //end expression
-                    ()
+                    xmlWriter.WriteEndElement () //end rankingFunction
                 | _ -> () //Ignore original program and instrumentation nodes
-            xmlWriter.WriteEndElement () //end rankingFunction
             xmlWriter.WriteEndElement () //end rankingFunctions
             xmlWriter.WriteStartElement "bound"
             xmlWriter.WriteElementString ("constant", string (bound - bigint.One))
