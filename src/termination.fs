@@ -1244,7 +1244,10 @@ let private exportSafetyTransitionRemovalProof
 
         let mutable strictDecreaseHintInfo = []
         let mutable weakDecreaseHintInfo = []
-        for (transIdx, (source, cmds, target)) in progCoopInstrumented.TransitionsWithIdx do
+        let sccTransitions =
+            progCoopInstrumented.TransitionsWithIdx
+            |> Seq.filter (fun (_, (source, _, target)) -> Set.contains source scc && Set.contains target scc)
+        for (transIdx, (source, cmds, target)) in sccTransitions do
             let sourceRepr = locToCertLocRepr.[source]
             let targetRepr = locToCertLocRepr.[target]
             //printfn "Hint for loc %i (%A) -> %i (%A)" source source_repr target target_repr
