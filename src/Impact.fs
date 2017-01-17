@@ -916,6 +916,12 @@ type ImpactARG(parameters : Parameters.parameters,
         if Seq.exists (function KeyValue(_, y) -> self.ancestors y |> List.forall (fun a -> not (covering.ContainsKey a)) |> not) covering then
             printf "BIG PROBLEM 2x!\n"
 
+    /// Returns true iff all node invariants are either true or false.
+    member __.IsTrivial () =
+        psi.Values
+        |> Seq.forall
+            (fun invs -> invs |> Set.forall (fun inv -> inv = Formula.formula.True || inv = Formula.formula.False))
+
     interface SafetyInterface.SafetyProver with
         /// Return path to loc_err or None if it's unreachable
         member self.ErrorLocationReachable () =

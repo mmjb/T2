@@ -1157,34 +1157,39 @@ let private exportNewImpactInvariantsProof
         (scc : Set<int>)
         (xmlWriter : System.Xml.XmlWriter) =
     let impactArg = safety :?> Impact.ImpactARG
-    xmlWriter.WriteStartElement "newInvariants"
-    xmlWriter.WriteStartElement "invariants"
-    for KeyValue(loc, locRepr) in locToCertLocRepr do
-        match locRepr with
-        | DuplicatedLocation _
-        | OriginalLocation _ ->
-            let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) loc
-            xmlWriter.WriteStartElement "invariant"
+    let argIsTrivial = impactArg.IsTrivial()
 
-            xmlWriter.WriteStartElement "location"
-            Programs.exportLocation xmlWriter locRepr
-            xmlWriter.WriteEndElement () //end location
+    if not argIsTrivial then
+        xmlWriter.WriteStartElement "newInvariants"
+        xmlWriter.WriteStartElement "invariants"
+        for KeyValue(loc, locRepr) in locToCertLocRepr do
+            match locRepr with
+            | DuplicatedLocation _
+            | OriginalLocation _ ->
+                let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) loc
+                xmlWriter.WriteStartElement "invariant"
 
-            xmlWriter.WriteStartElement "formula"
-            xmlWriter.WriteStartElement "disjunction"
-            for locInvariant in locInvariants do
-                Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta (Formula.formula.FormulasToLinearTerms (locInvariant :> _)) true
-            xmlWriter.WriteEndElement () //end disjunction
-            xmlWriter.WriteEndElement () //end formula
-            xmlWriter.WriteEndElement () //end invariant
-        | _ -> ()
+                xmlWriter.WriteStartElement "location"
+                Programs.exportLocation xmlWriter locRepr
+                xmlWriter.WriteEndElement () //end location
 
-    xmlWriter.WriteEndElement () //end invariants
+                xmlWriter.WriteStartElement "formula"
+                xmlWriter.WriteStartElement "disjunction"
+                for locInvariant in locInvariants do
+                    Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta (Formula.formula.FormulasToLinearTerms (locInvariant :> _)) true
+                xmlWriter.WriteEndElement () //end disjunction
+                xmlWriter.WriteEndElement () //end formula
+                xmlWriter.WriteEndElement () //end invariant
+            | _ -> ()
 
-    impactArg.ToCeta xmlWriter (Some locToCertLocRepr) (Some (writeTransitionId transDuplIdToTransId)) true
+        xmlWriter.WriteEndElement () //end invariants
+
+        impactArg.ToCeta xmlWriter (Some locToCertLocRepr) (Some (writeTransitionId transDuplIdToTransId)) true
 
     nextProofStep scc xmlWriter
-    xmlWriter.WriteEndElement () //end newInvariants
+
+    if not argIsTrivial then
+        xmlWriter.WriteEndElement () //end newInvariants
 
 let private exportSafetyTransitionRemovalProof
         (progCoopInstrumented : Programs.Program)
