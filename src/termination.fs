@@ -1150,13 +1150,12 @@ let private exportInitialLexRFTransRemovalProof
             xmlWriter.WriteEndElement () //end transitionRemoval
 
 let private exportNewImpactInvariantsProof
-        (safety : SafetyInterface.SafetyProver)
+        (impactArg : Impact.ImpactARG)
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
         (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
         (scc : Set<int>)
         (xmlWriter : System.Xml.XmlWriter) =
-    let impactArg = safety :?> Impact.ImpactARG
     let argIsTrivial = impactArg.IsTrivial()
 
     if not argIsTrivial then
@@ -1193,7 +1192,7 @@ let private exportNewImpactInvariantsProof
 
 let private exportSafetyTransitionRemovalProof
         (progCoopInstrumented : Programs.Program)
-        (safety : SafetyInterface.SafetyProver)
+        (impactArg : Impact.ImpactARG)
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
         foundLexRankFunctions
@@ -1203,8 +1202,6 @@ let private exportSafetyTransitionRemovalProof
     let thisSccLexRankFunctions = foundLexRankFunctions |> Map.filter (fun cp _ -> Set.contains cp scc)
 
     if not <| Map.isEmpty thisSccLexRankFunctions then
-        let impactArg = safety :?> Impact.ImpactARG
-
         xmlWriter.WriteStartElement "transitionRemoval"
         xmlWriter.WriteStartElement "rankingFunctions"
         //TODO: Extend to lists (for lexicographic RFs)
@@ -1348,7 +1345,7 @@ let private exportTerminationProofToCeta
         (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
         (progCoopSCCs : Set<int> list)
         (foundInitialLexRankFunctions : (Set<int> * (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint>) list * Set<int>) list)
-        (safety : SafetyInterface.SafetyProver)
+        (impactArg : Impact.ImpactARG)
         foundLexRankFunctions
         (xmlWriter : System.Xml.XmlWriter) =
     let locToCertLocRepr = getLocToCertLocRepr progOrig progCoopInstrumented locToLoopDuplLoc
@@ -1362,8 +1359,8 @@ let private exportTerminationProofToCeta
          exportAIInvariantsProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant (
           exportSccDecompositionProof progCoopSCCs locToCertLocRepr (
            exportInitialLexRFTransRemovalProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant foundInitialLexRankFunctions (
-            exportNewImpactInvariantsProof safety transDuplIdToTransId locToCertLocRepr (
-             exportSafetyTransitionRemovalProof progCoopInstrumented safety transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
+            exportNewImpactInvariantsProof impactArg transDuplIdToTransId locToCertLocRepr (
+             exportSafetyTransitionRemovalProof progCoopInstrumented impactArg transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
               exportTrivialProof)))))))
 
     xmlWriter.WriteEndElement () //end certificate
@@ -1641,10 +1638,11 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
     | Some cert_file ->
         match terminating with
         | Some true -> 
+            let impactArg = safety :?> Impact.ImpactARG
             use streamWriter = new System.IO.StreamWriter (cert_file)
             use xmlWriter = new System.Xml.XmlTextWriter (streamWriter)
             xmlWriter.Formatting <- System.Xml.Formatting.Indented
-            exportTerminationProofToCeta p_orig p_instrumented_orig locToLoopDuplLoc cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant p_instrumented_SCCs !initial_lex_term_proof_RFs safety !found_lex_rfs xmlWriter
+            exportTerminationProofToCeta p_orig p_instrumented_orig locToLoopDuplLoc cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant p_instrumented_SCCs !initial_lex_term_proof_RFs impactArg !found_lex_rfs xmlWriter
         | _ -> ()
 
     let return_option =
