@@ -45,6 +45,7 @@ let ONE = "1"
 // "1" corresponds to constant term
 //
 type LinearTerm = Map<Var.var, bigint>
+let ONE_TERM = Map.ofList [(ONE, bigint.One)]
 
 // When treated as inequalities, terms are interpreted as t<=0
 
@@ -318,8 +319,19 @@ let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : 
         List.map (fun (_, lambda) ->  Z.get_model_int model lambda) presNLambdas
 
 let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : LinearTerm list) (post : LinearTerm) =
-    let farkasCoeffs = getFarkasCoefficients pres post
     writer.WriteStartElement "linearImplicationHint"
+
+    (* The original code, that actually generate hints, for reference:
+    let farkasCoeffs =
+        if pres = [ ONE_TERM ] then
+            // This requires some explanation.
+            // We try to provide hints c1 ... cK, cP for prem1 \land ... \land premK => post such that
+            //  (c1 * prem1) + ... + (cK * premK) + (cP * post) is UNSAT.
+            // For K = 1 with prem1 = FALSE, c1 = 1 and cP = 0 yields (1 * c1 + 0 * post), which is trivially UNSAT.
+            [ bigint.One ; bigint.Zero]
+
+        else
+            getFarkasCoefficients pres post
     writer.WriteStartElement "linearCombination"
     List.iter
         (fun (i : bigint) ->
@@ -328,6 +340,9 @@ let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : Line
             writer.WriteEndElement ()) //constant end
         farkasCoeffs
     writer.WriteEndElement () //linearCombination end
+    *)
+
+    writer.WriteElementString ("simplex", "")
     writer.WriteEndElement () //linearImplicationHint end
 
 let linear_term_to_z3 (t : LinearTerm) =
