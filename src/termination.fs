@@ -753,6 +753,9 @@ let private exportNonSCCRemovalProof
                 let dup = progFullCoop.NewNode()
                 locToCoopDupl.[loc] <- dup
                 locToCertLocRepr.[dup] <- DuplicatedLocation loc
+                // We will need to compute SCCs, and our SCC computation only considers things reachable from init.
+                // Thus, add faked transitions from there..
+                progFullCoop.AddTransition progFullCoop.Initial [] dup |> ignore
                 dup
     for loc in progOrig.Locations do
         for (transIdx, (_, cmds, targetLoc)) in progOrig.TransitionsFrom loc do
