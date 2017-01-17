@@ -780,6 +780,8 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
        p_sccs.Items
     |> Seq.map (fun (_, scc_nodes) -> scc_nodes |> Seq.map (fun n -> (n, scc_nodes)))
     |> Seq.concat
+    |> Seq.groupBy fst
+    |> Seq.map (fun (n, node_sets) -> (n, Set.unionMany (Seq.map snd node_sets)))
     |> Map.ofSeq
 
     // 2. Instrument in the sub-property if we do more than termination.
@@ -808,7 +810,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                 let copied_var = copy_loop_var.[copied_k]
 
                 //This contains all nodes in k's loop:
-                let current_cfg_scc_nodes = Map.find k p_sccs
+                let current_cfg_scc_nodes = Map.find k node_to_scc_nodes
 
                 // Case 1: This is a transition inside our SCC
                 if Set.contains k' current_cfg_scc_nodes then
