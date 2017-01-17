@@ -917,10 +917,16 @@ type ImpactARG(parameters : Parameters.parameters,
             printf "BIG PROBLEM 2x!\n"
 
     /// Returns true iff all node invariants are either true or false.
-    member __.IsTrivial () =
+    member __.IsTrivial filterInstrumentationVars =
         psi.Values
         |> Seq.forall
-            (fun invs -> invs |> Set.forall (fun inv -> inv = Formula.formula.True || inv = Formula.formula.False))
+            (fun invs ->
+                invs
+                |> Set.forall
+                    (fun inv ->
+                        Formula.formula.FormulasToLinearTerms (Seq.singleton inv)
+                        |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+                        |> List.forall (fun lt -> lt = SparseLinear.ZERO_TERM || lt = SparseLinear.ONE_TERM)))
 
     interface SafetyInterface.SafetyProver with
         /// Return path to loc_err or None if it's unreachable

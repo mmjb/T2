@@ -1155,7 +1155,7 @@ let private exportNewImpactInvariantsProof
         (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
         (scc : Set<int>)
         (xmlWriter : System.Xml.XmlWriter) =
-    let argIsTrivial = impactArg.IsTrivial()
+    let argIsTrivial = impactArg.IsTrivial true
 
     if not argIsTrivial then
         xmlWriter.WriteStartElement "newInvariants"

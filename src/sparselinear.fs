@@ -45,7 +45,8 @@ let ONE = "1"
 // "1" corresponds to constant term
 //
 type LinearTerm = Map<Var.var, bigint>
-let ONE_TERM = Map.ofList [(ONE, bigint.One)]
+let ZERO_TERM : LinearTerm = Map.ofList []
+let ONE_TERM : LinearTerm = Map.ofList [(ONE, bigint.One)]
 
 // When treated as inequalities, terms are interpreted as t<=0
 
