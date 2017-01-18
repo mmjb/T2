@@ -676,7 +676,7 @@ let rec synth_maximal_lex_rf (pars : Parameters.parameters) (loop_transitions : 
     let at_least_one_strictly_decreasing_and_bounded = trans_decreasing_and_bounded.Items |> Seq.map (fun (_, var) -> var) |> List.ofSeq
     // Now go off and find something (ensure everything is non-increasing, at least one strictly decreasing and bounded):
     match Z.solve [Z.conj2 all_enriched_transitions_weakly_decreasing (Z.disj at_least_one_strictly_decreasing_and_bounded)] with
-        | None -> None
+        | None -> []
         | Some m ->
             let strictly_decreasing_and_bounded : Set<Set<int>> =
                 trans_decreasing_and_bounded
@@ -690,7 +690,7 @@ let rec synth_maximal_lex_rf (pars : Parameters.parameters) (loop_transitions : 
 
             if strictly_decreasing_and_bounded.IsEmpty then
                 m.Dispose()
-                None
+                []
             else
                 //Now that we killed some transitions, filter them out and try again:
                 let rfs = extract_rf_from_model mu.[0] m
@@ -707,13 +707,12 @@ let rec synth_maximal_lex_rf (pars : Parameters.parameters) (loop_transitions : 
                 //Printf.printfn "Remaining transitions: "
                 //remaining_loop_transitions |> Seq.iter (fun t -> Printf.printfn "  %A" t)
 
+                let this_result = (rfs, bounds, strictly_decreasing_and_bounded)
                 //Recurse if we still have unsolved problems:
                 if Seq.isEmpty remaining_loop_transitions then
-                    Some ([(rfs, bounds)], strictly_decreasing_and_bounded)
+                    [this_result]
                 else
-                    match synth_maximal_lex_rf pars remaining_loop_transitions rel_to_simplified_linterm_cache with
-                        | None -> Some ([(rfs, bounds)], strictly_decreasing_and_bounded)
-                        | Some (found_rfs, to_remove) -> Some ((rfs, bounds)::found_rfs, Set.union to_remove strictly_decreasing_and_bounded)
+                    this_result :: (synth_maximal_lex_rf pars remaining_loop_transitions rel_to_simplified_linterm_cache)
 
 (* POLYRANKING LEXICOGRAPHIC RFS *)
 
