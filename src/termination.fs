@@ -41,8 +41,13 @@ open Utils
 open SafetyInterface
 open Programs
 
+open System.IO
+open System.Xml
+type Dictionary<'Key, 'Value> = System.Collections.Generic.Dictionary<'Key, 'Value>
+type HashSet<'Key> = System.Collections.Generic.HashSet<'Key>
+
 /// Tries to remove as many transitions as possible from a SCC. Returns a list of used rank functions/bounds.
-let simplify_scc (pars : Parameters.parameters) p termination_only (cp_rf: System.Collections.Generic.Dictionary<int, int>) (all_cutpoints: Set<int>) scc_nodes =
+let simplify_scc (pars : Parameters.parameters) p termination_only (cp_rf: Dictionary<int, int>) (all_cutpoints: Set<int>) scc_nodes =
     let (scc_vars, scc_trans, scc_rels) = Symex.get_scc_rels_for_lex_rf_synth_from_program pars p scc_nodes None
     let mutable cleaned_scc_rels = scc_rels
 
@@ -87,7 +92,7 @@ let generate_invariants_with_AI (pars : Parameters.parameters) (prog : Program) 
         prog.SetTransition n (k, (assume locInvariant)::c, k')
     locToInvariant
 
-let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs (outWriter : System.IO.TextWriter) =
+let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs (outWriter : TextWriter) =
     //Print out initial rank functions that we used to remove transitions before safety proofs:
     if not(Map.isEmpty scc_simplification_rfs) then
         let print_one_simplification _ rf_bounds_and_removed_transitions =
@@ -141,17 +146,17 @@ let output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs (outWr
         outWriter.WriteLine("Used the following cutpoint-specific disjunctive rank functions:")
         found_disj_rfs |> Map.toSeq |> Seq.iter print_disj_rf
 
-let output_nonterm_proof ((cp, recurrent_set) : int * Formula.formula) (outWriter : System.IO.TextWriter) =
+let output_nonterm_proof ((cp, recurrent_set) : int * Formula.formula) (outWriter : TextWriter) =
     outWriter.WriteLine("Found this recurrent set for cutpoint {0:D}: {1}", cp, recurrent_set.pp)
 
-let output_cex (cex : Counterexample.cex) existential (outWriter : System.IO.TextWriter) =
+let output_cex (cex : Counterexample.cex) existential (outWriter : TextWriter) =
     if existential then
         outWriter.WriteLine("Found existential witness:")
     else
         outWriter.WriteLine("Found counterexample:")
     cex.ToString outWriter
 
-let output_nocex existential (outWriter : System.IO.TextWriter) =
+let output_nocex existential (outWriter : TextWriter) =
     if existential then
         outWriter.WriteLine("No existential witness found, property false!")
     else
@@ -245,7 +250,7 @@ let isorigNodeNum x (p_BU : Program) =
 
 ///Takes a loc->formula list as second arg, groups the formulas by loc and connects them using the first argument
 let fold_by_loc collector (formulas : Set<int * Formula.formula>) =
-    let preCond_map = new System.Collections.Generic.Dictionary<int, Formula.formula>()
+    let preCond_map = new Dictionary<int, Formula.formula>()
     for (x, y) in formulas do
         if preCond_map.ContainsKey x then
             preCond_map.[x] <- collector (preCond_map.[x], y)
@@ -303,7 +308,7 @@ let strengthenCond pi_mod (p1 : Formula.formula) =
     disj_fmla
 
 
-let propagateToTransitions (p_orig : Program) f pi_mod cutp existential recur (locToLoopDuplLoc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>) propDir strengthen=
+let propagateToTransitions (p_orig : Program) f pi_mod cutp existential recur (locToLoopDuplLoc : Map<int,int>) (visited_BU_cp : Map<int, int*int>) (cps_checked_for_term : Set<int>) (loopnode_to_copiednode : Dictionary<int,int>) propDir strengthen=
     let (p_orig_loops, _) = p_orig.FindLoops()
     let mutable preStrengthSet = Set.empty
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
@@ -402,7 +407,7 @@ let insertForRerun
     (propertyToProve : CTL.CTL_Formula)
     (final_loc : int)
     (p_orig : Program)
-    (loopnode_to_copiednode : System.Collections.Generic.Dictionary<int,int>)
+    (loopnode_to_copiednode : Dictionary<int,int>)
     (locToLoopDuplLoc : Map<int,int>)
     (isAFFormula : bool)
     (p_bu_sccs : Map<int,Set<int>>)
@@ -670,7 +675,7 @@ let find_instrumented_loops (p_instrumented : Program) (p_orig_loops : Map<int, 
 ///map.[a] = DuplicatedLocation b means that a is a copy of location b, and
 ///map.[a] = OriginalLocation means that a is a location of the input program
 let private getLocToCertLocRepr (progOrig : Program) (progCoopInstrumented : Program) locToLoopDuplLoc =
-    let locToCertLocRepr = System.Collections.Generic.Dictionary()
+    let locToCertLocRepr = Dictionary()
     let locsOrig = progOrig.Locations
     let duplLocToOrigLoc = locToLoopDuplLoc |> Map.toSeq |> Seq.map (fun (x, y) -> (y, x)) |> Map.ofSeq
     for (idx, (sourceLoc, _, targetLoc)) in progCoopInstrumented.TransitionsWithIdx |> Seq.sortBy (fun (_, (s, _, _)) -> s) do
@@ -722,7 +727,7 @@ let private getLocToCertLocRepr (progOrig : Program) (progCoopInstrumented : Pro
                         locToCertLocRepr.[targetLoc] <- DuplicatedLocation targetLocOrig.Value
     locToCertLocRepr
 
-let private writeTransitionId (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>) (xmlWriter : System.Xml.XmlWriter) transId =
+let private writeTransitionId (transDuplIdToTransId : Dictionary<int, int>) (xmlWriter : XmlWriter) transId =
     match transDuplIdToTransId.TryGetValue transId with
     | (true, duplicatedTransId) ->
         xmlWriter.WriteElementString ("transitionDuplicate", string duplicatedTransId)
@@ -743,14 +748,14 @@ type private CertificateExportInformation =
         /// Maps original program locations to their duplicates created in the instrumentation.
         locToLoopDuplLoc : Map<ProgramLocation, ProgramLocation>
         /// Maps program locations to their representation in certificate (original, duplicate, or instrumented, which gets filtered out)
-        locToCertLocRepr : System.Collections.Generic.Dictionary<ProgramLocation, CoopProgramLocation>
+        locToCertLocRepr : Dictionary<ProgramLocation, CoopProgramLocation>
         /// Maps program locations to the result of abstract interpretation of the program.
-        locToAIInvariant : System.Collections.Generic.Dictionary<ProgramLocation, IIntAbsDom.IIntAbsDom> option
+        locToAIInvariant : Dictionary<ProgramLocation, IIntAbsDom.IIntAbsDom> option
         /// Maps cutpoints in original program to the transition that connects them to their copy.
-        cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<ProgramLocation, TransitionId>
+        cpToToCpDuplicateTransId : Dictionary<ProgramLocation, TransitionId>
 
         /// Maps transitions in the termination part of the cooperation graph to their originals.
-        transDuplIdToTransId : System.Collections.Generic.Dictionary<TransitionId, TransitionId>
+        transDuplIdToTransId : Dictionary<TransitionId, TransitionId>
 
         /// Impact graph, containing all invariants required for the proof.
         impactArg : Impact.ImpactARG
@@ -762,8 +767,8 @@ type private CertificateExportInformation =
 
 let private exportSwitchToCooperationTerminationProof
         (exportInfo : CertificateExportInformation)
-        (nextProofStep : System.Xml.XmlWriter -> unit)
-        (xmlWriter : System.Xml.XmlWriter) =
+        (nextProofStep : XmlWriter -> unit)
+        (xmlWriter : XmlWriter) =
     xmlWriter.WriteStartElement "switchToCooperationTermination"
 
     xmlWriter.WriteStartElement "cutPoints"
@@ -789,12 +794,12 @@ let private exportSwitchToCooperationTerminationProof
 
 let private exportNonSCCRemovalProof
         (exportInfo : CertificateExportInformation)
-        (nextProofStep : System.Xml.XmlWriter -> unit)
-        (xmlWriter : System.Xml.XmlWriter) =
+        (nextProofStep : XmlWriter -> unit)
+        (xmlWriter : XmlWriter) =
     //Invent a "full" cooperation program here, by taking the one we have, and extend it by additional locations/transitions:
     let progFullCoop = exportInfo.progCoopInstrumented.Clone()
-    let locToCoopDupl = System.Collections.Generic.Dictionary()
-    let progFullExtraTrans = System.Collections.Generic.HashSet()
+    let locToCoopDupl = Dictionary()
+    let progFullExtraTrans = HashSet()
     let getCoopLocDupl loc =
         match exportInfo.locToLoopDuplLoc.TryFind loc with
         | Some dup -> dup
@@ -906,8 +911,8 @@ let private exportNonSCCRemovalProof
 // program transitions are "child" edges in the ARG.
 let private exportAIInvariantsProof
         (exportInfo : CertificateExportInformation)
-        (nextProofStep : System.Xml.XmlWriter -> unit)
-        (xmlWriter : System.Xml.XmlWriter) =
+        (nextProofStep : XmlWriter -> unit)
+        (xmlWriter : XmlWriter) =
     match exportInfo.locToAIInvariant with
     | Some locToAIInvariant ->
         xmlWriter.WriteStartElement "newInvariants"
@@ -1001,8 +1006,8 @@ let private exportAIInvariantsProof
 
 let private exportNewImpactInvariantsProof
         (exportInfo : CertificateExportInformation)
-        (nextProofStep : System.Xml.XmlWriter -> unit)
-        (xmlWriter : System.Xml.XmlWriter) =
+        (nextProofStep : XmlWriter -> unit)
+        (xmlWriter : XmlWriter) =
     let argIsTrivial = exportInfo.impactArg.IsTrivial true
 
     if not argIsTrivial then
@@ -1039,8 +1044,8 @@ let private exportNewImpactInvariantsProof
 
 let private exportSccDecompositionProof
         (exportInfo : CertificateExportInformation)
-        (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
-        (xmlWriter : System.Xml.XmlWriter) =
+        (nextProofStep : Set<int> -> XmlWriter -> unit)
+        (xmlWriter : XmlWriter) =
     xmlWriter.WriteStartElement "sccDecomposition"
     for scc in exportInfo.progCoopSCCs do
         xmlWriter.WriteStartElement "sccWithProof"
@@ -1057,9 +1062,9 @@ let private exportSccDecompositionProof
 
 let private exportInitialLexRFTransRemovalProof
         (exportInfo : CertificateExportInformation)
-        (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
+        (nextProofStep : Set<int> -> XmlWriter -> unit)
         (scc : Set<int>)
-        (xmlWriter : System.Xml.XmlWriter) =
+        (xmlWriter : XmlWriter) =
     let thisSCCRankFunctions =
         exportInfo.foundInitialLexRankFunctions
         |> Map.toSeq
@@ -1080,7 +1085,7 @@ let private exportInitialLexRFTransRemovalProof
 
             (** Step 1: Define rank functions and bound. *)
             xmlWriter.WriteStartElement "rankingFunctions"
-            let locToRFTerm = System.Collections.Generic.Dictionary()
+            let locToRFTerm = Dictionary()
             for KeyValue(loc, locRF) in locToRF do
                 let locRepr = exportInfo.locToCertLocRepr.[loc]
                 match locRepr with
@@ -1213,9 +1218,9 @@ let private exportInitialLexRFTransRemovalProof
 
 let private exportSafetyTransitionRemovalProof
         (exportInfo : CertificateExportInformation)
-        (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
+        (nextProofStep : Set<int> -> XmlWriter -> unit)
         (scc : Set<int>)
-        (xmlWriter : System.Xml.XmlWriter) =
+        (xmlWriter : XmlWriter) =
     let thisSccLexRankFunctions = exportInfo.foundLexRankFunctions |> Map.filter (fun cp _ -> Set.contains cp scc)
 
     if Map.isEmpty thisSccLexRankFunctions then
@@ -1370,21 +1375,21 @@ let private exportSafetyTransitionRemovalProof
         for _ in rfTermAndBounds do
             xmlWriter.WriteEndElement () //end transitionRemoval
 
-let private exportTrivialProof _ (xmlWriter : System.Xml.XmlWriter) =
+let private exportTrivialProof _ (xmlWriter : XmlWriter) =
     xmlWriter.WriteElementString ("trivial", "")
 
 let private exportTerminationProofToCeta
         (progOrig : Programs.Program)
         (progCoopInstrumented : Programs.Program)
         locToLoopDuplLoc
-        (cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<int, int>)
-        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
-        (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
+        (cpToToCpDuplicateTransId : Dictionary<int, int>)
+        (transDuplIdToTransId : Dictionary<int, int>)
+        (locToAIInvariant : Dictionary<int, IIntAbsDom.IIntAbsDom> option)
         (progCoopSCCs : Set<int> list)
         (foundInitialLexRankFunctions : Map<Set<int>, (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint> * Set<int>) list>)
         (impactArg : Impact.ImpactARG)
         foundLexRankFunctions
-        (xmlWriter : System.Xml.XmlWriter) =
+        (xmlWriter : XmlWriter) =
     let locToCertLocRepr = getLocToCertLocRepr progOrig progCoopInstrumented locToLoopDuplLoc
 
     let exportInfo =
@@ -1491,7 +1496,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
     (*** End initial transitional removal proof ***)
 
     ///holds, for each cutpoint, a list of (the index of) the transitions that are lexicographic checkers
-    let cp_rf_lex = new System.Collections.Generic.Dictionary<int, int list>()
+    let cp_rf_lex = new Dictionary<int, int list>()
     for entry in cp_rf do
         cp_rf_lex.Add(entry.Key, [entry.Value])
 
@@ -1511,7 +1516,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
     /// Main safety loop, instrumenting in termination arguments when needed //
     ///////////////////////////////////////////////////////////////////////////
     let mutable finished = false
-    let loopnode_to_copiednode = new System.Collections.Generic.Dictionary<int,int>()
+    let loopnode_to_copiednode = new Dictionary<int,int>()
     let mutable terminating = None
     let unhandled_counterexample = ref None
     let mutable cex_found = false
@@ -1678,9 +1683,9 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
         match terminating with
         | Some true -> 
             let impactArg = safety :?> Impact.ImpactARG
-            use streamWriter = new System.IO.StreamWriter (cert_file)
-            use xmlWriter = new System.Xml.XmlTextWriter (streamWriter)
-            xmlWriter.Formatting <- System.Xml.Formatting.Indented
+            use streamWriter = new StreamWriter (cert_file)
+            use xmlWriter = new XmlTextWriter (streamWriter)
+            xmlWriter.Formatting <- Formatting.Indented
             exportTerminationProofToCeta p_orig p_instrumented_orig locToLoopDuplLoc cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant p_instrumented_SCCs !initial_lex_term_proof_RFs impactArg !found_lex_rfs xmlWriter
         | _ -> ()
 
@@ -1729,7 +1734,7 @@ let nested_X f f_opt (p : Program) x_formula (props : SetDictionary<CTL.CTL_Form
         |Some(sub_f) -> (f,sub_f)
         |None -> (f,f)    
     let propertyMap = new SetDictionary<CTL.CTL_Formula, int * Formula.formula>()
-    let prevMap = new System.Collections.Generic.Dictionary<int, List<int>>()
+    let prevMap = new Dictionary<int, List<int>>()
     for (k, _, k') in p.Transitions do
         if not(p_loops.ContainsKey k' && (p_loops.[k'].Contains k)) then              
             if prevMap.ContainsKey k' then
@@ -2059,7 +2064,7 @@ let bottomUpProver (pars : Parameters.parameters) (p:Program) (f:CTL.CTL_Formula
     //Fix up return value to also print something proof-like for CTL things:
     if ret_value.IsSome && not(termination_only) then
         let (propertyValidity, proof_printer) = ret_value.Value
-        let ext_proof_printer (outWriter : System.IO.TextWriter) =
+        let ext_proof_printer (outWriter : TextWriter) =
             proof_printer outWriter
             outWriter.WriteLine("Preconditions generated / checked during the proof:")
             for (subFormula, preconditions) in propertyMap do
@@ -2183,7 +2188,7 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Program) (f:CTL.CTLStar_For
     //Programs.print_dot_program p "input.dot"  
     let (p_loops, p_sccs) = p.FindLoops()
     let p_det = p.Clone()
-    let nodes_count = new System.Collections.Generic.Dictionary<int, int list>() 
+    let nodes_count = new Dictionary<int, int list>() 
     //To Marc: What is the purpose of defining k,c,k' twice when using this new class?
     for (k, _, k') in p.Transitions do
         if nodes_count.ContainsKey k then
@@ -2193,7 +2198,7 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Program) (f:CTL.CTLStar_For
 
     //Now all nodes except with those with no branching points can be used to generate
     //predicate synthesis to determinize the program. 
-    let pred_synth = new System.Collections.Generic.Dictionary<int, int list>()
+    let pred_synth = new Dictionary<int, int list>()
     nodes_count.Keys |> Seq.iter(fun x -> if nodes_count.[x].Length > 1 then 
                                                      pred_synth.Add(x,nodes_count.[x]))
 
@@ -2220,7 +2225,7 @@ let CTLStar_Prover (pars : Parameters.parameters) (p:Program) (f:CTL.CTLStar_For
         //Adding the prophecy variable for branching point n.
         p_det.AddVariable ((Formula.proph_var_det) + n.ToString())
     
-    let determinizedNodes = new System.Collections.Generic.Dictionary<int, int>()
+    let determinizedNodes = new Dictionary<int, int>()
     //Now we determinize the program using the prophecy predicates in proph_map 
     for (n, (k,c,k')) in p_det.TransitionsWithIdx do 
         if (!proph_map).ContainsKey k then
