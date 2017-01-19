@@ -972,10 +972,52 @@ let private exportAIInvariantsProof
         xmlWriter.WriteEndElement () // impact end
         (*** End of proving soundness of new invariants ***)
 
+        xmlWriter.WriteStartElement "fixInvariants"
         nextProofStep xmlWriter
+        xmlWriter.WriteEndElement () //end fixInvariants
         xmlWriter.WriteEndElement () //end newInvariants
     | None ->
         nextProofStep xmlWriter
+
+let private exportNewImpactInvariantsProof
+        (impactArg : Impact.ImpactARG)
+        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
+        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (xmlWriter : System.Xml.XmlWriter) =
+    let argIsTrivial = impactArg.IsTrivial true
+
+    if not argIsTrivial then
+        xmlWriter.WriteStartElement "newInvariants"
+        xmlWriter.WriteStartElement "invariants"
+        for KeyValue(loc, locRepr) in locToCertLocRepr do
+            match locRepr with
+            | DuplicatedLocation _
+            | OriginalLocation _ ->
+                let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) loc
+                xmlWriter.WriteStartElement "invariant"
+
+                xmlWriter.WriteStartElement "location"
+                Programs.exportLocation xmlWriter locRepr
+                xmlWriter.WriteEndElement () //end location
+
+                xmlWriter.WriteStartElement "formula"
+                xmlWriter.WriteStartElement "disjunction"
+                for locInvariant in locInvariants do
+                    Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta (Formula.formula.FormulasToLinearTerms (locInvariant :> _)) true
+                xmlWriter.WriteEndElement () //end disjunction
+                xmlWriter.WriteEndElement () //end formula
+                xmlWriter.WriteEndElement () //end invariant
+            | _ -> ()
+
+        xmlWriter.WriteEndElement () //end invariants
+
+        impactArg.ToCeta xmlWriter (Some locToCertLocRepr) (Some (writeTransitionId transDuplIdToTransId)) true
+
+    nextProofStep xmlWriter
+
+    if not argIsTrivial then
+        xmlWriter.WriteEndElement () //end newInvariants
 
 let private exportSccDecompositionProof
         (progCoopSCCs : Set<int> list)
@@ -1152,47 +1194,6 @@ let private exportInitialLexRFTransRemovalProof
         for _ in rfs do
             xmlWriter.WriteEndElement () //end transitionRemoval
 
-let private exportNewImpactInvariantsProof
-        (impactArg : Impact.ImpactARG)
-        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
-        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
-        (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
-        (scc : Set<int>)
-        (xmlWriter : System.Xml.XmlWriter) =
-    let argIsTrivial = impactArg.IsTrivial true
-
-    if not argIsTrivial then
-        xmlWriter.WriteStartElement "newInvariants"
-        xmlWriter.WriteStartElement "invariants"
-        for KeyValue(loc, locRepr) in locToCertLocRepr do
-            match locRepr with
-            | DuplicatedLocation _
-            | OriginalLocation _ ->
-                let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) loc
-                xmlWriter.WriteStartElement "invariant"
-
-                xmlWriter.WriteStartElement "location"
-                Programs.exportLocation xmlWriter locRepr
-                xmlWriter.WriteEndElement () //end location
-
-                xmlWriter.WriteStartElement "formula"
-                xmlWriter.WriteStartElement "disjunction"
-                for locInvariant in locInvariants do
-                    Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta (Formula.formula.FormulasToLinearTerms (locInvariant :> _)) true
-                xmlWriter.WriteEndElement () //end disjunction
-                xmlWriter.WriteEndElement () //end formula
-                xmlWriter.WriteEndElement () //end invariant
-            | _ -> ()
-
-        xmlWriter.WriteEndElement () //end invariants
-
-        impactArg.ToCeta xmlWriter (Some locToCertLocRepr) (Some (writeTransitionId transDuplIdToTransId)) true
-
-    nextProofStep scc xmlWriter
-
-    if not argIsTrivial then
-        xmlWriter.WriteEndElement () //end newInvariants
-
 let private exportSafetyTransitionRemovalProof
         (progCoopInstrumented : Programs.Program)
         (impactArg : Impact.ImpactARG)
@@ -1283,7 +1284,7 @@ let private exportSafetyTransitionRemovalProof
                         |> Formula.maybe_filter_instr_vars true
 
                     //Now do the hinting for every disjunct of the invariant:
-                    let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) source
+                    let locInvariants = if impactArg.IsTrivial true then [[Formula.truec]] else impactArg.GetLocationInvariant (Some locToCertLocRepr) source
                     let mutable decreaseHintTerms = []
                     let mutable boundHintTerms = []
                     let mutable isStrict = true
@@ -1376,9 +1377,9 @@ let private exportTerminationProofToCeta
     |> exportSwitchToCooperationTerminationProof progCoopInstrumented cpToToCpDuplicateTransId (
         exportNonSCCRemovalProof progOrig progCoopInstrumented locToLoopDuplLoc transDuplIdToTransId locToCertLocRepr (
          exportAIInvariantsProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant (
-          exportSccDecompositionProof progCoopSCCs locToCertLocRepr (
-           exportInitialLexRFTransRemovalProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant foundInitialLexRankFunctions (
-            exportNewImpactInvariantsProof impactArg transDuplIdToTransId locToCertLocRepr (
+          exportNewImpactInvariantsProof impactArg transDuplIdToTransId locToCertLocRepr (
+           exportSccDecompositionProof progCoopSCCs locToCertLocRepr (
+            exportInitialLexRFTransRemovalProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant foundInitialLexRankFunctions (
              exportSafetyTransitionRemovalProof progCoopInstrumented impactArg transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
               exportTrivialProof)))))))
 
@@ -1456,19 +1457,6 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) (f:CTL.CTL_Fo
         if pars.dottify_input_pgms then
             Output.print_dot_program p_instrumented "input__instrumented_after_init_LexRF.dot"
     (*** End initial transitional removal proof ***)
-
-    ///In certification mode, /remove/ the AI invariants again now, because keeping them is a nightmare in the export at the moment
-    // Luckily, we planned for this and slapped one extra assume onto the beginning of each transition, which we now quickly remove again.
-    if pars.export_cert.IsSome && pars.did_ai_first then
-        for (transIdx, (k, cmds, k')) in p_orig.TransitionsWithIdx do
-            p_orig.SetTransition transIdx (k, List.tail cmds, k')
-        for (transIdx, (k, cmds, k')) in p_instrumented.TransitionsWithIdx do
-            p_instrumented.SetTransition transIdx (k, List.tail cmds, k')
-        for (transIdx, (k, cmds, k')) in p_instrumented_orig.TransitionsWithIdx do
-            p_instrumented_orig.SetTransition transIdx (k, List.tail cmds, k')
-
-        if pars.dottify_input_pgms then
-            Output.print_dot_program p_instrumented "input__instrumented_after_AI_removal.dot"
 
     ///holds, for each cutpoint, a list of (the index of) the transitions that are lexicographic checkers
     let cp_rf_lex = new System.Collections.Generic.Dictionary<int, int list>()
