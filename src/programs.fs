@@ -91,6 +91,7 @@ let assign v t = Assign(None, v, t)
 let skip = Assume(None,Formula.truec)
 
 type NodeId = int
+type ProgramLocation = NodeId
 type CoopProgramLocation =
     | OriginalLocation of NodeId
     | DuplicatedLocation of NodeId

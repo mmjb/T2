@@ -729,20 +729,74 @@ let private writeTransitionId (transDuplIdToTransId : System.Collections.Generic
     | _ ->
         xmlWriter.WriteElementString ("transitionId", string transId)
 
-let private exportNonSCCRemovalProof 
-        (progOrig : Programs.Program) 
-        (progCoopInstrumented : Programs.Program)
-        (locToLoopDuplLoc : Map<NodeId, int>)
-        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
-        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+type private ProgramSCC = Set<ProgramLocation>
+type private CertificateExportInformation =
+    {
+        /// Original program, as returned from the parser.
+        progOrig : Programs.Program
+        /// Program with T2 instrumentation inserted.
+        progCoopInstrumented : Programs.Program
+
+        /// SCCs of the cooperation program, restricted to those in the termination copy.
+        progCoopSCCs : ProgramSCC list
+
+        /// Maps original program locations to their duplicates created in the instrumentation.
+        locToLoopDuplLoc : Map<ProgramLocation, ProgramLocation>
+        /// Maps program locations to their representation in certificate (original, duplicate, or instrumented, which gets filtered out)
+        locToCertLocRepr : System.Collections.Generic.Dictionary<ProgramLocation, CoopProgramLocation>
+        /// Maps program locations to the result of abstract interpretation of the program.
+        locToAIInvariant : System.Collections.Generic.Dictionary<ProgramLocation, IIntAbsDom.IIntAbsDom> option
+        /// Maps cutpoints in original program to the transition that connects them to their copy.
+        cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<ProgramLocation, TransitionId>
+
+        /// Maps transitions in the termination part of the cooperation graph to their originals.
+        transDuplIdToTransId : System.Collections.Generic.Dictionary<TransitionId, TransitionId>
+
+        /// Impact graph, containing all invariants required for the proof.
+        impactArg : Impact.ImpactARG
+        /// Maps program SCCs to a list of (rank function, bound, transitions that could be removed) triples.
+        foundInitialLexRankFunctions : Map<ProgramSCC, (Map<ProgramLocation, Map<Var.var, bigint>> * Map<Set<TransitionId>, bigint> * Set<TransitionId>) list>
+        /// Maps cutpoints in the termination part of the program to a list of (rank function strict decrease check, rank function weak decrease check, bound check) triples.
+        foundLexRankFunctions : Map<ProgramLocation, Formula.formula list * Formula.formula list * Formula.formula list>
+    }
+
+let private exportSwitchToCooperationTerminationProof
+        (exportInfo : CertificateExportInformation)
+        (nextProofStep : System.Xml.XmlWriter -> unit)
+        (xmlWriter : System.Xml.XmlWriter) =
+    xmlWriter.WriteStartElement "switchToCooperationTermination"
+
+    xmlWriter.WriteStartElement "cutPoints"
+    for KeyValue(cp, cpToCoopDupTrans) in exportInfo.cpToToCpDuplicateTransId do
+        xmlWriter.WriteStartElement "cutPoint"
+        Programs.exportLocation xmlWriter (OriginalLocation cp)
+        xmlWriter.WriteElementString ("skipId", string cpToCoopDupTrans)
+
+        let (_, cmds, _) = exportInfo.progCoopInstrumented.GetTransition cpToCoopDupTrans
+        let (transFormula, varToMaxSSAIdx) = cmdsToCetaFormula exportInfo.progCoopInstrumented.Variables cmds
+        let transLinearTerms =
+            Formula.formula.FormulasToLinearTerms (transFormula :> _)
+            |> Formula.maybe_filter_instr_vars true
+        xmlWriter.WriteStartElement "skipFormula"
+        Formula.linear_terms_to_ceta xmlWriter (Var.toCeta varToMaxSSAIdx) transLinearTerms true
+        xmlWriter.WriteEndElement () //skipFormula end
+
+        xmlWriter.WriteEndElement () //end cutPoint
+    xmlWriter.WriteEndElement () //end cutPoints
+
+    nextProofStep xmlWriter
+    xmlWriter.WriteEndElement () //end switchToCooperationTermination
+
+let private exportNonSCCRemovalProof
+        (exportInfo : CertificateExportInformation)
         (nextProofStep : System.Xml.XmlWriter -> unit)
         (xmlWriter : System.Xml.XmlWriter) =
     //Invent a "full" cooperation program here, by taking the one we have, and extend it by additional locations/transitions:
-    let progFullCoop = progCoopInstrumented.Clone()
+    let progFullCoop = exportInfo.progCoopInstrumented.Clone()
     let locToCoopDupl = System.Collections.Generic.Dictionary()
     let progFullExtraTrans = System.Collections.Generic.HashSet()
     let getCoopLocDupl loc =
-        match locToLoopDuplLoc.TryFind loc with
+        match exportInfo.locToLoopDuplLoc.TryFind loc with
         | Some dup -> dup
         | None ->
             match locToCoopDupl.TryGetValue loc with
@@ -750,26 +804,27 @@ let private exportNonSCCRemovalProof
             | (false, _) ->
                 let dup = progFullCoop.NewNode()
                 locToCoopDupl.[loc] <- dup
-                locToCertLocRepr.[dup] <- DuplicatedLocation loc
+                exportInfo.locToCertLocRepr.[dup] <- DuplicatedLocation loc
                 // We will need to compute SCCs, and our SCC computation only considers things reachable from init.
                 // Thus, add faked transitions from there..
                 progFullCoop.AddTransition progFullCoop.Initial [] dup |> ignore
                 dup
-    for loc in progOrig.Locations do
-        for (transIdx, (_, cmds, targetLoc)) in progOrig.TransitionsFrom loc do
+    for loc in exportInfo.progOrig.Locations do
+        for (transIdx, (_, cmds, targetLoc)) in exportInfo.progOrig.TransitionsFrom loc do
             let needToAddCopiedTransition =
-                match Map.tryFind loc locToLoopDuplLoc with
+                match Map.tryFind loc exportInfo.locToLoopDuplLoc with
                 | None -> true
                 | Some duplLoc ->
                     //Check if we created a copy, of if this is one of those transitions that leave the SCC:
-                    progCoopInstrumented.TransitionsFrom duplLoc
-                    |> Seq.exists (fun (copiedTransIdx, _) -> transDuplIdToTransId.ContainsKey copiedTransIdx && transDuplIdToTransId.[copiedTransIdx] = transIdx)
+                    exportInfo.progCoopInstrumented.TransitionsFrom duplLoc
+                    |> Seq.exists (fun (copiedTransIdx, _) -> exportInfo.transDuplIdToTransId.ContainsKey copiedTransIdx &&
+                                                              exportInfo.transDuplIdToTransId.[copiedTransIdx] = transIdx)
                     |> not
             if needToAddCopiedTransition then
                 let coopLocDupl = getCoopLocDupl loc
                 let targetLocDupl = getCoopLocDupl targetLoc
                 let copiedTransIdx = progFullCoop.AddTransition coopLocDupl cmds targetLocDupl
-                transDuplIdToTransId.Add(copiedTransIdx, transIdx)
+                exportInfo.transDuplIdToTransId.Add(copiedTransIdx, transIdx)
                 progFullExtraTrans.Add copiedTransIdx |> ignore
 
     //Now remove all the extra invented transitions again, by doing a trivial termination argument encoding
@@ -782,12 +837,12 @@ let private exportNonSCCRemovalProof
         (fun idx scc ->
             //This is one of the SCC on the non-duplicated side, leave as they are:
             let rank =
-                if Set.exists (fun loc -> progOrig.Locations.Contains loc) scc then
+                if Set.exists exportInfo.progOrig.Locations.Contains scc then
                     0
                 else
                     -idx - 1
             for loc in scc do
-                let locRepr = locToCertLocRepr.[loc]
+                let locRepr = exportInfo.locToCertLocRepr.[loc]
                 match locRepr with
                 | DuplicatedLocation _ ->
                     xmlWriter.WriteStartElement "rankingFunction"
@@ -805,27 +860,23 @@ let private exportNonSCCRemovalProof
     xmlWriter.WriteEndElement () //end bound
 
     xmlWriter.WriteStartElement "remove"
-    progFullExtraTrans |> Seq.iter (writeTransitionId transDuplIdToTransId xmlWriter)
+    progFullExtraTrans |> Seq.iter (writeTransitionId exportInfo.transDuplIdToTransId xmlWriter)
     xmlWriter.WriteEndElement () //end remove
 
     // Write out the hints, which are trivially 0 for everything, as all rank functions are
     // just constants. However, getting the numbers of hints right is a bit of a song and dance...
     xmlWriter.WriteStartElement "hints"
-    for (transIdx, (source, cmds, target)) in progFullCoop.TransitionsWithIdx do
-        match (locToCertLocRepr.[source], locToCertLocRepr.[target]) with
+    for (transIdx, (source, _, target)) in progFullCoop.TransitionsWithIdx do
+        match (exportInfo.locToCertLocRepr.[source], exportInfo.locToCertLocRepr.[target]) with
         | (InstrumentationLocation _, _)
         | (OriginalLocation _, _)
         | (_, InstrumentationLocation _) ->
             ()
         | _ ->
-            let (transFormula, _) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
-            let transLinearTerms =
-                Formula.formula.FormulasToLinearTerms (transFormula :> _)
-                |> Formula.maybe_filter_instr_vars true
             // We need more trivial hints for those transitions that we want to delete, but all require decreaseHints:
             if progFullExtraTrans.Contains transIdx then
                 xmlWriter.WriteStartElement "strictDecrease"
-                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
 
                 xmlWriter.WriteStartElement "boundHints"
                 xmlWriter.WriteStartElement "linearImplicationHint"
@@ -834,7 +885,7 @@ let private exportNonSCCRemovalProof
                 xmlWriter.WriteEndElement () //end boundHints
             else
                 xmlWriter.WriteStartElement "weakDecrease"
-                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
 
             xmlWriter.WriteStartElement "decreaseHints"
             xmlWriter.WriteStartElement "linearImplicationHint"
@@ -848,53 +899,22 @@ let private exportNonSCCRemovalProof
     nextProofStep xmlWriter
     xmlWriter.WriteEndElement () //end transitionRemoval (trivial SCC argument)
 
-let private exportSwitchToCooperationTerminationProof
-        (progCoopInstrumented : Programs.Program)
-        (cpToToCpDuplicateTransId : System.Collections.Generic.Dictionary<int, int>)
-        (nextProofStep : System.Xml.XmlWriter -> unit)
-        (xmlWriter : System.Xml.XmlWriter) =
-    xmlWriter.WriteStartElement "switchToCooperationTermination"
-
-    xmlWriter.WriteStartElement "cutPoints"
-    for KeyValue(cp, cpToCoopDupTrans) in cpToToCpDuplicateTransId do
-        xmlWriter.WriteStartElement "cutPoint"
-        Programs.exportLocation xmlWriter (OriginalLocation cp)
-        xmlWriter.WriteElementString ("skipId", string cpToCoopDupTrans)
-
-        let (_, cmds, _) = progCoopInstrumented.GetTransition cpToCoopDupTrans
-        let (transFormula, varToMaxSSAIdx) = cmdsToCetaFormula progCoopInstrumented.Variables cmds
-        let transLinearTerms =
-            Formula.formula.FormulasToLinearTerms (transFormula :> _)
-            |> Formula.maybe_filter_instr_vars true
-        xmlWriter.WriteStartElement "skipFormula"
-        Formula.linear_terms_to_ceta xmlWriter (Var.toCeta varToMaxSSAIdx) transLinearTerms true
-        xmlWriter.WriteEndElement () //skipFormula end
-
-        xmlWriter.WriteEndElement () //end cutPoint
-    xmlWriter.WriteEndElement () //end cutPoints
-
-    nextProofStep xmlWriter
-    xmlWriter.WriteEndElement () //end switchToCooperationTermination
-
 /// Export per-node invariants generated by abstract interpretation into proof.
 // Note: We re-use the existing definition of Impact-style proofs here, as the
 // certifier does not enforce the tree property on the generated ARG. Thus, each
 // program location corresponds to exactly one node in the generated ARG, and
 // program transitions are "child" edges in the ARG.
 let private exportAIInvariantsProof
-        (progCoopInstrumented : Programs.Program)
-        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
-        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
-        (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
+        (exportInfo : CertificateExportInformation)
         (nextProofStep : System.Xml.XmlWriter -> unit)
         (xmlWriter : System.Xml.XmlWriter) =
-    match locToAIInvariant with
+    match exportInfo.locToAIInvariant with
     | Some locToAIInvariant ->
         xmlWriter.WriteStartElement "newInvariants"
 
         (*** Start of declaring new invariants ***)
         xmlWriter.WriteStartElement "invariants"
-        for KeyValue(_, locRepr) in locToCertLocRepr do
+        for KeyValue(_, locRepr) in exportInfo.locToCertLocRepr do
             match locRepr with
             | DuplicatedLocation origLoc
             | OriginalLocation origLoc ->
@@ -916,9 +936,9 @@ let private exportAIInvariantsProof
 
         (*** Start of proving soundness of new invariants ***)
         xmlWriter.WriteStartElement "impact"
-        xmlWriter.WriteElementString ("initial", string progCoopInstrumented.Initial)
+        xmlWriter.WriteElementString ("initial", string exportInfo.progCoopInstrumented.Initial)
         xmlWriter.WriteStartElement "nodes"
-        for KeyValue(loc, locRepr) in locToCertLocRepr do
+        for KeyValue(loc, locRepr) in exportInfo.locToCertLocRepr do
             match locRepr with
             | InstrumentationLocation _ ->
                 () //Do not export
@@ -939,16 +959,16 @@ let private exportAIInvariantsProof
                 xmlWriter.WriteEndElement () //end location
 
                 xmlWriter.WriteStartElement "children"
-                for (transIdx, (_, cmds, childLoc)) in progCoopInstrumented.TransitionsFrom loc do
-                    let certChildLocRepr = locToCertLocRepr.[childLoc]
+                for (transIdx, (_, cmds, childLoc)) in exportInfo.progCoopInstrumented.TransitionsFrom loc do
+                    let certChildLocRepr = exportInfo.locToCertLocRepr.[childLoc]
                     match certChildLocRepr with
                     | InstrumentationLocation _ ->
                         () //Do not export
                     | OriginalLocation origChildLoc
-                    | DuplicatedLocation origChildLoc -> 
+                    | DuplicatedLocation origChildLoc ->
                         let childInvariant = locToAIInvariant.[origChildLoc].to_formula ()
                         let childLocInvariantLinearTerms = childInvariant.ToLinearTerms ()
-                        let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
+                        let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula exportInfo.progCoopInstrumented.Variables cmds
                         let varToPre var = Var.prime_var var 0
                         let varToPost var =
                             match Map.tryFind var varToMaxSSAIdx with
@@ -959,7 +979,7 @@ let private exportAIInvariantsProof
                             |> Formula.maybe_filter_instr_vars true
                         let locInvariantAndTransLinearTerms = List.append (List.map (SparseLinear.alpha varToPre) invariantLinearTerms) transLinearTerms
                         xmlWriter.WriteStartElement "child"
-                        writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                        writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
                         xmlWriter.WriteElementString ("nodeId", string childLoc)
                         xmlWriter.WriteStartElement "hints"
                         for lt in childLocInvariantLinearTerms do
@@ -980,21 +1000,19 @@ let private exportAIInvariantsProof
         nextProofStep xmlWriter
 
 let private exportNewImpactInvariantsProof
-        (impactArg : Impact.ImpactARG)
-        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
-        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        (exportInfo : CertificateExportInformation)
         (nextProofStep : System.Xml.XmlWriter -> unit)
         (xmlWriter : System.Xml.XmlWriter) =
-    let argIsTrivial = impactArg.IsTrivial true
+    let argIsTrivial = exportInfo.impactArg.IsTrivial true
 
     if not argIsTrivial then
         xmlWriter.WriteStartElement "newInvariants"
         xmlWriter.WriteStartElement "invariants"
-        for KeyValue(loc, locRepr) in locToCertLocRepr do
+        for KeyValue(loc, locRepr) in exportInfo.locToCertLocRepr do
             match locRepr with
             | DuplicatedLocation _
             | OriginalLocation _ ->
-                let locInvariants = impactArg.GetLocationInvariant (Some locToCertLocRepr) loc
+                let locInvariants = exportInfo.impactArg.GetLocationInvariant (Some exportInfo.locToCertLocRepr) loc
                 xmlWriter.WriteStartElement "invariant"
 
                 xmlWriter.WriteStartElement "location"
@@ -1012,7 +1030,7 @@ let private exportNewImpactInvariantsProof
 
         xmlWriter.WriteEndElement () //end invariants
 
-        impactArg.ToCeta xmlWriter (Some locToCertLocRepr) (Some (writeTransitionId transDuplIdToTransId)) true
+        exportInfo.impactArg.ToCeta xmlWriter (Some exportInfo.locToCertLocRepr) (Some (writeTransitionId exportInfo.transDuplIdToTransId)) true
 
     nextProofStep xmlWriter
 
@@ -1020,16 +1038,15 @@ let private exportNewImpactInvariantsProof
         xmlWriter.WriteEndElement () //end newInvariants
 
 let private exportSccDecompositionProof
-        (progCoopSCCs : Set<int> list)
-        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
+        (exportInfo : CertificateExportInformation)
         (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
         (xmlWriter : System.Xml.XmlWriter) =
     xmlWriter.WriteStartElement "sccDecomposition"
-    for scc in progCoopSCCs do
+    for scc in exportInfo.progCoopSCCs do
         xmlWriter.WriteStartElement "sccWithProof"
         xmlWriter.WriteStartElement "scc"
         for loc in scc do
-            let certLocRepr = locToCertLocRepr.[loc]
+            let certLocRepr = exportInfo.locToCertLocRepr.[loc]
             match certLocRepr with
             | DuplicatedLocation _ -> Programs.exportLocation xmlWriter certLocRepr
             | _ -> ()
@@ -1039,16 +1056,12 @@ let private exportSccDecompositionProof
     xmlWriter.WriteEndElement () //end sccDecomposition
 
 let private exportInitialLexRFTransRemovalProof
-        (progCoopInstrumented : Programs.Program)
-        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
-        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
-        (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
-        (foundInitialLexRankFunctions : Map<Set<int>, (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint> * Set<int>) list>) 
+        (exportInfo : CertificateExportInformation)
         (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
         (scc : Set<int>)
         (xmlWriter : System.Xml.XmlWriter) =
     let thisSCCRankFunctions =
-        foundInitialLexRankFunctions
+        exportInfo.foundInitialLexRankFunctions
         |> Map.toSeq
         |> Seq.filter (fun (sccLocs, _) -> not <| Set.isEmpty (Set.intersect sccLocs scc))
     for (_, rfs_bounds_and_removed_transitions) in thisSCCRankFunctions do
@@ -1069,7 +1082,7 @@ let private exportInitialLexRFTransRemovalProof
             xmlWriter.WriteStartElement "rankingFunctions"
             let locToRFTerm = System.Collections.Generic.Dictionary()
             for KeyValue(loc, locRF) in locToRF do
-                let locRepr = locToCertLocRepr.[loc]
+                let locRepr = exportInfo.locToCertLocRepr.[loc]
                 match locRepr with
                 | DuplicatedLocation _ ->
                     let rfTerm =
@@ -1104,15 +1117,15 @@ let private exportInitialLexRFTransRemovalProof
             (** Step 2: Compute decreasing transitions and hints *)
             let mutable strictDecreaseHintInfo = []
             let mutable weakDecreaseHintInfo = []
-            for (transIdx, (sourceLoc, cmds, targetLoc)) in progCoopInstrumented.TransitionsWithIdx do
-                let sourceLocRepr = locToCertLocRepr.[sourceLoc]
-                let targetLocRepr = locToCertLocRepr.[targetLoc]
+            for (transIdx, (sourceLoc, cmds, targetLoc)) in exportInfo.progCoopInstrumented.TransitionsWithIdx do
+                let sourceLocRepr = exportInfo.locToCertLocRepr.[sourceLoc]
+                let targetLocRepr = exportInfo.locToCertLocRepr.[targetLoc]
                 match (sourceLocRepr, targetLocRepr) with
                 | (DuplicatedLocation origSourceLoc, DuplicatedLocation _) when locToRFTerm.ContainsKey sourceLoc && locToRFTerm.ContainsKey targetLoc ->
                     let sourceRFTerm = locToRFTerm.[sourceLoc]
                     let targetRFTerm = locToRFTerm.[targetLoc]
                     //Get transition encoding
-                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
+                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula exportInfo.progCoopInstrumented.Variables cmds
                     let varToPre var = Var.prime_var var 0
                     let varToPost var =
                         match Map.tryFind var varToMaxSSAIdx with
@@ -1124,7 +1137,7 @@ let private exportInitialLexRFTransRemovalProof
 
                     //Now do the hinting for every disjunct of the invariant:
                     let locInvariant =
-                        match locToAIInvariant with
+                        match exportInfo.locToAIInvariant with
                         | Some locToAIInvariant -> locToAIInvariant.[origSourceLoc].to_formula ()
                         | _ -> Formula.truec
                     let mutable decreaseHintTerms = []
@@ -1139,6 +1152,10 @@ let private exportInitialLexRFTransRemovalProof
                     let strictDecreaseZ3 = Formula.z3 <| Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)
                     let boundZ3 = Formula.z3 <| Formula.formula.Ge (rankFunctionOnPreVars, Term.Const bound)
                     let locInvariantAndTransZ3 = SparseLinear.le_linear_terms_to_z3 locInvariantAndTransLinearTerms
+                    if Set.contains transIdx removed_transitions && not <| Z.valid (Z.implies locInvariantAndTransZ3 strictDecreaseZ3) then
+                        printfn "Could not prove strict decrease for removed transition %i" transIdx
+                    if Set.contains transIdx removed_transitions && not <| Z.valid (Z.implies locInvariantAndTransZ3 boundZ3) then
+                        printfn "Could not prove boundedness for removed transition %i" transIdx
                     if Z.valid (Z.implies locInvariantAndTransZ3 (Z.conj2 strictDecreaseZ3 boundZ3)) then
                         let strictDecreaseTerms = (Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
                         let boundTerms = (Formula.formula.Ge (rankFunctionOnPreVars, Term.Const bound)).ToLinearTerms()
@@ -1162,13 +1179,13 @@ let private exportInitialLexRFTransRemovalProof
             assert(removed_transitions = strictTransitions)
             xmlWriter.WriteStartElement "remove"
             for (transIdx, _, _) in strictDecreaseHintInfo do
-                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
             xmlWriter.WriteEndElement () //end remove
 
             xmlWriter.WriteStartElement "hints"
             for (transIdx, decreaseHintTerms, boundHintTerms) in strictDecreaseHintInfo do
                 xmlWriter.WriteStartElement "strictDecrease"
-                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
                 xmlWriter.WriteStartElement "boundHints"
                 for (invAndTransLinearTerms, boundTerm) in boundHintTerms do
                     SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms boundTerm
@@ -1180,7 +1197,7 @@ let private exportInitialLexRFTransRemovalProof
                 xmlWriter.WriteEndElement () //end strictDecrease
             for (transIdx, decreaseHintTerms) in weakDecreaseHintInfo do
                 xmlWriter.WriteStartElement "weakDecrease"
-                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
                 xmlWriter.WriteStartElement "decreaseHints"
                 for (invAndTransLinearTerms, weakDecreaseTerm) in decreaseHintTerms do
                     SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms weakDecreaseTerm
@@ -1195,15 +1212,11 @@ let private exportInitialLexRFTransRemovalProof
             xmlWriter.WriteEndElement () //end transitionRemoval
 
 let private exportSafetyTransitionRemovalProof
-        (progCoopInstrumented : Programs.Program)
-        (impactArg : Impact.ImpactARG)
-        (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
-        (locToCertLocRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation>)
-        foundLexRankFunctions
+        (exportInfo : CertificateExportInformation)
         (nextProofStep : Set<int> -> System.Xml.XmlWriter -> unit)
         (scc : Set<int>)
         (xmlWriter : System.Xml.XmlWriter) =
-    let thisSccLexRankFunctions = foundLexRankFunctions |> Map.filter (fun cp _ -> Set.contains cp scc)
+    let thisSccLexRankFunctions = exportInfo.foundLexRankFunctions |> Map.filter (fun cp _ -> Set.contains cp scc)
 
     if Map.isEmpty thisSccLexRankFunctions then
         nextProofStep scc xmlWriter
@@ -1234,7 +1247,7 @@ let private exportSafetyTransitionRemovalProof
             xmlWriter.WriteStartElement "rankingFunctions"
 
             for loc in scc do
-                let locRepr = locToCertLocRepr.[loc]
+                let locRepr = exportInfo.locToCertLocRepr.[loc]
                 match locRepr with
                 | DuplicatedLocation _ ->
                     xmlWriter.WriteStartElement "rankingFunction"
@@ -1259,21 +1272,21 @@ let private exportSafetyTransitionRemovalProof
             let mutable strictDecreaseHintInfo = []
             let mutable weakDecreaseHintInfo = []
             let sccTransitions =
-                progCoopInstrumented.TransitionsWithIdx
+                exportInfo.progCoopInstrumented.TransitionsWithIdx
                 |> Seq.filter (fun (_, (source, _, target)) -> Set.contains source scc && Set.contains target scc)
                 |> Seq.filter (fun (transIdx, _) -> not <| Set.contains transIdx removedTransitions)
             for (transIdx, (source, cmds, target)) in sccTransitions do
-                let sourceRepr = locToCertLocRepr.[source]
-                let targetRepr = locToCertLocRepr.[target]
+                let sourceRepr = exportInfo.locToCertLocRepr.[source]
+                let targetRepr = exportInfo.locToCertLocRepr.[target]
                 match (sourceRepr, targetRepr) with
                 | (InstrumentationLocation _, _)
                 | (OriginalLocation _, _)
                 | (_, InstrumentationLocation _) ->
                     ()
                 | _ ->
-                    printfn "Looking at transition removal step for %i (%i #)" transIdx transDuplIdToTransId.[transIdx]
+                    printfn "Looking at transition removal step for %i (%i #)" transIdx exportInfo.transDuplIdToTransId.[transIdx]
                     //Get transition encoding
-                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula progCoopInstrumented.Variables cmds
+                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula exportInfo.progCoopInstrumented.Variables cmds
                     let varToPre var = Var.prime_var var 0
                     let varToPost var =
                         match Map.tryFind var varToMaxSSAIdx with
@@ -1284,7 +1297,11 @@ let private exportSafetyTransitionRemovalProof
                         |> Formula.maybe_filter_instr_vars true
 
                     //Now do the hinting for every disjunct of the invariant:
-                    let locInvariants = if impactArg.IsTrivial true then [[Formula.truec]] else impactArg.GetLocationInvariant (Some locToCertLocRepr) source
+                    let locInvariants =
+                        if exportInfo.impactArg.IsTrivial true then
+                            [[Formula.truec]]
+                        else
+                            exportInfo.impactArg.GetLocationInvariant (Some exportInfo.locToCertLocRepr) source
                     let mutable decreaseHintTerms = []
                     let mutable boundHintTerms = []
                     let mutable isStrict = true
@@ -1314,7 +1331,7 @@ let private exportSafetyTransitionRemovalProof
                             isStrict <- false
 
                     if isStrict then
-                        printfn " Removing transition %i (%i #)" transIdx transDuplIdToTransId.[transIdx]
+                        printfn " Removing transition %i (%i #)" transIdx exportInfo.transDuplIdToTransId.[transIdx]
                         removedTransitions <- Set.add transIdx removedTransitions
                         strictDecreaseHintInfo <- (transIdx, decreaseHintTerms, boundHintTerms)::strictDecreaseHintInfo
                     else
@@ -1322,13 +1339,13 @@ let private exportSafetyTransitionRemovalProof
 
             xmlWriter.WriteStartElement "remove"
             for (transIdx, _, _) in strictDecreaseHintInfo do
-                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
             xmlWriter.WriteEndElement () //end remove
 
             xmlWriter.WriteStartElement "hints"
             for (transIdx, decreaseHintTerms, boundHintTerms) in strictDecreaseHintInfo do
                 xmlWriter.WriteStartElement "strictDecrease"
-                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
                 xmlWriter.WriteStartElement "boundHints"
                 for (invAndTransLinearTerms, boundTerm) in boundHintTerms do
                     SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms boundTerm
@@ -1340,7 +1357,7 @@ let private exportSafetyTransitionRemovalProof
                 xmlWriter.WriteEndElement () //end strictDecrease
             for (transIdx, decreaseHintTerms) in weakDecreaseHintInfo do
                 xmlWriter.WriteStartElement "weakDecrease"
-                writeTransitionId transDuplIdToTransId xmlWriter transIdx
+                writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
                 xmlWriter.WriteStartElement "decreaseHints"
                 for (invAndTransLinearTerms, weakDecreaseTerm) in decreaseHintTerms do
                     SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms weakDecreaseTerm
@@ -1364,23 +1381,38 @@ let private exportTerminationProofToCeta
         (transDuplIdToTransId : System.Collections.Generic.Dictionary<int, int>)
         (locToAIInvariant : System.Collections.Generic.Dictionary<int, IIntAbsDom.IIntAbsDom> option)
         (progCoopSCCs : Set<int> list)
-        (foundInitialLexRankFunctions : Map<Set<int>, (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint> * Set<int>) list>) 
+        (foundInitialLexRankFunctions : Map<Set<int>, (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint> * Set<int>) list>)
         (impactArg : Impact.ImpactARG)
         foundLexRankFunctions
         (xmlWriter : System.Xml.XmlWriter) =
     let locToCertLocRepr = getLocToCertLocRepr progOrig progCoopInstrumented locToLoopDuplLoc
 
+    let exportInfo =
+        {
+            progOrig = progOrig
+            progCoopInstrumented = progCoopInstrumented
+            progCoopSCCs = progCoopSCCs
+            locToLoopDuplLoc = locToLoopDuplLoc
+            locToCertLocRepr = locToCertLocRepr
+            locToAIInvariant = locToAIInvariant
+            cpToToCpDuplicateTransId = cpToToCpDuplicateTransId
+            transDuplIdToTransId = transDuplIdToTransId
+            impactArg = impactArg
+            foundInitialLexRankFunctions = foundInitialLexRankFunctions
+            foundLexRankFunctions = foundLexRankFunctions
+        }
+
     xmlWriter.WriteStartElement "certificate"
     progOrig.ToCeta xmlWriter "inputProgram" None false
 
     xmlWriter
-    |> exportSwitchToCooperationTerminationProof progCoopInstrumented cpToToCpDuplicateTransId (
-        exportNonSCCRemovalProof progOrig progCoopInstrumented locToLoopDuplLoc transDuplIdToTransId locToCertLocRepr (
-         exportAIInvariantsProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant (
-          exportNewImpactInvariantsProof impactArg transDuplIdToTransId locToCertLocRepr (
-           exportSccDecompositionProof progCoopSCCs locToCertLocRepr (
-            exportInitialLexRFTransRemovalProof progCoopInstrumented transDuplIdToTransId locToCertLocRepr locToAIInvariant foundInitialLexRankFunctions (
-             exportSafetyTransitionRemovalProof progCoopInstrumented impactArg transDuplIdToTransId locToCertLocRepr foundLexRankFunctions (
+    |> exportSwitchToCooperationTerminationProof exportInfo (
+        exportNonSCCRemovalProof exportInfo (
+         exportAIInvariantsProof exportInfo (
+          exportNewImpactInvariantsProof exportInfo (
+           exportSccDecompositionProof exportInfo (
+            exportInitialLexRFTransRemovalProof exportInfo (
+             exportSafetyTransitionRemovalProof exportInfo (
               exportTrivialProof)))))))
 
     xmlWriter.WriteEndElement () //end certificate
