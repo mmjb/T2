@@ -260,7 +260,7 @@ let toCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> 
         writer.WriteStartElement "sum"
 
         match Map.tryFind ONE t with
-        | Some constant ->
+        | Some constant when constant <> bigint.Zero ->
             writer.WriteElementString ("constant", string constant)
         | _ -> ()
 
