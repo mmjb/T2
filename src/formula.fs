@@ -376,9 +376,8 @@ let copied_assume k = (Ge(Term.var (copy_var k), Term.constant 1))
 let not_copied_assume k = (Lt(Term.var (copy_var k), Term.constant 1))
 
 let snapshot_prefix = instrumentation_prefix + "snapshot_"
-let save_state_var v cp = Var.var(snapshot_prefix + string(cp) + "_" + v)
+let save_state_var (cp : int) (v : Var.var) = Var.var(snapshot_prefix + string(cp) + "_" + v)
 let is_saved_var (v:string) = v.StartsWith snapshot_prefix
-let is_saved_var_for_cp (v:string) cp = v.StartsWith (snapshot_prefix + string(cp) + "_")
 let extract_saved_var_name (v:string) = 
     let withoutPrefix = v.[snapshot_prefix.Length ..]
     withoutPrefix.[(withoutPrefix.IndexOf "_") + 1 ..]

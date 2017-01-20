@@ -207,36 +207,24 @@ let print_lasso stem cycle =
 //////////////////// helper functions for RF construction /////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-//Creates a map from old_ variables to their new names. Includes all variables that get copied at the copying stage
-let find_var_to_old_var_mapping cp cmds =
-    let handle_cmd m c =
-        match c with
-        | Programs.Assign(_,v,Term.Var(v')) when Formula.is_saved_var_for_cp v cp ->
-            Map.add v' v m
-        | Programs.Assign(_,v,Term.Const(_)) when Formula.is_saved_var_for_cp v cp ->
-            let v' = Formula.extract_saved_var_name v
-            Map.add v' v m
-        | _ -> m
-    List.fold handle_cmd Map.empty cmds
-
-let get_saved_term_var_for_var (m: Map<Var.var, Var.var>) (v': string) =
+let get_saved_term_var_for_var cutpoint (v': string) =
     let v = Var.unprime_var v'
-    let saved_var =
-        if Formula.is_const_var v then v
-        else if m.ContainsKey v then
-            m.[v]
+    let snapshot_var =
+        if Formula.is_const_var v then
+            v
         else
-            dieWith <| sprintf "ERROR FINDING %s in %A" v m
-    saved_var |> Var.var |> Term.var
+            Formula.save_state_var cutpoint v
+    snapshot_var |> Var.var |> Term.var
+
 let get_current_term_var_for_var (v: Var.var) =
     v |> Var.unprime_var |> Var.var |> Term.var
 
-let rf_for_new_and_saved_vars rf m =
-    (Term.subst get_current_term_var_for_var rf, Term.subst (get_saved_term_var_for_var m) rf)
+let rf_for_new_and_saved_vars rf cutpoint =
+    (Term.subst get_current_term_var_for_var rf, Term.subst (get_saved_term_var_for_var cutpoint) rf)
 
 ///Converts the RF and bound lists to the triple formula lists
-let lex_rankfunction_to_argument rf_list (bnd_list:Term.term list) m =
-    let (new_rf_list, saved_rf_list) = List.unzip <| List.map (fun rf -> rf_for_new_and_saved_vars rf m) rf_list
+let lex_rankfunction_to_argument rf_list (bnd_list:Term.term list) cutpoint =
+    let (new_rf_list, saved_rf_list) = List.unzip <| List.map (fun rf -> rf_for_new_and_saved_vars rf cutpoint) rf_list
 
     let decr_formulae     = [for i in 1..rf_list.Length -> Formula.Lt(new_rf_list.[i-1], saved_rf_list.[i-1])]
     let not_incr_formulae = [for i in 1..rf_list.Length -> Formula.Le(new_rf_list.[i-1], saved_rf_list.[i-1])]
@@ -245,31 +233,31 @@ let lex_rankfunction_to_argument rf_list (bnd_list:Term.term list) m =
     (decr_formulae, not_incr_formulae, bnd_formulae)
 
 ///Converts the rf and bound to the "decreasing" and "bounded" formulae
-let rankfunction_to_argument rf bnd m =
-    let (new_rf, saved_rf) = rf_for_new_and_saved_vars rf m
+let rankfunction_to_argument rf bnd cutpoint =
+    let (new_rf, saved_rf) = rf_for_new_and_saved_vars rf cutpoint
     (Formula.Lt(new_rf, saved_rf), Formula.Ge(saved_rf, bnd))
 
 ///Converts a rf to the "bounded below by zero" formula
-let bounded_fn_to_arg rf m =
-    let saved_rf = Term.subst (get_saved_term_var_for_var m) rf
+let bounded_fn_to_arg rf cutpoint =
+    let saved_rf = Term.subst (get_saved_term_var_for_var cutpoint) rf
     Formula.Ge(saved_rf, Term.constant 0)
 
 ///Converts a rf to the "unaffected" formula
-let unaff_fn_to_arg rf m =
+let unaff_fn_to_arg rf cutpoint =
     let new_rf = Term.subst get_current_term_var_for_var rf
-    let saved_rf = Term.subst (get_saved_term_var_for_var m) rf
+    let saved_rf = Term.subst (get_saved_term_var_for_var cutpoint) rf
     Formula.Le(new_rf, saved_rf)
 
 ///Converts a rf and aux_rf to the "rf increases by no more than aux_rf" formula
-let lim_incr_to_arg rf aux_rf m =
+let lim_incr_to_arg rf aux_rf cutpoint =
     let new_rf = Term.subst get_current_term_var_for_var rf
-    let saved_rf = Term.subst (get_saved_term_var_for_var m) rf
-    let saved_aux_rf = Term.subst (get_saved_term_var_for_var m) aux_rf
+    let saved_rf = Term.subst (get_saved_term_var_for_var cutpoint) rf
+    let saved_aux_rf = Term.subst (get_saved_term_var_for_var cutpoint) aux_rf
     Formula.Le(new_rf, Term.Add(saved_rf,saved_aux_rf))
 
 ///Converts a rf to the "negative" formula
-let neg_fn_to_arg rf m =
-    Formula.Lt(Term.subst (get_saved_term_var_for_var m) rf, Term.constant 0)
+let neg_fn_to_arg rf cutpoint =
+    Formula.Lt(Term.subst (get_saved_term_var_for_var cutpoint) rf, Term.constant 0)
 
 ///Takes in some lexicographic solutions and puts them in past_lex_options in case we want to use them later
 let store_lex_options cp more_options lex_info =
@@ -277,7 +265,7 @@ let store_lex_options cp more_options lex_info =
     lex_info.past_lex_options <- Map.add cp (more_options@options) lex_info.past_lex_options
 
 ///Tries to find a Lex_WF or Program_Simplification
-let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle_rel m lex_info =
+let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle_rel lex_info =
     let old_partial_order = Map.find cutpoint lex_info.partial_orders
     match Rankfunction.synthesis_lex pars p cutpoint cycle_rel old_partial_order with
     | Some(Lexoptions(lexoptions)) ->
@@ -298,7 +286,7 @@ let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) cutpoint cyc
                 //note we check all the lex RFs at this point, not just the one we're going to instrument
                 check_lex_rankfunction_valid new_partial_order simp_rf_list simp_bnd_list
 
-                let (rf_formulae,not_incr_formulae,bnd_formulae) = lex_rankfunction_to_argument simp_rf_list simp_bnd_list m
+                let (rf_formulae,not_incr_formulae,bnd_formulae) = lex_rankfunction_to_argument simp_rf_list simp_bnd_list cutpoint
                 ((rf_formulae,not_incr_formulae,bnd_formulae),new_partial_order)
 
             //process all the lex options now
@@ -320,7 +308,7 @@ let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) cutpoint cyc
             None
 
 ///Tries to find a Lex_WF, when we're doing the init_cond improvement
-let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle_rel m lex_info =
+let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle_rel lex_info =
     let current_partial_orders = Map.find cutpoint lex_info.partial_orders_init_cond
     let old_partial_order = Map.find lex_info.current_counter current_partial_orders
     let counter = lex_info.current_counter
@@ -343,7 +331,7 @@ let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) cu
 
             check_lex_rankfunction_valid new_partial_order simp_rf_list simp_bnd_list
 
-            let (rf_formulae,not_incr_formulae,bnd_formulae) = lex_rankfunction_to_argument simp_rf_list simp_bnd_list m
+            let (rf_formulae,not_incr_formulae,bnd_formulae) = lex_rankfunction_to_argument simp_rf_list simp_bnd_list cutpoint
 
             Some(Lex_WF(cutpoint,rf_formulae,not_incr_formulae,bnd_formulae))
     | Some(Program_Simplification(toremove)) -> Some(Transition_Removal(toremove))
@@ -392,7 +380,7 @@ let dot_poly_trees (trees:poly_tree list) (fname : string) =
     printf "Created %s\n" fname
 
 ///Convert a lexicographic polyranking function (i.e. list of trees) and give out the formulae to be put in the checkers in DNF
-let make_poly_checkers (trees:poly_tree list) m =
+let make_poly_checkers (trees:poly_tree list) cutpoint =
     //checkers is a dictionary from i to L_i, where L_i is the ith lexicographic option
     //and the lexicographic polyranking termination argument is "L_1 or L_2 or ... or L_n"
     let checkers = new System.Collections.Generic.Dictionary<int,Formula.formula list>()
@@ -403,7 +391,7 @@ let make_poly_checkers (trees:poly_tree list) m =
     for i in 1..trees.Length do
         let tree = trees.[i-1]
         match tree with
-        | poly_tree.EN(_,rf,_) -> checkers.[i] <- (bounded_fn_to_arg rf m)::checkers.[i]
+        | poly_tree.EN(_,rf,_) -> checkers.[i] <- (bounded_fn_to_arg rf cutpoint)::checkers.[i]
         | _                    -> failwith "unexpected"
 
     //now all the other constraints
@@ -413,14 +401,14 @@ let make_poly_checkers (trees:poly_tree list) m =
             for child in children do
                 match child with
                 | poly_tree.U(child_index) ->
-                    checkers.[child_index] <- (unaff_fn_to_arg rf m)::checkers.[child_index]
+                    checkers.[child_index] <- (unaff_fn_to_arg rf cutpoint)::checkers.[child_index]
                 | poly_tree.N(child_index, child_rf) ->
-                    checkers.[child_index] <- (lim_incr_to_arg rf child_rf m)::checkers.[child_index]
+                    checkers.[child_index] <- (lim_incr_to_arg rf child_rf cutpoint)::checkers.[child_index]
                 | poly_tree.EN(child_index, child_rf, _) ->
-                    checkers.[child_index] <- (lim_incr_to_arg rf child_rf m)::checkers.[child_index]
+                    checkers.[child_index] <- (lim_incr_to_arg rf child_rf cutpoint)::checkers.[child_index]
                     poly_tree_to_checkers child
         | poly_tree.N(index,rf) ->
-            checkers.[index] <- (neg_fn_to_arg rf m)::checkers.[index]
+            checkers.[index] <- (neg_fn_to_arg rf cutpoint)::checkers.[index]
         | poly_tree.U(_) -> ()
     for tree in trees do (poly_tree_to_checkers tree)
 
@@ -440,7 +428,7 @@ let find_lex_poly_RF_with_fixed_depth (pars : Parameters.parameters) cycle_rel o
         None
 
 ///Tries to find a Lex_Poly_RF
-let find_lex_poly_RF (pars : Parameters.parameters) cutpoint cycle_rel m lex_info =
+let find_lex_poly_RF (pars : Parameters.parameters) cutpoint cycle_rel lex_info =
     let old_partial_order = Map.find cutpoint lex_info.partial_orders
     let mutable polyrank_depth = 2
     let mutable poly_found = None
@@ -481,17 +469,17 @@ let find_lex_poly_RF (pars : Parameters.parameters) cutpoint cycle_rel m lex_inf
         //we aren't checking validity either
 
         //turn the tree into lists of formulae ready to be implemented as checkers
-        let poly_checkers = make_poly_checkers trees m
+        let poly_checkers = make_poly_checkers trees cutpoint
 
         Some(Poly_WF(poly_checkers))
 
 ///Tries to find a WF for cycle_rel
-let find_disj_RF (pars : Parameters.parameters) cutpoint cycle_rel m =
+let find_disj_RF (pars : Parameters.parameters) cutpoint cycle_rel =
     match Rankfunction.synthesis cycle_rel with
         | Some(rf, bnd) ->
                 Log.log pars <| sprintf "RF candidate: %A with bound %A at CP %d" rf bnd cutpoint
                 check_rankfunction_valid pars cycle_rel rf bnd
-                let (rf_formula, bnd_formula) = rankfunction_to_argument rf bnd m
+                let (rf_formula, bnd_formula) = rankfunction_to_argument rf bnd cutpoint
                 Some(Disj_WF(cutpoint, rf_formula, bnd_formula))
         | None ->
                 Log.log pars "Couldn't find a rank function"
@@ -502,7 +490,7 @@ let find_disj_RF (pars : Parameters.parameters) cutpoint cycle_rel m =
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Return the appropriate type of Refinement or none
-let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle cycle_rel m (lex_info:LexicographicInfo) =
+let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle cycle_rel (lex_info:LexicographicInfo) =
     //are we finding lexicographic RFs for this cutpoint?
     let attempting_lex = Map.find cutpoint lex_info.cp_attempt_lex
 
@@ -519,13 +507,13 @@ let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) cutpoint cy
     if attempting_lex then
         if not polyranking then
             if not init_cond then
-                find_lex_RF pars p cutpoint cycle_rel m lex_info
+                find_lex_RF pars p cutpoint cycle_rel lex_info
             else
-                find_lex_RF_init_cond pars p cutpoint cycle_rel m lex_info
+                find_lex_RF_init_cond pars p cutpoint cycle_rel lex_info
         else
-            find_lex_poly_RF pars cutpoint cycle_rel m lex_info
+            find_lex_poly_RF pars cutpoint cycle_rel lex_info
     else
-        find_disj_RF pars cutpoint cycle_rel m
+        find_disj_RF pars cutpoint cycle_rel
 
 let split_path_for_cp pi cp =
     let rec split_path_for_cp' pi cp stem_acc =
@@ -572,13 +560,10 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
     let strengthened_cycle = (-1, Programs.consts_cmds cycle, -1)::cycle
     let strengthened_cycle_rel = Programs.cmdPathToRelation strengthened_cycle pi_vars_cleaned
 
-    //Builds a map from variables to their old (copied) counterparts
-    let var_to_old_var_mapping = find_var_to_old_var_mapping cp pi_commands
-    
     //Try to refine the termination argument:
     let mutable ret = None
     Stats.incCounter "T2 - Counterexample investigation without path invariant"
-    ret <- refine_cycle pars p cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
+    ret <- refine_cycle pars p cp strengthened_cycle strengthened_cycle_rel lex_info
 
     // If we didn't find a rank function yet, try strengthening the cycle with a path invariant...
     if ret = None then
@@ -593,7 +578,7 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
 
         let strengthened_cycle = (-1, [Programs.assume invariant], -1) :: strengthened_cycle
         let strengthened_cycle_rel = Programs.cmdPathToRelation strengthened_cycle pi_vars_cleaned
-        ret <- refine_cycle pars p cp strengthened_cycle strengthened_cycle_rel var_to_old_var_mapping lex_info
+        ret <- refine_cycle pars p cp strengthened_cycle strengthened_cycle_rel lex_info
         if ret.IsSome then
             Stats.incCounter "T2 - Counterexample investigation with path invariant successful"
         else

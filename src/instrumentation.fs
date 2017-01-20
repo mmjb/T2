@@ -597,7 +597,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 let var_copy_commands (p_c : Programs.Program) cp =
     let vars = p_c.Variables |> Set.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
 
-    let copy_vars = vars |> Seq.map (fun x -> Formula.save_state_var x cp)
+    let copy_vars = vars |> Seq.map (fun x -> Formula.save_state_var cp x)
 
     //Add to mapping of variables
     let copy_vars_to_vars = (vars,copy_vars) ||> Seq.zip |> Seq.fold (fun (acc:Map<var,var>) (x,y) -> acc.Add(y,x)) Map.empty
@@ -769,12 +769,11 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
 
     //For every loop, we want to add a boolean copied value before each loop node, generate this variable here
     //Also determine the set of transitions outgoing frin the loop dominated by this cutpoint.
-    for (_, _, k') in p.Transitions do
-        if (p_loops.ContainsKey k') then
-            let cutpoint_copy = get_copy_of_loopnode k'
-            let copy = Formula.copy_var cutpoint_copy
-            if not(copy_loop_var.ContainsKey(cutpoint_copy)) then
-                copy_loop_var.Add(cutpoint_copy, copy)
+    for KeyValue(cutpoint, _) in p_loops do
+        let cutpoint_copy = get_copy_of_loopnode cutpoint
+        let copy = Formula.copy_var cutpoint
+        if not(copy_loop_var.ContainsKey(cutpoint_copy)) then
+            copy_loop_var.Add(cutpoint_copy, copy)
 
     let node_to_scc_nodes =
        p_sccs.Items
@@ -811,6 +810,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
 
                 //This contains all nodes in k's loop:
                 let current_cfg_scc_nodes = Map.find k node_to_scc_nodes
+                let current_cfg_scc_cp = current_cfg_scc_nodes |> Set.filter p_loops.ContainsKey 
 
                 // Case 1: This is a transition inside our SCC
                 if Set.contains k' current_cfg_scc_nodes then
@@ -826,9 +826,9 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                         p_F.AddTransition
                             copied_k
                                  (true_assume
-                                  ::(Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))
-                                  ::(Programs.assign copied_var (Term.Const(bigint.One)))
-                                  ::(var_copy_commands p_F copied_k))
+                                  ::[for cp in current_cfg_scc_cp do yield Programs.assume (Formula.Lt(Term.Var(copy_loop_var.[get_copy_of_loopnode cp]), Term.Const(bigint.One)))] 
+                                  @((Programs.assign copied_var (Term.Const(bigint.One)))
+                                  ::(var_copy_commands p_F k)))
                             after_varcopy_node
                             |> ignore
 
