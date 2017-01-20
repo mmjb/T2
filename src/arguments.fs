@@ -28,8 +28,6 @@ type runMode =
     | Test
     | Safety of string
     | Termination
-    | CTL of string
-    | CTLStar of string
 
 let parseArguments arguments =
     let pars = Parameters.defaultParameters
@@ -38,7 +36,6 @@ let parseArguments arguments =
     let output_file = ref "out"
     let imperative_style = ref Parameters.Goto
     let java_nondet_style = ref Parameters.Aprove
-    let fairness_constraint_string = ref ""
 
     let setMode m =
         if (!mode).IsSome then
@@ -104,15 +101,6 @@ let parseArguments arguments =
              .Add( "termination"
                  , "Run termination prover"
                  , fun _ -> setMode Termination)
-             .Add( "CTL="
-                 , "Run CTL temporal prover on given formula"
-                 , fun s -> setMode (CTL s))
-             .Add( "CTLStar="
-                 , "Run CTL* temporal prover on given formula"
-                 , fun s -> setMode (CTLStar s))
-             .Add( "fairness="
-                 , "Only consider program runs satisfying the given fairness constraint (p, q)"
-                 , fun s -> fairness_constraint_string := s)
              .Add( "output_as="
                  , sprintf "Output input file in given format [known: %s]" knownOutputFormats
                  , parse_output_type_string)
@@ -298,4 +286,4 @@ let parseArguments arguments =
         optionSet.WriteOptionDescriptions(System.Console.Error, false)
         exit 3
 
-    (!t2_input_file, (!mode).Value, pars, !fairness_constraint_string, !output_file, !imperative_style, !java_nondet_style)
+    (!t2_input_file, (!mode).Value, pars, !output_file, !imperative_style, !java_nondet_style)

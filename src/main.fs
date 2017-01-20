@@ -37,7 +37,7 @@ let main (arguments: string[]) =
     Stats.startTimer "T2 - Initialization"
 
     // Perform the arguments parsing
-    let (t2_input_file, runMode, parameters, fairness_constraint_string, output_file, imperative_style, java_nondet_style) = Arguments.parseArguments arguments
+    let (t2_input_file, runMode, parameters, output_file, imperative_style, java_nondet_style) = Arguments.parseArguments arguments
 
     //only run the tests, if this is wanted:
     if runMode = Arguments.Test then
@@ -63,10 +63,6 @@ let main (arguments: string[]) =
             eprintfn "Error: Certificate export only supported for safety and termination at this time."
             exit 4
 
-        if fairness_constraint_string <> "" then
-            eprintfn "Error: Certificate export for fair termination not supported at this time."
-            exit 4
-
         if parameters.safety_implementation <> Parameters.Impact then
             eprintfn "Error: Certificate export only supported for Impact safety backend at this time."
             exit 4
@@ -85,8 +81,6 @@ let main (arguments: string[]) =
 
     let protectLocations =
         match runMode with
-            | Arguments.CTL _
-            | Arguments.CTLStar _
             | Arguments.Safety _ -> true
             | _ -> true
 
@@ -135,48 +129,15 @@ let main (arguments: string[]) =
             | None -> printfn "Safety proof succeeded"
             | Some _ -> printfn "Safety proof failed"
             
-        | Arguments.Termination
-        | Arguments.CTL _
-        | Arguments.CTLStar _ ->
-            let fairness_constraint =
-                if fairness_constraint_string <> "" then
-                    let lexbuf = Microsoft.FSharp.Text.Lexing.LexBuffer<byte>.FromBytes (System.Text.Encoding.ASCII.GetBytes fairness_constraint_string)
-                    Some (Absparse.Fairness_constraint Absflex.token lexbuf)
-                else
-                    None
-
-            match runMode with 
-            | Arguments.Termination ->
-                let formula = CTL.AF(CTL.Atom(Formula.falsec))
-                match Termination.bottomUpProver parameters p formula true fairness_constraint with
-                | Some (true, proof_printer) -> 
-                    printfn "Termination proof succeeded"
-                    if parameters.print_proof then proof_printer System.Console.Out
-                | Some (false, proof_printer) -> 
-                    printfn "Nontermination proof succeeded"
-                    if parameters.print_proof then proof_printer System.Console.Out
-                | None -> printfn "Termination/nontermination proof failed"
-            | Arguments.CTL formulaString ->
-                let formula = CTL_Parser.parse_CTL formulaString
-                match Termination.bottomUpProver parameters p formula false fairness_constraint with
-                | Some (true, proof_printer) ->
-                    printfn "Temporal proof succeeded"
-                    if parameters.print_proof then proof_printer System.Console.Out
-                | Some (false, proof_printer) ->
-                    printfn "Temporal proof failed"
-                    if parameters.print_proof then proof_printer System.Console.Out
-                | None -> printfn "Temporal proof failed"
-            | Arguments.CTLStar formulaString ->
-                let formula = CTL_Parser.parse_CTLStar formulaString
-                match Termination.CTLStar_Prover parameters p formula false with
-                | Some (true, proof_printer) ->
-                    printfn "Temporal proof succeeded"
-                    if parameters.print_proof then proof_printer System.Console.Out
-                | Some (false, proof_printer) ->
-                    printfn "Temporal proof failed"
-                    if parameters.print_proof then proof_printer System.Console.Out
-                | None -> printfn "Temporal proof failed"
-            | _ -> assert(false); //This cannot happen, but we need this fallthrough to avoid a warning.
+        | Arguments.Termination ->
+            match Termination.bottomUpProver parameters p with
+            | Some (true, proof_printer) -> 
+                printfn "Termination proof succeeded"
+                if parameters.print_proof then proof_printer System.Console.Out
+            | Some (false, proof_printer) -> 
+                printfn "Nontermination proof succeeded"
+                if parameters.print_proof then proof_printer System.Console.Out
+            | None -> printfn "Termination/nontermination proof failed"
 
     Stats.endTimer "T2 - Execution"
 

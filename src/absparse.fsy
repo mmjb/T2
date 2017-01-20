@@ -57,16 +57,7 @@ let normalize_var (v : string) =
 %token F G X W U
 
 %start program
-%start CTL_formula
-%start CTLStar_formula
-%start State_formula
-%start Path_formula
-%start Fairness_constraint
 
-%type <CTL.CTL_Formula> CTL_formula
-%type <CTL.CTLStar_Formula> CTLStar_formula
-%type <CTL.State_Formula> State_formula
-%type <CTL.Path_Formula> Path_formula
 %type <parsedLoc * parsedLoc * (parsedLoc * Programs.Command list * parsedLoc) list * (Var.var * Var.var) list * bool> program
 %type <(parsedLoc * Programs.Command list * parsedLoc) list> blocks
 %type <parsedLoc * Programs.Command list * parsedLoc> block
@@ -75,7 +66,6 @@ let normalize_var (v : string) =
 %type <Formula.formula> formula
 %type <Term.term> term
 %type <bigint> num
-%type <Formula.formula * Formula.formula> Fairness_constraint
 %type <parsedLoc> loc
 
 %left   OR_OP
@@ -190,49 +180,6 @@ ATOM
     | term EQ term { Formula.Eq($1,$3) }
     | term NE term { Formula.Not(Formula.Eq($1,$3)) }
     ;
-
-State_formula 
-    : ATOM { CTL.State_Formula.Atm $1}
-    | A Path_formula { CTL.State_Formula.A $2}
-    | E Path_formula { CTL.State_Formula.E $2}
-	| CTLStar_formula AND_OP CTLStar_formula { CTL.State_Formula.And($1, $3) }
-    | CTLStar_formula OR_OP CTLStar_formula { CTL.State_Formula.Or($1, $3) }
-	| LPAREN State_formula RPAREN { $2 }
-	;
-
-Path_formula
-    : F LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.F $3}
-	| G LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.G $3}
-	| X LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.X $3}
-    | W LPAREN CTLStar_formula RPAREN COMMA LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.W($3, $7) }
-	| U LPAREN CTLStar_formula RPAREN COMMA LPAREN CTLStar_formula RPAREN { CTL.Path_Formula.U($3, $7) }
-	| LPAREN Path_formula RPAREN { $2 }
-	;
-
-CTLStar_formula
-	: Path_formula {CTL.CTLStar_Formula.Path $1}
-	| State_formula {CTL.CTLStar_Formula.State $1}
-	;
-
-CTL_formula
-	: ATOM { CTL.CTL_Formula.Atom $1}
-	| CTL_formula AND_OP CTL_formula { CTL.CTL_Formula.CTL_And($1, $3) }
-    | CTL_formula OR_OP CTL_formula { CTL.CTL_Formula.CTL_Or($1, $3) }
-	| AF LPAREN  CTL_formula RPAREN { CTL.CTL_Formula.AF $3}
-    | AG LPAREN CTL_formula RPAREN { CTL.CTL_Formula.AG $3}
-	| AW LPAREN CTL_formula RPAREN COMMA LPAREN CTL_formula RPAREN { CTL.CTL_Formula.AW($3, $7) }
-    | AX LPAREN CTL_formula RPAREN { CTL.CTL_Formula.AX $3}
-	| EF LPAREN  CTL_formula RPAREN { CTL.CTL_Formula.EF $3}
-    | EG LPAREN CTL_formula RPAREN { CTL.CTL_Formula.EG $3}
-	| EU LPAREN CTL_formula RPAREN COMMA LPAREN CTL_formula RPAREN { CTL.CTL_Formula.EU($3, $7) }
-    | EX LPAREN CTL_formula RPAREN { CTL.CTL_Formula.EX $3}
-	| LPAREN CTL_formula RPAREN { $2 }
-    | NOT CTL_formula { CTL.CTL_Formula.negate $2 }
-	;
-
-Fairness_constraint
-	: LPAREN formula COMMA formula RPAREN { ($2, $4) }
-	;
 
 num
     : Num { $1 }

@@ -36,7 +36,6 @@ open Utils
 open System.Collections.Generic
 open Formula
 open Var
-open CTL
 open SafetyInterface
 
 let FINAL_LOC_LABEL = "__instr_final_loc"
@@ -605,145 +604,13 @@ let var_copy_commands (p_c : Programs.Program) cp =
     //Make new command list that assigns var to var_old_CP
     copy_vars_to_vars |> Seq.map (fun x -> Programs.assign x.Key (Term.Var(x.Value))) |> List.ofSeq
 
-// Either it's a Prop or not (AG, AF, AW).
-// Used to unify return types from instrument_prop and instrument_*.
-type Either<'a,'b> =
-        | IsAProp of 'a
-        | IsNotAProp of 'b
-
-let generate_checker_instrumentation_nodes n (p : Programs.Program) =
-    let end_of_subproperty_node_s = "end_of_subproperty_node" + n.ToString();
-    let start_of_subproperty_node_s = "start_of_subproperty_node" + n.ToString();
-    let end_of_subproperty_node = p.GetLabelledNode end_of_subproperty_node_s
-    //Node to point at other nested graphs later.
-    let start_of_subproperty_node = p.GetLabelledNode start_of_subproperty_node_s
-
-    (end_of_subproperty_node, start_of_subproperty_node)
-
-//******************************************************************************************************//
-// HK: Experimental Code : Bottom Up Temporal Property Verification of Infinite State Transition Systems//
-//******************************************************************************************************//
-
-let eliminate_redun (lst : (int * Formula.formula) list) : (int*Formula.formula) list =
-    let var_terms = System.Collections.Generic.Dictionary<Term.term, bigint>()
-    let simplify ((x, y) : ('a * formula)) =
-        let disjuncts = y.PolyhedraDNF().SplitDisjunction()
-        let split_var = (disjuncts |> Formula.freevars_list) |> Set.map(fun z -> Term.Var(z))
-        let removeRedundantBounds n =
-            match n with
-            | Le (s, t) when s.isVar && not(t.isVar) && split_var.Contains s ->
-                if var_terms.ContainsKey(s) then
-                    if Term.eval(t) > var_terms.[s] then
-                        var_terms.Add(s,Term.eval(t))
-                        Le (s, t)
-                    else
-                        Le (s, Term.Const(var_terms.[s]))
-                else
-                    var_terms.Add(s,Term.eval(t))
-                    Le (s, t)
-            |_ -> n
-
-        let y =
-               disjuncts
-            |> List.map removeRedundantBounds
-            |> Set.ofList |> Set.toList |> Formula.disj
-            |> Formula.z3 |> Z.simplify |> Formula.fromZ3
-        (x, y)
-    lst |> Set.ofList |> Set.map simplify |> Set.toList
-
-/// Extracts the precondition for the current subproperty at cutpoint cp, and adds in new checkers for this subproperty between
-/// start_node_for_subproperty and ret_true_node (for cases where it holds)/ret_false_node (for cases where it does not hold)
-let add_subproperty_conditions (p : Programs.Program) conditions_per_cp cp isExistential start_node_for_subproperty ret_true_node ret_false_node =
-    let distribute xss =
-        let rec f xss rs rss =
-            match xss with
-            | (x::xs)::xss -> f xss (x::rs) (f (xs::xss) rs rss)
-            | []::_ -> rss
-            | [] -> rs::rss
-        f xss [] []
-
-    //A list of lists, where the rows are conjunctions and the columns are disjunctions. This means that we want to create a DNF
-    //out of CNF. The reason why we're doing this is because we cannot represent disjunction in our graph, thus we must branch with
-    //every disjunction possible. This may be expensive, but it seems that we only get two disjunctions at most.
-    //Note that for E we need the disjunction of the pre-conditions for a location, versus the conjunction. This is dealt
-    //with in another function through flattening the formulas with the same node through disjunction. This is not done for A
-    let cond = conditions_per_cp |> List.filter (fun (x,_) -> x = cp) |> List.map (fun ((_,y) : ('a * formula)) -> y.PolyhedraDNF().SplitDisjunction())
-
-    //We generate a list of disjunctions of conjunctions (list of lists), then we flatten to just a list of disjunctions
-    //between conjucted formulas
-
-    //Get rid of redundant formulae to error locations by checking for entailment. TODO: Do the same for dnf_cond. 
-    let precond_entail x y = x |> List.collect(fun z ->
-                                    if not(Formula.entails z Formula.falsec) && z <> Formula.truec && not(Formula.entails y Formula.falsec) && y <> Formula.truec then
-                                        if Formula.entails z y then [z]
-                                        else if Formula.entails y z then [y]
-                                        else [y;z]
-                                    else [y;z]) |> Set.ofList |> Set.toList
-    
-    let dnf_cond = distribute cond |> List.map (fun x -> Formula.conj x) |> Set.ofList
-    //Generate the equivalent for the negation:
-    let neg_cond = conditions_per_cp |> List.filter (fun (x,_) -> x = cp) |> List.map (fun (_,y) -> Formula.negate(y)) |> Formula.disj
-    let neg_cond = neg_cond.PolyhedraDNF().SplitDisjunction() |> Set.ofList
-
-    //If existential then we want to reverse dnf_cond and neg_cond because we are doing the negation of A
-    let (dnf_cond, neg_cond) = if isExistential then (neg_cond, dnf_cond) else (dnf_cond, neg_cond)
-    let init_cond = (neg_cond |> Set.toList).Head
-    let neg_cond = neg_cond |> Set.toList |> List.fold(fun acc elem -> precond_entail acc elem) [init_cond] |> Set.ofList |> Set.toList
-
-    //Handling dnf_cond  instrumentation
-    for l in dnf_cond do
-        //Since we're doing disjunctions, must add transition for each disjunction
-        p.AddTransition
-            start_node_for_subproperty
-                [ (Programs.assume l) ]
-            ret_true_node |> ignore
-
-    //Handling neg_cond instrumentation
-    for l in neg_cond do
-        p.AddTransition
-            start_node_for_subproperty
-                [ (Programs.assume l) ]
-            ret_false_node |> ignore
-    ()
-
-/// Add transitions that ensure the fairness constraint (which may well be None) to the program p, between nodes ret_true_node/ret_false_node and end_node_of_subproperty.
-///
-/// This also takes care of assigning the correct value to ret_var, based on whether we are coming from ret_true_node/ret_false_node.
-let add_fairness_check_transititions (p : Programs.Program) (fairness_constraint : ((Programs.Command list * Programs.Command list) * Programs.Command list list) option) trans_idx ret_var ret_true_node ret_false_node end_node_of_subproperty =
-    if fairness_constraint.IsNone then
-        p.AddTransition ret_true_node [Programs.assign ret_var (Term.Const(bigint.One))] end_node_of_subproperty |> ignore
-        p.AddTransition ret_false_node [Programs.assign ret_var (Term.Const(bigint.Zero))] end_node_of_subproperty |> ignore
-
-    else
-        let fair_node = p.GetLabelledNode ("FAIR_" + trans_idx.ToString())
-        p.AddTransition ret_true_node [Programs.assign ret_var (Term.Const(bigint.One))] fair_node |> ignore
-        p.AddTransition ret_false_node [Programs.assign ret_var (Term.Const(bigint.Zero))] fair_node |> ignore
-
-        let fair_node2 = p.NewNode()
-        let((fair, fair_1), fair_2) = fairness_constraint.Value
-        p.AddTransition fair_node fair fair_node2 |> ignore
-        p.AddTransition fair_node2 fair_1 end_node_of_subproperty |> ignore
-
-        for n in fair_2 do
-            p.AddTransition fair_node n end_node_of_subproperty |> ignore
-
-let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (propertyMap : SetDictionary<CTL_Formula, int * Formula.formula>) isTerminationOnly (fairness_constraint : ((Programs.Command list * Programs.Command list) * Programs.Command list list) option) findPreconds isExistential =
-    assert (isTerminationOnly)
-    assert (not findPreconds)
-    assert (not isExistential)
+let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Program) =
     let p_F = p.Clone()
     let final_loc = p_F.GetLabelledNode FINAL_LOC_LABEL
-
-    //Add return value to instrumented program, and also add it to set to keep track of all the return values
-    let ret = Formula.subcheck_return_var "0"
 
     //Map from each node starting a loop to the corresponding __copied_ variable
     let copy_loop_var = new System.Collections.Generic.Dictionary<int, var>()
     let (p_loops, p_sccs) = p.FindLoops()
-
-    //let cp_conditions = eliminate_redun propertyMap.[formula]
-    let cp_conditions = propertyMap.[formula] |> List.ofSeq
-    let cp_propMap = cp_conditions |> List.map(fun (x,_) -> x)
 
     //Prepare node copies for the splitted-out AF instrumentation
     let loopnode_to_copiednode = System.Collections.Generic.Dictionary()
@@ -858,8 +725,7 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
                         //Hence, we return false to allow for backtracking
                         p_F.AddTransition
                             after_RF_check_node
-                                [ true_assume
-                                ; Programs.assign ret (Term.Const(bigint.Zero)) ]
+                                [ true_assume ]
                             final_loc |> ignore
 
                     //Instead of original transition from CP, add one from the node in which we copied the program variables:
@@ -889,83 +755,16 @@ let instrument_F (pars : Parameters.parameters) (p : Programs.Program) formula (
 
         else // if(k <> p_F.initial)
             let init_copied_var_cmmds = copy_loop_var |> Seq.map (fun x -> (Programs.assign x.Value (Term.Const(bigint.Zero))))
-            if fairness_constraint.IsSome then
-                p_F.SetTransition transId
-                    (k, (cmds@(List.ofSeq(init_copied_var_cmmds))@
-                        ([Programs.assume (Formula.Gt(Term.Var Formula.fair_proph_var,Term.Const(bigint.MinusOne)));
-                            Programs.assign Formula.fair_proph_old_var (Term.Var Formula.fair_proph_var);
-                                Programs.assign Formula.fair_term_var (Term.Const(bigint.Zero))])), 
-                     k')
-            else
-                p_F.SetTransition transId (k, (cmds@(List.ofSeq(init_copied_var_cmmds))), k')
-
-    let loop_var_cmmd = copy_loop_var |> Seq.map (fun x -> Programs.assign x.Value (Term.Const(bigint.Zero)))
+            p_F.SetTransition transId (k, (cmds@(List.ofSeq(init_copied_var_cmmds))), k')
 
     let loopnode_to_copiednode = loopnode_to_copiednode |> Seq.map (fun x -> (x.Key, x.Value)) |> Map.ofSeq
-    (p_F, ret, final_loc, List.ofSeq(loop_var_cmmd), loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId)
-
-let bottomUp_AF (pars : Parameters.parameters) p formula propertyMap isTerminationOnly fairness_constraint findPreconds =
-    instrument_F pars p formula propertyMap isTerminationOnly fairness_constraint findPreconds false
-
-/// Returns the programs that encodes both input program and the checked property,
-/// the error location and a map from cutpoints to the first transition leading to
-/// the error location (this is where the rfs are later added in)
-let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program) actl_prop (is_false : bool) propertyMap (fairness_constraint : (Formula.formula * Formula.formula) option) findPreconds next =
-    //Propechy variable old and new
-    let proph_var = Formula.fair_proph_var
-    let proph = Term.Var Formula.fair_proph_var
-    let proph_old_var = Formula.fair_proph_old_var
-    let proph_old = Term.Var Formula.fair_proph_old_var
-
-    //Changing the two formula of fairness constraints into 3 commands (Disjunction and what not), in order to instrument in easily
-    //An array of array pairs
-    let fairness_constraint : ((Programs.Command list * Programs.Command list) * Programs.Command list list) option =
-        if fairness_constraint.IsSome then
-            let (fair_1,fair_2) = fairness_constraint.Value
-            let not_fair_1 =
-                   (Formula.negate fair_1).PolyhedraDNF().SplitDisjunction()
-                |> List.map(fun x -> [Programs.assume x; Programs.assume (Formula.Eq(proph_old, proph))])
-
-            Some(
-                    ([ Programs.assume fair_1
-                     ; Programs.assign proph_var (Term.Sub (proph,(Term.Const(bigint.One))))],
-
-                     [ Programs.assume (Formula.Lt(proph,proph_old))
-                     ; Programs.assign proph_old_var proph
-                     ; Programs.assume (Formula.Gt(proph, Term.Const(bigint.MinusOne)))]
-                    ),
-
-                     not_fair_1
-                    @[[ Programs.assume fair_2
-                      ; Programs.assign proph_var (Term.nondet)
-                      ; Programs.assign proph_old_var proph
-                      ; Programs.assume (Formula.Gt(proph, Term.Const(bigint.MinusOne)))];
-
-                      [ Programs.assume (Formula.Eq(Term.Var(Formula.fair_term_var),Term.Const(bigint.One)))
-                      ; Programs.assign proph_var (Term.nondet)
-                      ; Programs.assign proph_old_var proph
-                      ; Programs.assume (Formula.Gt(proph, Term.Const(bigint.MinusOne)))]]
-                )
-
-        else None
- 
-    let (p_final, prop_return, final_loc, loc_copy_pair, loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId) =
-        match actl_prop with
-        | AF e -> bottomUp_AF pars p e propertyMap is_false fairness_constraint findPreconds
-        | _ -> raise (new System.NotImplementedException "Not yet implemented")
-    let error_loc = p_final.NewNode()
-    p_final.AddTransition 
-        final_loc 
-            [ Programs.assume Formula.truec
-            ; (Programs.assume (Formula.Le(Term.Var(prop_return), Term.Const(bigint.Zero))))]
-        error_loc |> ignore
 
     ///Maps cutpoint to the index of the transition from it that leads to the error location (that's where the RFs will go!)
     let cp_rf = new System.Collections.Generic.Dictionary<int, int>()
 
     //Maps first node on the path out of an instrumented loop (to the error location) to the corresponding CP:
     let cp_rf_init = new System.Collections.Generic.Dictionary<int, int>()
-    for (_, (_, cmds, k')) in p_final.TransitionsWithIdx do
+    for (_, (_, cmds, k')) in p_F.TransitionsWithIdx do
         for cmd in cmds do
             match cmd with
             |   Programs.Assume(_,Formula.Ge(Term.Var(v), Term.Const(c))) when is_copied_var v && c = bigint.One ->
@@ -974,7 +773,7 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
                 cp_rf_init.Add(k', num_cp)
             | _ -> ()
     //Maps CP to the the transition leading from the first node on the corresponding path to the error location
-    for (n, (k, cmds, _)) in p_final.TransitionsWithIdx do
+    for (n, (k, cmds, _)) in p_F.TransitionsWithIdx do
         if cp_rf_init.ContainsKey(k) then
             match cmds with
             | [ Programs.Assume (_, trueFormula) 
@@ -986,11 +785,10 @@ let mergeProgramAndProperty (pars : Parameters.parameters) (p : Programs.Program
             | _ -> ()
 
     //Constants propagation
-    if not(next) && pars.constant_propagation then
-        p_final.ConstantPropagation (Analysis.constants p_final)
-    p_final.AddSymbolConstantInformation()
+    if pars.constant_propagation then
+        p_F.ConstantPropagation (Analysis.constants p_F)
+    p_F.AddSymbolConstantInformation()
 
     // Clean up program using live variable analysis (guard variables occurring in our properties, though)
-
-    p_final.LetConvert (Analysis.liveness p_final (CTL_Formula.freevars actl_prop))
-    (p_final, final_loc, error_loc, cp_rf, loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId)
+    p_F.LetConvert (Analysis.liveness p_F Set.empty) 
+    (p_F, final_loc, cp_rf, loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId)
