@@ -780,54 +780,51 @@ type ImpactARG(parameters : Parameters.parameters,
         self.close_all_ancestors v
         self.dfs v
 
-    member __.GetCetaFilteredARGNodes (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramLocation> option) =
+    member __.GetCetaFilteredARGNodes
+            (shouldExportLocation : Programs.ProgramLocation -> bool)
+            (shouldExportTransition : Programs.TransitionId -> Programs.ProgramLocation -> Programs.ProgramLocation -> bool) =
         let res = System.Collections.Generic.HashSet()
         let seen = System.Collections.Generic.HashSet()
         let rec dfs nodeId =
             if seen.Add nodeId then
-                let isDead = garbage.Contains nodeId || dead.Contains nodeId
-                let progLocId = abs_node_to_program_loc.[nodeId]
-                let isInstrumentation =
-                    if locationToCertRepr.IsSome then
-                        match locationToCertRepr.Value.[progLocId] with
-                        | Programs.InstrumentationLocation _ -> true
-                        | _ -> false
-                    else
-                        false
-                if not isDead && not isInstrumentation then
+                let nodeLoc = abs_node_to_program_loc.[nodeId]
+                let shouldExportLoc =
+                    not (garbage.Contains nodeId || dead.Contains nodeId)
+                    && shouldExportLocation nodeLoc
+                if shouldExportLoc then
                     res.Add nodeId |> ignore
-                    Seq.iter dfs E.[nodeId]
+                    for childId in E.[nodeId] do
+                        let childLoc = abs_node_to_program_loc.[childId]
+                        let transIdx = fst abs_edge_to_program_commands.[nodeId, childId]
+                        if shouldExportTransition transIdx nodeLoc childLoc then
+                            dfs childId
         dfs init_node
         res
 
     // Returns a list of formulas that are proven invariants for a program location, to be understood as a disjunction of conjunctions.
     // Note: The result only makes sense for an ARG that has been proven safe.
-    member self.GetLocationInvariant (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramLocation> option) progLoc : (Formula.formula list) list =
-        let nodesToReport = self.GetCetaFilteredARGNodes locationToCertRepr
-        program_loc_to_abs_nodes.[progLoc]
+    member __.GetLocationInvariantForNodes (nodesToReport : System.Collections.Generic.HashSet<int>) (loc : Programs.ProgramLocation) : (Formula.formula list) list =
+        program_loc_to_abs_nodes.[loc]
         |> Seq.filter nodesToReport.Contains
         |> List.ofSeq
         |> List.map (fun node -> psi.[node] |> List.ofSeq)
 
+    member self.GetLocationInvariant
+            (shouldExportLocation : Programs.ProgramLocation -> bool)
+            (shouldExportTransition : Programs.TransitionId -> Programs.ProgramLocation -> Programs.ProgramLocation -> bool)
+            (loc : Programs.ProgramLocation) : (Formula.formula list) list =
+        let nodesToReport = self.GetCetaFilteredARGNodes shouldExportLocation shouldExportTransition
+        self.GetLocationInvariantForNodes nodesToReport loc
+
     member self.ToCeta
-      (writer : System.Xml.XmlWriter)
-      (locationToCertRepr : System.Collections.Generic.Dictionary<int, Programs.CoopProgramLocation> option)
-      (transWriter : (System.Xml.XmlWriter -> int -> unit) option)
-      (filterInstrumentationVars : bool) =
-        let getLocationRepr location =
-            if locationToCertRepr.IsSome then
-                locationToCertRepr.Value.[location]
-            else
-                Programs.OriginalLocation location
-
-        //Fun story. As allow to filter some nodes, whole parts of the ART may become unreachable.
+            (writer : System.Xml.XmlWriter)
+            (transWriter : System.Xml.XmlWriter -> int -> unit)
+            (shouldExportLocation : Programs.ProgramLocation -> bool)
+            (shouldExportTransition : Programs.TransitionId -> Programs.ProgramLocation -> Programs.ProgramLocation -> bool)
+            (shouldExportVar : Var.var -> bool) =
+        //Fun story. As we allow to filter some nodes, whole parts of the ART may become unreachable.
         //Thus, first compute set of nodes to print overall
-        let artNodesToPrint = self.GetCetaFilteredARGNodes locationToCertRepr
-
-        let writeTransId transId =
-            match transWriter with
-            | Some f -> f writer transId
-            | None -> writer.WriteElementString ("transitionId", string transId)
+        let artNodesToPrint = self.GetCetaFilteredARGNodes shouldExportLocation shouldExportTransition
 
         let exportNode nodeId =
             writer.WriteStartElement "node"
@@ -835,11 +832,11 @@ type ImpactARG(parameters : Parameters.parameters,
             //We are not using Formula.conj here because we absolutely want to control the order of formulas...
             let psiLinearTerms =
                 Formula.formula.FormulasToLinearTerms (psi.[nodeId] :> _)
-                |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+                |> Formula.filter_instr_vars shouldExportVar
             writer.WriteStartElement "invariant"
-            Formula.linear_terms_to_ceta writer Var.plainToCeta psiLinearTerms filterInstrumentationVars
+            Formula.linear_terms_to_ceta writer Var.plainToCeta psiLinearTerms shouldExportVar
             writer.WriteEndElement () //end element
-            let progLocRepr = getLocationRepr abs_node_to_program_loc.[nodeId]
+            let progLocRepr = program.GetLocationLabel abs_node_to_program_loc.[nodeId]
             //printfn "ARG node to export: %i (%A)" nodeId progLocRepr
             writer.WriteStartElement "location"
             Programs.exportLocation writer progLocRepr
@@ -850,7 +847,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 writer.WriteElementString ("nodeId", string coverTarget)
 
                 writer.WriteStartElement "hints"
-                for lt in Formula.formula.FormulasToLinearTerms (psi.[coverTarget] :> _) |> Formula.maybe_filter_instr_vars filterInstrumentationVars do
+                for lt in Formula.formula.FormulasToLinearTerms (psi.[coverTarget] :> _) |> Formula.filter_instr_vars shouldExportVar do
                     SparseLinear.writeCeTALinearImplicationHints writer psiLinearTerms lt
                 writer.WriteEndElement () //hints end
 
@@ -868,13 +865,13 @@ type ImpactARG(parameters : Parameters.parameters,
                         | None -> var
                     let transLinearTerms =
                         Formula.formula.FormulasToLinearTerms (transFormula :> _)
-                        |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+                        |> Formula.filter_instr_vars shouldExportVar
                     let nodePsiAndTransLinearTerms = List.append (List.map (SparseLinear.alpha varToPre) psiLinearTerms) transLinearTerms
                     let childPsiLinearTerms =
                         Formula.formula.FormulasToLinearTerms (psi.[childId] :> _)
-                        |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+                        |> Formula.filter_instr_vars shouldExportVar
                     writer.WriteStartElement "child"
-                    writeTransId transId
+                    transWriter writer transId
                     writer.WriteElementString ("nodeId", string childId)
                     writer.WriteStartElement "hints"
                     for lt in childPsiLinearTerms do
@@ -898,7 +895,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 writer.WriteStartElement "errorHint"
                 writer.WriteElementString ("nodeId", string errNode)
                 writer.WriteStartElement "hints"
-                let errNodeLinTerms = Formula.formula.FormulasToLinearTerms (psi.[errNode] :> _) |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+                let errNodeLinTerms = Formula.formula.FormulasToLinearTerms (psi.[errNode] :> _) |> Formula.filter_instr_vars shouldExportVar
                 SparseLinear.writeCeTALinearImplicationHints writer errNodeLinTerms falseLinTerm
                 writer.WriteEndElement () //hints end
                 writer.WriteEndElement ()
@@ -917,15 +914,16 @@ type ImpactARG(parameters : Parameters.parameters,
             printf "BIG PROBLEM 2x!\n"
 
     /// Returns true iff all node invariants are either true or false.
-    member __.IsTrivial filterInstrumentationVars =
-        psi.Values
+    member __.IsTrivial (nodesToReport : System.Collections.Generic.HashSet<int>) shouldExportVar =
+        psi
+        |> Seq.filter (fun(node, _) -> nodesToReport.Contains node)
         |> Seq.forall
-            (fun invs ->
+            (function (_, invs)->
                 invs
                 |> Set.forall
                     (fun inv ->
                         Formula.formula.FormulasToLinearTerms (Seq.singleton inv)
-                        |> Formula.maybe_filter_instr_vars filterInstrumentationVars
+                        |> Formula.filter_instr_vars shouldExportVar
                         |> List.forall (fun lt -> lt = SparseLinear.ZERO_TERM || lt = SparseLinear.ONE_TERM)))
 
     interface SafetyInterface.SafetyProver with

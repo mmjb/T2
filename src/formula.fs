@@ -369,18 +369,21 @@ let get_const_from_constvar (v : System.String) =
     let withoutPrefix = v.[const_prefix.Length ..]
     bigint.Parse withoutPrefix
 
-let copied_prefix = instrumentation_prefix + "copied_"
-let copy_var state = Var.var(copied_prefix + string(state))
+let copied_prefix = instrumentation_prefix + "took_snapshot_"
+let took_snapshot_var state = Var.var(copied_prefix + string(state))
 let is_copied_var (v:string) = v.StartsWith copied_prefix
-let copied_assume k = (Ge(Term.var (copy_var k), Term.constant 1))
-let not_copied_assume k = (Lt(Term.var (copy_var k), Term.constant 1))
+let copied_assume k = (Ge(Term.var (took_snapshot_var k), Term.constant 1))
+let not_copied_assume k = (Lt(Term.var (took_snapshot_var k), Term.constant 1))
 
 let snapshot_prefix = instrumentation_prefix + "snapshot_"
-let save_state_var (cp : int) (v : Var.var) = Var.var(snapshot_prefix + string(cp) + "_" + v)
-let is_saved_var (v:string) = v.StartsWith snapshot_prefix
-let extract_saved_var_name (v:string) = 
+let state_snapshot_var (cp : int) (v : Var.var) = Var.var(snapshot_prefix + string(cp) + "_" + v)
+let is_snapshot_var (v:string) = v.StartsWith snapshot_prefix
+let extract_snapshot_var_name (v:string) =
     let withoutPrefix = v.[snapshot_prefix.Length ..]
     withoutPrefix.[(withoutPrefix.IndexOf "_") + 1 ..]
+let extract_snapshot_cp (v:string) =
+    let withoutPrefix = v.[snapshot_prefix.Length ..]
+    int(withoutPrefix.[0 .. withoutPrefix.IndexOf "_" - 1])
 
 let init_cond_prefix = instrumentation_prefix + "init_cond_at_"
 let init_cond_var cp = Var.var init_cond_prefix + string(cp)
@@ -403,11 +406,12 @@ let subcheck_return_var id = Var.var subcheck_return_prefix + string(id)
 let is_subcheck_return (v:string) = v.StartsWith subcheck_return_prefix
 let contains_var_str (var:string) (v:Var.var) = v.Contains var
 
-let is_instr_var (v:string) =  is_saved_var v
+let is_instr_var (v:string) =  is_snapshot_var v
                             || is_copied_var v
                             || is_init_cond_var v
                             || is_iter_var v
                             || is_subcheck_return v
+let is_noninstr_var v = not <| is_instr_var v
 
 let contains_instr_var f = f |> freevars |> Seq.exists is_instr_var
 let contains_fair_var f = f |> freevars |> Seq.exists is_fair_var
@@ -565,19 +569,15 @@ let fromZ3 f =
        !res
    z3f(get f)
 
-let maybe_filter_instr_vars (filterInstrumentationVars : bool) (linearTerms : SparseLinear.LinearTerm seq) =
-    if filterInstrumentationVars then
-        linearTerms
-        |> Seq.filter (fun t -> not <| Map.exists (fun key _ -> is_instr_var key) t)
-        |> List.ofSeq
-    else
-        linearTerms
-        |> List.ofSeq
+let filter_instr_vars (shouldPrintVar : Var.var -> bool) (linearTerms : SparseLinear.LinearTerm seq) =
+    linearTerms
+    |> Seq.filter (Map.forall (fun key _ -> shouldPrintVar key))
+    |> List.ofSeq
 
-let linear_terms_to_ceta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (linearTerms : SparseLinear.LinearTerm list) (filterInstrumentationVars : bool) =
+let linear_terms_to_ceta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (linearTerms : SparseLinear.LinearTerm list) (shouldPrintVar : Var.var -> bool) =
     writer.WriteStartElement "conjunction"
     linearTerms
-    |> maybe_filter_instr_vars filterInstrumentationVars
+    |> filter_instr_vars shouldPrintVar
     |> Seq.iter
         (fun t ->
             writer.WriteStartElement "leq"
@@ -587,10 +587,10 @@ let linear_terms_to_ceta (writer : System.Xml.XmlWriter) (varWriter : System.Xml
     writer.WriteEndElement()
 
 ///This will spit out a sequence of atoms into the passed xml writer, to be understood as conjunction
-let formula_to_ceta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (filterInstrumentationVars : bool) (formula : formula) =
+let formula_to_ceta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (shouldPrintVar : Var.var -> bool) (formula : formula) =
     try
         writer.WriteStartElement "formula"
-        linear_terms_to_ceta writer varWriter (formula.ToLinearTerms()) filterInstrumentationVars
+        linear_terms_to_ceta writer varWriter (formula.ToLinearTerms()) shouldPrintVar
         writer.WriteEndElement ()
     with
     | FormulaNotConvex -> failwith "CeTA export of disjunctions not supported yet."

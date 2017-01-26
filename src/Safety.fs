@@ -77,14 +77,14 @@ let prover (pars : Parameters.parameters) (program : Programs.Program) err =
             xmlWriter.WriteStartElement "safetyProblem"
             
             xmlWriter.WriteStartElement "safetyProgram"
-            program.ToCeta xmlWriter "program" None false
+            program.ToCeta xmlWriter "program" (fun _ -> true)
             xmlWriter.WriteStartElement "error"
-            Programs.exportLocation xmlWriter (Programs.OriginalLocation err)
+            Programs.exportLocation xmlWriter (Programs.OriginalLocation (string err))
             xmlWriter.WriteEndElement () //end errror 
             xmlWriter.WriteEndElement () //end safetyProgram
 
             xmlWriter.WriteStartElement "safetyProof"
-            impactARG.ToCeta xmlWriter None None false
+            impactARG.ToCeta xmlWriter (fun xmlWriter transId -> xmlWriter.WriteElementString ("transitionId", string transId)) (fun _ -> true) (fun _ _ _ -> true) (fun _ -> true)
             xmlWriter.WriteEndElement () //end safetyProof
 
             xmlWriter.WriteEndElement () //end safetyProblem

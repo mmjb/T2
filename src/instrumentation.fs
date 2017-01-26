@@ -37,11 +37,9 @@ open System.Collections.Generic
 open Formula
 open Var
 open SafetyInterface
+type Dictionary<'Key, 'Value> = System.Collections.Generic.Dictionary<'Key, 'Value>
 
-let FINAL_LOC_LABEL = "__instr_final_loc"
-let AFTER_VARCOPY_LOC_LABEL = "__instr_after_varcopy_"
-let PRERF_CHECK_LOC_LABEL = "__instr_pre_RF_check_"
-let POSTRF_CHECK_LOC_LABEL = "__instr_post_RF_check_"
+let FINAL_LOC_LABEL = Programs.CutpointRFCheckLocation "final_loc"
 
 //This is a data structure to keep all the relevant information about the search for lexicographic RFs
 type LexicographicInfo =
@@ -127,7 +125,7 @@ let init_lex_info (pars : Parameters.parameters) (cutpoints : Set<int>) =
 
 ///Returns true if cmds contains assume(copied_cp<1)
 let contains_copied_lt_1 cp (cmds:Programs.Command list)=
-    let copy = Formula.copy_var cp
+    let copy = Formula.took_snapshot_var cp
     let mutable found = false
     for cmd in cmds do
         match cmd with
@@ -138,7 +136,7 @@ let contains_copied_lt_1 cp (cmds:Programs.Command list)=
 
 ///Returns true if cmds contains copied_cp:=1
 let contains_copied_gets_1 cp (cmds:Programs.Command list)=
-    let copy = Formula.copy_var cp
+    let copy = Formula.took_snapshot_var cp
     let mutable found = false
     for cmd in cmds do
         match cmd with
@@ -168,7 +166,7 @@ let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs 
           ... (l) -- cmds' --> (new_node) -- "new rf check" --> (k) -- "old rf check" --> (k')
         Here, l is always (?) be the checked cutpoint, but that's not a hard requirement
     *)
-    let new_node = p_final.NewNode()
+    let new_node = p_final.NewLocation Programs.CutpointRFCheckLocation
     p_final.SetTransition pre_check_trans (l, cmds', new_node)
     
     let rfCheckTrans = p_final.AddTransition new_node [Programs.assume (Formula.Not(rf))] k
@@ -199,7 +197,7 @@ let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_chec
     let (k, k') = delete_lex_checkers old_checker_trans_ids p
 
     //Now we insert new lexicographic RF checkers from k to k'
-    let checker_nodes = k::[for _ in 1..(number_of_checkers - 1) -> p.NewNode()]@[k']
+    let checker_nodes = k::[for _ in 1..(number_of_checkers - 1) -> p.NewLocation Programs.CutpointRFCheckLocation]@[k']
     let new_checker_trans_ids =
         [ for i in 0 .. number_of_checkers - 1 do
               for trans in ith_checker_formulas i do
@@ -211,7 +209,7 @@ let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_chec
     (k, new_checker_trans_ids)
 
 //Instruments a lexicographic RF to p_final
-let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) lex_info =
+let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) lex_info =
     let doing_init_cond = (lex_info.cp_init_cond).[cp]
     let ith_lex_RF_check_formula i =
         [
@@ -250,7 +248,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         Output.print_dot_program p_final "input__instrumented_lex_RF.dot"
 
 //Instruments a lexicographic polyranking function to p_final.
-let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.formula list list) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) =
+let instrument_poly_RF (pars : Parameters.parameters) cp (poly_checkers:Formula.formula list list) (cp_rf_lex:Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) =
     assert(cp_rf_lex.ContainsKey(cp))
 
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
@@ -277,7 +275,7 @@ let switch_to_past_lex_RF (pars : Parameters.parameters) lex_info failure_cp =
     (decr_list,not_incr_list,bnd_list)
 
 ///Deletes the old lex checkers for failure_cp and get ready to start finding lex polyranking functions
-let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) =
+let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf_lex:Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) =
     Log.log pars <| sprintf "Now looking for polyranking functions for cp %d" failure_cp
     lex_info.cp_polyrank <- Map.add failure_cp true lex_info.cp_polyrank
 
@@ -295,8 +293,8 @@ let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf
         Output.print_dot_program p_final "input__instrumented_switch_to_polyrank.dot"
 
 ///Performs the transformation that detects the initial condition at cp and separates the checkers according to the initial condition
-let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>)=
-
+let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program) (cp_rf_lex:Dictionary<int, int list>)=
+    assert false
     //make rho variable for cp
     let rho:var = Formula.init_cond_var cp
 
@@ -362,7 +360,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
         (sprintf "initial condition %d:\n %A\n" counter cmds) |> Log.log pars
 
     //make new_node
-    let new_node = p.NewNode()
+    let new_node = p.NewLocation Programs.CutpointRFCheckLocation
 
     //for copying trans make copy and add on assume(rho<=-1) to the copy
     for index in copier_trans_from_imp_node do
@@ -406,7 +404,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
     for entry in counter_map do
         //printfn "entry: %A" entry
         let counter = entry.Value
-        let new_node = p.NewNode()
+        let new_node = p.NewLocation Programs.CutpointRFCheckLocation
         let assume_rho_counter = Programs.assume (Formula.Eq(Term.Var(rho),Term.constant counter))
         p.AddTransition k [assume_rho_counter] new_node |> ignore
         let counterCheckTrans = p.AddTransition new_node [] k'
@@ -421,7 +419,7 @@ let init_cond_trans (pars : Parameters.parameters) (cp:int) (p:Programs.Program)
 
 ///Switches to detecting initial condition for failure_cp
 let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) failure_cp p_final cp_rf_lex (safety : SafetyProver) =
-
+    assert false
     (sprintf "\nDetecting initial condition for cp %d" failure_cp) |> Log.log pars
 
     //Performs the transformation that detects the initial condition at cp and separates the checkers according to the initial condition
@@ -442,7 +440,8 @@ let do_init_cond (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
         Output.print_dot_program p_final "input__init_cond.dot"
 
 ///Performs that transformation that counts how many times we've looped through cp, and only checks for more than some number of iterations
-let unrolling_trans (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<int, int list>) (p:Programs.Program) (termination_only:bool) =
+let unrolling_trans (cp:int) (cp_rf_lex:Dictionary<int, int list>) (p:Programs.Program) (termination_only:bool) =
+    assert false
     //make iteration variable for cp
     let iters:var = Formula.iters_var cp
 
@@ -462,57 +461,30 @@ let unrolling_trans (cp:int) (cp_rf_lex:System.Collections.Generic.Dictionary<in
             p.SetTransition n (k, new_cmds, k')
 
     //add an increment of iters to the assume(copied<1) trans out of cp, but only to the one going back to the loop (i.e., the one leading to a node from which we set copied = 1!)
-    if termination_only then
-        // We look for the transition starting from the CP that checks the corresponding copied variable is still unset, and then sets it to 1.
-        // We use this to insert increments to our unrolling counter.
-        let trans_from_cp_with_copied_lt_1 =
-            [for (n, (k, cmds, k')) in p.TransitionsFrom cp do
-                if (contains_copied_lt_1 cp cmds) then
-                    let is_trans_in_loop =
-                        p.TransitionsFrom k'
-                        |> Seq.filter (fun (_, (_, cmds, _)) -> contains_copied_gets_1 cp cmds)
-                        |> Seq.isEmpty
-                        |> not
-                    if is_trans_in_loop then
-                        let new_cmds = increment_iters::cmds
-                        p.SetTransition n (k, new_cmds, k')
-                        yield n]
-        assert (trans_from_cp_with_copied_lt_1.Length=1)
-    else
-        // This is similar to the termination_only case, but the CTL instrumentation introduces several further intermediate nodes for checks of subproperties.
-        let transFromCP = p.TransitionsFrom cp
-        if transFromCP.IsEmpty then
-            dieWith "?"
-        else
-            let (_, (_, _, k')) = List.head transFromCP
-            match p.GetNodeLabel k' with
-            | None -> dieWith "?"
-            | Some label -> 
-                let endLabel = label.Replace ("start_of", "end_of")
-                let endPropertyNode = p.GetLabelledNode endLabel
-                let trans_from_cp_with_copied_lt_1 =
-                    [for (n, (k, cmds, k')) in p.TransitionsWithIdx do
-                        if (k=endPropertyNode) && (contains_copied_lt_1 cp cmds) then
-                            let is_trans_in_loop =
-                                   p.TransitionsFrom k'
-                                |> Seq.filter (fun (_, (_, cmds, _)) -> contains_copied_gets_1 cp cmds)
-                                |> Seq.isEmpty
-                                |> not
-                            if is_trans_in_loop then
-                                let new_cmds = increment_iters::cmds
-                                p.SetTransition n (k, new_cmds, k')
-                                yield n]
-                assert (trans_from_cp_with_copied_lt_1.Length=1)
+    // We look for the transition starting from the CP that checks the corresponding copied variable is still unset, and then sets it to 1.
+    // We use this to insert increments to our unrolling counter.
+    let trans_from_cp_with_copied_lt_1 =
+        [for (n, (k, cmds, k')) in p.TransitionsFrom cp do
+            if (contains_copied_lt_1 cp cmds) then
+                let is_trans_in_loop =
+                    p.TransitionsFrom k'
+                    |> Seq.filter (fun (_, (_, cmds, _)) -> contains_copied_gets_1 cp cmds)
+                    |> Seq.isEmpty
+                    |> not
+                if is_trans_in_loop then
+                    let new_cmds = increment_iters::cmds
+                    p.SetTransition n (k, new_cmds, k')
+                    yield n]
+    assert (trans_from_cp_with_copied_lt_1.Length=1)
 
     //Remove old lex checkers:
-
     //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
     //Here we extract the first and last node, k and k'
     let lex_checkers = cp_rf_lex.[cp]
     let (k, k') = delete_lex_checkers lex_checkers p
 
     //guard the checkers with assume(iters>=2)
-    let new_node = p.NewNode()
+    let new_node = p.NewLocation Programs.CutpointRFCheckLocation
     let iterCheckTrans = p.AddTransition k [assume_iters_ge_n 2] new_node
     let rfCheckTrans = p.AddTransition new_node [] k'
     cp_rf_lex.[cp] <- [rfCheckTrans]
@@ -596,7 +568,7 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 let var_copy_commands (p_c : Programs.Program) cp =
     let vars = p_c.Variables |> Set.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
 
-    let copy_vars = vars |> Seq.map (fun x -> Formula.save_state_var cp x)
+    let copy_vars = vars |> Seq.map (fun x -> Formula.state_snapshot_var cp x)
 
     //Add to mapping of variables
     let copy_vars_to_vars = (vars,copy_vars) ||> Seq.zip |> Seq.fold (fun (acc:Map<var,var>) (x,y) -> acc.Add(y,x)) Map.empty
@@ -606,189 +578,154 @@ let var_copy_commands (p_c : Programs.Program) cp =
 
 let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Program) =
     let p_F = p.Clone()
-    let final_loc = p_F.GetLabelledNode FINAL_LOC_LABEL
+    let true_assume = Programs.assume Formula.truec
+    let final_loc = p_F.GetLabelledLocation FINAL_LOC_LABEL
 
-    //Map from each node starting a loop to the corresponding __copied_ variable
-    let copy_loop_var = new System.Collections.Generic.Dictionary<int, var>()
     let (p_loops, p_sccs) = p.FindLoops()
-
-    //Prepare node copies for the splitted-out AF instrumentation
-    let loopnode_to_copiednode = System.Collections.Generic.Dictionary()
-    let transDupId_to_transId = System.Collections.Generic.Dictionary()
-    let cpId_to_toCoopTransId = System.Collections.Generic.Dictionary()
-    for (_, scc_nodes) in p_sccs.Items do
-        for node in scc_nodes do
-            if not (loopnode_to_copiednode.ContainsKey node) then
-                let copiednode = 
-                    if p_loops.ContainsKey node then // We have a cutpoint!
-                        let label = Programs.generateCutpointCopyLabel node
-                        p_F.GetLabelledNode label
-                    else
-                        p_F.NewNode()
-                loopnode_to_copiednode.Add(node, copiednode)
-
-    /// Gives the copy of the loopnode in the instrumented loop copy if DependencyPair-style lex. rfs are searched for
-    let get_copy_of_loopnode node =
-        if loopnode_to_copiednode.ContainsKey node then
-            loopnode_to_copiednode.[node]
-        else
-            node
-
-    //For every loop, we want to add a boolean copied value before each loop node, generate this variable here
-    //Also determine the set of transitions outgoing frin the loop dominated by this cutpoint.
-    for KeyValue(cutpoint, _) in p_loops do
-        let cutpoint_copy = get_copy_of_loopnode cutpoint
-        let copy = Formula.copy_var cutpoint
-        if not(copy_loop_var.ContainsKey(cutpoint_copy)) then
-            copy_loop_var.Add(cutpoint_copy, copy)
-
-    let node_to_scc_nodes =
+    let loc_to_scc_locs =
        p_sccs.Items
-    |> Seq.map (fun (_, scc_nodes) -> scc_nodes |> Seq.map (fun n -> (n, scc_nodes)))
+    |> Seq.map (fun (_, scc_locs) -> scc_locs |> Seq.map (fun n -> (n, scc_locs)))
     |> Seq.concat
     |> Seq.groupBy fst
-    |> Seq.map (fun (n, node_sets) -> (n, Set.unionMany (Seq.map snd node_sets)))
+    |> Seq.map (fun (n, loc_sets) -> (n, Set.unionMany (Seq.map snd loc_sets)))
     |> Map.ofSeq
 
-    // 2. Instrument in the sub-property if we do more than termination.
-    // [killed for certified termination]
-
-    (*
-      3. Add the instrumentation for the termination proof.
-         For this, we create a second copy of each loop, to which we jump after some transitions, and in this 
-         copy, we can do transformations that are unsound for the general case. Steps towards that:
-          (1) Make a copy of each node occurring in a loop (done above, when filling loopnode_to_copiednode)
-          (2) Instrument only the copied version, let program exist as before
-          (3) Add jumps from cutpoints in the original version to cutpoints in the copied version
+    (* Do Cooperation Graph transformation, mostly as described in the CAV'13 paper:
+       (1) Create a copy of all program locations that occur in loops.
+       (2) For all cutpoints, insert some extra magic:
+           (a) Switchover transition from the uncopied program
+           (b) Extra locations which we use to make snapshots of variables at the beginning of a cycle through an SCC
+           (c) Path to the error location on which we will check ranking functions
+       (3) Create a copy of all transitions that stay in an SCC.
     *)
 
-    let cutpoint_to_after_cp_varcopy_node = System.Collections.Generic.Dictionary()
+    // Step (1): Makes copies of all SCC locations:
+    let loc_to_coopLocCopy = Dictionary()
+    for (_, scc_locs) in p_sccs.Items do
+        for loc in scc_locs do
+            match p.GetLocationLabel loc with
+            | Programs.OriginalLocation orig_label ->
+                if not (loc_to_coopLocCopy.ContainsKey loc) then
+                    let loc_copy =
+                        if p_loops.ContainsKey loc then
+                            p_F.GetLabelledLocation (Programs.DuplicatedCutpointLocation orig_label)
+                        else
+                            p_F.GetLabelledLocation (Programs.DuplicatedLocation orig_label)
+                    loc_to_coopLocCopy.Add(loc, loc_copy)
+            | label -> failwithf "Instrumenting program with non-original location %i (label %A)" loc label
+
+    // Step (2): Add extra instrumentation bits for the cutpoints:
+    let transDupId_to_transId = Dictionary()
+    let cp_to_toCoopTransId = Dictionary()
+    let cutpoint_to_before_cp_varcopy_loc = Dictionary()
+    let cutpoint_to_after_cp_varcopy_loc = Dictionary()
+    ///Maps cutpoint to the index of the transition from it that leads to the error location (that's where the RFs will go!)
+    let cp_to_rfCheckTransId = Dictionary()
+    for cp in p_loops.Keys do
+        let cp_label =
+            match p.GetLocationLabel cp with
+            | Programs.OriginalLocation label -> label
+            | label -> failwithf "Instrumenting program with non-original location %i (label %A)" cp label 
+        let cp_copy = loc_to_coopLocCopy.[cp]
+        let current_cfg_scc_locs = Map.find cp loc_to_scc_locs
+        let current_cfg_scc_cps = current_cfg_scc_locs |> Set.filter p_loops.ContainsKey 
+        let took_snapshot_var = Formula.took_snapshot_var cp
+
+        // Add a jump edge from the original node to its new copy:
+        let to_coop_transId = p_F.AddTransition cp [true_assume ; Programs.skip] cp_copy
+        cp_to_toCoopTransId.Add(cp, to_coop_transId)
+
+        // Create a new node in which we have copied all the variables, and do the copying:
+        let after_varcopy_loc = p_F.NewLocationWithLabel (Programs.CutpointVarSnapshotLocation cp_label) 
+        cutpoint_to_after_cp_varcopy_loc.Add(cp, after_varcopy_loc)
+        p_F.AddTransition
+            cp_copy
+                 (true_assume
+                  ::[for cp in current_cfg_scc_cps do yield Programs.assume (Formula.Lt(Term.Var(Formula.took_snapshot_var cp), Term.Const(bigint.One)))] 
+                  @((Programs.assign took_snapshot_var (Term.Const(bigint.One)))
+                  ::(var_copy_commands p_F cp)))
+            after_varcopy_loc
+            |> ignore
+
+        let before_cp = p_F.NewLocationWithLabel (Programs.CutpointDummyEntryLocation cp_label)
+        cutpoint_to_before_cp_varcopy_loc.Add(cp, before_cp)
+        p_F.AddTransition before_cp [] cp_copy |> ignore
+
+        // Now also add the instrumentation for the ranking function in:
+        // - copy of CP to pre_RF_check_loc where we check that we actually did copy values
+        // - pre_RF_check_loc to after_RF_check_loc, where later on the rfs are added in
+        // - after_RF_check_loc to final - we only need this for the CTL encoding
+        let pre_RF_check_loc = p_F.GetLabelledLocation (Programs.CutpointRFCheckLocation (cp_label + "_pre"))
+        p_F.AddTransition
+            cp_copy
+                    [ true_assume
+                    ; Programs.assume (Formula.Ge(Term.Var(took_snapshot_var), Term.Const(bigint.One))) ]
+            pre_RF_check_loc |> ignore
+
+        let after_RF_check_loc = p_F.GetLabelledLocation (Programs.CutpointRFCheckLocation (cp_label + "_post"))
+        // Start with rf 'true' (0=0).
+        let rf_check_transIdx =
+            p_F.AddTransition
+                pre_RF_check_loc
+                    [ true_assume
+                    ; Programs.assume (Formula.Eq(Term.Const(bigint.Zero), Term.Const(bigint.Zero))) ]
+                after_RF_check_loc
+        cp_to_rfCheckTransId.[cp] <- rf_check_transIdx
+
+        //If we reach the (pre-)final location, we had no ranking function => AF p might never be true!
+        //Hence, we return false to allow for backtracking
+        p_F.AddTransition
+            after_RF_check_loc
+                [ true_assume ]
+            final_loc |> ignore
+
+    // Step (3): Copy over transitions.
     for (transId, (k, cmds, k')) in p.TransitionsWithIdx do
-        if (k <> p_F.Initial) then
-            //If we do the AI first, every transition has a new assume at the beginning, generate that here. This also explains the liberally sprinkled in extra assumes further down...
-            let true_assume = Programs.assume Formula.truec
-            let abstrInterInv = if pars.did_ai_first then List.head cmds else true_assume
-            let cmdsWithoutAbstrInterInv = if pars.did_ai_first then List.tail cmds else cmds
-            let copied_k = get_copy_of_loopnode k
-
-            if p_loops.ContainsKey k then //Source of the transition is a CP!
-                let copied_k = get_copy_of_loopnode k
-                let copied_var = copy_loop_var.[copied_k]
-
-                //This contains all nodes in k's loop:
-                let current_cfg_scc_nodes = Map.find k node_to_scc_nodes
-                let current_cfg_scc_cp = current_cfg_scc_nodes |> Set.filter p_loops.ContainsKey 
-
-                // Case 1: This is a transition inside our SCC
-                if Set.contains k' current_cfg_scc_nodes then
-                    //This is a CP, but we haven't visited it yet and thus have to add the nodes for the variable 
-                    //copying magic first:
-                    if not(cutpoint_to_after_cp_varcopy_node.ContainsKey k) then
-                        // Add a jump edge from the original node to its new copy:
-                        let to_coop_transId = p_F.AddTransition k [true_assume ; Programs.skip] copied_k
-                        cpId_to_toCoopTransId.Add(k, to_coop_transId)
-
-                        // Create a new node in which we have copied all the variables, and do the copying:
-                        let after_varcopy_node = p_F.NewNodeWithLabel (AFTER_VARCOPY_LOC_LABEL + string k)
-                        p_F.AddTransition
-                            copied_k
-                                 (true_assume
-                                  ::[for cp in current_cfg_scc_cp do yield Programs.assume (Formula.Lt(Term.Var(copy_loop_var.[get_copy_of_loopnode cp]), Term.Const(bigint.One)))] 
-                                  @((Programs.assign copied_var (Term.Const(bigint.One)))
-                                  ::(var_copy_commands p_F k)))
-                            after_varcopy_node
-                            |> ignore
-
-                        cutpoint_to_after_cp_varcopy_node.Add(k, after_varcopy_node)
-
-                        // Now also add the instrumentation for the ranking function in:
-                        // - copy of CP to pre_RF_check_node, where we check that we actually did copy values
-                        // - pre_RF_check_node to after_RF_check_node, where later on the rfs are added in
-                        // - after_RF_check_node to final - we only need this for the CTL encoding
-
-                        let pre_RF_check_node = p_F.GetLabelledNode (PRERF_CHECK_LOC_LABEL + k.ToString())
-                        p_F.AddTransition
-                            copied_k
-                                    [ true_assume
-                                    ; Programs.assume (Formula.Ge(Term.Var(copied_var), Term.Const(bigint.One))) ]
-                            pre_RF_check_node |> ignore
-
-                        let after_RF_check_node = p_F.GetLabelledNode (POSTRF_CHECK_LOC_LABEL + k.ToString())
-                        // Start with rf 'true' (0=0).
-                        p_F.AddTransition
-                            pre_RF_check_node
-                                [ true_assume
-                                ; Programs.assume (Formula.Eq(Term.Const(bigint.Zero), Term.Const(bigint.Zero))) ]
-                            after_RF_check_node |> ignore
-
-                        //If we reach the (pre-)final location, we had no ranking function => AF p might never be true!
-                        //Hence, we return false to allow for backtracking
-                        p_F.AddTransition
-                            after_RF_check_node
-                                [ true_assume ]
-                            final_loc |> ignore
-
-                    //Instead of original transition from CP, add one from the node in which we copied the program variables:
-                    let after_varcopy_node = cutpoint_to_after_cp_varcopy_node.[k]
-                    let copied_k' = get_copy_of_loopnode k'
-
-                    //One transition copy from where the node in which we copied the variables:
-                    let dup_transId = p_F.AddTransition after_varcopy_node cmds copied_k'
-                    transDupId_to_transId.Add(dup_transId, transId)
-                    //One transition copy from the duplicated node, asserting that we haven't copied the program variables:
-                    let dup_transId = p_F.AddTransition 
-                                            copied_k 
-                                            (abstrInterInv::(Programs.assume (Formula.Lt(Term.Var(copied_var), Term.Const(bigint.One))))::cmdsWithoutAbstrInterInv)
-                                            copied_k'
-                    transDupId_to_transId.Add(dup_transId, transId)
-                    
-                else // if Set.contains k' current_cfg_scc_nodes
-                    () //Other transitions are ignored; reachability of the other SCCs is ensured through the safety lobe of the cooperation graph
-
-            else // if(F_loops.ContainsKey k)
-                // Other transitions are just copied. If we do loop duplication, we can avoid a few cases:
-                let trans_in_loop = (loopnode_to_copiednode.ContainsKey k) && (loopnode_to_copiednode.ContainsKey k')
-                if trans_in_loop then
-                    let copied_k' = loopnode_to_copiednode.[k']
-                    let dup_transId = p_F.AddTransition copied_k cmds copied_k'
-                    transDupId_to_transId.Add(dup_transId, transId)
-
-        else // if(k <> p_F.initial)
-            let init_copied_var_cmmds = copy_loop_var |> Seq.map (fun x -> (Programs.assign x.Value (Term.Const(bigint.Zero))))
+        // Initialize variables signifying that we too a snapshot:
+        if k = p_F.Initial then
+            let init_copied_var_cmmds = p_loops.Keys |> Seq.map (fun cp -> (Programs.assign (Formula.took_snapshot_var cp) (Term.Const(bigint.Zero))))
             p_F.SetTransition transId (k, (cmds@(List.ofSeq(init_copied_var_cmmds))), k')
 
-    let loopnode_to_copiednode = loopnode_to_copiednode |> Seq.map (fun x -> (x.Key, x.Value)) |> Map.ofSeq
+        // Only make copies of transitions that are in an SCC, and stay in that SCC:
+        match (loc_to_coopLocCopy.TryGetValue k, loc_to_coopLocCopy.TryGetValue k') with
+        | ((true, k_copy), (true, k'_copy)) when Set.contains k' loc_to_scc_locs.[k] ->
+            let k'_copy =
+                match cutpoint_to_before_cp_varcopy_loc.TryGetValue k' with
+                | (true, before_cp) -> before_cp
+                | _ -> k'_copy
 
-    ///Maps cutpoint to the index of the transition from it that leads to the error location (that's where the RFs will go!)
-    let cp_rf = new System.Collections.Generic.Dictionary<int, int>()
+            // If the source location is a cutpoint, a few extra locations are involved and we need to duplicate the transition twice:
+            if p_loops.ContainsKey k then
+                //If we do the AI first, every transition has a new assume at the beginning, generate that here.
+                //This also explains the liberally sprinkled in extra assumes everywhere.
+                let abstrInterInv = if pars.did_ai_first then List.head cmds else true_assume
+                let cmdsWithoutAbstrInterInv = if pars.did_ai_first then List.tail cmds else cmds
+                let took_snapshot_var = Formula.took_snapshot_var k
 
-    //Maps first node on the path out of an instrumented loop (to the error location) to the corresponding CP:
-    let cp_rf_init = new System.Collections.Generic.Dictionary<int, int>()
-    for (_, (_, cmds, k')) in p_F.TransitionsWithIdx do
-        for cmd in cmds do
-            match cmd with
-            |   Programs.Assume(_,Formula.Ge(Term.Var(v), Term.Const(c))) when is_copied_var v && c = bigint.One ->
-                let temp = v.Split '_'
-                let num_cp = int(temp.[(temp.Length)-1])
-                cp_rf_init.Add(k', num_cp)
-            | _ -> ()
-    //Maps CP to the the transition leading from the first node on the corresponding path to the error location
-    for (n, (k, cmds, _)) in p_F.TransitionsWithIdx do
-        if cp_rf_init.ContainsKey(k) then
-            match cmds with
-            | [ Programs.Assume (_, trueFormula) 
-              ; Programs.Assume(_, Formula.Eq(Term.Const(c1), Term.Const(c2)))]
-                when trueFormula = Formula.truec && c1 = bigint.Zero && c2 = bigint.Zero ->
-                cp_rf.Add(cp_rf_init.[k], n)
-            | [ Programs.Assume(_,Formula.Eq(Term.Const(c1), Term.Const(c2)))] when c1 = bigint.Zero && c2 = bigint.Zero ->
-                cp_rf.Add(cp_rf_init.[k], n)
-            | _ -> ()
+                //One transition copy from the duplicated location, asserting that we haven't copied the program variables:
+                let dup_transId = p_F.AddTransition 
+                                        k_copy 
+                                        (abstrInterInv
+                                         ::(Programs.assume (Formula.Lt(Term.Var(took_snapshot_var), Term.Const(bigint.One))))
+                                         ::cmdsWithoutAbstrInterInv)
+                                        k'_copy
+                transDupId_to_transId.Add(dup_transId, transId)
+
+                //Additionally, also add a copy of the the transition starting from the location at which snapshotted the program variables.
+                let dup_transId = p_F.AddTransition cutpoint_to_after_cp_varcopy_loc.[k] cmds k'_copy
+                transDupId_to_transId.Add(dup_transId, transId)
+            else
+                let dup_transId = p_F.AddTransition k_copy cmds k'_copy
+                transDupId_to_transId.Add(dup_transId, transId)
+        | _ -> ()
+                
+    let loc_to_coopLocCopy = loc_to_coopLocCopy |> Seq.map (fun x -> (x.Key, x.Value)) |> Map.ofSeq
 
     //Constants propagation
     if pars.constant_propagation then
         p_F.ConstantPropagation (Analysis.constants p_F)
     p_F.AddSymbolConstantInformation()
 
-    // Clean up program using live variable analysis (guard variables occurring in our properties, though)
+    // Clean up program using live variable analysis
     p_F.LetConvert (Analysis.liveness p_F Set.empty) 
-    (p_F, final_loc, cp_rf, loopnode_to_copiednode, transDupId_to_transId, cpId_to_toCoopTransId)
+    (p_F, final_loc, cp_to_rfCheckTransId, loc_to_coopLocCopy, transDupId_to_transId, cp_to_toCoopTransId)

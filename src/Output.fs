@@ -30,7 +30,6 @@ open Programs
 let print_dot_program (p : Programs.Program) (fname : string) =
     let h = new System.IO.StreamWriter(fname)
     fprintf h "digraph program {\nnode [shape=circle];\n" ;
-    let nodes = ref Set.empty
     let commands2pp b =
         let f x y = x + y.ToString() + "\\l" // "\l" is a "left-aligned line-break"...
         let true_assume = assume Formula.truec
@@ -45,13 +44,10 @@ let print_dot_program (p : Programs.Program) (fname : string) =
         fprintf h "%s -> node%d;\n" cmd_box k'
 
     for n in p.Locations do
-        let lab = 
-            match p.GetNodeLabel n with
-            | Some s -> s
-            | None -> "?"
+        let label = p.GetLocationLabel n
         let color = "red"
         if n<> p.Initial then
-            fprintf h "node%d [ color=%s label = \"%d (%s)\" ];\n" n color n lab
+            fprintf h "node%d [ color=%s label = \"%d (%s)\" ];\n" n color n (label.ToString())
         else
             fprintf h "node%d [ color=%s label = \"%d (start)\" ];\n" n color n
     fprintf h "}\n"

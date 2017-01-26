@@ -88,7 +88,7 @@ let check_lex_rankfunction_valid (lex_order:Relation.relation list) (rf_list:ter
         for v' in Term.freevars rf do
             let v = Var.unprime_var v'
             assert (not <| Formula.is_copied_var v)
-            assert (not <| Formula.is_saved_var v)
+            assert (not <| Formula.is_snapshot_var v)
 
     for bnd in bnd_list do
         match bnd with
@@ -144,7 +144,7 @@ let check_rankfunction_valid (pars : Parameters.parameters) cycle rf bnd =
     for v in Term.freevars rf do
         let v = Var.unprime_var v
         assert (not <| Formula.is_copied_var v)
-        assert (not <| Formula.is_saved_var v)
+        assert (not <| Formula.is_snapshot_var v)
 
     match bnd with
     | Const _ -> ()
@@ -213,7 +213,7 @@ let get_saved_term_var_for_var cutpoint (v': string) =
         if Formula.is_const_var v then
             v
         else
-            Formula.save_state_var cutpoint v
+            Formula.state_snapshot_var cutpoint v
     snapshot_var |> Var.var |> Term.var
 
 let get_current_term_var_for_var (v: Var.var) =
@@ -519,7 +519,7 @@ let split_path_for_cp pi cp =
     let rec split_path_for_cp' pi cp stem_acc =
         match pi with 
         //we've reached the point where we make our copies. From here on, we are in the cycle
-        | (_, Programs.Assign(_, v, Term.Const c), _) :: pi' when c = bigint.One && v = Formula.copy_var cp ->
+        | (_, Programs.Assign(_, v, Term.Const c), _) :: pi' when c = bigint.One && v = Formula.took_snapshot_var cp ->
             (List.rev stem_acc, pi')
         | step :: pi' ->
             split_path_for_cp' pi' cp (step::stem_acc)

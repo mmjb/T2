@@ -59,7 +59,7 @@ let parse (filename : string) =
 /// replace edges x->y->z with x->z if there are
 /// no other edges from/to y.
 ///
-let simplify_chains (blocks : (string * Programs.Command list * string) list) dont_chain =
+let simplify_chains (blocks : (Programs.ProgramLocationLabel * Programs.Command list * Programs.ProgramLocationLabel) list) dont_chain =
     let nodes = Seq.collect (fun (s, _, e) -> [s ; e]) blocks |> Set.ofSeq |> ref
     let incoming = Utils.SetDictionary()
     let outgoing = Utils.SetDictionary()
@@ -98,9 +98,9 @@ let load_t2 (pars : Parameters.parameters) avoid_chaining filename =
     let make_label loc = 
         match loc with
         | Absparse.NumLoc i ->
-            sprintf "loc_%d" i
+            Programs.OriginalLocation (string i)
         | Absparse.NameLoc n ->
-            n
+            Programs.OriginalLocation n
     let blocks = blocks |> List.map (fun (start, commands, target) -> (make_label start, commands, make_label target)) 
     let blocks =
         (*
@@ -129,5 +129,5 @@ let load_t2 (pars : Parameters.parameters) avoid_chaining filename =
         else
             simplify_chains blocks (Set.singleton (make_label start))
     let p = Programs.Program.Create pars avoid_chaining (make_label start) (blocks |> Seq.ofList) incomplete_abstraction
-    let cp' = p.GetLabelledNode (make_label cp)
+    let cp' = p.GetLabelledLocation (make_label cp)
     (p, cp')

@@ -92,23 +92,30 @@ let skip = Assume(None,Formula.truec)
 
 type NodeId = int
 type ProgramLocation = NodeId
-type CoopProgramLocation =
-    | OriginalLocation of NodeId
-    | DuplicatedLocation of NodeId
-    | InstrumentationLocation of NodeId
-let private cutpointCopyPrefix = "cp_copy_"
-let private cutpointAuxPrefix = "cp_aux_"
-let generateCutpointCopyLabel loc = sprintf "%s%i" cutpointCopyPrefix loc
-let generateCutpointAuxLabel loc = sprintf "%s%i" cutpointAuxPrefix loc
+type ProgramLocationLabel =
+    | OriginalLocation of string 
+    | DuplicatedLocation of string
+    | DuplicatedCutpointLocation of string
+    | CutpointVarSnapshotLocation of string
+    | CutpointDummyEntryLocation of string
+    | CutpointRFCheckLocation of string
 
-let exportLocation (writer : System.Xml.XmlWriter) (loc : CoopProgramLocation) =
-    match loc with
-    | InstrumentationLocation id ->
-        assert false
-    | DuplicatedLocation id ->
-        writer.WriteElementString ("locationDuplicate", string id)
-    | OriginalLocation id ->
-        writer.WriteElementString ("locationId", string id)
+    override self.ToString() =
+        match self with
+        | OriginalLocation label -> label
+        | DuplicatedLocation label -> label + "#"
+        | DuplicatedCutpointLocation label -> label + "# (cp)"
+        | CutpointVarSnapshotLocation label -> label + "# (snap)"
+        | CutpointDummyEntryLocation label -> label + "# (entry)"
+        | CutpointRFCheckLocation label -> label + " (rf check)"
+
+let getBaseLabel = function
+    | CutpointRFCheckLocation baseLabel
+    | CutpointVarSnapshotLocation baseLabel
+    | CutpointDummyEntryLocation baseLabel
+    | DuplicatedCutpointLocation baseLabel
+    | DuplicatedLocation baseLabel
+    | OriginalLocation baseLabel -> baseLabel
 
 //
 // Pretty-printing routines
@@ -425,17 +432,52 @@ let cmdPathToRelation path vars =
 
     Relation.make aggregateFormula (prevars @ copyPrevars) (postvars @ copyPostvars)
 
+let exportLocation (writer : System.Xml.XmlWriter) (loc : ProgramLocationLabel) =
+    match loc with
+    | CutpointRFCheckLocation _ ->
+        assert false
+    | CutpointVarSnapshotLocation id ->
+        writer.WriteElementString ("locationDuplicate", string id + "_var_snapshot")
+    | CutpointDummyEntryLocation id ->
+        writer.WriteElementString ("locationDuplicate", string id + "*")
+    | DuplicatedCutpointLocation id ->
+        writer.WriteElementString ("locationDuplicate", string id)
+    | DuplicatedLocation id ->
+        writer.WriteElementString ("locationDuplicate", string id)
+    | OriginalLocation id ->
+        writer.WriteElementString ("locationId", string id)
+
+let exportTransition (writer : System.Xml.XmlWriter) variables transId source cmds target shouldExportVariable =
+    let (transFormula, varToMaxSSAIdx) = cmdsToCetaFormula variables cmds
+    writer.WriteStartElement "transition"
+
+    writer.WriteElementString ("transitionId", string transId)
+    
+    writer.WriteStartElement "source"
+    exportLocation writer source
+    writer.WriteEndElement() //source end
+    
+    writer.WriteStartElement "target"
+    exportLocation writer target
+    writer.WriteEndElement() //target end
+
+    //We are not using Formula.conj here because we absolutely want to control the order of formulas...
+    let transLinearTerms = Formula.formula.FormulasToLinearTerms (transFormula :> _)
+    writer.WriteStartElement "formula"
+    Formula.linear_terms_to_ceta writer (Var.toCeta varToMaxSSAIdx) transLinearTerms shouldExportVariable
+    writer.WriteEndElement () //formula end
+    
+    writer.WriteEndElement() //transition end
+
 // Programs as Control Flow Graphs -----------------------------------------------------
 type TransitionId = int
-type Transition = NodeId * Command list * NodeId
-type TransitionFunction = NodeId -> (Command list * NodeId) list
+type Transition = ProgramLocation * Command list * ProgramLocation
+type TransitionFunction = ProgramLocation -> (Command list * ProgramLocation) list
 
-/// Default size for transitions array
 type Program private (parameters : Parameters.parameters) =
     let mutable initial = -1
-    let mutable labelToNode : Map<string, NodeId> = Map.empty
-    let mutable nodeToLabel : Map<NodeId, string> = Map.empty
-    let mutable nodeCount = 0
+    let mutable locationToLabel = BiDirectionalDictionary()
+    let mutable locationCount = 0
     let mutable transitionCount = 0
     let mutable transitionsArray = Array.create 100 (-1,[],-1)
     /// x \in active iff transitions[x] != (-1,_,-1)
@@ -456,15 +498,12 @@ type Program private (parameters : Parameters.parameters) =
     member __.Initial 
         with         get ()  = initial
         and  private set loc = initial <- loc
-    member __.LabelToNode 
-        with private get ()  = labelToNode
-        and  private set map = labelToNode <- map
-    member __.NodeToLabel 
-        with private get ()  = nodeToLabel
-        and  private set map = nodeToLabel <- map
-    member __.NodeCount 
-        with private get ()    = nodeCount
-        and  private set count = nodeCount <- count
+    member __.LocationToLabel
+        with private get ()  = locationToLabel
+        and  private set map = locationToLabel <- map
+    member __.LocationCount 
+        with private get ()    = locationCount
+        and  private set count = locationCount <- count
     member __.TransitionCount 
         with private get ()    = transitionCount
         and  private set count = transitionCount <- count
@@ -491,9 +530,8 @@ type Program private (parameters : Parameters.parameters) =
     member self.Clone() =
         new Program(self.Parameters,
                     Initial = self.Initial,
-                    LabelToNode = self.LabelToNode,
-                    NodeToLabel = self.NodeToLabel,
-                    NodeCount = self.NodeCount,
+                    LocationToLabel = self.LocationToLabel.Clone(),
+                    LocationCount = self.LocationCount,
                     TransitionCount = self.TransitionCount,
                     TransitionsArray = Array.copy self.TransitionsArray,
                     ActiveTransitions = self.ActiveTransitions,
@@ -503,7 +541,7 @@ type Program private (parameters : Parameters.parameters) =
                     IncompleteAbstraction = self.IncompleteAbstraction
         )
 
-    static member Create (pars : Parameters.parameters) (is_temporal : bool) (init : string) (ts : (string * Command list * string) seq) (incompleteAbstraction : bool) =
+    static member Create (pars : Parameters.parameters) (is_temporal : bool) (init : ProgramLocationLabel) (ts : (ProgramLocationLabel * Command list * ProgramLocationLabel) seq) (incompleteAbstraction : bool) =
         let program = new Program(pars, IncompleteAbstraction = incompleteAbstraction)
 
         let mutable init_is_target = false
@@ -512,11 +550,11 @@ type Program private (parameters : Parameters.parameters) =
             if y = init then
                 init_is_target <- true
         done
-        program.Initial <- program.GetLabelledNode init
+        program.Initial <- program.GetLabelledLocation init
 
         //Make sure that an initial state is not in a loop:
         if not(is_temporal) && init_is_target then
-            let new_initial = program.NewNode()
+            let new_initial = program.NewLocationWithLabel (OriginalLocation "separatedStart")
             program.AddTransition new_initial [] program.Initial |> ignore
             program.Initial <- new_initial
         else
@@ -530,8 +568,8 @@ type Program private (parameters : Parameters.parameters) =
         fprintfn stream "=================== PROGRAM ====================="
         fprintfn stream "Initial location: %d" self.Initial
         fprintfn stream "Labels:"
-        for KeyValue(l, n) in labelToNode do
-            fprintfn stream "  %s:%d" l n
+        for (loc, label) in locationToLabel do
+            fprintfn stream "  %A:%d" label loc
 
         fprintf stream "Transitions:"
         for (k, cmds, k') in self.Transitions do
@@ -593,38 +631,39 @@ type Program private (parameters : Parameters.parameters) =
 
     member self.TransitionNumber with get () = self.ActiveTransitions.Count
 
-    member self.NewNode () : NodeId =
-        let old = self.NodeCount 
-        self.NodeCount <- old + 1
+    member private self.NewLabellessLocation () : ProgramLocation =
+        let old = self.LocationCount 
+        self.LocationCount <- old + 1
         old
+ 
+    member self.NewLocation labelMaker : ProgramLocation =
+        let newLoc = self.NewLabellessLocation ()
+        self.LocationToLabel.[newLoc] <- labelMaker ("anon_" + string newLoc)
+        newLoc
     
-    /// Creates a new node and assigns a label to it. If the label already existed, it will be overwritten
-    member self.NewNodeWithLabel label : NodeId =
-        let newNode = self.NewNode ()
-        labelToNode <- Map.add label newNode labelToNode
-        nodeToLabel <- Map.add newNode label nodeToLabel
-        newNode
+    /// Creates a new location and assigns a label to it. If the label already existed, it will be overwritten.
+    member self.NewLocationWithLabel label : ProgramLocation =
+        let newLoc = self.NewLabellessLocation ()
+        locationToLabel.[newLoc] <- label
+        newLoc
 
-    /// Returns the node in the program with the given label. If no such node existed, creates a new one.
-    member self.GetLabelledNode label =
-        match Map.tryFind label labelToNode with
-        | None ->
-            let node = self.NewNode()
-            labelToNode <- Map.add label node labelToNode
-            nodeToLabel <- Map.add node label nodeToLabel
-            node
-        | Some node -> node
+    /// Returns the location in the program with the given label. If no such location existed, creates a new one.
+    member self.GetLabelledLocation (label : ProgramLocationLabel) : ProgramLocation =
+        match locationToLabel.TryFindValue label with
+        | None -> self.NewLocationWithLabel label
+        | Some loc -> loc
 
-    member self.GetNodeLabel node =
-        Map.tryFind node self.NodeToLabel
+    /// Checks if a location with this label exists. 
+    member __.HasLabelledLocation (label : ProgramLocationLabel) : bool =
+        locationToLabel.ContainsValue label
 
-    member inline self.GetLocationLabel node =
-        self.GetNodeLabel node
+    /// Returns the label for the given location.
+    member __.GetLocationLabel loc =
+        locationToLabel.[loc]
 
     member private __.InvalidateCaches () =
         transitionFromCache <- None
         findLoopsCache <- None
-
 
     member self.AddVariable var =
         self.Variables <- Set.add var self.Variables
@@ -651,9 +690,9 @@ type Program private (parameters : Parameters.parameters) =
         newTransIdx
 
     /// add transition n--T-->M with preprocessing (eliminates constants, creates DNF)
-    member self.AddTransitionMapped (input_n : string) (cmds : Command list) (input_m : string) : int list =
-        let n = self.GetLabelledNode input_n
-        let m = self.GetLabelledNode input_m
+    member self.AddTransitionMapped (input_n : ProgramLocationLabel) (cmds : Command list) (input_m : ProgramLocationLabel) : int list =
+        let n = self.GetLabelledLocation input_n
+        let m = self.GetLabelledLocation input_m
 
         let rec command_to_seqpar cmd =
             let skip_if_true cmd =
@@ -735,12 +774,12 @@ type Program private (parameters : Parameters.parameters) =
                         // it is important that Par introduces new nodes even when length(pars) = 1
                         // see command_to_seqpar
                         if unsaved_commands <> [] then
-                            let loc = self.NewNode()
+                            let loc = self.NewLocation OriginalLocation
                             let newTransIdx = self.AddTransition last_loc (List.rev unsaved_commands) loc
                             addedTransitions := newTransIdx :: !addedTransitions
                             unsaved_commands <- []
                             last_loc <- loc
-                        let next_loc = if number = len-1 then m else self.NewNode()
+                        let next_loc = if number = len-1 then m else self.NewLocation OriginalLocation
                         for par in pars do
                             addTransitionSeqPar last_loc par next_loc
                         last_loc <- next_loc
@@ -944,7 +983,7 @@ type Program private (parameters : Parameters.parameters) =
             match cmds with
             | Assign(pos,v,Nondet)::r ->
                 let env' = wipe v env
-                if not (Set.contains v lvs) && not (needed_local v r) && not(Formula.is_saved_var v) then
+                if not (Set.contains v lvs) && not (needed_local v r) && not(Formula.is_snapshot_var v) then
                     interp lvs env' r
                 else
                     (Assign (pos, v, Nondet)) :: interp lvs env' r
@@ -955,7 +994,7 @@ type Program private (parameters : Parameters.parameters) =
                          | _ -> die()
                 let env' = wipe v env
                 let env'' = if not (Set.contains v lvs) then Map.add v t' env' else env'
-                if not (Set.contains v lvs) && not (needed_local v r) && not(Formula.is_saved_var v) then interp lvs env'' r
+                if not (Set.contains v lvs) && not (needed_local v r) && not(Formula.is_snapshot_var v) then interp lvs env'' r
                 else cmd'::interp lvs env'' r
             | assm::r -> rewrite_cmd env assm::interp lvs env r
             | [] -> []
@@ -1067,7 +1106,7 @@ type Program private (parameters : Parameters.parameters) =
     member self.AddSymbolConstantInformation () =
         if not <| Set.isEmpty self.UsedConstants then
             let commands = symbolic_consts_cmds self.UsedConstants
-            let new_init = self.NewNode()
+            let new_init = self.NewLocation OriginalLocation
             self.AddTransition new_init commands self.Initial |> ignore
             self.Initial <- new_init
 
@@ -1086,7 +1125,7 @@ type Program private (parameters : Parameters.parameters) =
         // (2) Then try to chain away each location:
         for location in self.Locations do
             if not (dontChain.Contains location) 
-                && (not onlyRemoveUnnamed || not (Map.containsKey location nodeToLabel)) then
+                && (not onlyRemoveUnnamed || not (locationToLabel.ContainsKey location)) then
                 let incomingCount = incomingTransitions.[location].Count
                 let outgoingCount = outgoingTransitions.[location].Count
                 let incomingEmptySingleton =
@@ -1133,43 +1172,15 @@ type Program private (parameters : Parameters.parameters) =
                     transMap.[transIdx] <- newTransIdx
         transMap
 
-    member self.TransitionToCeta (writer : System.Xml.XmlWriter) transId source cmds target filterInstrumentationVars =
-        let (transFormula, varToMaxSSAIdx) = cmdsToCetaFormula self.Variables cmds
-        writer.WriteStartElement "transition"
-
-        writer.WriteElementString ("transitionId", string transId)
-        
-        writer.WriteStartElement "source"
-        exportLocation writer source
-        writer.WriteEndElement() //source end
-        
-        writer.WriteStartElement "target"
-        exportLocation writer target
-        writer.WriteEndElement() //target end
-
-        //We are not using Formula.conj here because we absolutely want to control the order of formulas...
-        let transLinearTerms = Formula.formula.FormulasToLinearTerms (transFormula :> _)
-        writer.WriteStartElement "formula"
-        Formula.linear_terms_to_ceta writer (Var.toCeta varToMaxSSAIdx) transLinearTerms filterInstrumentationVars
-        writer.WriteEndElement () //formula end
-        
-        writer.WriteEndElement() //transition end
-
-    member self.ToCeta (writer : System.Xml.XmlWriter) (elementName : string) (nodeToCertRepr : System.Collections.Generic.Dictionary<int, CoopProgramLocation> option) filterInstrumentationVars =
+    member self.ToCeta (writer : System.Xml.XmlWriter) (elementName : string) shouldExportVar =
         writer.WriteStartElement elementName
         writer.WriteStartElement "initial"
-        exportLocation writer (OriginalLocation self.Initial)
+        exportLocation writer (locationToLabel.[self.Initial])
         writer.WriteEndElement () //initial end
         for (transIdx, (source, cmds, target)) in self.TransitionsWithIdx do
-            let source_repr = if nodeToCertRepr.IsSome then nodeToCertRepr.Value.[source] else OriginalLocation source
-            let target_repr = if nodeToCertRepr.IsSome then nodeToCertRepr.Value.[target] else OriginalLocation target
-            let target_label = self.GetNodeLabel target
-            match (source_repr, target_repr) with
-            | (InstrumentationLocation _, _)
-            | (_, InstrumentationLocation _) ->
-                ()
-            | _ ->
-                self.TransitionToCeta writer transIdx source_repr cmds target_repr filterInstrumentationVars
+            let source_label = locationToLabel.[source]
+            let target_label = locationToLabel.[target]
+            exportTransition writer self.Variables transIdx source_label cmds target_label shouldExportVar
         writer.WriteEndElement () //program end
 
 /// Merge chains of transitions together.

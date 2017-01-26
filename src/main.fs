@@ -124,7 +124,7 @@ let main (arguments: string[]) =
               Output.print_smtpushdown p output_file
               printfn "Printing SMTLIB Pushdown Automaton to %s completed" output_file
         | Arguments.Safety inputLoc ->
-            let loc = p.GetLabelledNode inputLoc
+            let loc = p.GetLabelledLocation (Programs.OriginalLocation inputLoc)
             match Safety.prover parameters p loc with
             | None -> printfn "Safety proof succeeded"
             | Some _ -> printfn "Safety proof failed"

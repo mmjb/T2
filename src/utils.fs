@@ -167,6 +167,41 @@ type DefaultDictionary<'Key,'Value when 'Key : equality>(defaultVal : ('Key -> '
         member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value>(backingDict.GetEnumerator()) :> _
     interface System.Collections.IEnumerable with
         member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value>(backingDict.GetEnumerator()) :> _
+
+type BiDirectionalDictionary<'Key, 'Value when 'Key : equality and 'Value: equality>() =
+    let forwardDict = System.Collections.Generic.Dictionary<'Key, 'Value>()
+    let backwardDict = System.Collections.Generic.Dictionary<'Value, 'Key>()
+
+    member __.Item
+        with get key       = forwardDict.[key]
+        and  set key value =
+            forwardDict.[key] <- value
+            backwardDict.[value] <- key
+
+    member self.Clone() =
+        let newDict = BiDirectionalDictionary()
+        for (k, v) in self do
+            newDict.[k] <- v
+        newDict
+
+    member __.ContainsKey key = forwardDict.ContainsKey key
+    member __.ContainsValue value = backwardDict.ContainsKey value
+
+    member __.TryFind key =
+        match forwardDict.TryGetValue key with
+        | (true, value) -> Some value
+        | _ -> None
+
+    member __.TryFindValue value =
+        match backwardDict.TryGetValue value with
+        | (true, key) -> Some key
+        | _ -> None
+
+    interface System.Collections.Generic.IEnumerable<'Key * 'Value> with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value>(forwardDict.GetEnumerator()) :> _
+    interface System.Collections.IEnumerable with
+        member __.GetEnumerator () = new KeyValueAsPairEnumerator<'Key, 'Value>(forwardDict.GetEnumerator()) :> _
+
 ///
 /// List of functions that should be called when T2 is ending some
 /// reasoning and moving to a new problem.  Caches, Gensym, etc can add reset functions
@@ -306,6 +341,8 @@ type Set<'T when 'T : comparison> with
     ///Returns the set s1 \cup set_of(s2)
     static member addAll s1 s2 =
         Seq.fold (fun res ele -> Set.add ele res) s1 s2
+    static member filterMap (f : 'T -> 'V option) s =
+        Set.fold (fun res ele -> match f ele with | None -> res | Some fEle -> Set.add fEle res) Set.empty s
 
 type List<'T> with
     static member contains element list =
@@ -317,6 +354,7 @@ type List<'T> with
             if pred element then
                 incr counter
         !counter
+
 
 type System.Collections.Generic.HashSet<'T> with
     member self.RemoveAll vs =

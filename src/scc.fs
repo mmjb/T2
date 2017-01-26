@@ -34,7 +34,7 @@ module Microsoft.Research.T2.SCC
 
 open Utils
 
-let find_sccs (graph : ListDictionary<int, 'a * ('b * 'c * int)>) entry includeTrivial =
+let find_sccs (graph : ListDictionary<'LocLabel, 'a * ('b * 'c * 'LocLabel)>) entry includeTrivial =
     let lowlink = System.Collections.Generic.Dictionary()
     let number = System.Collections.Generic.Dictionary()
 
