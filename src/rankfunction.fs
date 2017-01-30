@@ -184,63 +184,8 @@ let extract_rf_from_model mu m =
              |> Map.map (fun _ coeffVar -> -(Z.get_model_int m coeffVar))
              |> Map.filter (fun _ coeff -> coeff <> bigint.Zero))
 
-///
-/// Return pair (rf, bound), where ref is term in prevars, and bound is consant term.
-/// RF should be always >= bound.
-///
-let synthesis rel =
-    Stats.startTimer "T2 - Rankfunction Synth. (Disjunctive)"
-
-    //printfn "rel: %A" rel
-
-    let prevars = Relation.prevars rel
-    let postvars = Relation.postvars rel
-
-    assert (prevars.Length = postvars.Length)
-    assert ((Set.intersect (Set.ofList prevars) (Set.ofList postvars)).IsEmpty)
-
-    let rf_coeffs = Z.fresh_var_list prevars.Length
-    let rf_on_pre = List.zip prevars rf_coeffs |> Map.ofSeq
-    let rf_on_post = List.zip postvars rf_coeffs |> Map.ofSeq
-
-    // rf_on_post minus rf_on_pre
-    let rf_diff =
-        [for KeyValue(v, k) in rf_on_post -> (v, k)] @
-        [for KeyValue(v, k) in rf_on_pre -> (v, Z.neg k)] |> Map.ofSeq
-
-    let bound = Z.fresh_var()
-
-    let constraints = make_decr_and_bnded_constraints rel rf_diff rf_on_pre bound
-
-    //  See the "Note on iterative strengthening" in interpolation.fs.
-    //  Here in this instance we assume that "x" makes a better ranking function than
-    //  "x+y" when given the choice. This is in contrast to interpolation where "x<y" is judged to be better
-    //  than "x<0"
-    let var_count vars =
-        let n0 = Z.constantInt 0
-        let n1 = Z.constantInt 1
-        List.fold Z.add n0
-            [for var in vars do
-                yield (Z.ite (Z.neq n0 var) n1 n0 :?> Microsoft.Z3.ArithExpr) ]
-    let n_used = var_count [for KeyValue(v, k) in rf_on_pre do if v <> ONE_var then yield k]
-    let n_less_than m = Z.le n_used (Z.constantInt m)
-    let strengthenings = List.map n_less_than [3; 2; 1]
-
-    let result =
-        match Z.solve (constraints::strengthenings) with
-        | None -> None
-        | Some m ->
-            let rf_on_pre = Map.map (fun _ coeff -> Z.get_model_int m coeff) rf_on_pre |> linear_term_to_term
-            let bound = Term.Const -(Z.get_model_int m bound)
-
-            m.Dispose()
-
-            Some (rf_on_pre, bound)
-    Stats.endTimer "T2 - Rankfunction Synth. (Disjunctive)"
-    result
 
 (* LEXICOGRAPHIC RFS *)
-
 //(relation, rf, bound) list
 type Lex_RF = (Relation.relation * Term.term * Term.term) list
 //A list of possible lex rfs we found, or a list of transitions that can be removed from the program

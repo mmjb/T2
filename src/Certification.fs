@@ -71,7 +71,7 @@ type private CertificateExportInformation =
         /// Maps program SCCs to a list of (rank function, bound, transitions that could be removed) triples.
         foundInitialLexRankFunctions : Map<ProgramSCC, (Map<ProgramLocation, Map<Var.var, bigint>> * Map<Set<TransitionId>, bigint> * Set<TransitionId>) list>
         /// Maps cutpoints in the termination part of the program to a list of (rank function strict decrease check, rank function weak decrease check, bound check) triples.
-        foundLexRankFunctions : Map<ProgramLocation, Formula.formula list * Formula.formula list * Formula.formula list>
+        foundLexRankFunctions : Map<ProgramLocation, (Formula.formula * Formula.formula * Formula.formula) list>
     }
 
 let private getCoopLocDupl exportInfo loc =
@@ -708,27 +708,27 @@ let private exportSafetyTransitionRemovalProof
         (removedTransitions : Set<TransitionId>)
         ((cp, cpDupl) : ProgramLocation * ProgramLocation)
         (xmlWriter : XmlWriter) =
-    let (decreasingCheckFormulas, _, boundCheckFormulas) =
+    let lexRfCheckFormulas =
         match exportInfo.foundLexRankFunctions.TryFind cp with
         | Some res -> res
-        | None -> ([], [], [])
+        | None -> []
 
-    if List.isEmpty decreasingCheckFormulas then
+    if List.isEmpty lexRfCheckFormulas then
         nextProofStep scc (cp, cpDupl) removedTransitions xmlWriter
     else
         (* Step 1: Extract rank functions. *)
         let rfTerms =
-            decreasingCheckFormulas
+            lexRfCheckFormulas
             |> List.map
-                (fun decreasingCheckFormula ->
+                (fun (decreasingCheckFormula, _, _) ->
                     //This is rather brittle, as it depends on the formulas we generate in rankfunction.fs for this case...
                     match decreasingCheckFormula with
                     | Formula.Lt(rankFunctionOnNewVars, _) -> rankFunctionOnNewVars
                     | _ -> dieWith "Could not retrieve rank function from internal proof structure.")
         let rfBounds =
-            boundCheckFormulas
+            lexRfCheckFormulas
             |> List.map
-                (fun boundCheckFormula ->
+                (fun (_, _, boundCheckFormula) ->
                     match boundCheckFormula with
                     | Formula.Ge(_, Term.Const c) -> -1 + int c
                     | _ -> dieWith "Could not retrieve bound for rank function from internal proof structure.")
@@ -824,7 +824,7 @@ let exportProofCertificate
         (progCoopSCCs : Set<int> list)
         (foundInitialLexRankFunctions : Map<Set<int>, (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint> * Set<int>) list>)
         (impactArg : Impact.ImpactARG)
-        (foundLexRankFunctions : Map<ProgramLocation, Formula.formula list * Formula.formula list * Formula.formula list>)
+        (foundLexRankFunctions : Map<ProgramLocation, (Formula.formula * Formula.formula * Formula.formula) list>)
         (xmlWriter : XmlWriter) =
     let exportInfo =
         {

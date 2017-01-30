@@ -91,7 +91,7 @@ let private generate_invariants_with_AI (pars : Parameters.parameters) (prog : P
         prog.SetTransition n (k, (assume locInvariant)::c, k')
     locToInvariant
 
-let private output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rfs (outWriter : TextWriter) =
+let private output_term_proof scc_simplification_rfs found_lex_rfs (outWriter : TextWriter) =
     //Print out initial rank functions that we used to remove transitions before safety proofs:
     if not(Map.isEmpty scc_simplification_rfs) then
         let print_one_simplification _ rf_bounds_and_removed_transitions =
@@ -120,7 +120,7 @@ let private output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rf
 
 
     //This is rather brittle, as it depends on the formulas we generate in rankfunction.fs for this case...    
-    let print_one_rf_bnd decreasing_formula bound_formula =
+    let print_one_rf_bnd (decreasing_formula, bound_formula) =
         let rf = 
             match decreasing_formula with
             | Formula.Lt(rf_on_new_vars, _) -> rf_on_new_vars
@@ -132,18 +132,11 @@ let private output_term_proof scc_simplification_rfs found_lex_rfs found_disj_rf
         outWriter.WriteLine("    - RF {0}, bound {1}", rf.pp, bound.pp)
 
     if not(Map.isEmpty found_lex_rfs) then
-        let print_lex_rf (cp, (decr_list, _, bnd_list)) =
+        let print_lex_rf (cp, lex_rf_check_formulas) =
             outWriter.WriteLine(" * For cutpoint {0}, used the following rank functions/bounds (in descending priority order):", string cp)
-            List.iter2 print_one_rf_bnd decr_list bnd_list
+            Seq.iter print_one_rf_bnd (Seq.map (fun (decr, _, bnd) -> (decr, bnd)) lex_rf_check_formulas)
         outWriter.WriteLine("Used the following cutpoint-specific lexicographic rank functions:")
         found_lex_rfs |> Map.toSeq |> Seq.iter print_lex_rf
-
-    if not(Map.isEmpty found_disj_rfs) then
-        let print_disj_rf (cp, rf_bnd_list) =
-            outWriter.WriteLine(" * For cutpoint {0}, used the following rank functions/bounds:", string cp)
-            List.iter (fun (rf_formula, bnd_formula) -> print_one_rf_bnd rf_formula bnd_formula) rf_bnd_list
-        outWriter.WriteLine("Used the following cutpoint-specific disjunctive rank functions:")
-        found_disj_rfs |> Map.toSeq |> Seq.iter print_disj_rf
 
 let private output_nonterm_proof ((cp, recurrent_set) : int * Formula.formula) (outWriter : TextWriter) =
     outWriter.WriteLine("Found this recurrent set for cutpoint {0:D}: {1}", cp, recurrent_set.pp)
@@ -236,7 +229,6 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
     let mutable terminating = None
     let unhandled_counterexample = ref None
     let mutable cex_found = false
-    let found_disj_rfs = ref Map.empty
     let found_lex_rfs = ref Map.empty
     let mutable recurrent_set = None
     let mutable cex = Counterexample.make None None
@@ -257,20 +249,16 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
             cex <- (Counterexample.make (Some (List.map (fun (x,y,z) -> (x,[y],z)) pi)) None)
             outputCexAsDefect cex
             //Investigate counterexample. Hopefully returns a solution:
-            match Lasso.investigate_cex pars p_instrumented safety pi !found_disj_rfs !found_lex_rfs lex_info with
+            match Lasso.investigate_cex pars p_instrumented safety pi !found_lex_rfs lex_info with
             | (None, _) ->
                 //We hit this case when the counterexample is not due to a cycle (i.e., we
                 //investigated the counterexample, but it wasn't a lasso at all, but just a
                 //straight-line path to the error loc)
                 dieWith "Obtained counterexample to termination without a cycle!"
 
-            /////////// Disjunctive (transition invariant) argument:
-            | (Some(Lasso.Disj_WF(cp, rf, bnd)),_) ->
-                Instrumentation.instrument_disj_RF pars cp rf bnd found_disj_rfs cp_rf p_instrumented safety
-
             /////////// Lexicographic termination argument:
-            | (Some(Lasso.Lex_WF(cp, decr_list, not_incr_list, bnd_list)),_) ->
-                Instrumentation.instrument_lex_RF pars cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_instrumented safety lex_info
+            | (Some(Lasso.Lex_WF(cp, lex_rf_check_formulas)),_) ->
+                Instrumentation.instrument_lex_RF pars cp lex_rf_check_formulas found_lex_rfs cp_rf_lex p_instrumented safety lex_info
 
             /////////// Lexicographic polyranking termination argument:
             | (Some(Lasso.Poly_WF(poly_checkers)),cp) ->
@@ -289,8 +277,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
             | (Some(Lasso.CEX(cex)), failure_cp) ->
                 Log.log pars <| sprintf "Could not find termination argument for counterexample on cutpoint %i" failure_cp
                 //If we're doing lexicographic method, try finding a recurrent set at this point (before trying anything else)
-                let attempting_lex = ((lex_info.cp_attempt_lex).[failure_cp])
-                if attempting_lex && pars.prove_nonterm then
+                if pars.prove_nonterm then
                     match RecurrentSets.synthesize pars cex.stem.Value cex.cycle.Value true with
                     | Some set ->
                         terminating <- Some false
@@ -303,25 +290,25 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
                 else
                     //We might haven chosen the wrong order of lexicographic RFs. Try backtracking to another option:
                     let exist_past_lex = (Lasso.exist_past_lex_options failure_cp lex_info)
-                    if attempting_lex && exist_past_lex then
+                    if exist_past_lex then
                         Log.log pars "Trying to backtrack to other order for lexicographic RF."
-                        let (decr_list,not_incr_list,bnd_list) = Instrumentation.switch_to_past_lex_RF pars lex_info failure_cp
-                        Instrumentation.instrument_lex_RF pars failure_cp decr_list not_incr_list bnd_list found_lex_rfs cp_rf_lex p_instrumented safety lex_info
+                        let lex_rf_check_formulas = Instrumentation.switch_to_past_lex_RF pars lex_info failure_cp
+                        Instrumentation.instrument_lex_RF pars failure_cp lex_rf_check_formulas found_lex_rfs cp_rf_lex p_instrumented safety lex_info
                     else
                         //If we are trying lexicographic termination arguments, try switching to lexicographic polyranking arguments:
                         let already_polyrank = (lex_info.cp_polyrank).[failure_cp]
-                        if pars.polyrank && not(already_polyrank) && attempting_lex then
+                        if pars.polyrank && not(already_polyrank) then
                             Log.log pars "Switching to polyrank."
                             Instrumentation.switch_to_polyrank pars lex_info failure_cp cp_rf_lex p_instrumented safety
                         else
                             //Try the "unrolling" technique
-                            if attempting_lex && pars.unrolling && Instrumentation.can_unroll pars lex_info failure_cp then
+                            if pars.unrolling && Instrumentation.can_unroll pars lex_info failure_cp then
                                 Log.log pars "Trying the unrolling technique."
                                 Instrumentation.do_unrolling pars lex_info failure_cp cp_rf_lex p_instrumented safety true
                             else
                                 //Try the "detect initial condition" technique
                                 let already_doing_init_cond = ((lex_info.cp_init_cond).[failure_cp])
-                                if pars.init_cond && attempting_lex && not(already_doing_init_cond) && not(pars.polyrank) then
+                                if pars.init_cond && not(already_doing_init_cond) && not(pars.polyrank) then
                                     Log.log pars "Trying initial condition detection."
                                     Instrumentation.do_init_cond pars lex_info failure_cp p_instrumented cp_rf_lex safety
 
@@ -330,14 +317,6 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
                                     Log.log pars "Giving up."
                                     noteUnhandledCex cex
                                     cex_found <- true
-
-                                    //If we are doing lexicographic proving, we already tried nonterm further up:
-                                    if not(attempting_lex) && (terminating).IsNone && pars.prove_nonterm && ((!unhandled_counterexample).IsSome) then
-                                        match RecurrentSets.synthesize pars cex.stem.Value cex.cycle.Value true with
-                                        | Some set ->
-                                            terminating <- Some false
-                                            recurrent_set <- Some (failure_cp, set)
-                                        | None   -> ()
 
                                     finished <- true
 
@@ -364,7 +343,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
 
     match terminating with
     | Some true ->
-        Some (true, output_term_proof !initial_lex_term_proof_RFs !found_lex_rfs !found_disj_rfs)
+        Some (true, output_term_proof !initial_lex_term_proof_RFs !found_lex_rfs)
     | Some false ->
         if not(p_instrumented.IncompleteAbstraction) then
             assert (!unhandled_counterexample <> None)

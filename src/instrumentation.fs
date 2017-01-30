@@ -52,10 +52,7 @@ type LexicographicInfo =
         mutable partial_orders : Map<int,Relation.relation list>
 
         ///a map from each cp to any lexicographic solutions we found in the past, but did not instrument. Last in first out
-        mutable past_lex_options : Map<int, ((Formula.formula list * Formula.formula list * Formula.formula list)*Relation.relation list) list>
-
-        ///a map from each cp to a bool describing whether we are currently doing the lexicographic method (true) or disjunctive method (false)
-        mutable cp_attempt_lex : Map<int, bool>
+        mutable past_lex_options : Map<int, ((Formula.formula * Formula.formula * Formula.formula) list * Relation.relation list) list>
 
         //
         //INITIAL CONDITION STUFF
@@ -103,7 +100,6 @@ let init_lex_info (pars : Parameters.parameters) (cutpoints : Set<int>) =
     {
         partial_orders= [for cp in cutpoints -> (cp,[])] |> Map.ofList
         past_lex_options = [for cp in cutpoints -> (cp,[])] |> Map.ofList
-        cp_attempt_lex = [for cp in cutpoints -> (cp,true)] |> Map.ofList
 
         cp_init_cond = [for cp in cutpoints -> (cp,false)] |> Map.ofList
         cp_rf_init_cond = Map.empty
@@ -208,17 +204,22 @@ let replace_lex_rf_checkers p old_checker_trans_ids number_of_checkers (ith_chec
         ]
     (k, new_checker_trans_ids)
 
+let make_lex_RF_ith_check_component (rf_check_formulas : (formula * formula * formula) list) i =
+    [
+        let mutable j = 0
+        for (decr_check_formula, non_incr_check_formula, bnd_check_formula) in rf_check_formulas do
+            if i = j then
+                yield decr_check_formula // i-th RF actually decreases
+            if j <= i then
+                yield bnd_check_formula // current and all earlier RFs are bounded from below
+            if j < i then
+                yield non_incr_check_formula// all earlier RFs are not increasing
+            j <- j + 1
+    ]
+
 //Instruments a lexicographic RF to p_final
-let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.formula list) (not_incr_list : Formula.formula list) (bnd_list : Formula.formula list) found_lex_rfs (cp_rf_lex:Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) lex_info =
+let instrument_lex_RF (pars : Parameters.parameters) cp (rf_check_formulas : (formula * formula * formula) list) found_lex_rfs (cp_rf_lex:Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) lex_info =
     let doing_init_cond = (lex_info.cp_init_cond).[cp]
-    let ith_lex_RF_check_formula i =
-        [
-            yield decr_list.[i] // i-th RF actually decreases
-            for j in 0..i do
-                yield bnd_list.[j] // current and all earlier RFs are bounded from below
-            for j in 0..i-1 do
-                yield not_incr_list.[j] // all earlier RFs are not increasing
-        ]
 
     //Standard lexicographic RFs:
     if not doing_init_cond then
@@ -226,8 +227,8 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
 
         //cp_rf_lex supplies the index (in p_final.transitions) of all lexicographic checkers, in correct order
         let old_checker_trans_ids = cp_rf_lex.[cp]
-        found_lex_rfs := !found_lex_rfs |> Map.remove cp |> Map.add cp (decr_list, not_incr_list, bnd_list)
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_lex_RF_check_formula
+        found_lex_rfs := !found_lex_rfs |> Map.remove cp |> Map.add cp rf_check_formulas
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids rf_check_formulas.Length (make_lex_RF_ith_check_component rf_check_formulas) 
         cp_rf_lex.[cp] <- new_lex_checker_trans_ids
         safety.ResetFrom first_checker_node
 
@@ -239,7 +240,7 @@ let instrument_lex_RF (pars : Parameters.parameters) cp (decr_list : Formula.for
         //map from counters to the index locations of the counter's lex checkers
         let counters_to_checkers = (lex_info.cp_rf_init_cond).[cp]
         let old_checker_trans_ids = counters_to_checkers.[counter]
-        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids decr_list.Length ith_lex_RF_check_formula
+        let (first_checker_node, new_lex_checker_trans_ids) = replace_lex_rf_checkers p_final old_checker_trans_ids rf_check_formulas.Length (make_lex_RF_ith_check_component rf_check_formulas) 
         let new_counter_checkers_map = Map.add counter new_lex_checker_trans_ids counters_to_checkers
         lex_info.cp_rf_init_cond <- Map.add cp new_counter_checkers_map lex_info.cp_rf_init_cond
         safety.ResetFrom first_checker_node
@@ -269,10 +270,12 @@ let switch_to_past_lex_RF (pars : Parameters.parameters) lex_info failure_cp =
     let new_lex_WF = past_lex_options.Head
     lex_info.past_lex_options <- Map.add failure_cp past_lex_options.Tail lex_info.past_lex_options
 
-    let ((decr_list, not_incr_list, bnd_list),new_partial_order) = new_lex_WF
+    let (lex_RF, new_partial_order) = new_lex_WF
     lex_info.partial_orders <- Map.add failure_cp new_partial_order lex_info.partial_orders
-    Log.log pars <| sprintf "Reverting to a past lexicographic RF:\n %A\n with bounds:\n %A" decr_list bnd_list
-    (decr_list,not_incr_list,bnd_list)
+    if pars.print_log then
+        let (rfs, bnds) = List.fold (fun (rfs, bnds) (rf, _, bnd) ->  (rf::rfs, bnd::bnds)) ([], []) lex_RF
+        Log.log pars <| sprintf "Reverting to a past lexicographic RF:\n %A\n with bounds:\n %A" rfs bnds
+    lex_RF
 
 ///Deletes the old lex checkers for failure_cp and get ready to start finding lex polyranking functions
 let switch_to_polyrank (pars : Parameters.parameters) lex_info failure_cp (cp_rf_lex:Dictionary<int, int list>) (p_final:Programs.Program) (safety : SafetyProver) =

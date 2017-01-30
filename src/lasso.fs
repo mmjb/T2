@@ -77,10 +77,11 @@ let simplify_lex_RF (rf_list:term list) (bnd_list:term list) =
     List.unzip simplified_list
 
 ///Takes the three formulae lists of a lex RF and gives a single formula expressing the lex RF
-let make_lex_formula (decr_list:formula list,not_incr_list:formula list,bnd_list:formula list) =
-    let unaffected_before i = [for j in 1..i-1 -> not_incr_list.[j-1]]
-    let i_decr_bnded_rest_unaffected i = Formula.conj <| decr_list.[i-1]::bnd_list.[i-1]::unaffected_before i
-    Formula.disj <| [for i in 1..decr_list.Length -> i_decr_bnded_rest_unaffected i]
+let make_lex_formula (lex_rf_check_formulas : (formula * formula * formula) list)=
+    [
+        for i in 0 .. lex_rf_check_formulas.Length - 1 do
+            yield Formula.conj <| Instrumentation.make_lex_RF_ith_check_component lex_rf_check_formulas i
+    ] |> Formula.disj
 
 let check_lex_rankfunction_valid (lex_order:Relation.relation list) (rf_list:term list) (bnd_list:term list) =
     //printfn "lex_order:\n %A" lex_order
@@ -103,16 +104,14 @@ let check_lex_rankfunction_valid (lex_order:Relation.relation list) (rf_list:ter
         List.find (fun x -> Var.unprime_var v = Var.unprime_var x) postvars
 
     let post_subst v = if List.contains v prevars then Term.var (Var.var (find_post v)) else Var v
-
-    let postrf_list = [for rf in rf_list -> Term.subst post_subst rf]
-
-    let decr_list = [for i in 1..rf_list.Length -> Formula.Lt(postrf_list.[i-1],rf_list.[i-1])]
-    let not_incr_list = [for i in 1..rf_list.Length -> Formula.Le(postrf_list.[i-1],rf_list.[i-1])]
-    let bnd_list = [for i in 1..rf_list.Length -> Formula.Ge(rf_list.[i-1],bnd_list.[i-1])]
-
-    //log "Checking lexicographic rankfunction"
+    let lex_rf_check_formulas =
+        [
+            for (rf, bnd) in Seq.zip rf_list bnd_list do
+                let post_rf = Term.subst post_subst rf
+                yield (Formula.Lt(post_rf, rf), Formula.Le(post_rf, rf), Formula.Ge(rf, bnd))
+        ]
     //Check for each relation that the rf is decreasing and bounded for that relation and not increasing for all prior relations
-    let lex_formula = make_lex_formula (decr_list,not_incr_list,bnd_list)
+    let lex_formula = make_lex_formula lex_rf_check_formulas
 
     //This little dance here is needed because some of our ranking functions are affine and use __const_1 as extra variable to achieve that.
     //We need to fix it to 1 -- otherwise z3 will do weird stuff like setting it to 14.
@@ -186,8 +185,7 @@ let path_invariant stem cycle =
 //Lex_WF = cutpoint,decr_list,not_incr_list,bnd_list
 //Poly_WF = the lexicographic polyranking conditions in DNF form.
 type Refinement = CEX of Counterexample.cex
-                | Disj_WF of int * Formula.formula * Formula.formula
-                | Lex_WF of int * Formula.formula list * Formula.formula list * Formula.formula list
+                | Lex_WF of int * (Formula.formula * Formula.formula * Formula.formula) list
                 | Poly_WF of Formula.formula list list
                 | Transition_Removal of int list
 
@@ -223,14 +221,15 @@ let rf_for_new_and_saved_vars rf cutpoint =
     (Term.subst get_current_term_var_for_var rf, Term.subst (get_saved_term_var_for_var cutpoint) rf)
 
 ///Converts the RF and bound lists to the triple formula lists
-let lex_rankfunction_to_argument rf_list (bnd_list:Term.term list) cutpoint =
+let lex_rf_to_check_formulas rf_list (bnd_list:Term.term list) cutpoint =
     let (new_rf_list, saved_rf_list) = List.unzip <| List.map (fun rf -> rf_for_new_and_saved_vars rf cutpoint) rf_list
 
-    let decr_formulae     = [for i in 1..rf_list.Length -> Formula.Lt(new_rf_list.[i-1], saved_rf_list.[i-1])]
-    let not_incr_formulae = [for i in 1..rf_list.Length -> Formula.Le(new_rf_list.[i-1], saved_rf_list.[i-1])]
-    let bnd_formulae      = [for i in 1..rf_list.Length -> Formula.Ge(saved_rf_list.[i-1], bnd_list.[i-1])]
-
-    (decr_formulae, not_incr_formulae, bnd_formulae)
+    [
+        for i in 1..rf_list.Length do
+            yield (Formula.Lt(new_rf_list.[i-1], saved_rf_list.[i-1]),
+                   Formula.Le(new_rf_list.[i-1], saved_rf_list.[i-1]),
+                   Formula.Ge(saved_rf_list.[i-1], bnd_list.[i-1]))
+    ]
 
 ///Converts the rf and bound to the "decreasing" and "bounded" formulae
 let rankfunction_to_argument rf bnd cutpoint =
@@ -286,22 +285,19 @@ let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) cutpoint cyc
                 //note we check all the lex RFs at this point, not just the one we're going to instrument
                 check_lex_rankfunction_valid new_partial_order simp_rf_list simp_bnd_list
 
-                let (rf_formulae,not_incr_formulae,bnd_formulae) = lex_rankfunction_to_argument simp_rf_list simp_bnd_list cutpoint
-                ((rf_formulae,not_incr_formulae,bnd_formulae),new_partial_order)
+                (lex_rf_to_check_formulas simp_rf_list simp_bnd_list cutpoint, new_partial_order)
 
             //process all the lex options now
             let processed_lexoptions = List.map process_lex_RF lexoptions
 
             //choose the head to be instrumented; store the others in past_lex_options in case we want to use them later
-            let lex_soln = processed_lexoptions.Head
-            let (_,new_partial_order) = lex_soln
+            let (rf_checks, new_partial_order) = processed_lexoptions.Head
             lex_info.partial_orders <- Map.add cutpoint new_partial_order lex_info.partial_orders
 
             let other_solns = processed_lexoptions.Tail
             store_lex_options cutpoint other_solns lex_info
 
-            let ((decr_formulae,not_incr_formulae,bnd_formulae),_) = lex_soln
-            Some(Lex_WF(cutpoint,decr_formulae,not_incr_formulae,bnd_formulae))
+            Some(Lex_WF(cutpoint, rf_checks))
     | Some(Program_Simplification(toremove)) -> Some(Transition_Removal(toremove))
     | None ->
             log pars "Couldn't find a lexicographic rank function"
@@ -331,9 +327,9 @@ let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) cu
 
             check_lex_rankfunction_valid new_partial_order simp_rf_list simp_bnd_list
 
-            let (rf_formulae,not_incr_formulae,bnd_formulae) = lex_rankfunction_to_argument simp_rf_list simp_bnd_list cutpoint
+            let check_formulas = lex_rf_to_check_formulas simp_rf_list simp_bnd_list cutpoint
 
-            Some(Lex_WF(cutpoint,rf_formulae,not_incr_formulae,bnd_formulae))
+            Some(Lex_WF(cutpoint, check_formulas))
     | Some(Program_Simplification(toremove)) -> Some(Transition_Removal(toremove))
     | None ->
             log pars "Couldn't find a lexicographic rank function"
@@ -473,30 +469,14 @@ let find_lex_poly_RF (pars : Parameters.parameters) cutpoint cycle_rel lex_info 
 
         Some(Poly_WF(poly_checkers))
 
-///Tries to find a WF for cycle_rel
-let find_disj_RF (pars : Parameters.parameters) cutpoint cycle_rel =
-    match Rankfunction.synthesis cycle_rel with
-        | Some(rf, bnd) ->
-                Log.log pars <| sprintf "RF candidate: %A with bound %A at CP %d" rf bnd cutpoint
-                check_rankfunction_valid pars cycle_rel rf bnd
-                let (rf_formula, bnd_formula) = rankfunction_to_argument rf bnd cutpoint
-                Some(Disj_WF(cutpoint, rf_formula, bnd_formula))
-        | None ->
-                Log.log pars "Couldn't find a rank function"
-                None
-
 ///////////////////////////////////////////////////////////////////////////////
 //// Main counterexample-guided refinement functions, searching for new RFs ///
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Return the appropriate type of Refinement or none
 let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) cutpoint cycle cycle_rel (lex_info:LexicographicInfo) =
-    //are we finding lexicographic RFs for this cutpoint?
-    let attempting_lex = Map.find cutpoint lex_info.cp_attempt_lex
-
     //are we doing the "detecting initial condition" improvement for this cutpoint?
     let init_cond = Map.find cutpoint lex_info.cp_init_cond
-    if init_cond then assert attempting_lex
 
     let polyranking = Map.find cutpoint lex_info.cp_polyrank
 
@@ -504,16 +484,13 @@ let refine_cycle (pars : Parameters.parameters) (p:Programs.Program) cutpoint cy
         sprintf "Refining temporal argument for cycle:" |> log pars
         cycle |> List.concatMap (fun (_, cs, _) -> cs) |> Programs.commands2pp |> log pars
 
-    if attempting_lex then
-        if not polyranking then
-            if not init_cond then
-                find_lex_RF pars p cutpoint cycle_rel lex_info
-            else
-                find_lex_RF_init_cond pars p cutpoint cycle_rel lex_info
+    if not polyranking then
+        if not init_cond then
+            find_lex_RF pars p cutpoint cycle_rel lex_info
         else
-            find_lex_poly_RF pars cutpoint cycle_rel lex_info
+            find_lex_RF_init_cond pars p cutpoint cycle_rel lex_info
     else
-        find_disj_RF pars cutpoint cycle_rel
+        find_lex_poly_RF pars cutpoint cycle_rel lex_info
 
 let split_path_for_cp pi cp =
     let rec split_path_for_cp' pi cp stem_acc =
@@ -587,8 +564,7 @@ let investigate_cex_for_fixed_cp (pars : Parameters.parameters) (p:Programs.Prog
         Stats.incCounter "T2 - Counterexample investigation without path invariant successful"
 
     match ret with
-    | Some(Disj_WF(_,rf,bnd)) -> Some(Disj_WF(cp,rf,bnd))
-    | Some(Lex_WF(_,decr,not_incr,bnd)) -> Some(Lex_WF(cp,decr,not_incr,bnd))
+    | Some(Lex_WF(_, lex_rf_check_formulas)) -> Some(Lex_WF(cp, lex_rf_check_formulas))
     | Some(Poly_WF(poly_checkers)) -> Some(Poly_WF(poly_checkers))
     | None -> Some(CEX (Counterexample.make (Some stem) (Some cycle)))
     | Some(Transition_Removal(trans)) -> Some(Transition_Removal(trans))
@@ -613,7 +589,7 @@ let find_failing_cp pi =
     |> (fun c -> match c with | Some (_, Programs.Assume (_, f), _) -> Some (extract_copied_cutpoint f).Value 
                               | _ -> None)
 
-let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) reachGraph pi found_disj_rfs found_lex_rfs lex_info =
+let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) reachGraph pi found_lex_rfs lex_info =
     let failing_cutpoint = find_failing_cp pi
 
     match failing_cutpoint with
@@ -628,32 +604,21 @@ let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) reachGra
             match investigate_cex_for_fixed_cp pars p reachGraph pi failing_cutpoint lex_info with
             | None -> None
             | Some(CEX(l)) -> Some(CEX(l))
-            | Some(Disj_WF(cp,rf,bnd)) -> 
-                //Check if we already found this RF (or something very similar):
-                let approx_have_rf_already (cp, new_rf, new_bnd) = 
-                    match Map.tryFind cp found_disj_rfs with
-                    | Some rfs -> List.exists (fun (rf, bnd) -> rf = new_rf && new_bnd >= bnd) rfs
-                    | None -> false
-                if not (approx_have_rf_already (cp,rf,bnd)) then
-                    Some(Disj_WF(cp,rf,bnd))
-                else
-                    Log.log pars <| sprintf "New rank function %A with bound %A implied by older RFs." rf bnd
-                    None
-            | Some(Lex_WF(cp,decr_list,not_incr_list,bnd_list)) ->
+            | Some(Lex_WF(cp, lex_rf_check_formulas)) ->
                 //Check if we already have a RF that implies this one:
-                let approx_have_lex_rf_already (cp, new_decr, new_not_incr, new_bnd) =
+                let approx_have_lex_rf_already  =
                     //Don't carry out this check if we're doing init cond detection or unrolling (it's not supported)
                     if (lex_info.cp_init_cond).[cp] || (lex_info.cp_unrolling).[cp] then
                         false
                     else
                         match Map.tryFind cp found_lex_rfs with
-                        | Some (old_decr, old_not_incr, old_bnd) ->  
-                            let old_lex = make_lex_formula (old_decr, old_not_incr, old_bnd)
-                            let new_lex = make_lex_formula (new_decr, new_not_incr, new_bnd)
+                        | Some old_lex_rf_check_formulas ->  
+                            let old_lex = make_lex_formula old_lex_rf_check_formulas
+                            let new_lex = make_lex_formula lex_rf_check_formulas
                             Formula.entails new_lex old_lex
                         | None -> false
-                if not (approx_have_lex_rf_already (cp,decr_list,not_incr_list,bnd_list)) then
-                    Some(Lex_WF(cp,decr_list,not_incr_list,bnd_list))
+                if not approx_have_lex_rf_already then
+                    Some(Lex_WF(cp, lex_rf_check_formulas))
                 else
                     None
             | Some(Poly_WF(poly_checkers)) -> Some(Poly_WF(poly_checkers))
