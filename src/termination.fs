@@ -234,6 +234,7 @@ let private exportTransitionRemovalProof
         (locToRFTerm : Dictionary<ProgramLocation, Term.term>)
         (bound : bigint)
         (transitionsToExport : (TransitionId * Transition) seq)
+        (shouldExportVariable : Var.var -> bool)
         (removedTransitions : Set<TransitionId>)
         (nextProofStep : Set<TransitionId> -> XmlWriter -> unit)
         (xmlWriter : XmlWriter) =
@@ -276,46 +277,49 @@ let private exportTransitionRemovalProof
             | None -> var
         let transLinearTerms =
             Formula.formula.FormulasToLinearTerms (transFormula :> _)
-            |> Formula.filter_instr_vars Formula.is_noninstr_var
+            |> Formula.filter_instr_vars shouldExportVariable
 
-        //Now do the hinting for every disjunct of the invariant:
-        let locInvariants = locToInvariant.GetWithDefault sourceLoc [[Formula.truec]]
-        let mutable decreaseHintTerms = []
-        let mutable boundHintTerms = []
-        let mutable isStrict = true
-        for locInvariant in locInvariants do
-            let locInvariantTerms = Formula.formula.FormulasToLinearTerms (locInvariant :> _)
-            let locInvariantAndTransLinearTerms =
-                List.append (List.map (SparseLinear.alpha varToPre) locInvariantTerms)
-                            transLinearTerms
-            let rankFunctionOnPreVars = Term.alpha varToPre sourceRFTerm
-            let rankFunctionOnPostVars = Term.alpha varToPost targetRFTerm
-            let strictDecreaseZ3 = Formula.z3 <| Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)
-            let boundZ3 = Formula.z3 <| Formula.formula.Ge (rankFunctionOnPreVars, Term.Const bound)
-            let locInvariantAndTransZ3 = SparseLinear.le_linear_terms_to_z3 locInvariantAndTransLinearTerms
-            if Z.valid (Z.implies locInvariantAndTransZ3 (Z.conj2 strictDecreaseZ3 boundZ3)) then
-                let strictDecreaseTerms = (Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
-                let boundTerms = (Formula.formula.Ge (rankFunctionOnPreVars, Term.Const bound)).ToLinearTerms()
-                assert (1 = List.length strictDecreaseTerms)
-                assert (1 = List.length boundTerms)
-                decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head strictDecreaseTerms) :: decreaseHintTerms
-                boundHintTerms <- (locInvariantAndTransLinearTerms, List.head boundTerms) :: boundHintTerms
-            else
-                let weakDecreaseTerms = (Formula.formula.Ge (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
-                assert (1 = List.length weakDecreaseTerms)
-                decreaseHintTerms <- (locInvariantAndTransLinearTerms, List.head weakDecreaseTerms)::decreaseHintTerms
-                isStrict <- false
+        let rankFunctionOnPreVars = Term.alpha varToPre sourceRFTerm
+        let rankFunctionOnPostVars = Term.alpha varToPost targetRFTerm
+        let strictDecreaseTerm = List.head <| (Formula.formula.Gt (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
+        let boundTerm = List.head <| (Formula.formula.Ge (rankFunctionOnPreVars, Term.Const bound)).ToLinearTerms()
 
         //printfn "Looking at trans %i: %i (%A) -> %i (%A)" transIdx sourceLoc (exportInfo.progCoopInstrumented.GetLocationLabel sourceLoc) targetLoc (exportInfo.progCoopInstrumented.GetLocationLabel targetLoc)
         //printfn "  RF on source: %A" (Term.alpha varToPre sourceRFTerm)
         //printfn "  RF on target: %A" (Term.alpha varToPost targetRFTerm)
-        //printfn "  Invariant on source: %s" ("(" + String.concat ") || (" (List.map string locInvariants) + ")")
+
+        //Now do the hinting for every disjunct of the invariant:
+        let locInvariants = locToInvariant.GetWithDefault sourceLoc [[Formula.truec]]
+        let mutable decreaseHints = []
+        let mutable boundHints = []
+        let mutable isStrict = true
+        for locInvariant in locInvariants do
+            let locInvariantTerms =
+                Formula.formula.FormulasToLinearTerms (locInvariant :> _)
+                |> Formula.filter_instr_vars shouldExportVariable
+            let locInvariantAndTransLinearTerms =
+                List.append (List.map (SparseLinear.alpha varToPre) locInvariantTerms)
+                            transLinearTerms
+            //printfn "  Invariant on source: %s" ("(" + String.concat ") || (" (List.map string locInvariants) + ")")
+
+            let strictDecreaseHintCoefficients = SparseLinear.tryGetFarkasCoefficients locInvariantAndTransLinearTerms strictDecreaseTerm
+            let boundHintCoefficients = SparseLinear.tryGetFarkasCoefficients locInvariantAndTransLinearTerms boundTerm
+            match (strictDecreaseHintCoefficients, boundHintCoefficients) with
+            | (Some strictDecreaseHintCoefficients, Some boundHintCoefficients) ->
+                decreaseHints <- strictDecreaseHintCoefficients :: decreaseHints
+                boundHints <- boundHintCoefficients :: boundHints
+            | _ ->
+                let weakDecreaseTerms = List.head <| (Formula.formula.Ge (rankFunctionOnPreVars, rankFunctionOnPostVars)).ToLinearTerms()
+                let weakDecreaseHintCoefficients = SparseLinear.getFarkasCoefficients locInvariantAndTransLinearTerms weakDecreaseTerms
+                decreaseHints <- weakDecreaseHintCoefficients :: decreaseHints
+                isStrict <- false
+
         if isStrict then
             //printfn "  Is strictly decreasing and bounded."
-            strictDecreaseHintInfo <- (transIdx, decreaseHintTerms, boundHintTerms)::strictDecreaseHintInfo
+            strictDecreaseHintInfo <- (transIdx, decreaseHints, boundHints)::strictDecreaseHintInfo
         else
             //printfn "  Is weakly decreasing."
-            weakDecreaseHintInfo <- (transIdx, decreaseHintTerms)::weakDecreaseHintInfo
+            weakDecreaseHintInfo <- (transIdx, decreaseHints)::weakDecreaseHintInfo
 
     let strictTransitions = strictDecreaseHintInfo |> List.map (fun (transIdx, _, _) -> transIdx) |> Set.ofList
     let newRemovedTransitions = Set.union removedTransitions strictTransitions
@@ -325,25 +329,26 @@ let private exportTransitionRemovalProof
         writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
     xmlWriter.WriteEndElement () //end remove
 
+    //xmlWriter.WriteElementString ("hints", "")
     xmlWriter.WriteStartElement "hints"
-    for (transIdx, decreaseHintTerms, boundHintTerms) in strictDecreaseHintInfo do
+    for (transIdx, decreaseHints, boundHints) in strictDecreaseHintInfo do
         xmlWriter.WriteStartElement "strictDecrease"
         writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
         xmlWriter.WriteStartElement "boundHints"
-        for (invAndTransLinearTerms, boundTerm) in boundHintTerms do
-            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms boundTerm
+        for boundHint in boundHints do
+            SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter boundHint
         xmlWriter.WriteEndElement () //end boundHints
         xmlWriter.WriteStartElement "decreaseHints"
-        for (invAndTransLinearTerms, strictDecreaseTerm) in decreaseHintTerms do
-            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms strictDecreaseTerm
+        for strictDecreaseHint in decreaseHints do
+            SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter strictDecreaseHint
         xmlWriter.WriteEndElement () //end decreaseHints
         xmlWriter.WriteEndElement () //end strictDecrease
-    for (transIdx, decreaseHintTerms) in weakDecreaseHintInfo do
+    for (transIdx, decreaseHints) in weakDecreaseHintInfo do
         xmlWriter.WriteStartElement "weakDecrease"
         writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
         xmlWriter.WriteStartElement "decreaseHints"
-        for (invAndTransLinearTerms, weakDecreaseTerm) in decreaseHintTerms do
-            SparseLinear.writeCeTALinearImplicationHints xmlWriter invAndTransLinearTerms weakDecreaseTerm
+        for weakDecreaseHints in decreaseHints do
+            SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter weakDecreaseHints
         xmlWriter.WriteEndElement () //end decreaseHints
         xmlWriter.WriteEndElement () //end weakDecrease
     xmlWriter.WriteEndElement () //end hints
@@ -419,7 +424,7 @@ let private exportNonSCCRemovalProof
         progFullCoop.TransitionsWithIdx
         |> Seq.filter (fun (transIdx, _) -> progFullExtraTrans.Contains transIdx || exportInfo.transDuplIdToTransId.ContainsKey transIdx)
 
-    exportTransitionRemovalProof {exportInfo with progCoopInstrumented = progFullCoop} (Dictionary()) locToRFTerm bound transToExport Set.empty (fun _ xmlWriter -> nextProofStep xmlWriter) xmlWriter
+    exportTransitionRemovalProof {exportInfo with progCoopInstrumented = progFullCoop} (Dictionary()) locToRFTerm bound transToExport Formula.is_noninstr_var Set.empty (fun _ xmlWriter -> nextProofStep xmlWriter) xmlWriter
 
 let private getBeforeTransitionId (exportInfo: CertificateExportInformation) cp =
     exportInfo.progCoopInstrumented.TransitionsTo cp
@@ -618,7 +623,7 @@ let private exportInitialLexRFTransRemovalProof
                 exportInfo.progCoopInstrumented.TransitionsWithIdx
                 |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransition transIdx source target)
 
-            exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport removedTransitions (exportNextRF remainingRankFunctions) xmlWriter
+            exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport Formula.is_noninstr_var removedTransitions (exportNextRF remainingRankFunctions) xmlWriter
     exportNextRF thisSCCRankFunctions Set.empty xmlWriter
 
 let private findSCCsInTransitions
@@ -639,7 +644,7 @@ let private findSCCsInTransitions
 let private exportFinalProof
         (exportInfo: CertificateExportInformation)
         (scc : ProgramSCC)
-        _
+        ((cp, cpDupl) : (ProgramLocation * ProgramLocation))
         (removedTransitions : Set<TransitionId>)
         (xmlWriter : XmlWriter) =
     //We assume that at this point, no more cycles are left. Thus, we just need to eliminate all remaining
@@ -649,6 +654,7 @@ let private exportFinalProof
     //nothing incoming. First, find such a node, then use standard SCC numbering we get from Tarjan
     let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc false
     let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation None removedTransitions
+    let shouldExportVariable = shouldExportVariable cp
     let entryLoc =
         scc
         |> Seq.find
@@ -677,7 +683,7 @@ let private exportFinalProof
     let exportTrivialProof _ _ =
         xmlWriter.WriteElementString ("trivial", "")
 
-    exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport removedTransitions exportTrivialProof xmlWriter
+    exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport shouldExportVariable removedTransitions exportTrivialProof xmlWriter
 
 let private exportCutTransitionSplitProof
         (exportInfo: CertificateExportInformation)
@@ -883,7 +889,7 @@ let private exportSafetyTransitionRemovalProof
                 else exportInfo.impactArg.GetLocationInvariantForNodes argNodesToReport loc
             locToInvariant.[loc] <- locInvariants
 
-        exportTransitionRemovalProof exportInfo locToInvariant locToRFTerm rfBound transToExport removedTransitions (nextProofStep scc (cp, cpDupl)) xmlWriter
+        exportTransitionRemovalProof exportInfo locToInvariant locToRFTerm rfBound transToExport shouldExportVariable removedTransitions (nextProofStep scc (cp, cpDupl)) xmlWriter
 
 let private exportSwitchToCooperationTerminationProof
         (exportInfo : CertificateExportInformation)

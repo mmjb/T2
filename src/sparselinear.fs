@@ -277,7 +277,7 @@ let toCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> 
             t
         writer.WriteEndElement () //end sum
 
-let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : (bigint list) =
+let tryGetFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : (bigint list option) =
     let presNLambdas : (LinearTerm * Microsoft.Z3.ArithExpr) list = [ for pre in pres do yield (pre, upcast Z.fresh_var()) ]
     let allVars = Set.unionMany (Seq.map (fun (t : LinearTerm) -> Set.ofSeq t.Keys) (Seq.append (Seq.singleton post) pres))
 
@@ -311,17 +311,32 @@ let private getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : 
                 Z.conj2 partialConstraint constr)
             lambdasPos allVars
     match Z.solve [farkasConstraints] with
+    | None -> None
+    | Some model ->
+        Some <| List.map (fun (_, lambda) ->  Z.get_model_int model lambda) presNLambdas
+
+let getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : (bigint list) =
+    match tryGetFarkasCoefficients pres post with
     | None ->
         printfn "Looking for Farkas coefficients for this:"
-        Seq.iter (fun (t, _) -> printfn "  %s <= 0" (linearTermToString t)) presNLambdas
+        Seq.iter (fun t -> printfn "  %s <= 0" (linearTermToString t)) pres
         printfn " ==> %s <= 0" (linearTermToString post)
         failwith "Trying to get Farkas coefficients for implication that doesn't hold!"
-    | Some model ->
-        List.map (fun (_, lambda) ->  Z.get_model_int model lambda) presNLambdas
+    | Some m -> m
+
+let writeCeTAFarkasCoefficientHints (writer : System.Xml.XmlWriter) (farkasCoeffs : bigint list) =
+    writer.WriteStartElement "linearImplicationHint"
+    writer.WriteStartElement "linearCombination"
+    List.iter
+        (fun (i : bigint) ->
+            writer.WriteStartElement "constant"
+            writer.WriteValue (int64 i)
+            writer.WriteEndElement ()) //constant end
+        farkasCoeffs
+    writer.WriteEndElement () //linearCombination end
+    writer.WriteEndElement () //linearImplicationHint end
 
 let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : LinearTerm list) (post : LinearTerm) =
-    writer.WriteStartElement "linearImplicationHint"
-
     (* The original code, that actually generate hints, for reference:
     let farkasCoeffs =
         if pres = [ ONE_TERM ] then
@@ -333,16 +348,10 @@ let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : Line
 
         else
             getFarkasCoefficients pres post
-    writer.WriteStartElement "linearCombination"
-    List.iter
-        (fun (i : bigint) ->
-            writer.WriteStartElement "constant"
-            writer.WriteValue (int64 i)
-            writer.WriteEndElement ()) //constant end
-        farkasCoeffs
-    writer.WriteEndElement () //linearCombination end
+    writeCeTAFarkasCoefficientHints writer farkasCoeffs
     *)
 
+    writer.WriteStartElement "linearImplicationHint"
     writer.WriteElementString ("simplex", "")
     writer.WriteEndElement () //linearImplicationHint end
 
