@@ -1238,3 +1238,12 @@ let add_const1_var_to_relation extra_pre_var extra_post_var rel =
                 (Formula.Eq (Term.Var extra_pre_var, (Term.constant 1)))),
             (Formula.Eq (Term.Var extra_post_var, (Term.constant 1))))
     Relation.standardise_postvars (Relation.make newformula (extra_pre_var::prevars) (extra_post_var::postvars))
+
+let locToOriginalLocation (prog : Program) loc =
+    match prog.GetLocationLabel loc with
+    | OriginalLocation baseLabel
+    | CutpointDummyEntryLocation baseLabel
+    | CutpointVarSnapshotLocation baseLabel
+    | DuplicatedCutpointLocation baseLabel
+    | DuplicatedLocation baseLabel -> prog.GetLabelledLocation (OriginalLocation baseLabel)
+    | label -> failwithf "Trying to find original location for instrumentation location %i (%A)" loc label

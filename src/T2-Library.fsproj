@@ -99,6 +99,7 @@
     <Compile Include="instrumentation.fs" />
     <Compile Include="lasso.fs" />
     <Compile Include="recurrentsets.fs" />
+    <Compile Include="Certification.fs" />
     <Compile Include="termination.fs" />
     <Compile Include="absparse.fs" />
     <Compile Include="absflex.fs" />
