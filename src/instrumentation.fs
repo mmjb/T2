@@ -141,41 +141,6 @@ let contains_copied_gets_1 cp (cmds:Programs.Command list)=
         | _ -> ()
     found
 
-//Instruments a RF to p_final (when we're doing the disjunctive method).
-let instrument_disj_RF (pars : Parameters.parameters) cp rf bnd (found_disj_rfs : Map<int, (formula * formula) list> ref) (cp_rf:Dictionary<int,int>) (p_final:Programs.Program) (safety : SafetyProver) =
-    let old_rfs_for_cp = (!found_disj_rfs).FindWithDefault cp []
-    found_disj_rfs := !found_disj_rfs |> Map.remove cp |> Map.add cp ((rf, bnd)::old_rfs_for_cp)
-
-    assert(cp_rf.ContainsKey(cp))
-
-    // This is the transition from the checked cutpoint to the error location, where we check the RF found so far
-    let check_trans = cp_rf.[cp]
-    let (k, _, _) = p_final.GetTransition check_trans
-    
-    //We are now looking for the transition that leads to the checker transition, i.e., the one that goes to node k:
-    let (pre_check_trans, (l, cmds', k)) = Seq.head <| p_final.TransitionsTo k
-
-    (* 
-        This thing in a picture, where things in () are nodes. Old transitions:
-          ... (l) -- cmds' -->                                  (k) -- "old rf check" --> (k')
-        New transitions:
-          ... (l) -- cmds' --> (new_node) -- "new rf check" --> (k) -- "old rf check" --> (k')
-        Here, l is always (?) be the checked cutpoint, but that's not a hard requirement
-    *)
-    let new_node = p_final.NewLocation Programs.CutpointRFCheckLocation
-    p_final.SetTransition pre_check_trans (l, cmds', new_node)
-    
-    let rfCheckTrans = p_final.AddTransition new_node [Programs.assume (Formula.Not(rf))] k
-    let _ = p_final.AddTransition new_node [Programs.assume (Formula.Not(bnd))] k
-    cp_rf.[cp] <- rfCheckTrans
-
-    Log.log pars <| sprintf "Instrumented in disjunctive RF between %i and %i" new_node k
-    
-    //Now reset the reachability graph and remove every (incomplete) unwinding that has passed behind (l), as we changed the program there:
-    safety.ResetFrom l
-    if pars.dottify_input_pgms then
-        Output.print_dot_program p_final "input__instrumented_disjunctive_rf.dot"
-
 ///Takes in the indexes of the transitions that are lexicographic checkers, deletes them, and returns start and end node of the old check transition (so that you can stuff new checkers in there)
 let delete_lex_checkers (lex_checkers : int list) (p : Programs.Program) =
     let (first_check_node,_,_) = p.GetTransition (List.head lex_checkers)
