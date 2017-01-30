@@ -558,9 +558,7 @@ let private exportAIInvariantsProof
         xmlWriter.WriteEndElement () // impact end
         (*** End of proving soundness of new invariants ***)
 
-        xmlWriter.WriteStartElement "fixInvariants"
         nextProofStep xmlWriter
-        xmlWriter.WriteEndElement () //end fixInvariants
         xmlWriter.WriteEndElement () //end newInvariants
     | None ->
         nextProofStep xmlWriter
