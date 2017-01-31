@@ -385,6 +385,8 @@ let private exportAuxLocationAdditionProof
         let cpDuplLabel = DuplicatedCutpointLocation cpLabel
         let cpDupl = exportInfo.progCoopInstrumented.GetLabelledLocation cpDuplLabel
 
+        Log.log exportInfo.parameters (sprintf "Exporting locationAddition proof step for cutpoint %i (%A)" cpDupl cpDuplLabel)
+
         //Make up two new locations, around the considered cutpoint:
         let beforeTransitionId = getBeforeTransitionId exportInfo cpDupl
         let afterTransitionId = getAfterTransitionId exportInfo cpDupl
@@ -418,7 +420,9 @@ let private exportAIInvariantsProof
         (nextProofStep : XmlWriter -> unit)
         (xmlWriter : XmlWriter) =
     match exportInfo.locToAIInvariant with
+    | None -> nextProofStep xmlWriter
     | Some locToAIInvariant ->
+        Log.log exportInfo.parameters "Exporting newInvariants proof step encoding invariants obtained by abstract interpretation."
         xmlWriter.WriteStartElement "newInvariants"
 
         let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented exportInfo.progCoopInstrumented.Locations true
@@ -430,12 +434,15 @@ let private exportAIInvariantsProof
         for loc in exportInfo.progCoopInstrumented.Locations do
             if shouldExportLocation loc then
                 let origLoc = locToOriginalLocation exportInfo.progCoopInstrumented loc
-                let invariantLinearTerms = locToAIInvariant.[origLoc].to_formula().ToLinearTerms ()
+                let locLabel = exportInfo.progCoopInstrumented.GetLocationLabel loc
+                let invariant = locToAIInvariant.[origLoc].to_formula()
+                Log.debug exportInfo.parameters (sprintf "  Added invariant for location %i (%A): %s" loc locLabel (string invariant))
+                let invariantLinearTerms = invariant.ToLinearTerms ()
                 locToInvariantTerms.Add(loc, invariantLinearTerms)
                 xmlWriter.WriteStartElement "invariant"
 
                 xmlWriter.WriteStartElement "location"
-                Programs.exportLocation xmlWriter (exportInfo.progCoopInstrumented.GetLocationLabel loc)
+                Programs.exportLocation xmlWriter locLabel
                 xmlWriter.WriteEndElement () //end location
 
                 xmlWriter.WriteStartElement "formula"
@@ -494,16 +501,16 @@ let private exportAIInvariantsProof
 
         nextProofStep xmlWriter
         xmlWriter.WriteEndElement () //end newInvariants
-    | None ->
-        nextProofStep xmlWriter
 
 let private exportSccDecompositionProof
         (exportInfo : CertificateExportInformation)
         (nextProofStep : ProgramSCC -> XmlWriter -> unit)
         (xmlWriter : XmlWriter) =
+    Log.log exportInfo.parameters "Exporting SCCDecomposition proof step."
     xmlWriter.WriteStartElement "sccDecomposition"
     let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented exportInfo.progCoopInstrumented.Locations false
     for scc in exportInfo.progCoopSCCs do
+        Log.log exportInfo.parameters (sprintf " Considering SCC of locations {%s}" (String.concat ", " (Seq.map string scc)))
         xmlWriter.WriteStartElement "sccWithProof"
         xmlWriter.WriteStartElement "scc"
         for loc in scc do
@@ -519,6 +526,7 @@ let private exportInitialLexRFTransRemovalProof
         (nextProofStep : ProgramSCC -> Set<TransitionId> -> XmlWriter -> unit)
         (scc : ProgramSCC)
         (xmlWriter : XmlWriter) =
+    Log.log exportInfo.parameters "Exporting transitionRemoval proof step based on lexicographic rank functions synthesised without safety loop."
     let thisSCCRankFunctions =
         exportInfo.foundInitialLexRankFunctions
         |> Map.toSeq
@@ -573,9 +581,10 @@ let private findSCCsInTransitions
 let private exportFinalProof
         (exportInfo: CertificateExportInformation)
         (scc : ProgramSCC)
-        ((cp, cpDupl) : (ProgramLocation * ProgramLocation))
+        ((cp, _) : (ProgramLocation * ProgramLocation))
         (removedTransitions : Set<TransitionId>)
         (xmlWriter : XmlWriter) =
+    Log.log exportInfo.parameters "Exporting transitionRemoval proof step that removes all remaining trivial SCCs."
     //We assume that at this point, no more cycles are left. Thus, we just need to eliminate all remaining
     //transitions going into our target cutpoint as in the initial SCC decomposition.
 
@@ -620,6 +629,7 @@ let private exportCutTransitionSplitProof
         (scc : ProgramSCC)
         (removedTransitions : Set<TransitionId>)
         (xmlWriter : XmlWriter) =
+    Log.log exportInfo.parameters "Exporting cutTransitionSplit proof step to focus remaining proof on individual cutpoints."
     let cutpointsInSCC =
         scc
         |> Set.filterMap
@@ -630,6 +640,7 @@ let private exportCutTransitionSplitProof
 
     xmlWriter.WriteStartElement "cutTransitionSplit"
     for (cp, cpDupl) in cutpointsInSCC do
+        Log.log exportInfo.parameters (sprintf " Considering cutpoint %i %A" cpDupl (exportInfo.progCoopInstrumented.GetLocationLabel cpDupl))
         let cpSwitchToCoopTrans = exportInfo.cpToToCpDuplicateTransId.[cp]
         xmlWriter.WriteStartElement "cutTransitionsWithProof"
 
@@ -650,8 +661,9 @@ let private exportCopyVariableAdditionProof
         (removedTransitions : Set<TransitionId>)
         ((cp, cpDupl) : ProgramLocation * ProgramLocation)
         (xmlWriter : XmlWriter) =
-    let afterTransitionId = getAfterTransitionId exportInfo cpDupl
+    Log.log exportInfo.parameters "Exporting freshVariableAddition proof step to introduce variable snapshots."
 
+    let afterTransitionId = getAfterTransitionId exportInfo cpDupl
     let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc false
     let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cpDupl) removedTransitions
 
@@ -711,6 +723,8 @@ let private exportNewImpactInvariantsProof
         (removedTransitions : Set<TransitionId>)
         ((cp, cpDupl) : ProgramLocation * ProgramLocation)
         (xmlWriter : XmlWriter) =
+    Log.log exportInfo.parameters "Exporting newInvariants proof step encoding invariants obtained by safety proving."
+
     let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc true
     let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cpDupl) removedTransitions
     let shouldExportVariable = shouldExportVariable cp
@@ -723,11 +737,13 @@ let private exportNewImpactInvariantsProof
         xmlWriter.WriteStartElement "invariants"
         for loc in exportInfo.progCoopInstrumented.Locations do
             if shouldExportLocation loc then
+                let locLabel = exportInfo.progCoopInstrumented.GetLocationLabel loc
                 let locInvariants = exportInfo.impactArg.GetLocationInvariantForNodes argNodesToReport loc
+                Log.debug exportInfo.parameters (sprintf "  Added invariant for location %i (%A): %s" loc locLabel (String.concat " && " (Seq.map string locInvariants)))
                 xmlWriter.WriteStartElement "invariant"
 
                 xmlWriter.WriteStartElement "location"
-                Programs.exportLocation xmlWriter (exportInfo.progCoopInstrumented.GetLocationLabel loc)
+                Programs.exportLocation xmlWriter locLabel
                 xmlWriter.WriteEndElement () //end location
 
                 xmlWriter.WriteStartElement "formula"
@@ -762,6 +778,7 @@ let private exportSafetyTransitionRemovalProof
     if List.isEmpty lexRfCheckFormulas then
         nextProofStep scc (cp, cpDupl) removedTransitions xmlWriter
     else
+        Log.log exportInfo.parameters "Exporting transitionRemoval proof step based on Terminator-style lexicographic rank functions."
         (* Step 1: Extract rank functions. *)
         let rfTerms =
             lexRfCheckFormulas
@@ -824,6 +841,7 @@ let private exportSwitchToCooperationTerminationProof
         (exportInfo : CertificateExportInformation)
         (nextProofStep : XmlWriter -> unit)
         (xmlWriter : XmlWriter) =
+    Log.log exportInfo.parameters "Exporting switchToCooperationTermination proof step."
     xmlWriter.WriteStartElement "switchToCooperationTermination"
 
     xmlWriter.WriteStartElement "cutPoints"
