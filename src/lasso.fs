@@ -83,93 +83,6 @@ let make_lex_formula (lex_rf_check_formulas : (formula * formula * formula) list
             yield Formula.conj <| Instrumentation.make_lex_RF_ith_check_component lex_rf_check_formulas i
     ] |> Formula.disj
 
-let check_lex_rankfunction_valid (lex_order:Relation.relation list) (rf_list:term list) (bnd_list:term list) =
-    //printfn "lex_order:\n %A" lex_order
-    for rf in rf_list do
-        for v' in Term.freevars rf do
-            let v = Var.unprime_var v'
-            assert (not <| Formula.is_copied_var v)
-            assert (not <| Formula.is_snapshot_var v)
-
-    for bnd in bnd_list do
-        match bnd with
-        | Const _ -> ()
-        | _ -> assert (false)
-
-    //All the relations should have the same pre and postvars (as they have been through Rankfunction.lexsynthesis, which standardises the postvars)
-    let prevars = Relation.prevars (List.head lex_order)
-    let postvars = Relation.postvars (List.head lex_order)
-
-    let find_post v =
-        List.find (fun x -> Var.unprime_var v = Var.unprime_var x) postvars
-
-    let post_subst v = if List.contains v prevars then Term.var (Var.var (find_post v)) else Var v
-    let lex_rf_check_formulas =
-        [
-            for (rf, bnd) in Seq.zip rf_list bnd_list do
-                let post_rf = Term.subst post_subst rf
-                yield (Formula.Lt(post_rf, rf), Formula.Le(post_rf, rf), Formula.Ge(rf, bnd))
-        ]
-    //Check for each relation that the rf is decreasing and bounded for that relation and not increasing for all prior relations
-    let lex_formula = make_lex_formula lex_rf_check_formulas
-
-    //This little dance here is needed because some of our ranking functions are affine and use __const_1 as extra variable to achieve that.
-    //We need to fix it to 1 -- otherwise z3 will do weird stuff like setting it to 14.
-    let const_1_var = Formula.const_var bigint.One
-    let const_1_prevar = Var.prime_var const_1_var 0
-    let const_1_postvar = Var.var (const_1_var + "^post")
-    let const_formula =
-        Formula.And(
-            Formula.Eq(Term.Var(const_1_var), Term.constant 1),
-                Formula.And(
-                    Formula.Eq(Term.Var(const_1_prevar), Term.constant 1),
-                    Formula.Eq(Term.Var(const_1_postvar), Term.constant 1)))
-
-    //Note we have already done simplify_lex_RF so we might have fewer RFs than rels
-    for rel in lex_order do
-        let check = Formula.conj [const_formula; Relation.formula rel; Formula.Not lex_formula]
-        //If you are interested in a model for the failure:
-
-        let res = Z.solve [(Formula.z3 check)]
-        if res.IsSome then
-            printfn "Considered relation: %A" rel
-            printfn "Failing formula:\n %A" check
-            printfn "Formula SAT, model is:"
-            printfn "%s" (res.Value.ToString ())
-
-        assert(check |> Formula.unsat)
-
-let check_rankfunction_valid (pars : Parameters.parameters) cycle rf bnd =
-    for v in Term.freevars rf do
-        let v = Var.unprime_var v
-        assert (not <| Formula.is_copied_var v)
-        assert (not <| Formula.is_snapshot_var v)
-
-    match bnd with
-    | Const _ -> ()
-    | _ -> assert (false)
-
-    let prevars = Relation.prevars cycle
-    let postvars = Relation.postvars cycle
-
-    let find_post v =
-        List.find (fun x -> Var.unprime_var v = Var.unprime_var x) postvars
-
-    let post_subst v = if List.contains v prevars then Term.var (Var.var (find_post v)) else Var v
-
-    let postrf = Term.subst post_subst rf
-
-    let rf_not_decreases = Formula.Ge(postrf, rf)
-    let rf_not_bounded = Formula.Lt(rf, bnd)
-
-    log pars "Checking rankfunction"
-
-    //Formula.pp rf_not_decreases |> log
-    assert(Formula.conj [Relation.formula cycle; rf_not_decreases] |> Formula.unsat)
-
-    //Formula.pp rf_not_bounded |> log
-    assert(Formula.conj [Relation.formula cycle; rf_not_bounded] |> Formula.unsat)
-
 let path_invariant stem cycle =
     let flatten_cmds = List.collect (fun (_ , cs, _) -> cs) 
     let stem_cmds = flatten_cmds stem
@@ -282,9 +195,6 @@ let find_lex_RF (pars : Parameters.parameters) (p:Programs.Program) cutpoint cyc
                     Log.log pars <| sprintf "Lex RF candidate after simplifying:\n %A\n with bounds:\n %A at CP %d" simp_rf_list simp_bnd_list cutpoint
                     Log.log pars <| sprintf "Checking lexicographic RF..."
 
-                //note we check all the lex RFs at this point, not just the one we're going to instrument
-                check_lex_rankfunction_valid new_partial_order simp_rf_list simp_bnd_list
-
                 (lex_rf_to_check_formulas simp_rf_list simp_bnd_list cutpoint, new_partial_order)
 
             //process all the lex options now
@@ -324,8 +234,6 @@ let find_lex_RF_init_cond (pars : Parameters.parameters) (p:Programs.Program) cu
 
             if pars.print_log then
                 Log.log pars <| sprintf "Lex RF candidate after simplifying:\n %A\n with bounds:\n %A at CP %d" simp_rf_list simp_bnd_list cutpoint
-
-            check_lex_rankfunction_valid new_partial_order simp_rf_list simp_bnd_list
 
             let check_formulas = lex_rf_to_check_formulas simp_rf_list simp_bnd_list cutpoint
 
