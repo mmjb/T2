@@ -838,9 +838,7 @@ type ImpactARG(parameters : Parameters.parameters,
             writer.WriteEndElement () //end element
             let progLocRepr = program.GetLocationLabel abs_node_to_program_loc.[nodeId]
             //printfn "ARG node to export: %i (%A)" nodeId progLocRepr
-            writer.WriteStartElement "location"
             Programs.exportLocation writer progLocRepr
-            writer.WriteEndElement () //end location
             match covering.TryGetValue nodeId with
             | (true, coverTarget) ->
                 writer.WriteStartElement "coverEdge"

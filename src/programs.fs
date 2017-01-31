@@ -432,7 +432,7 @@ let cmdPathToRelation path vars =
 
     Relation.make aggregateFormula (prevars @ copyPrevars) (postvars @ copyPostvars)
 
-let exportLocation (writer : System.Xml.XmlWriter) (loc : ProgramLocationLabel) =
+let exportLocationLabel (writer : System.Xml.XmlWriter) (loc : ProgramLocationLabel) =
     match loc with
     | CutpointRFCheckLocation _ ->
         assert false
@@ -447,6 +447,11 @@ let exportLocation (writer : System.Xml.XmlWriter) (loc : ProgramLocationLabel) 
     | OriginalLocation id ->
         writer.WriteElementString ("locationId", string id)
 
+let exportLocation (writer : System.Xml.XmlWriter) (loc : ProgramLocationLabel) =
+    writer.WriteStartElement "location"
+    exportLocationLabel writer loc
+    writer.WriteEndElement () //end location
+
 let exportTransition (writer : System.Xml.XmlWriter) variables transId source cmds target shouldExportVariable =
     let (transFormula, varToMaxSSAIdx) = cmdsToCetaFormula variables cmds
     writer.WriteStartElement "transition"
@@ -454,11 +459,11 @@ let exportTransition (writer : System.Xml.XmlWriter) variables transId source cm
     writer.WriteElementString ("transitionId", string transId)
     
     writer.WriteStartElement "source"
-    exportLocation writer source
+    exportLocationLabel writer source
     writer.WriteEndElement() //source end
     
     writer.WriteStartElement "target"
-    exportLocation writer target
+    exportLocationLabel writer target
     writer.WriteEndElement() //target end
 
     //We are not using Formula.conj here because we absolutely want to control the order of formulas...
@@ -1175,7 +1180,7 @@ type Program private (parameters : Parameters.parameters) =
     member self.ToCeta (writer : System.Xml.XmlWriter) (elementName : string) shouldExportVar =
         writer.WriteStartElement elementName
         writer.WriteStartElement "initial"
-        exportLocation writer (locationToLabel.[self.Initial])
+        exportLocationLabel writer (locationToLabel.[self.Initial])
         writer.WriteEndElement () //initial end
         for (transIdx, (source, cmds, target)) in self.TransitionsWithIdx do
             let source_label = locationToLabel.[source]

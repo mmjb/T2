@@ -155,9 +155,7 @@ let private exportTransitionRemovalProof
         let rfLinearTerm = List.head rfLinearTerms
 
         xmlWriter.WriteStartElement "rankingFunction"
-        xmlWriter.WriteStartElement "location"
         Programs.exportLocation xmlWriter locLabel
-        xmlWriter.WriteEndElement () //end location
 
         xmlWriter.WriteStartElement "expression"
         SparseLinear.toCeta xmlWriter Var.plainToCeta rfLinearTerm
@@ -441,9 +439,7 @@ let private exportAIInvariantsProof
                 locToInvariantTerms.Add(loc, invariantLinearTerms)
                 xmlWriter.WriteStartElement "invariant"
 
-                xmlWriter.WriteStartElement "location"
                 Programs.exportLocation xmlWriter locLabel
-                xmlWriter.WriteEndElement () //end location
 
                 xmlWriter.WriteStartElement "formula"
                 Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta invariantLinearTerms Formula.is_noninstr_var
@@ -467,9 +463,7 @@ let private exportAIInvariantsProof
                 Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta invariantLinearTerms Formula.is_noninstr_var
                 xmlWriter.WriteEndElement () // invariant end
 
-                xmlWriter.WriteStartElement "location"
-                Programs.exportLocation xmlWriter <| exportInfo.progCoopInstrumented.GetLocationLabel loc
-                xmlWriter.WriteEndElement () //end location
+                Programs.exportLocation xmlWriter (exportInfo.progCoopInstrumented.GetLocationLabel loc)
 
                 xmlWriter.WriteStartElement "children"
                 for (transIdx, (_, cmds, childLoc)) in exportInfo.progCoopInstrumented.TransitionsFrom loc do
@@ -515,7 +509,7 @@ let private exportSccDecompositionProof
         xmlWriter.WriteStartElement "scc"
         for loc in scc do
             if shouldExportLocation loc then
-                Programs.exportLocation xmlWriter (exportInfo.progCoopInstrumented.GetLocationLabel loc)
+                Programs.exportLocationLabel xmlWriter (exportInfo.progCoopInstrumented.GetLocationLabel loc)
         xmlWriter.WriteEndElement () //end scc
         nextProofStep scc xmlWriter
         xmlWriter.WriteEndElement () //end sccWithProof
@@ -742,9 +736,7 @@ let private exportNewImpactInvariantsProof
                 Log.debug exportInfo.parameters (sprintf "  Added invariant for location %i (%A): %s" loc locLabel (String.concat " && " (Seq.map string locInvariants)))
                 xmlWriter.WriteStartElement "invariant"
 
-                xmlWriter.WriteStartElement "location"
                 Programs.exportLocation xmlWriter locLabel
-                xmlWriter.WriteEndElement () //end location
 
                 xmlWriter.WriteStartElement "formula"
                 xmlWriter.WriteStartElement "disjunction"
@@ -847,7 +839,7 @@ let private exportSwitchToCooperationTerminationProof
     xmlWriter.WriteStartElement "cutPoints"
     for KeyValue(cp, cpToCoopDupTrans) in exportInfo.cpToToCpDuplicateTransId do
         xmlWriter.WriteStartElement "cutPoint"
-        Programs.exportLocation xmlWriter (exportInfo.progOrig.GetLocationLabel cp)
+        Programs.exportLocationLabel xmlWriter (exportInfo.progOrig.GetLocationLabel cp)
         xmlWriter.WriteElementString ("skipId", string cpToCoopDupTrans)
 
         let (_, cmds, _) = exportInfo.progCoopInstrumented.GetTransition cpToCoopDupTrans
