@@ -50,6 +50,9 @@ let private writeTransitionId (transDuplIdToTransId : Dictionary<int, int>) (xml
 type private ProgramSCC = Set<ProgramLocation>
 type private CertificateExportInformation =
     {
+        /// Parameters for termination proof.
+        parameters : Parameters.parameters
+
         /// Original program, as returned from the parser.
         progOrig : Programs.Program
         /// Program with T2 instrumentation inserted.
@@ -816,6 +819,7 @@ let private exportSafetyTerminationProof exportInfo nextProofStep scc removedTra
         nextProofStep scc (-42, -42) removedTransitions
 
 let exportProofCertificate
+        (pars : Parameters.parameters)
         (progOrig : Programs.Program)
         (progCoopInstrumented : Programs.Program)
         (cpToToCpDuplicateTransId : Dictionary<int, int>)
@@ -828,6 +832,7 @@ let exportProofCertificate
         (xmlWriter : XmlWriter) =
     let exportInfo =
         {
+            parameters = pars
             progOrig = progOrig
             progCoopInstrumented = progCoopInstrumented
             progCoopSCCs = progCoopSCCs

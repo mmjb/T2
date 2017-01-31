@@ -338,7 +338,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
             use streamWriter = new StreamWriter (cert_file)
             use xmlWriter = new XmlTextWriter (streamWriter)
             xmlWriter.Formatting <- Formatting.Indented
-            Certification.exportProofCertificate p_orig p_instrumented_orig cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant p_instrumented_SCCs !initial_lex_term_proof_RFs impactArg !found_lex_rfs xmlWriter
+            Certification.exportProofCertificate pars p_orig p_instrumented_orig cpToToCpDuplicateTransId transDuplIdToTransId locToAIInvariant p_instrumented_SCCs !initial_lex_term_proof_RFs impactArg !found_lex_rfs xmlWriter
         | _ -> ()
 
     match terminating with
