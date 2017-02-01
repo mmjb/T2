@@ -151,21 +151,19 @@ let private exportTransitionRemovalProof
     for KeyValue (loc, locRFTerms) in locToRFTerms do
         let locLabel = exportInfo.progCoopInstrumented.GetLocationLabel loc
         let rfLinearTerms = locRFTerms |> List.map SparseLinear.term_to_linear_term
-        assert (rfLinearTerms.Length = 1) //TODO: Encode lex. RFs
-        let rfLinearTerm = List.head rfLinearTerms
 
         xmlWriter.WriteStartElement "rankingFunction"
         Programs.exportLocation xmlWriter locLabel
 
         xmlWriter.WriteStartElement "expression"
-        SparseLinear.toCeta xmlWriter Var.plainToCeta rfLinearTerm
+        for rfLinearTerm in rfLinearTerms do
+            SparseLinear.toCeta xmlWriter Var.plainToCeta rfLinearTerm
         xmlWriter.WriteEndElement () //end expression
         xmlWriter.WriteEndElement () //end rankingFunction
     xmlWriter.WriteEndElement () //end rankingFunctions
     xmlWriter.WriteStartElement "bound"
-    assert (bounds.Length = 1) //TODO: Encode lex. RFs
-    let bound = List.head bounds
-    xmlWriter.WriteElementString ("constant", string (bound - bigint.One))
+    for bound in bounds do
+        xmlWriter.WriteElementString ("constant", string (bound - bigint.One))
     xmlWriter.WriteEndElement () //end bound
 
     (** Step 2: Compute decreasing transitions and hints *)
