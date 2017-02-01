@@ -253,8 +253,9 @@ let combine_with_z3_terms (A: LinearTerm list) (coeffs: Microsoft.Z3.ArithExpr l
 ///
 let term_as_linear = term_to_linear_term >> linear_term_to_term
 
+let private ZERO_NONEMPTY_TERM = Map.ofList [(ONE, bigint.Zero)]
 let toCeta (writer : System.Xml.XmlWriter) (varWriter : System.Xml.XmlWriter -> Var.var -> unit) (t : LinearTerm) =
-    if Map.isEmpty t then
+    if t = ZERO_TERM || t = ZERO_NONEMPTY_TERM then
         writer.WriteElementString ("constant", "0")
     else
         writer.WriteStartElement "sum"
