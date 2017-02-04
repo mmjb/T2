@@ -807,6 +807,7 @@ type ImpactARG(parameters : Parameters.parameters,
         program_loc_to_abs_nodes.[loc]
         |> Seq.filter nodesToReport.Contains
         |> List.ofSeq
+        |> List.sort
         |> List.map (fun node -> psi.[node] |> List.ofSeq)
 
     member self.GetLocationInvariant
@@ -882,7 +883,7 @@ type ImpactARG(parameters : Parameters.parameters,
         writer.WriteStartElement "impact"
         writer.WriteElementString ("initial", string init_node)
         writer.WriteStartElement "nodes"
-        V |> Seq.filter artNodesToPrint.Contains |> Seq.iter exportNode
+        V |> Seq.sort |> Seq.filter artNodesToPrint.Contains |> Seq.iter exportNode
         writer.WriteEndElement () //nodes end
 
         let errNodes = V |> Seq.filter (fun v -> abs_node_to_program_loc.[v] = loc_err && artNodesToPrint.Contains v)
