@@ -797,7 +797,14 @@ type ImpactARG(parameters : Parameters.parameters,
                         let childLoc = abs_node_to_program_loc.[childId]
                         let transIdx = fst abs_edge_to_program_commands.[nodeId, childId]
                         if shouldExportTransition transIdx nodeLoc childLoc then
+                            //printfn "Visiting %i because its (trans %i)-child of %i" childId transIdx nodeId
                             dfs childId
+                    if psi.[nodeId] <> Set.singleton (Formula.formula.False) then
+                        match covering.TryGetValue nodeId with
+                        | (true, coverId) ->
+                            //printfn "Visiting %i because of cover from %i" coverId nodeId
+                            dfs coverId
+                        | (false, _) -> ()
         dfs init_node
         res
 
