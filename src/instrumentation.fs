@@ -533,16 +533,11 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 
 ///Make new copied variables and assume commands to store a copy
 ///Returns a list of assignments of old vars to new (renamed) vars.
-let var_copy_commands (p_c : Programs.Program) cp =
-    let vars = p_c.Variables |> Set.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
-
-    let copy_vars = vars |> Seq.map (fun x -> Formula.state_snapshot_var cp x)
-
-    //Add to mapping of variables
-    let copy_vars_to_vars = (vars,copy_vars) ||> Seq.zip |> Seq.fold (fun (acc:Map<var,var>) (x,y) -> acc.Add(y,x)) Map.empty
-
-    //Make new command list that assigns var to var_old_CP
-    copy_vars_to_vars |> Seq.map (fun x -> Programs.assign x.Key (Term.Var(x.Value))) |> List.ofSeq
+let var_copy_commands (prog : Programs.Program) cp =
+    prog.Variables
+    |> Set.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
+    |> Seq.map (fun v -> Programs.assign (Formula.state_snapshot_var cp v) (Term.Var v))
+    |> List.ofSeq
 
 let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Program) =
     let p_F = p.Clone()
