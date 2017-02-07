@@ -207,7 +207,7 @@ type ImpactARG(parameters : Parameters.parameters,
                  assert(false);
 
     /// dump abstraction graph to file for debugging
-    member private self.db () =
+    member private self.db dump_arg =
         let write_to_fresh_file (s : string) =
             let mutable n = 0
             let mutable filename = sprintf "impact%03d.dot" n
@@ -222,7 +222,7 @@ type ImpactARG(parameters : Parameters.parameters,
             f.Write s
             f.Close()
 
-        if parameters.dottify_reachability  then
+        if dump_arg then
             let dot_abs_state =
                 let pp_psi_nl v =
                     let mutable st = "\\n\\n"
@@ -415,7 +415,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// Expand the graph for DFS search
     member private self.expand v =
         assert (self.leaf v)
-        self.db ()
+        self.db parameters.dottify_reachability
         self.check_not_removed v
 
         Stats.incCounter "Impact - Expanded vertices"
@@ -443,7 +443,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// represents the induction check
     member private self.cover v w =
         assert (abs_node_to_program_loc.[v] = abs_node_to_program_loc.[w])
-        self.db ()
+        self.db parameters.dottify_reachability
         if self.entails_psi v w then
             self.rm_from_covering (fun (_, y) -> self.sq_eq v y)
             self.add_covering v w
@@ -454,7 +454,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// If cover doesnt work, we can try to force it to work by (in a sense) merging paths
     /// and finding necessary interpolants along the way
     member private self.force_cover v w =
-        self.db ()
+        self.db parameters.dottify_reachability
 
         self.check_not_removed v
         self.check_not_removed w
@@ -651,7 +651,7 @@ type ImpactARG(parameters : Parameters.parameters,
 
     /// This procedure attempts to find a cover for v.
     member private self.close v =
-        self.db ()
+        self.db parameters.dottify_reachability
         self.check_not_removed v
         assert (self.dfs_visited v)
 
@@ -673,7 +673,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// If an error path was spurious, refine abstraction and return None.
     /// Otherwise, return true (almost) error path.
     member private self.refine v =
-        self.db ()
+        self.db parameters.dottify_reachability
 
         assert (abs_node_to_program_loc.[v] = loc_err)
         self.check_not_removed v
@@ -718,7 +718,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// what we think might be an error.
     /// </summary>
     member private self.dfs start =
-        self.db ()
+        self.db parameters.dottify_reachability
         // Start the ball rolling.  The priority doesn't matter, since we're just going
         // to pop it below.
         stack.Clear()
@@ -774,7 +774,7 @@ type ImpactARG(parameters : Parameters.parameters,
             die()
 
     member private self.unwind () =
-        self.db ()
+        self.db parameters.dottify_reachability
         let v = self.pick_vertex ()
         Log.debug parameters <| sprintf "Unwinding node %d (loc %d)" v abs_node_to_program_loc.[v]
         self.close_all_ancestors v
@@ -999,7 +999,7 @@ type ImpactARG(parameters : Parameters.parameters,
         /// Return path to loc_err or None if it's unreachable
         member self.ErrorLocationReachable () =
             program.CacheTransitionsFrom() |> ignore
-            self.db ()
+            self.db parameters.dottify_reachability
 
             let mutable path = None
             Stats.startTimer "Impact"
@@ -1021,7 +1021,7 @@ type ImpactARG(parameters : Parameters.parameters,
             if parameters.sanity_checking then
                 self.sanity_check
 
-            self.db ()
+            self.db parameters.dottify_reachability
             path
 
         /// For incrementality, we sometimes need to delete a subtree within the proof graph
