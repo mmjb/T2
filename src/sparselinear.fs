@@ -325,6 +325,14 @@ let getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : (bigint 
         failwith "Trying to get Farkas coefficients for implication that doesn't hold!"
     | Some m -> m
 
+let entails (pres : LinearTerm seq) (posts : LinearTerm seq) : bool =
+    //TODO: Make efficient (don't encode the same pres down to Farkas every time...)
+    let entailsOne pres post =
+        match tryGetFarkasCoefficients pres post with
+        | None -> false
+        | Some _ -> true
+    Seq.forall (entailsOne pres) posts
+
 let writeCeTAFarkasCoefficientHints (writer : System.Xml.XmlWriter) (farkasCoeffs : bigint list) =
     writer.WriteStartElement "linearImplicationHint"
     writer.WriteStartElement "linearCombination"
