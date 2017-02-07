@@ -171,30 +171,7 @@ let private exportTransitionRemovalProof
         (removedTransitions : Set<TransitionId>)
         (nextProofStep : Set<TransitionId> -> XmlWriter -> unit)
         (xmlWriter : XmlWriter) =
-    xmlWriter.WriteStartElement "transitionRemoval"
-
-    (** Step 1: Define rank functions and bound. *)
-    xmlWriter.WriteStartElement "rankingFunctions"
-
-    for KeyValue (loc, locRFTerms) in locToRFTerms do
-        let locLabel = exportInfo.progCoopInstrumented.GetLocationLabel loc
-        let rfLinearTerms = locRFTerms |> List.map SparseLinear.term_to_linear_term
-
-        xmlWriter.WriteStartElement "rankingFunction"
-        Programs.exportLocation xmlWriter locLabel
-
-        xmlWriter.WriteStartElement "expression"
-        for rfLinearTerm in rfLinearTerms do
-            SparseLinear.toCeta xmlWriter Var.plainToCeta rfLinearTerm
-        xmlWriter.WriteEndElement () //end expression
-        xmlWriter.WriteEndElement () //end rankingFunction
-    xmlWriter.WriteEndElement () //end rankingFunctions
-    xmlWriter.WriteStartElement "bound"
-    for bound in bounds do
-        xmlWriter.WriteElementString ("constant", string (bound - bigint.One))
-    xmlWriter.WriteEndElement () //end bound
-
-    (** Step 2: Compute decreasing transitions and hints *)
+    (** Step 1: Compute which transitions decrease, and hints *)
     let mutable strictDecreaseHintInfo = []
     let mutable weakDecreaseHintInfo = []
 
@@ -274,40 +251,65 @@ let private exportTransitionRemovalProof
     let strictTransitions = strictDecreaseHintInfo |> List.map (fun (transIdx, _, _) -> transIdx) |> Set.ofList
     let newRemovedTransitions = Set.union removedTransitions strictTransitions
 
-    xmlWriter.WriteStartElement "remove"
-    for (transIdx, _, _) in strictDecreaseHintInfo do
-        writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
-    xmlWriter.WriteEndElement () //end remove
+    (** Step 2: Write out the actual XML. *)
+    if Set.isEmpty strictTransitions then
+        nextProofStep newRemovedTransitions xmlWriter
+    else
+        xmlWriter.WriteStartElement "transitionRemoval"
+        xmlWriter.WriteStartElement "rankingFunctions"
 
-    xmlWriter.WriteElementString ("hints", "")
-    (* //TODO: Figure out hint format for lexicographic RFs
-    xmlWriter.WriteStartElement "hints"
-    for (transIdx, decreaseHints, boundHints) in strictDecreaseHintInfo do
-        xmlWriter.WriteStartElement "strictDecrease"
-        writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
-        xmlWriter.WriteStartElement "boundHints"
-        for boundHint in boundHints do
-            SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter boundHint
-        xmlWriter.WriteEndElement () //end boundHints
-        xmlWriter.WriteStartElement "decreaseHints"
-        for strictDecreaseHint in decreaseHints do
-            SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter strictDecreaseHint
-        xmlWriter.WriteEndElement () //end decreaseHints
-        xmlWriter.WriteEndElement () //end strictDecrease
-    for (transIdx, decreaseHints) in weakDecreaseHintInfo do
-        xmlWriter.WriteStartElement "weakDecrease"
-        writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
-        xmlWriter.WriteStartElement "decreaseHints"
-        for weakDecreaseHints in decreaseHints do
-            SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter weakDecreaseHints
-        xmlWriter.WriteEndElement () //end decreaseHints
-        xmlWriter.WriteEndElement () //end weakDecrease
-    xmlWriter.WriteEndElement () //end hints
-    *)
+        for KeyValue (loc, locRFTerms) in locToRFTerms do
+            let locLabel = exportInfo.progCoopInstrumented.GetLocationLabel loc
+            let rfLinearTerms = locRFTerms |> List.map SparseLinear.term_to_linear_term
 
-    nextProofStep newRemovedTransitions xmlWriter
+            xmlWriter.WriteStartElement "rankingFunction"
+            Programs.exportLocation xmlWriter locLabel
 
-    xmlWriter.WriteEndElement () //end transitionRemoval
+            xmlWriter.WriteStartElement "expression"
+            for rfLinearTerm in rfLinearTerms do
+                SparseLinear.toCeta xmlWriter Var.plainToCeta rfLinearTerm
+            xmlWriter.WriteEndElement () //end expression
+            xmlWriter.WriteEndElement () //end rankingFunction
+        xmlWriter.WriteEndElement () //end rankingFunctions
+        xmlWriter.WriteStartElement "bound"
+        for bound in bounds do
+            xmlWriter.WriteElementString ("constant", string (bound - bigint.One))
+        xmlWriter.WriteEndElement () //end bound
+
+        xmlWriter.WriteStartElement "remove"
+        for (transIdx, _, _) in strictDecreaseHintInfo do
+            writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
+        xmlWriter.WriteEndElement () //end remove
+
+        xmlWriter.WriteElementString ("hints", "")
+        (* //TODO: Figure out hint format for lexicographic RFs
+        xmlWriter.WriteStartElement "hints"
+        for (transIdx, decreaseHints, boundHints) in strictDecreaseHintInfo do
+            xmlWriter.WriteStartElement "strictDecrease"
+            writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
+            xmlWriter.WriteStartElement "boundHints"
+            for boundHint in boundHints do
+                SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter boundHint
+            xmlWriter.WriteEndElement () //end boundHints
+            xmlWriter.WriteStartElement "decreaseHints"
+            for strictDecreaseHint in decreaseHints do
+                SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter strictDecreaseHint
+            xmlWriter.WriteEndElement () //end decreaseHints
+            xmlWriter.WriteEndElement () //end strictDecrease
+        for (transIdx, decreaseHints) in weakDecreaseHintInfo do
+            xmlWriter.WriteStartElement "weakDecrease"
+            writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
+            xmlWriter.WriteStartElement "decreaseHints"
+            for weakDecreaseHints in decreaseHints do
+                SparseLinear.writeCeTAFarkasCoefficientHints xmlWriter weakDecreaseHints
+            xmlWriter.WriteEndElement () //end decreaseHints
+            xmlWriter.WriteEndElement () //end weakDecrease
+        xmlWriter.WriteEndElement () //end hints
+        *)
+
+        nextProofStep newRemovedTransitions xmlWriter
+
+        xmlWriter.WriteEndElement () //end transitionRemoval
 
 let private exportNonSCCRemovalProof
         (exportInfo : CertificateExportInformation)
