@@ -944,9 +944,15 @@ let exportProofCertificate
             foundLexRankFunctions = foundLexRankFunctions
         }
 
-    xmlWriter.WriteStartElement "certificate"
-    progOrig.ToCeta xmlWriter "inputProgram" (fun _ -> true)
+    xmlWriter.WriteStartElement "certificationProblem"
+    xmlWriter.WriteStartElement "input"
+    progOrig.ToCeta xmlWriter "lts" (fun _ -> true)
+    xmlWriter.WriteEndElement () //end input
 
+    xmlWriter.WriteElementString("cpfVersion", "2.4")
+
+    xmlWriter.WriteStartElement "proof"
+    xmlWriter.WriteStartElement "ltsTerminationProof"
     xmlWriter
     |> exportSwitchToCooperationTerminationProof exportInfo (
         exportAIInvariantsProof exportInfo (
@@ -954,5 +960,15 @@ let exportProofCertificate
           exportInitialLexRFTransRemovalProof exportInfo (
            exportSafetyTerminationProof exportInfo (
             exportFinalProof exportInfo)))))
+    xmlWriter.WriteEndElement () //end proof
+    xmlWriter.WriteEndElement () //end ltsTerminationProof
 
-    xmlWriter.WriteEndElement () //end certificate
+    xmlWriter.WriteStartElement "origin"
+    xmlWriter.WriteStartElement "proofOrigin"
+    xmlWriter.WriteStartElement "tool"
+    xmlWriter.WriteElementString ("name", "T2Cert")
+    xmlWriter.WriteElementString ("version", "1.0")
+    xmlWriter.WriteEndElement () //end tool 
+    xmlWriter.WriteEndElement () //end proofOrigin
+    xmlWriter.WriteEndElement () //end origin
+    xmlWriter.WriteEndElement () //end certificationProblem
