@@ -528,6 +528,7 @@ let investigate_cex (pars : Parameters.parameters) (p:Programs.Program) reachGra
                 if not approx_have_lex_rf_already then
                     Some(Lex_WF(cp, lex_rf_check_formulas))
                 else
+                    Log.log pars "Repeatedly found the same rank function!"
                     None
             | Some(Poly_WF(poly_checkers)) -> Some(Poly_WF(poly_checkers))
             | Some(Transition_Removal(trans)) -> Some(Transition_Removal(trans))
