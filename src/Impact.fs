@@ -824,15 +824,75 @@ type ImpactARG(parameters : Parameters.parameters,
         let nodesToReport = self.GetCetaFilteredARGNodes shouldExportLocation shouldExportTransition
         self.GetLocationInvariantForNodes nodesToReport loc
 
+    /// This is the helper function that helps us to bring T2 proofs in accord with the certificate representation.
+    /// The main difference between our internal proof format and the certificate format is that internally,
+    /// we only keep one copy of each SCC, whereas in the certificate, we create a copy of each SCC for each
+    /// cutpoint in it. T2 semantically does something quite similar, using our __took_snapshot flag variables,
+    /// and here we have to clean up the details.
+    /// To match things up, we (a) project out __took_snapshot variables and (b) represent two transitions (one
+    /// setting the flag, and one quite similar that doesn't) as one.
+    /// We do (b) transparently when writing things out, but (a) requires this fixup. Because we check the flag
+    /// sometimes, some ART nodes have condition FALSE, meaning that they are infeasible. However, when projecting
+    /// the flag out, FALSE cannot be established anymore. Thus, we look for these nodes here, and instead find
+    /// other nodes in the ARG that have the right label, and create a mapping for the redirection.
+    member __.GetCutpointSnapshotExportFixup (cp : int) (artNodesToConsider : System.Collections.Generic.HashSet<int>) (shouldExportVar : Var.var -> bool) =
+        let locBaseLabel = Programs.getBaseLabel (program.GetLocationLabel cp)
+        let snapshotLoc = program.GetLabelledLocation (Programs.CutpointVarSnapshotLocation locBaseLabel)
+        let (falseNodesAtSnapshotLoc, satisfiableNodesAtSnapshotLoc) =
+            program_loc_to_abs_nodes.[snapshotLoc]
+            |> Set.filter (artNodesToConsider.Contains)
+            |> Set.partition (fun n -> psi.[n] = Set.singleton Formula.formula.False)
+
+        //printfn "Child nodes with invariants false at loc %i (%A): %A" snapshotLoc locBaseLabel (String.concat ", " (Set.map string falseNodesAtSnapshotLoc))
+        let childFixUpMap = System.Collections.Generic.Dictionary()
+        for falseNode in falseNodesAtSnapshotLoc do
+            let parentNode = parent.[falseNode]
+
+            let (transitionId, transitionCmds) = abs_edge_to_program_commands.[parentNode, falseNode]
+            let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula program.Variables transitionCmds
+            let varToPre var = Var.prime_var var 0
+            let varToPost var =
+                match Map.tryFind var varToMaxSSAIdx with
+                | Some idx -> Var.prime_var var idx
+                | None -> var
+            //printfn " Considering node %i, whose parent %i has inv %s" falseNode parentNode (String.concat " && " (Seq.map (fun f -> f.ToString()) psi.[parentNode]))
+            let parentInvariant = psi.[parentNode] |> Formula.conj |> Formula.alpha varToPre
+            let parentInvariantAndCommands =
+                (List.collect (fun (f : Formula.formula) -> f.ToLinearTerms()) transFormula)
+                @(parentInvariant.ToLinearTerms())
+
+            let newChildNode =
+                satisfiableNodesAtSnapshotLoc
+                |> Seq.find
+                    (fun otherChildNode ->
+                        let otherChildInvariant =
+                            psi.[otherChildNode]
+                            |> Set.map (Formula.alpha varToPost)
+                            |> Formula.conj
+                            |> (fun f -> f.ToLinearTerms())
+                            |> Formula.filter_instr_vars shouldExportVar
+                        SparseLinear.entails parentInvariantAndCommands otherChildInvariant)
+            //printfn " Redirecting node %i to node %i" falseNode newChildNode
+            childFixUpMap.[parentNode] <- (newChildNode, (transitionId, transitionCmds))
+        (falseNodesAtSnapshotLoc, childFixUpMap)
+
     member self.ToCeta
             (writer : System.Xml.XmlWriter)
             (transWriter : System.Xml.XmlWriter -> int -> unit)
             (shouldExportLocation : Programs.ProgramLocation -> bool)
             (shouldExportTransition : Programs.TransitionId -> Programs.ProgramLocation -> Programs.ProgramLocation -> bool)
-            (shouldExportVar : Var.var -> bool) =
+            (shouldExportVar : Var.var -> bool)
+            (cpChildFixupLoc : int option) =
         //Fun story. As we allow to filter some nodes, whole parts of the ART may become unreachable.
         //Thus, first compute set of nodes to print overall
         let artNodesToPrint = self.GetCetaFilteredARGNodes shouldExportLocation shouldExportTransition
+
+        //Because we hide the __took_snapshot variable from Ceta, we have a few strange side effects. We account for that here...
+        let (cpSnapshotLocsToFilter, childFixupMap) =
+            match cpChildFixupLoc with
+            | Some cpChildFixupLoc -> self.GetCutpointSnapshotExportFixup cpChildFixupLoc artNodesToPrint shouldExportVar
+            | None -> (Set.empty, System.Collections.Generic.Dictionary())
+        artNodesToPrint.RemoveAll(cpSnapshotLocsToFilter)
 
         let exportNode nodeId =
             writer.WriteStartElement "node"
@@ -860,9 +920,12 @@ type ImpactARG(parameters : Parameters.parameters,
                 writer.WriteEndElement () //coverEdge end
             | (false, _) ->
                 writer.WriteStartElement "children"
-                for childId in E.[nodeId] |> Seq.filter artNodesToPrint.Contains do
-                    let (transId, cmds) = abs_edge_to_program_commands.[(nodeId, childId)]
-                    //printfn "  ARG child: %i (%A) for trans %i" childId childNodeRepr transId
+                let childNodeIdsWithTransAndCommands =
+                    match childFixupMap.TryGetValue nodeId with
+                    | (true, childIdWithTransAndCommands) -> Seq.singleton childIdWithTransAndCommands
+                    | (false, _) -> E.[nodeId] |> Seq.filter artNodesToPrint.Contains |> Seq.map (fun childId -> (childId, abs_edge_to_program_commands.[(nodeId, childId)]))
+                for (childId, (transId, cmds)) in childNodeIdsWithTransAndCommands do
+                    //printfn "  ARG child: %i for trans %i" childId transId
                     let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula program.Variables cmds
                     let varToPre var = Var.prime_var var 0
                     let varToPost var =

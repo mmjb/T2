@@ -40,10 +40,13 @@ open System.Xml
 type Dictionary<'Key, 'Value> = System.Collections.Generic.Dictionary<'Key, 'Value>
 type HashSet<'Key> = System.Collections.Generic.HashSet<'Key>
 
-let private writeTransitionId (transDuplIdToTransId : Dictionary<int, int>) (xmlWriter : XmlWriter) transId =
+let private writeTransitionId (transDuplIdToTransId : Dictionary<int, (int * bool)>) (xmlWriter : XmlWriter) transId =
     match transDuplIdToTransId.TryGetValue transId with
-    | (true, duplicatedTransId) ->
-        xmlWriter.WriteElementString ("transitionDuplicate", string duplicatedTransId)
+    | (true, (duplicatedTransId, wasOriginal)) ->
+        if wasOriginal then
+            xmlWriter.WriteElementString ("transitionDuplicate", string duplicatedTransId)
+        else
+            xmlWriter.WriteElementString ("transitionId", string duplicatedTransId)
     | _ ->
         xmlWriter.WriteElementString ("transitionId", string transId)
 
@@ -67,7 +70,7 @@ type private CertificateExportInformation =
         cpToToCpDuplicateTransId : Dictionary<ProgramLocation, TransitionId>
 
         /// Maps transitions in the termination part of the cooperation graph to their originals.
-        transDuplIdToTransId : Dictionary<TransitionId, TransitionId>
+        transDuplIdToTransId : Dictionary<TransitionId, TransitionId * bool>
 
         /// Impact graph, containing all invariants required for the proof.
         impactArg : Impact.ImpactARG
@@ -96,14 +99,39 @@ let private shouldExportTransition (prog : Programs.Program) shouldExportLocatio
     if Set.contains transitionId removedTransitions || not (shouldExportLocation source && shouldExportLocation target) then
         false
     else
-        match (prog.GetLocationLabel source, prog.GetLocationLabel target) with
-        // Ignore transition from cutpoint copy that don't go through the variable copying location:
-        | (DuplicatedCutpointLocation _, DuplicatedLocation _)
-        | (DuplicatedCutpointLocation _, DuplicatedCutpointLocation _)
-        | (DuplicatedCutpointLocation _, CutpointDummyEntryLocation _) -> false
-        // Only export the "skip" to the duplicated cutpoint we are focusing on:
-        | (OriginalLocation _, DuplicatedCutpointLocation _) when cpToFocusOn.IsSome && target <> cpToFocusOn.Value -> false
-        | _ -> true
+        match cpToFocusOn with
+        | None ->
+            match (prog.GetLocationLabel source, prog.GetLocationLabel target) with
+            // Ignore transition from cutpoint copy that don't copy variables:
+            | (DuplicatedCutpointLocation _, CutpointVarSnapshotLocation _) ->
+                let (_, cmds, _) = prog.GetTransition transitionId
+                let makesAnySnapshot =
+                    cmds
+                    |> List.exists
+                        (function | Assume _ -> false
+                                  | Assign (_, v, _) -> Formula.is_copied_var v)
+                makesAnySnapshot
+            | _ -> true
+        | Some cpToFocusOn ->
+            let cpLabel = Programs.getBaseLabel (prog.GetLocationLabel cpToFocusOn)
+            match (prog.GetLocationLabel source, prog.GetLocationLabel target) with
+            // Use the non-copying transition for all cutpoint but the one we are focusing one:
+            | (DuplicatedCutpointLocation label, CutpointVarSnapshotLocation _) ->
+                let (_, cmds, _) = prog.GetTransition transitionId
+                let makesAnySnapshot =
+                    cmds
+                    |> List.exists
+                        (function | Assume _ -> false
+                                  | Assign (_, v, _) -> Formula.is_copied_var v)
+                if label = cpLabel then
+                    makesAnySnapshot
+                else
+                    not makesAnySnapshot
+            | (DuplicatedCutpointLocation _, DuplicatedCutpointLocation _)
+            | (DuplicatedCutpointLocation _, CutpointDummyEntryLocation _) -> false
+            // Only export the "skip" to the duplicated cutpoint we are focusing on:
+            | (OriginalLocation _, DuplicatedCutpointLocation _) when source <> cpToFocusOn -> false
+            | _ -> true
 
 let private shouldExportVariable cp var =
     if    Formula.is_copied_var var || Formula.is_init_cond_var var
@@ -322,7 +350,7 @@ let private exportNonSCCRemovalProof
 
         if needToAddCopiedTransition then
             let copiedTransIdx = progFullCoop.AddTransition sourceLocDupl cmds targetLocDupl
-            exportInfo.transDuplIdToTransId.Add(copiedTransIdx, transIdx)
+            exportInfo.transDuplIdToTransId.Add(copiedTransIdx, (transIdx, true))
             progFullExtraTrans.Add copiedTransIdx |> ignore
 
     //Now remove all the extra invented transitions again, by doing a trivial termination argument encoding
@@ -657,7 +685,7 @@ let private exportCopyVariableAdditionProof
 
     let afterTransitionId = getAfterTransitionId exportInfo cpDupl
     let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc false
-    let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cpDupl) removedTransitions
+    let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cp) removedTransitions
 
     for variable in exportInfo.progOrig.Variables do
         let snaphottedVar = Formula.state_snapshot_var cp variable
@@ -708,6 +736,32 @@ let private exportCopyVariableAdditionProof
     for _ in exportInfo.progOrig.Variables do
         xmlWriter.WriteEndElement () //end freshVariableAddition
 
+let private getImpactInvariantsForLocs
+        (exportInfo: CertificateExportInformation)
+        (scc : ProgramSCC)
+        (removedTransitions : Set<TransitionId>)
+        (cp : ProgramLocation) =
+    let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc true
+    let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cp) removedTransitions
+    let shouldExportVariable = shouldExportVariable cp
+
+    let argNodesToReport = exportInfo.impactArg.GetCetaFilteredARGNodes shouldExportLocation shouldExportTransition
+    let (snapshotFixupLocsToIgnore, _) = exportInfo.impactArg.GetCutpointSnapshotExportFixup cp argNodesToReport shouldExportVariable
+    argNodesToReport.RemoveAll snapshotFixupLocsToIgnore
+
+    let locToInvariants = Dictionary()
+
+    let argIsTrivial = exportInfo.impactArg.IsTrivial argNodesToReport shouldExportVariable
+    for loc in exportInfo.progCoopInstrumented.Locations do
+        if shouldExportLocation loc then
+            let locInvariants =
+                if argIsTrivial then
+                    [[Formula.formula.True]]
+                else
+                    exportInfo.impactArg.GetLocationInvariantForNodes argNodesToReport loc
+            locToInvariants.[loc] <- locInvariants
+    (argIsTrivial, locToInvariants)
+
 let private exportNewImpactInvariantsProof
         (exportInfo: CertificateExportInformation)
         (nextProofStep: ProgramSCC -> Set<TransitionId> -> ProgramLocation * ProgramLocation -> XmlWriter -> unit)
@@ -718,35 +772,37 @@ let private exportNewImpactInvariantsProof
     Log.log exportInfo.parameters "Exporting newInvariants proof step encoding invariants obtained by safety proving."
 
     let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc true
-    let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cpDupl) removedTransitions
+    let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cp) removedTransitions
     let shouldExportVariable = shouldExportVariable cp
 
-    let argNodesToReport = exportInfo.impactArg.GetCetaFilteredARGNodes shouldExportLocation shouldExportTransition
-    let argIsTrivial = exportInfo.impactArg.IsTrivial argNodesToReport shouldExportVariable
+    let (argIsTrivial, locToInvariants) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
 
     if not argIsTrivial then
         xmlWriter.WriteStartElement "newInvariants"
         xmlWriter.WriteStartElement "invariants"
-        for loc in exportInfo.progCoopInstrumented.Locations do
-            if shouldExportLocation loc then
-                let locLabel = exportInfo.progCoopInstrumented.GetLocationLabel loc
-                let locInvariants = exportInfo.impactArg.GetLocationInvariantForNodes argNodesToReport loc
-                Log.debug exportInfo.parameters (sprintf "  Added invariant for location %i (%A): %s" loc locLabel (String.concat " && " (Seq.map string locInvariants)))
-                xmlWriter.WriteStartElement "invariant"
+        for KeyValue(loc, locInvariants) in locToInvariants do
+            let locLabel = exportInfo.progCoopInstrumented.GetLocationLabel loc
+            Log.debug exportInfo.parameters
+                (sprintf "  Added invariant for location %i (%A): (%s)"
+                    loc locLabel
+                    (String.concat
+                        ") || ("
+                        (Seq.map (fun locInvariant -> String.concat " && " (Seq.map string locInvariant)) locInvariants)))
+            xmlWriter.WriteStartElement "invariant"
 
-                Programs.exportLocation xmlWriter locLabel
+            Programs.exportLocation xmlWriter locLabel
 
-                xmlWriter.WriteStartElement "formula"
-                xmlWriter.WriteStartElement "disjunction"
-                for locInvariant in locInvariants do
-                    Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta (Formula.formula.FormulasToLinearTerms (locInvariant :> _)) shouldExportVariable
-                xmlWriter.WriteEndElement () //end disjunction
-                xmlWriter.WriteEndElement () //end formula
-                xmlWriter.WriteEndElement () //end invariant
+            xmlWriter.WriteStartElement "formula"
+            xmlWriter.WriteStartElement "disjunction"
+            for locInvariant in locInvariants do
+                Formula.linear_terms_to_ceta xmlWriter Var.plainToCeta (Formula.formula.FormulasToLinearTerms (locInvariant :> _)) shouldExportVariable
+            xmlWriter.WriteEndElement () //end disjunction
+            xmlWriter.WriteEndElement () //end formula
+            xmlWriter.WriteEndElement () //end invariant
 
         xmlWriter.WriteEndElement () //end invariants
 
-        exportInfo.impactArg.ToCeta xmlWriter (writeTransitionId exportInfo.transDuplIdToTransId) shouldExportLocation shouldExportTransition shouldExportVariable
+        exportInfo.impactArg.ToCeta xmlWriter (writeTransitionId exportInfo.transDuplIdToTransId) shouldExportLocation shouldExportTransition shouldExportVariable (Some cpDupl)
 
     nextProofStep scc removedTransitions (cp, cpDupl) xmlWriter
 
@@ -806,26 +862,16 @@ let private exportSafetyTransitionRemovalProof
         let rfBound = List.map (fun (b : int) -> bigint b) rfBounds
 
         (* Step 2: Extract invariants *)
-        let shouldExportLocationForSafety = shouldExportLocation exportInfo.progCoopInstrumented scc true
-        let shouldExportTransitionForSafety = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocationForSafety (Some cpDupl) removedTransitions
         let shouldExportLocationForTerm = shouldExportLocation exportInfo.progCoopInstrumented scc false
-        let shouldExportTransitionForTerm = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocationForTerm (Some cpDupl) removedTransitions
+        let shouldExportTransitionForTerm = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocationForTerm (Some cp) removedTransitions
         let shouldExportVariable = shouldExportVariable cp
 
         let transToExport =
             exportInfo.progCoopInstrumented.TransitionsWithIdx
             |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransitionForTerm transIdx source target)
 
-        let locToInvariant = Dictionary()
-        let argNodesToReport = exportInfo.impactArg.GetCetaFilteredARGNodes shouldExportLocationForSafety shouldExportTransitionForSafety
-        let argIsTrivial = exportInfo.impactArg.IsTrivial argNodesToReport shouldExportVariable
-        for loc in locToRFTerm.Keys do
-            let locInvariants =
-                if argIsTrivial then [[Formula.truec]]
-                else exportInfo.impactArg.GetLocationInvariantForNodes argNodesToReport loc
-            locToInvariant.[loc] <- locInvariants
-
-        exportTransitionRemovalProof exportInfo locToInvariant locToRFTerm rfBound transToExport shouldExportVariable removedTransitions (nextProofStep scc (cp, cpDupl)) xmlWriter
+        let (_, locToInvariants) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
+        exportTransitionRemovalProof exportInfo locToInvariants locToRFTerm rfBound transToExport shouldExportVariable removedTransitions (nextProofStep scc (cp, cpDupl)) xmlWriter
 
 let private exportSwitchToCooperationTerminationProof
         (exportInfo : CertificateExportInformation)
@@ -874,7 +920,7 @@ let exportProofCertificate
         (progOrig : Programs.Program)
         (progCoopInstrumented : Programs.Program)
         (cpToToCpDuplicateTransId : Dictionary<int, int>)
-        (transDuplIdToTransId : Dictionary<int, int>)
+        (transDuplIdToTransId : Dictionary<int, int * bool>)
         (locToAIInvariant : Dictionary<int, IIntAbsDom.IIntAbsDom> option)
         (progCoopSCCs : Set<int> list)
         (foundInitialLexRankFunctions : Map<Set<int>, (Map<int, Map<Var.var, bigint>> * Map<Set<int>, bigint> * Set<int>) list>)

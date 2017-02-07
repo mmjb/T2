@@ -84,7 +84,7 @@ let prover (pars : Parameters.parameters) (program : Programs.Program) err =
             xmlWriter.WriteEndElement () //end safetyProgram
 
             xmlWriter.WriteStartElement "safetyProof"
-            impactARG.ToCeta xmlWriter (fun xmlWriter transId -> xmlWriter.WriteElementString ("transitionId", string transId)) (fun _ -> true) (fun _ _ _ -> true) (fun _ -> true)
+            impactARG.ToCeta xmlWriter (fun xmlWriter transId -> xmlWriter.WriteElementString ("transitionId", string transId)) (fun _ -> true) (fun _ _ _ -> true) (fun _ -> true) None
             xmlWriter.WriteEndElement () //end safetyProof
 
             xmlWriter.WriteEndElement () //end safetyProblem
