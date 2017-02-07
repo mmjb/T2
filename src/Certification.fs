@@ -641,7 +641,8 @@ let private exportFinalProof
         |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransition transIdx source target)
 
     let exportTrivialProof _ _ =
-        xmlWriter.WriteElementString ("trivial", "")
+        xmlWriter.WriteStartElement "cutTransitionSplit"
+        xmlWriter.WriteEndElement () //end cutTransitionSplit
 
     exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport shouldExportVariable removedTransitions exportTrivialProof xmlWriter
 
