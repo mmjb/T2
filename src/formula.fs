@@ -370,7 +370,7 @@ let get_const_from_constvar (v : System.String) =
     bigint.Parse withoutPrefix
 
 let copied_prefix = instrumentation_prefix + "took_snapshot_"
-let took_snapshot_var state = Var.var(copied_prefix + string(state))
+let took_snapshot_var (loc : int) = Var.var(copied_prefix + string(loc))
 let is_copied_var (v:string) = v.StartsWith copied_prefix
 let copied_assume k = (Ge(Term.var (took_snapshot_var k), Term.constant 1))
 let not_copied_assume k = (Lt(Term.var (took_snapshot_var k), Term.constant 1))
