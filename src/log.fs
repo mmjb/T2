@@ -35,7 +35,7 @@ module Microsoft.Research.T2.Log
 let log (pars : Parameters.parameters) s = 
     if pars.print_log then
         let diff = System.DateTime.Now.Subtract(pars.start_time)
-        printf "%d:%d:%d %s\n" diff.Minutes diff.Seconds diff.Milliseconds s
+        printf "%d:%02d:%03d %s\n" diff.Minutes diff.Seconds diff.Milliseconds s
         System.Console.Out.Flush ()
 
 let debug (pars : Parameters.parameters) s = 
