@@ -591,8 +591,7 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
             | label -> failwithf "Instrumenting program with non-original location %i (label %A)" cp label 
         let cp_copy = loc_to_coopLocCopy.[cp]
         let current_cfg_scc_locs = Map.find cp loc_to_scc_locs
-        let current_cfg_scc_cps = current_cfg_scc_locs |> Set.filter p_loops.ContainsKey 
-        let took_snapshot_var = Formula.took_snapshot_var cp
+        let current_cfg_cps = current_cfg_scc_locs |> Set.filter p_loops.ContainsKey
 
         // Add a jump edge from the original node to its new copy:
         let to_coop_transId = p_F.AddTransition cp [true_assume ; Programs.skip] cp_copy
@@ -601,14 +600,23 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
         // Create a new node in which we have copied all the variables, and do the copying:
         let after_varcopy_loc = p_F.NewLocationWithLabel (Programs.CutpointVarSnapshotLocation cp_label) 
         cutpoint_to_after_cp_varcopy_loc.Add(cp, after_varcopy_loc)
-        p_F.AddTransition
-            cp_copy
-                 (true_assume
-                  ::[for cp in current_cfg_scc_cps do yield Programs.assume (Formula.Lt(Term.Var(Formula.took_snapshot_var cp), Term.Const(bigint.One)))] 
-                  @((Programs.assign took_snapshot_var (Term.Const(bigint.One)))
-                  ::(var_copy_commands p_F cp)))
-            after_varcopy_loc
-            |> ignore
+        let snapshot_transIdx =
+            p_F.AddTransition
+                cp_copy
+                     (true_assume
+                      ::[for cp in current_cfg_cps do yield Programs.assume (Formula.Lt(Term.Var(Formula.took_snapshot_var cp), Term.constant 1))]
+                      @((Programs.assign (Formula.took_snapshot_var cp) (Term.constant 1))
+                      ::(var_copy_commands p_F cp)))
+                after_varcopy_loc
+
+        // Also one transition on which we do not copy anything
+        let no_snapshot_transIdx =
+            p_F.AddTransition
+                cp_copy
+                     (true_assume
+                      ::var_copy_commands p_F cp)
+                after_varcopy_loc
+        transDupId_to_transId.Add(no_snapshot_transIdx, (snapshot_transIdx, false))
 
         let before_cp = p_F.NewLocationWithLabel (Programs.CutpointDummyEntryLocation cp_label)
         cutpoint_to_before_cp_varcopy_loc.Add(cp, before_cp)
@@ -622,7 +630,7 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
         p_F.AddTransition
             cp_copy
                     [ true_assume
-                    ; Programs.assume (Formula.Ge(Term.Var(took_snapshot_var), Term.Const(bigint.One))) ]
+                    ; Programs.assume (Formula.Ge(Term.Var(Formula.took_snapshot_var cp), Term.Const(bigint.One))) ]
             pre_RF_check_loc |> ignore
 
         let after_RF_check_loc = p_F.GetLabelledLocation (Programs.CutpointRFCheckLocation (cp_label + "_post"))
@@ -635,8 +643,6 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
                 after_RF_check_loc
         cp_to_rfCheckTransId.[cp] <- rf_check_transIdx
 
-        //If we reach the (pre-)final location, we had no ranking function => AF p might never be true!
-        //Hence, we return false to allow for backtracking
         p_F.AddTransition
             after_RF_check_loc
                 [ true_assume ]
@@ -657,29 +663,10 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
                 | (true, before_cp) -> before_cp
                 | _ -> k'_copy
 
-            // If the source location is a cutpoint, a few extra locations are involved and we need to duplicate the transition twice:
-            if p_loops.ContainsKey k then
-                //If we do the AI first, every transition has a new assume at the beginning, generate that here.
-                //This also explains the liberally sprinkled in extra assumes everywhere.
-                let abstrInterInv = if pars.did_ai_first then List.head cmds else true_assume
-                let cmdsWithoutAbstrInterInv = if pars.did_ai_first then List.tail cmds else cmds
-                let took_snapshot_var = Formula.took_snapshot_var k
-
-                //One transition copy from the duplicated location, asserting that we haven't copied the program variables:
-                let dup_transId = p_F.AddTransition 
-                                        k_copy 
-                                        (abstrInterInv
-                                         ::(Programs.assume (Formula.Lt(Term.Var(took_snapshot_var), Term.Const(bigint.One))))
-                                         ::cmdsWithoutAbstrInterInv)
-                                        k'_copy
-                transDupId_to_transId.Add(dup_transId, transId)
-
-                //Additionally, also add a copy of the the transition starting from the location at which snapshotted the program variables.
-                let dup_transId = p_F.AddTransition cutpoint_to_after_cp_varcopy_loc.[k] cmds k'_copy
-                transDupId_to_transId.Add(dup_transId, transId)
-            else
-                let dup_transId = p_F.AddTransition k_copy cmds k'_copy
-                transDupId_to_transId.Add(dup_transId, transId)
+            //For cutpoint, we have the duplicated transition start in the extra node in which we made variable snapshots:
+            let new_source = if p_loops.ContainsKey k then cutpoint_to_after_cp_varcopy_loc.[k] else k_copy
+            let dup_transId = p_F.AddTransition new_source cmds k'_copy
+            transDupId_to_transId.Add(dup_transId, (transId, true))
         | _ -> ()
                 
     let loc_to_coopLocCopy = loc_to_coopLocCopy |> Seq.map (fun x -> (x.Key, x.Value)) |> Map.ofSeq
