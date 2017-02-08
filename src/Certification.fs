@@ -350,6 +350,13 @@ let private exportNonSCCRemovalProof
                 targetLocDupl
             | _ -> getCoopLocDupl exportInfo targetLoc
 
+        //We are leaving out cross-SCC edges in instrumentation, so need to re-add those here:
+        match exportInfo.progCoopSCCs |> Seq.tryFind (Set.contains sourceLocDupl) with
+        | Some sourceLocSCC ->
+            if not <| Set.contains targetLocDupl sourceLocSCC then
+                needToAddCopiedTransition <- true
+        | None -> ()
+
         if needToAddCopiedTransition then
             let copiedTransIdx = progFullCoop.AddTransition sourceLocDupl cmds targetLocDupl
             exportInfo.transDuplIdToTransId.Add(copiedTransIdx, (transIdx, true))
