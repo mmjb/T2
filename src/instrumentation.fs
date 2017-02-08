@@ -677,5 +677,6 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
     p_F.AddSymbolConstantInformation()
 
     // Clean up program using live variable analysis
-    p_F.LetConvert (Analysis.liveness p_F Set.empty) 
+    if pars.export_cert.IsNone then
+        p_F.LetConvert (Analysis.liveness p_F Set.empty) 
     (p_F, final_loc, cp_to_rfCheckTransId, loc_to_coopLocCopy, transDupId_to_transId, cp_to_toCoopTransId)
