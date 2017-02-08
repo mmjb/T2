@@ -167,6 +167,7 @@ let private exportTransitionRemovalProof
         (locToRFTerms : Dictionary<ProgramLocation, Term.term list>)
         (bounds : bigint list)
         (transitionsToExport : (TransitionId * Transition) seq)
+        (transitionsToRemove : Set<TransitionId> option)
         (shouldExportVariable : Var.var -> bool)
         (removedTransitions : Set<TransitionId>)
         (nextProofStep : Set<TransitionId> -> XmlWriter -> unit)
@@ -249,10 +250,18 @@ let private exportTransitionRemovalProof
             weakDecreaseHintInfo <- (transIdx, decreaseHints)::weakDecreaseHintInfo
 
     let strictTransitions = strictDecreaseHintInfo |> List.map (fun (transIdx, _, _) -> transIdx) |> Set.ofList
-    let newRemovedTransitions = Set.union removedTransitions strictTransitions
+    let transitionsRemovedInThisStep =
+        match transitionsToRemove with
+        | None -> strictTransitions
+        | Some transitionsToRemove ->
+            if Set.isSubset transitionsToRemove strictTransitions then
+                transitionsToRemove
+            else
+                raise (System.ArgumentException "Cannot prove transitions to remove as strictly decreasing") 
+    let newRemovedTransitions = Set.union removedTransitions transitionsRemovedInThisStep
 
     (** Step 2: Write out the actual XML. *)
-    if Set.isEmpty strictTransitions then
+    if Set.isEmpty transitionsRemovedInThisStep then
         nextProofStep newRemovedTransitions xmlWriter
     else
         xmlWriter.WriteStartElement "transitionRemoval"
@@ -277,7 +286,7 @@ let private exportTransitionRemovalProof
         xmlWriter.WriteEndElement () //end bound
 
         xmlWriter.WriteStartElement "remove"
-        for (transIdx, _, _) in strictDecreaseHintInfo do
+        for transIdx in transitionsRemovedInThisStep do
             writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
         xmlWriter.WriteEndElement () //end remove
 
@@ -386,7 +395,17 @@ let private exportNonSCCRemovalProof
         progFullCoop.TransitionsWithIdx
         |> Seq.filter (fun (transIdx, _) -> progFullExtraTrans.Contains transIdx || exportInfo.transDuplIdToTransId.ContainsKey transIdx)
 
-    exportTransitionRemovalProof {exportInfo with progCoopInstrumented = progFullCoop} (Dictionary()) locToRFTerm bound transToExport Formula.is_noninstr_var Set.empty (fun _ xmlWriter -> nextProofStep xmlWriter) xmlWriter
+    exportTransitionRemovalProof
+        {exportInfo with progCoopInstrumented = progFullCoop}
+        (Dictionary())
+        locToRFTerm
+        bound
+        transToExport 
+        (Some (Set.ofSeq progFullExtraTrans))
+        Formula.is_noninstr_var
+        Set.empty
+        (fun _ xmlWriter -> nextProofStep xmlWriter)
+        xmlWriter
 
 let private getBeforeTransitionId (exportInfo: CertificateExportInformation) cp =
     exportInfo.progCoopInstrumented.TransitionsTo cp
@@ -589,7 +608,7 @@ let private exportInitialLexRFTransRemovalProof
                 exportInfo.progCoopInstrumented.TransitionsWithIdx
                 |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransition transIdx source target)
 
-            exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport Formula.is_noninstr_var removedTransitions (exportNextRF remainingRankFunctions) xmlWriter
+            exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport None Formula.is_noninstr_var removedTransitions (exportNextRF remainingRankFunctions) xmlWriter
     exportNextRF thisSCCRankFunctions Set.empty xmlWriter
 
 let private findSCCsInTransitions
@@ -651,7 +670,7 @@ let private exportFinalProof
         xmlWriter.WriteStartElement "cutTransitionSplit"
         xmlWriter.WriteEndElement () //end cutTransitionSplit
 
-    exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport shouldExportVariable removedTransitions exportTrivialProof xmlWriter
+    exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport None shouldExportVariable removedTransitions exportTrivialProof xmlWriter
 
 let private exportCutTransitionSplitProof
         (exportInfo: CertificateExportInformation)
@@ -881,7 +900,7 @@ let private exportSafetyTransitionRemovalProof
             |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransitionForTerm transIdx source target)
 
         let (_, locToInvariants) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
-        exportTransitionRemovalProof exportInfo locToInvariants locToRFTerm rfBound transToExport shouldExportVariable removedTransitions (nextProofStep scc (cp, cpDupl)) xmlWriter
+        exportTransitionRemovalProof exportInfo locToInvariants locToRFTerm rfBound transToExport None shouldExportVariable removedTransitions (nextProofStep scc (cp, cpDupl)) xmlWriter
 
 let private exportSwitchToCooperationTerminationProof
         (exportInfo : CertificateExportInformation)
