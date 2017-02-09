@@ -475,9 +475,12 @@ let private exportAIInvariantsProof
         (exportInfo : CertificateExportInformation)
         (nextProofStep : XmlWriter -> unit)
         (xmlWriter : XmlWriter) =
+    let isNonTrivial (locToAIInvariant : Dictionary<ProgramLocation, IIntAbsDom.IIntAbsDom>) =
+        locToAIInvariant.Values
+        |> Seq.exists (fun absDomElement -> absDomElement.to_formula() <> Formula.formula.True)
+
     match exportInfo.locToAIInvariant with
-    | None -> nextProofStep xmlWriter
-    | Some locToAIInvariant ->
+    | Some locToAIInvariant when isNonTrivial locToAIInvariant ->
         Log.log exportInfo.parameters "Exporting newInvariants proof step encoding invariants obtained by abstract interpretation."
         xmlWriter.WriteStartElement "newInvariants"
 
@@ -553,6 +556,7 @@ let private exportAIInvariantsProof
 
         nextProofStep xmlWriter
         xmlWriter.WriteEndElement () //end newInvariants
+    | _ -> nextProofStep xmlWriter
 
 let private exportSccDecompositionProof
         (exportInfo : CertificateExportInformation)
