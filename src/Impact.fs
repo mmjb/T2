@@ -904,8 +904,9 @@ type ImpactARG(parameters : Parameters.parameters,
             writer.WriteStartElement "node"
             writer.WriteElementString ("nodeId", string nodeId)
             //We are not using Formula.conj here because we absolutely want to control the order of formulas...
+            let nodePsi = psi.[nodeId]
             let psiLinearTerms =
-                Formula.formula.FormulasToLinearTerms (psi.[nodeId] :> _)
+                Formula.formula.FormulasToLinearTerms (nodePsi :> _)
                 |> Formula.filter_instr_vars shouldExportVar
             writer.WriteStartElement "invariant"
             Formula.linear_terms_to_ceta writer Var.plainToCeta psiLinearTerms shouldExportVar
@@ -914,7 +915,7 @@ type ImpactARG(parameters : Parameters.parameters,
             //printfn "ARG node to export: %i (%A)" nodeId progLocRepr
             Programs.exportLocation writer progLocRepr
             match covering.TryGetValue nodeId with
-            | (true, coverTarget) ->
+            | (true, coverTarget) when nodePsi <> Set.singleton Formula.formula.False ->
                 writer.WriteStartElement "coverEdge"
                 writer.WriteElementString ("nodeId", string coverTarget)
 
@@ -924,7 +925,7 @@ type ImpactARG(parameters : Parameters.parameters,
                 writer.WriteEndElement () //hints end
 
                 writer.WriteEndElement () //coverEdge end
-            | (false, _) ->
+            | _ ->
                 writer.WriteStartElement "children"
                 let childNodeIdsWithTransAndCommands =
                     match childFixupMap.TryGetValue nodeId with
