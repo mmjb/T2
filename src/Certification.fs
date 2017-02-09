@@ -40,15 +40,19 @@ open System.Xml
 type Dictionary<'Key, 'Value> = System.Collections.Generic.Dictionary<'Key, 'Value>
 type HashSet<'Key> = System.Collections.Generic.HashSet<'Key>
 
-let private writeTransitionId (transDuplIdToTransId : Dictionary<int, (int * bool)>) (xmlWriter : XmlWriter) transId =
+let private getTransitionId (transDuplIdToTransId : Dictionary<int, (int * bool)>) transId =
     match transDuplIdToTransId.TryGetValue transId with
     | (true, (duplicatedTransId, wasOriginal)) ->
         if wasOriginal then
-            xmlWriter.WriteElementString ("transitionDuplicate", string duplicatedTransId)
+            ("transitionDuplicate", string duplicatedTransId)
         else
-            xmlWriter.WriteElementString ("transitionId", string duplicatedTransId)
+            ("transitionId", string duplicatedTransId)
     | _ ->
-        xmlWriter.WriteElementString ("transitionId", string transId)
+        ("transitionId", string transId)
+
+let private writeTransitionId (transDuplIdToTransId : Dictionary<int, (int * bool)>) (xmlWriter : XmlWriter) transId =
+    let (transType, transName) = (getTransitionId transDuplIdToTransId transId)
+    xmlWriter.WriteElementString (transType, transName)
 
 type private ProgramSCC = Set<ProgramLocation>
 type private CertificateExportInformation =
