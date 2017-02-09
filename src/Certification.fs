@@ -975,7 +975,13 @@ let private exportPerSCCSafetyTerminationProof exportInfo (nextProofStep: Progra
           exportSafetyTransitionRemovalProof exportInfo (
            nextProofStep))) scc removedTransitions (cp, cpDupl)
     | _ ->
-        nextProofStep scc (cp, cpDupl) removedTransitions
+        let (argIsTrivial, _) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
+        if argIsTrivial then
+            nextProofStep scc (cp, cpDupl) removedTransitions
+        else
+            exportNewImpactInvariantsProof exportInfo (
+             fun scc removed cp -> nextProofStep scc cp removed)
+              scc removedTransitions (cp, cpDupl)
 
 let private exportSafetyTerminationProof exportInfo (nextProofStep: ProgramSCC -> ProgramLocation * ProgramLocation -> Set<TransitionId> -> XmlWriter -> unit) scc removedTransitions =
     let hasRemainingCycles = not <| List.isEmpty (findSCCsInTransitions exportInfo scc removedTransitions -42 false)
