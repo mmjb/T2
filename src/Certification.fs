@@ -249,26 +249,30 @@ let private exportTransitionRemovalProof
                             transLinearTerms
 
             let mutable thisDisjunctStrict = false
-            for i in 0 .. sourceRFTerms.Length - 1 do
-                if not thisDisjunctStrict then
-                    Log.debug exportInfo.parameters (sprintf "    Checking %i-th component of rank function." i)
-                    let strictDecreaseTerms = lexRFStrictlyDecreasesInIthPositionTerms rankFunctionsOnPreVars rankFunctionsOnPostVars bounds i
+            if Formula.unsat (Formula.conj locInvariant) then
+                Log.debug exportInfo.parameters (sprintf "    Source invariant UNSAT and transition thus trivially marked as strictly decreasing for this disjunct.")
+                thisDisjunctStrict <- true
+            else
+                for i in 0 .. sourceRFTerms.Length - 1 do
+                    if not thisDisjunctStrict then
+                        Log.debug exportInfo.parameters (sprintf "    Checking %i-th component of rank function." i)
+                        let strictDecreaseTerms = lexRFStrictlyDecreasesInIthPositionTerms rankFunctionsOnPreVars rankFunctionsOnPostVars bounds i
 
-                    let mutable allTermsHold = true
-                    for strictDecreaseTerm in strictDecreaseTerms do
+                        let mutable allTermsHold = true
+                        for strictDecreaseTerm in strictDecreaseTerms do
+                            if allTermsHold then
+                                match SparseLinear.tryGetFarkasCoefficients locInvariantAndTransLinearTerms strictDecreaseTerm with
+                                | Some strictDecreaseCoefficients -> ()
+                                | None -> allTermsHold <- false
+
                         if allTermsHold then
-                            match SparseLinear.tryGetFarkasCoefficients locInvariantAndTransLinearTerms strictDecreaseTerm with
-                            | Some strictDecreaseCoefficients -> ()
-                            | None -> allTermsHold <- false
-
-                    if allTermsHold then
-                        thisDisjunctStrict <- true
-                        Log.debug exportInfo.parameters "    Strict decrease for this disjunct."
-                    else
-                        for weakDecreaseTerm in weakDecreaseTerms do
-                            let weakDecreaseCoefficients = SparseLinear.getFarkasCoefficients locInvariantAndTransLinearTerms weakDecreaseTerm
-                            ()
-                        Log.debug exportInfo.parameters "    Weak decrease for this disjunct."
+                            thisDisjunctStrict <- true
+                            Log.debug exportInfo.parameters "    Strict decrease for this disjunct."
+                        else
+                            for weakDecreaseTerm in weakDecreaseTerms do
+                                let weakDecreaseCoefficients = SparseLinear.getFarkasCoefficients locInvariantAndTransLinearTerms weakDecreaseTerm
+                                ()
+                            Log.debug exportInfo.parameters "    Weak decrease for this disjunct."
             if not thisDisjunctStrict then
                 allDisjunctsStrict <- false
 
