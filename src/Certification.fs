@@ -165,6 +165,32 @@ let private lexRFWeaklyDecreasesTerms sourceRFs targetRFs =
             yield List.head <| (Formula.Ge(sourceRF, targetRF)).ToLinearTerms() // RFs are not increasing
     ]
 
+let private getImpactInvariantsForLocs
+        (exportInfo: CertificateExportInformation)
+        (scc : ProgramSCC)
+        (removedTransitions : Set<TransitionId>)
+        (cp : ProgramLocation) =
+    let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc true
+    let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cp) removedTransitions
+    let shouldExportVariable = shouldExportVariable cp
+
+    let argNodesToReport = exportInfo.impactArg.GetCetaFilteredARGNodes shouldExportLocation shouldExportTransition
+    let (snapshotFixupLocsToIgnore, _) = exportInfo.impactArg.GetCutpointSnapshotExportFixup cp argNodesToReport shouldExportVariable
+    argNodesToReport.RemoveAll snapshotFixupLocsToIgnore
+
+    let locToInvariants = Dictionary()
+
+    let argIsTrivial = exportInfo.impactArg.IsTrivial argNodesToReport shouldExportVariable
+    for loc in exportInfo.progCoopInstrumented.Locations do
+        if shouldExportLocation loc then
+            let locInvariants =
+                if argIsTrivial then
+                    [[Formula.formula.True]]
+                else
+                    exportInfo.impactArg.GetLocationInvariantForNodes argNodesToReport loc
+            locToInvariants.[loc] <- locInvariants
+    (argIsTrivial, locToInvariants)
+
 let private exportTransitionRemovalProof
         (exportInfo : CertificateExportInformation)
         (locToInvariant: Dictionary<ProgramLocation, Formula.formula list list>)
@@ -641,17 +667,22 @@ let private exportFinalProof
         (removedTransitions : Set<TransitionId>)
         (xmlWriter : XmlWriter) =
     Log.log exportInfo.parameters "Exporting transitionRemoval proof step that removes all remaining trivial SCCs."
-    //We assume that at this point, no more cycles are left. Thus, we just need to eliminate all remaining
-    //transitions going into our target cutpoint as in the initial SCC decomposition.
-
-    //Thus, we want to just look at the trivial components, in order, starting with something that has
-    //nothing incoming. First, find such a node, then use standard SCC numbering we get from Tarjan
     let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc false
     let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation None removedTransitions
     let shouldExportVariable = shouldExportVariable cp
+
+    //We assume that at this point, no more _feasible_ cycles are left. Thus, we just need to eliminate all remaining
+    //transitions going into our target cutpoint as in the initial SCC decomposition.
+    //Feasible cycles means that either we removed some crucial transitions, or that we've proved that the
+    //cutpoint entry location has invariant FALSE.
+    //
+    //To remove the remaining transitions in the former case, we just look at the trivial components, in order,
+    //starting with something that has nothing incoming. First, find such a node, then use standard SCC numbering
+    //we get from Tarjan. If we can't find such a node, assume that we are in the infeasible case, and use a
+    //constant rank function eliminating the cutpoint entry transition.
     let entryLoc =
         scc
-        |> Seq.find
+        |> Seq.tryFind
              (fun loc ->
                 if shouldExportLocation loc then
                     let inDeg =
@@ -662,23 +693,33 @@ let private exportFinalProof
                 else
                     false)
 
-    let sccs = findSCCsInTransitions exportInfo scc removedTransitions entryLoc true
-    let locToRFTerm = Dictionary()
-    sccs
-    |> List.iteri
-        (fun idx scc ->
-            scc |> Seq.filter shouldExportLocation |> Seq.iter (fun loc -> locToRFTerm.[loc] <- [Term.constant (-idx - 1)]))
-    let bound = [bigint (-(List.length sccs) - 1)]
-
-    let transToExport =
-        exportInfo.progCoopInstrumented.TransitionsWithIdx
-        |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransition transIdx source target)
+    let (locToRFTerms, bounds, locToInvariants) =
+        match entryLoc with
+        | Some entryLoc ->
+            let locToRFTerm = Dictionary()
+            let sccs = findSCCsInTransitions exportInfo scc removedTransitions entryLoc true
+            sccs
+            |> List.iteri
+                (fun idx scc ->
+                    scc |> Seq.filter shouldExportLocation |> Seq.iter (fun loc -> locToRFTerm.[loc] <- [Term.constant (-idx - 1)]))
+            (locToRFTerm, [bigint (-(List.length sccs) - 1)], Dictionary())
+        | None ->
+            let locToRFTerm = Dictionary()
+            for loc in scc do
+                if shouldExportLocation loc then
+                    locToRFTerm.[loc] <- [Term.constant 0]
+            locToRFTerm.[exportInfo.progCoopInstrumented.GetLabelledLocation (CutpointDummyEntryLocation (string cp))] <- [Term.constant 1]
+            let (_, locToInvariants) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
+            (locToRFTerm, [bigint.Zero], locToInvariants)
 
     let exportTrivialProof _ _ =
         xmlWriter.WriteStartElement "cutTransitionSplit"
         xmlWriter.WriteEndElement () //end cutTransitionSplit
 
-    exportTransitionRemovalProof exportInfo (Dictionary()) locToRFTerm bound transToExport None shouldExportVariable removedTransitions exportTrivialProof xmlWriter
+    let transToExport =
+        exportInfo.progCoopInstrumented.TransitionsWithIdx
+        |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransition transIdx source target)
+    exportTransitionRemovalProof exportInfo locToInvariants locToRFTerms bounds transToExport None shouldExportVariable removedTransitions exportTrivialProof xmlWriter
 
 let private exportCutTransitionSplitProof
         (exportInfo: CertificateExportInformation)
@@ -772,32 +813,6 @@ let private exportCopyVariableAdditionProof
 
     for _ in exportInfo.progOrig.Variables do
         xmlWriter.WriteEndElement () //end freshVariableAddition
-
-let private getImpactInvariantsForLocs
-        (exportInfo: CertificateExportInformation)
-        (scc : ProgramSCC)
-        (removedTransitions : Set<TransitionId>)
-        (cp : ProgramLocation) =
-    let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented scc true
-    let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation (Some cp) removedTransitions
-    let shouldExportVariable = shouldExportVariable cp
-
-    let argNodesToReport = exportInfo.impactArg.GetCetaFilteredARGNodes shouldExportLocation shouldExportTransition
-    let (snapshotFixupLocsToIgnore, _) = exportInfo.impactArg.GetCutpointSnapshotExportFixup cp argNodesToReport shouldExportVariable
-    argNodesToReport.RemoveAll snapshotFixupLocsToIgnore
-
-    let locToInvariants = Dictionary()
-
-    let argIsTrivial = exportInfo.impactArg.IsTrivial argNodesToReport shouldExportVariable
-    for loc in exportInfo.progCoopInstrumented.Locations do
-        if shouldExportLocation loc then
-            let locInvariants =
-                if argIsTrivial then
-                    [[Formula.formula.True]]
-                else
-                    exportInfo.impactArg.GetLocationInvariantForNodes argNodesToReport loc
-            locToInvariants.[loc] <- locInvariants
-    (argIsTrivial, locToInvariants)
 
 let private exportNewImpactInvariantsProof
         (exportInfo: CertificateExportInformation)
