@@ -988,7 +988,7 @@ type ImpactARG(parameters : Parameters.parameters,
         if Seq.exists (function KeyValue(_, y) -> self.ancestors y |> List.forall (fun a -> not (covering.ContainsKey a)) |> not) covering then
             printf "BIG PROBLEM 2x!\n"
 
-    /// Returns true iff all node invariants are either true or false.
+    /// Returns true iff all location invariants are just True (i.e., all nodes for all locations are either true or false, and each location has one node that's true)
     member __.IsTrivial (nodesToReport : System.Collections.Generic.HashSet<int>) shouldExportVar =
         psi
         |> Seq.filter (fun(node, _) -> nodesToReport.Contains node)
@@ -997,9 +997,17 @@ type ImpactARG(parameters : Parameters.parameters,
                 invs
                 |> Set.forall
                     (fun inv ->
-                        Formula.formula.FormulasToLinearTerms (Seq.singleton inv)
-                        |> Formula.filter_instr_vars shouldExportVar
-                        |> List.forall (fun lt -> lt = SparseLinear.ZERO_TERM || lt = SparseLinear.ONE_TERM)))
+                        let filtered_inv_terms =
+                            Formula.formula.FormulasToLinearTerms (Seq.singleton inv)
+                            |> Formula.filter_instr_vars shouldExportVar
+                        let all_true_or_false =
+                            filtered_inv_terms
+                            |> List.forall (fun lt -> lt = SparseLinear.ZERO_TERM || lt = SparseLinear.ONE_TERM)
+                        if all_true_or_false then
+                            filtered_inv_terms
+                            |> List.exists (fun lt -> lt = SparseLinear.ZERO_TERM)
+                        else
+                            false))
 
     interface SafetyInterface.SafetyProver with
         /// Return path to loc_err or None if it's unreachable
