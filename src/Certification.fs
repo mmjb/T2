@@ -292,8 +292,15 @@ let private exportTransitionRemovalProof
 
     (** Step 2: Write out the actual XML. *)
     if Set.isEmpty transitionsRemovedInThisStep then
+        Log.log exportInfo.parameters " Skipping transition removal step because no transition was strictly decreasing."
         nextProofStep newRemovedTransitions xmlWriter
     else
+        Log.log
+            exportInfo.parameters
+            (sprintf
+                " Removing transitions [%s] (internally known as [%s])."
+                (String.concat ", " (Seq.map (fun t -> string (getTransitionId exportInfo.transDuplIdToTransId t)) transitionsRemovedInThisStep))
+                (String.concat ", " (Seq.map string transitionsRemovedInThisStep)))
         xmlWriter.WriteStartElement "transitionRemoval"
         xmlWriter.WriteStartElement "rankingFunctions"
 
