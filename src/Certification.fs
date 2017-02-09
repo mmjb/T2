@@ -976,13 +976,18 @@ let private exportPerSCCSafetyTerminationProof exportInfo (nextProofStep: Progra
           exportSafetyTransitionRemovalProof exportInfo (
            nextProofStep))) scc removedTransitions (cp, cpDupl)
     | _ ->
-        let (argIsTrivial, _) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
-        if argIsTrivial then
-            nextProofStep scc (cp, cpDupl) removedTransitions
-        else
+        let (_, locToInvariants) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
+        let hasDisabledLocation = locToInvariants.Values |> Seq.exists ((=) [[Formula.formula.False]])
+        let hasRemainingIncomingCPEdge =
+            let cpEntryLoc = exportInfo.progCoopInstrumented.GetLabelledLocation (CutpointDummyEntryLocation (string cp))
+            let cpEntryTrans = exportInfo.progCoopInstrumented.TransitionsFrom cpEntryLoc |> List.head |> fst
+            not <| Set.contains cpEntryTrans removedTransitions
+        if hasDisabledLocation && hasRemainingIncomingCPEdge then
             exportNewImpactInvariantsProof exportInfo (
              fun scc removed cp -> nextProofStep scc cp removed)
               scc removedTransitions (cp, cpDupl)
+        else
+            nextProofStep scc (cp, cpDupl) removedTransitions
 
 let private exportSafetyTerminationProof exportInfo (nextProofStep: ProgramSCC -> ProgramLocation * ProgramLocation -> Set<TransitionId> -> XmlWriter -> unit) scc removedTransitions =
     let hasRemainingCycles = not <| List.isEmpty (findSCCsInTransitions exportInfo scc removedTransitions -42 false)
