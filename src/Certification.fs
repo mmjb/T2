@@ -582,7 +582,6 @@ let private exportInitialLexRFTransRemovalProof
         (nextProofStep : ProgramSCC -> Set<TransitionId> -> XmlWriter -> unit)
         (scc : ProgramSCC)
         (xmlWriter : XmlWriter) =
-    Log.log exportInfo.parameters "Exporting transitionRemoval proof step based on lexicographic rank functions synthesised without safety loop."
     let thisSCCRankFunctions =
         exportInfo.foundInitialLexRankFunctions
         |> Map.toSeq
@@ -595,6 +594,7 @@ let private exportInitialLexRFTransRemovalProof
         match rankFunctions with
         | [] -> nextProofStep scc removedTransitions xmlWriter
         | (locToRF, transToBounds, _) :: remainingRankFunctions ->
+            Log.log exportInfo.parameters "Exporting transitionRemoval proof step based on lexicographic rank functions synthesised without safety loop."
             //Extract the actual per-location rank functions and overall bound:
             let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation None removedTransitions
             let bound = [transToBounds |> Map.toSeq |> Seq.map snd |> Seq.fold min (bigint System.Int32.MaxValue)]
