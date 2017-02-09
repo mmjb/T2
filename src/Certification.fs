@@ -967,14 +967,21 @@ let private exportSwitchToCooperationTerminationProof
 
     xmlWriter.WriteEndElement () //end switchToCooperationTermination
 
-let private exportSafetyTerminationProof exportInfo nextProofStep scc removedTransitions =
+let private exportPerSCCSafetyTerminationProof exportInfo (nextProofStep: ProgramSCC -> ProgramLocation * ProgramLocation -> Set<TransitionId> -> XmlWriter -> unit) scc removedTransitions (cp, cpDupl) =
+    match exportInfo.foundLexRankFunctions.TryFind cp with
+    | Some (_ :: _) ->
+        exportCopyVariableAdditionProof exportInfo (
+         exportNewImpactInvariantsProof exportInfo (
+          exportSafetyTransitionRemovalProof exportInfo (
+           nextProofStep))) scc removedTransitions (cp, cpDupl)
+    | _ ->
+        nextProofStep scc (cp, cpDupl) removedTransitions
+
+let private exportSafetyTerminationProof exportInfo (nextProofStep: ProgramSCC -> ProgramLocation * ProgramLocation -> Set<TransitionId> -> XmlWriter -> unit) scc removedTransitions =
     let hasRemainingCycles = not <| List.isEmpty (findSCCsInTransitions exportInfo scc removedTransitions -42 false)
     if hasRemainingCycles then
         exportCutTransitionSplitProof exportInfo (
-         exportCopyVariableAdditionProof exportInfo (
-          exportNewImpactInvariantsProof exportInfo (
-           exportSafetyTransitionRemovalProof exportInfo (
-            nextProofStep)))) scc removedTransitions
+         exportPerSCCSafetyTerminationProof exportInfo nextProofStep) scc removedTransitions
     else
         nextProofStep scc (-42, -42) removedTransitions
 
