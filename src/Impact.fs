@@ -811,12 +811,17 @@ type ImpactARG(parameters : Parameters.parameters,
     // Returns a list of formulas that are proven invariants for a program location, to be understood as a disjunction of conjunctions.
     // Note: The result only makes sense for an ARG that has been proven safe.
     member __.GetLocationInvariantForNodes (nodesToReport : System.Collections.Generic.HashSet<int>) (loc : Programs.ProgramLocation) : (Formula.formula list) list =
-        program_loc_to_abs_nodes.[loc]
-        |> Seq.filter nodesToReport.Contains
-        |> List.ofSeq
-        |> List.sort
-        |> List.map (fun node -> psi.[node] |> List.ofSeq)
-        |> List.removeDuplicates
+        let nodes_for_loc = program_loc_to_abs_nodes.[loc]
+        if Set.isEmpty nodes_for_loc then
+            //No nodes for a location means it's unreachable, so report invariant false:
+            [[Formula.formula.False]]
+        else
+            nodes_for_loc
+            |> Seq.filter nodesToReport.Contains
+            |> List.ofSeq
+            |> List.sort
+            |> List.map (fun node -> psi.[node] |> List.ofSeq)
+            |> List.removeDuplicates
 
     member self.GetLocationInvariant
             (shouldExportLocation : Programs.ProgramLocation -> bool)
