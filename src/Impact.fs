@@ -816,6 +816,7 @@ type ImpactARG(parameters : Parameters.parameters,
         |> List.ofSeq
         |> List.sort
         |> List.map (fun node -> psi.[node] |> List.ofSeq)
+        |> List.removeDuplicates
 
     member self.GetLocationInvariant
             (shouldExportLocation : Programs.ProgramLocation -> bool)
