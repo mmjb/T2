@@ -355,6 +355,8 @@ type List<'T> with
                 incr counter
         !counter
 
+    static member removeDuplicates list =
+        List.foldBack (fun e res -> e :: List.filter ((<>) e) res) list []
 
 type System.Collections.Generic.HashSet<'T> with
     member self.RemoveAll vs =
