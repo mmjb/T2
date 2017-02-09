@@ -988,7 +988,7 @@ type ImpactARG(parameters : Parameters.parameters,
         psi
         |> Seq.filter (fun(node, _) -> nodesToReport.Contains node)
         |> Seq.forall
-            (function (_, invs)->
+            (fun (_, invs)->
                 invs
                 |> Set.forall
                     (fun inv ->
