@@ -718,8 +718,9 @@ let private exportFinalProof
             let locToRFTerm = Dictionary()
             for loc in scc do
                 if shouldExportLocation loc then
-                    locToRFTerm.[loc] <- [Term.constant 0]
+                    locToRFTerm.[loc] <- [Term.constant -1]
             locToRFTerm.[exportInfo.progCoopInstrumented.GetLabelledLocation (CutpointDummyEntryLocation (string cp))] <- [Term.constant 1]
+            locToRFTerm.[exportInfo.progCoopInstrumented.GetLabelledLocation (DuplicatedCutpointLocation (string cp))] <- [Term.constant 0]
             let (_, locToInvariants) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
             (locToRFTerm, [bigint.Zero], locToInvariants)
 
