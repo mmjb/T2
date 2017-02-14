@@ -521,7 +521,10 @@ let private exportAIInvariantsProof
         Log.log exportInfo.parameters "Exporting newInvariants proof step encoding invariants obtained by abstract interpretation."
         xmlWriter.WriteStartElement "newInvariants"
 
-        let shouldExportLocation = shouldExportLocation exportInfo.progCoopInstrumented exportInfo.progCoopInstrumented.Locations true
+        let shouldExportLocation loc =
+            match exportInfo.progCoopInstrumented.GetLocationLabel loc with
+            | OriginalLocation _ -> true
+            | _ -> false
         let shouldExportTransition = shouldExportTransition exportInfo.progCoopInstrumented shouldExportLocation None Set.empty
 
         (*** Start of declaring new invariants ***)
@@ -1018,8 +1021,8 @@ let exportProofCertificate
     xmlWriter.WriteStartElement "proof"
     xmlWriter.WriteStartElement "ltsTerminationProof"
     xmlWriter
-    |> exportSwitchToCooperationTerminationProof exportInfo (
-        exportAIInvariantsProof exportInfo (
+    |> exportAIInvariantsProof exportInfo (
+        exportSwitchToCooperationTerminationProof exportInfo (
          exportSccDecompositionProof exportInfo (
           exportInitialLexRFTransRemovalProof exportInfo (
            exportSafetyTerminationProof exportInfo (
