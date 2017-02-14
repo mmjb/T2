@@ -918,12 +918,6 @@ type ImpactARG(parameters : Parameters.parameters,
             | (true, coverTarget) when nodePsi <> Set.singleton Formula.formula.False ->
                 writer.WriteStartElement "coverEdge"
                 writer.WriteElementString ("nodeId", string coverTarget)
-
-                writer.WriteStartElement "hints"
-                for lt in Formula.formula.FormulasToLinearTerms (psi.[coverTarget] :> _) |> Formula.filter_instr_vars shouldExportVar do
-                    SparseLinear.writeCeTALinearImplicationHints writer psiLinearTerms lt
-                writer.WriteEndElement () //hints end
-
                 writer.WriteEndElement () //coverEdge end
             | _ ->
                 writer.WriteStartElement "children"
@@ -931,29 +925,11 @@ type ImpactARG(parameters : Parameters.parameters,
                     match childFixupMap.TryGetValue nodeId with
                     | (true, childIdWithTransAndCommands) -> Seq.singleton childIdWithTransAndCommands
                     | (false, _) -> E.[nodeId] |> Seq.filter artNodesToPrint.Contains |> Seq.map (fun childId -> (childId, abs_edge_to_program_commands.[(nodeId, childId)]))
-                for (childId, (transId, cmds)) in childNodeIdsWithTransAndCommands do
+                for (childId, (transId, _)) in childNodeIdsWithTransAndCommands do
                     //printfn "  ARG child: %i for trans %i" childId transId
-                    let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula program.Variables cmds
-                    let varToPre var = Var.prime_var var 0
-                    let varToPost var =
-                        match Map.tryFind var varToMaxSSAIdx with
-                        | Some idx -> Var.prime_var var idx
-                        | None -> var
-                    let transLinearTerms =
-                        Formula.formula.FormulasToLinearTerms (transFormula :> _)
-                        |> Formula.filter_instr_vars shouldExportVar
-                    let nodePsiAndTransLinearTerms = List.append (List.map (SparseLinear.alpha varToPre) psiLinearTerms) transLinearTerms
-                    let childPsiLinearTerms =
-                        Formula.formula.FormulasToLinearTerms (psi.[childId] :> _)
-                        |> Formula.filter_instr_vars shouldExportVar
                     writer.WriteStartElement "child"
                     transWriter writer transId
                     writer.WriteElementString ("nodeId", string childId)
-                    writer.WriteStartElement "hints"
-                    for lt in childPsiLinearTerms do
-                        SparseLinear.writeCeTALinearImplicationHints writer nodePsiAndTransLinearTerms (SparseLinear.alpha varToPost lt)
-                    writer.WriteEndElement () //hints end
-
                     writer.WriteEndElement () //child end
                 writer.WriteEndElement () //children end
             writer.WriteEndElement () //node end
