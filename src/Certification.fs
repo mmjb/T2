@@ -564,26 +564,11 @@ let private exportAIInvariantsProof
                 Programs.exportLocation xmlWriter (exportInfo.progCoopInstrumented.GetLocationLabel loc)
 
                 xmlWriter.WriteStartElement "children"
-                for (transIdx, (_, cmds, childLoc)) in exportInfo.progCoopInstrumented.TransitionsFrom loc do
+                for (transIdx, (_, _, childLoc)) in exportInfo.progCoopInstrumented.TransitionsFrom loc do
                     if shouldExportTransition transIdx loc childLoc then
-                        let childLocInvariantLinearTerms = locToInvariantTerms.[childLoc]
-                        let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula exportInfo.progCoopInstrumented.Variables cmds
-                        let varToPre var = Var.prime_var var 0
-                        let varToPost var =
-                            match Map.tryFind var varToMaxSSAIdx with
-                            | Some idx -> Var.prime_var var idx
-                            | None -> var
-                        let transLinearTerms =
-                            Formula.formula.FormulasToLinearTerms (transFormula :> _)
-                            |> Formula.filter_instr_vars Formula.is_noninstr_var
-                        let locInvariantAndTransLinearTerms = List.append (List.map (SparseLinear.alpha varToPre) invariantLinearTerms) transLinearTerms
                         xmlWriter.WriteStartElement "child"
                         writeTransitionId exportInfo.transDuplIdToTransId xmlWriter transIdx
                         xmlWriter.WriteElementString ("nodeId", string childLoc)
-                        xmlWriter.WriteStartElement "hints"
-                        for lt in childLocInvariantLinearTerms do
-                            SparseLinear.writeCeTALinearImplicationHints xmlWriter locInvariantAndTransLinearTerms (SparseLinear.alpha varToPost lt)
-                        xmlWriter.WriteEndElement () // hints end
                         xmlWriter.WriteEndElement () // child end
                 xmlWriter.WriteEndElement () // children end
                 xmlWriter.WriteEndElement () // node end
