@@ -656,11 +656,13 @@ let private findSCCsInTransitions
     for (transIdx, (source, _, target)) in exportInfo.progCoopInstrumented.TransitionsWithIdx do
         if shouldExportTransition transIdx source target then
             graphEdges.Add(source, (transIdx, (source, 0, target)))
-            graphEdges.Add(entryLoc, (0, (entryLoc, 0, source)))
-    SCC.find_sccs graphEdges entryLoc  returnTrivialComponents
+    for loc in scc do
+        graphEdges.Add(entryLoc, (0, (entryLoc, 0, loc)))
+    SCC.find_sccs graphEdges entryLoc returnTrivialComponents
 
 let private exportFinalProof
         (exportInfo: CertificateExportInformation)
+        (exportedInvariants: bool)
         (scc : ProgramSCC)
         ((cp, _) : (ProgramLocation * ProgramLocation))
         (removedTransitions : Set<TransitionId>)
@@ -679,6 +681,23 @@ let private exportFinalProof
     //starting with something that has nothing incoming. First, find such a node, then use standard SCC numbering
     //we get from Tarjan. If we can't find such a node, assume that we are in the infeasible case, and use a
     //constant rank function eliminating the cutpoint entry transition.
+    let locToInvariants =
+        if exportedInvariants then
+            snd <| getImpactInvariantsForLocs exportInfo scc removedTransitions cp
+        else
+            Dictionary()
+    let infeasibleTransitions =
+        exportInfo.progCoopInstrumented.TransitionsWithIdx
+        |> Seq.filter (fun (transIdx, (source, _, target)) ->
+            shouldExportTransition transIdx source target &&
+                (match locToInvariants.TryGetValue source with
+                | (true, locInv) -> locInv = [[Formula.formula.False]]
+                | _ -> false))
+        |> Seq.map fst
+        |> Set.ofSeq
+
+    Log.debug exportInfo.parameters (sprintf " Transitions [%s] are disabled because their source locations have invariant FALSE" (String.concat ", " (Seq.map string infeasibleTransitions)))
+
     let entryLoc =
         scc
         |> Seq.tryFind
@@ -686,22 +705,22 @@ let private exportFinalProof
                 if shouldExportLocation loc then
                     let inDeg =
                         exportInfo.progCoopInstrumented.TransitionsTo loc
-                        |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransition transIdx source target)
+                        |> Seq.filter (fun (transIdx, (source, _, target)) -> shouldExportTransition transIdx source target && (not <| Set.contains transIdx infeasibleTransitions))
                         |> Seq.length
                     inDeg = 0
                 else
                     false)
 
-    let (locToRFTerms, bounds, locToInvariants) =
+    let (locToRFTerms, bounds) =
         match entryLoc with
         | Some entryLoc ->
             let locToRFTerm = Dictionary()
-            let sccs = findSCCsInTransitions exportInfo scc removedTransitions entryLoc true
+            let sccs = findSCCsInTransitions exportInfo scc (Set.union removedTransitions infeasibleTransitions) entryLoc true
             sccs
             |> List.iteri
                 (fun idx scc ->
                     scc |> Seq.filter shouldExportLocation |> Seq.iter (fun loc -> locToRFTerm.[loc] <- [Term.constant (-idx - 1)]))
-            (locToRFTerm, [bigint (-(List.length sccs) - 1)], Dictionary())
+            (locToRFTerm, [bigint (-(List.length sccs) - 1)])
         | None ->
             let locToRFTerm = Dictionary()
             for loc in scc do
@@ -709,8 +728,7 @@ let private exportFinalProof
                     locToRFTerm.[loc] <- [Term.constant -1]
             locToRFTerm.[exportInfo.progCoopInstrumented.GetLabelledLocation (CutpointDummyEntryLocation (string cp))] <- [Term.constant 1]
             locToRFTerm.[exportInfo.progCoopInstrumented.GetLabelledLocation (DuplicatedCutpointLocation (string cp))] <- [Term.constant 0]
-            let (_, locToInvariants) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
-            (locToRFTerm, [bigint.Zero], locToInvariants)
+            (locToRFTerm, [bigint.Zero])
 
     let exportTrivialProof _ _ =
         xmlWriter.WriteStartElement "cutTransitionSplit"
@@ -956,13 +974,13 @@ let private exportSwitchToCooperationTerminationProof
 
     xmlWriter.WriteEndElement () //end switchToCooperationTermination
 
-let private exportPerSCCSafetyTerminationProof exportInfo (nextProofStep: ProgramSCC -> ProgramLocation * ProgramLocation -> Set<TransitionId> -> XmlWriter -> unit) scc removedTransitions (cp, cpDupl) =
+let private exportSafetyTerminationProof exportInfo scc removedTransitions (cp, cpDupl) =
     match exportInfo.foundLexRankFunctions.TryFind cp with
     | Some (_ :: _) ->
         exportCopyVariableAdditionProof exportInfo (
          exportNewImpactInvariantsProof exportInfo (
           exportSafetyTransitionRemovalProof exportInfo (
-           nextProofStep))) scc removedTransitions (cp, cpDupl)
+           exportFinalProof exportInfo true))) scc removedTransitions (cp, cpDupl)
     | _ ->
         let (_, locToInvariants) = getImpactInvariantsForLocs exportInfo scc removedTransitions cp
         let hasDisabledLocation = locToInvariants.Values |> Seq.exists ((=) [[Formula.formula.False]])
@@ -972,18 +990,10 @@ let private exportPerSCCSafetyTerminationProof exportInfo (nextProofStep: Progra
             not <| Set.contains cpEntryTrans removedTransitions
         if hasDisabledLocation && hasRemainingIncomingCPEdge then
             exportNewImpactInvariantsProof exportInfo (
-             fun scc removed cp -> nextProofStep scc cp removed)
+             fun scc removed cp -> exportFinalProof exportInfo true scc cp removed)
               scc removedTransitions (cp, cpDupl)
         else
-            nextProofStep scc (cp, cpDupl) removedTransitions
-
-let private exportSafetyTerminationProof exportInfo (nextProofStep: ProgramSCC -> ProgramLocation * ProgramLocation -> Set<TransitionId> -> XmlWriter -> unit) scc removedTransitions =
-    let hasRemainingCycles = not <| List.isEmpty (findSCCsInTransitions exportInfo scc removedTransitions -42 false)
-    if hasRemainingCycles then
-        exportCutTransitionSplitProof exportInfo (
-         exportPerSCCSafetyTerminationProof exportInfo nextProofStep) scc removedTransitions
-    else
-        nextProofStep scc (-42, -42) removedTransitions
+            exportFinalProof exportInfo false scc (cp, cpDupl) removedTransitions
 
 let exportProofCertificate
         (pars : Parameters.parameters)
@@ -1025,8 +1035,8 @@ let exportProofCertificate
         exportSwitchToCooperationTerminationProof exportInfo (
          exportSccDecompositionProof exportInfo (
           exportInitialLexRFTransRemovalProof exportInfo (
-           exportSafetyTerminationProof exportInfo (
-            exportFinalProof exportInfo)))))
+           exportCutTransitionSplitProof exportInfo (
+            exportSafetyTerminationProof exportInfo)))))
     xmlWriter.WriteEndElement () //end proof
     xmlWriter.WriteEndElement () //end ltsTerminationProof
 
