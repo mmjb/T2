@@ -82,7 +82,7 @@ steps:
       $ popd
 
 (2) Build the .NET bindings for z3:
-      $ pushd "$Z3DIR/code/src/api/dotnet/"
+      $ pushd "$Z3DIR/src/api/dotnet/"
       $ xbuild Microsoft.Z3.csproj
       $ popd
 
