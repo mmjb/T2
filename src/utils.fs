@@ -305,6 +305,12 @@ module List =
         | [] -> []
         | (x::xs) -> (f x) @ (concatMap f xs)
 
+    let rec zip4 xs ys zs us =
+        match (xs, ys, zs, us) with
+        | ([], [], [], []) -> []
+        | (x::xs, y::ys, z::zs, u::us) -> (x, y, z, u) :: zip4 xs ys zs us
+        | _ -> raise <| new System.ArgumentException("List.zip4 requires all lists to be of the same length.")
+
 ///
 /// Make a cached-version of f
 ///

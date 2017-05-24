@@ -50,6 +50,9 @@ type parameters = {
     /// If set, export a proof certificate to the specified file name
     mutable export_cert : string option
 
+    /// If set, export hints for all implications in the exported certificate
+    mutable export_cert_hints : bool
+
     // ---------------------------- Logging things ----------------------------
     /// Set to true to enable verbose logging spew from across T2
     mutable print_log : bool
@@ -165,6 +168,7 @@ let defaultParameters =
         print_proof = false
         print_stats = false 
         export_cert = None
+        export_cert_hints = false
 
         print_log = false
         print_debug = false

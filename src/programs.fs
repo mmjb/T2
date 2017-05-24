@@ -367,17 +367,18 @@ let cmdsToFormulae cmds varMap =
 let cmdsToCetaFormula (variables : Var.var seq) cmds =
     let (formula, varMap) = cmdsToFormulae cmds Map.empty
     //Extend to reflect unchanged variables:
-    let (formula, varMap) =
+    let (variablesStayEqualFormula, varMap) =
         Seq.fold 
-            (fun (formula, varMap) var ->
+            (fun (variablesStayEqualFormula, varMap) var ->
                 if Map.findWithDefault var 0 varMap = 0 then
                     let newVarMap = Map.add var 1 varMap
-                    let newFormula = (Formula.Eq (Var (Var.prime_var var 0), Var (Var.prime_var var 1))) :: formula
+                    let newFormula = (Formula.Eq ((Var (Var.prime_var var 1)), (Var (Var.prime_var var 0)))) :: variablesStayEqualFormula
                     (newFormula, newVarMap)
                 else
-                    (formula, varMap))
-            (formula, varMap)
+                    (variablesStayEqualFormula, varMap))
+            ([], varMap)
             variables
+    let formula = formula @ variablesStayEqualFormula
     (formula, varMap)
 
 /// Convert path to path formula, applying SSA transformation.

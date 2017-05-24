@@ -84,6 +84,11 @@ let linearTermToString lt =
                     sprintf "%s%s" (coeff.ToString()) vString)
     |> String.concat " + "
 
+let linearTermsToString lts = 
+    String.concat
+        ", "
+        (Seq.map (fun (t : LinearTerm) -> sprintf "%s <= 0" (linearTermToString t)) lts)
+
 let remove_zeros (t:LinearTerm) : LinearTerm =
     Map.filter (fun _ coeff -> coeff <> bigint.Zero) t
 
@@ -319,9 +324,9 @@ let tryGetFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : (bigi
 let getFarkasCoefficients (pres : LinearTerm seq) (post : LinearTerm) : (bigint list) =
     match tryGetFarkasCoefficients pres post with
     | None ->
-        printfn "Looking for Farkas coefficients for this:"
-        Seq.iter (fun t -> printfn "  %s <= 0" (linearTermToString t)) pres
-        printfn " ==> %s <= 0" (linearTermToString post)
+        eprintfn "Looking for Farkas coefficients for this:"
+        Seq.iter (fun t -> eprintfn "  %s <= 0" (linearTermToString t)) pres
+        eprintfn " ==> %s <= 0" (linearTermToString post)
         failwith "Trying to get Farkas coefficients for implication that doesn't hold!"
     | Some m -> m
 
@@ -333,8 +338,7 @@ let entails (pres : LinearTerm seq) (posts : LinearTerm seq) : bool =
         | Some _ -> true
     Seq.forall (entailsOne pres) posts
 
-let writeCeTAFarkasCoefficientHints (writer : System.Xml.XmlWriter) (farkasCoeffs : bigint list) =
-    writer.WriteStartElement "linearImplicationHint"
+let writeCPFLinearCombinationHint (writer : System.Xml.XmlWriter) (farkasCoeffs : bigint list) =
     writer.WriteStartElement "linearCombination"
     List.iter
         (fun (i : bigint) ->
@@ -343,26 +347,40 @@ let writeCeTAFarkasCoefficientHints (writer : System.Xml.XmlWriter) (farkasCoeff
             writer.WriteEndElement ()) //constant end
         farkasCoeffs
     writer.WriteEndElement () //linearCombination end
-    writer.WriteEndElement () //linearImplicationHint end
 
-let writeCeTALinearImplicationHints (writer : System.Xml.XmlWriter) (pres : LinearTerm list) (post : LinearTerm) =
-    (* The original code, that actually generate hints, for reference:
-    let farkasCoeffs =
-        if pres = [ ONE_TERM ] then
-            // This requires some explanation.
-            // We try to provide hints c1 ... cK, cP for prem1 \land ... \land premK => post such that
-            //  (c1 * prem1) + ... + (cK * premK) + (cP * post) is UNSAT.
-            // For K = 1 with prem1 = FALSE, c1 = 1 and cP = 0 yields (1 * c1 + 0 * post), which is trivially UNSAT.
-            [ bigint.One ; bigint.Zero]
+let writeCPFImplicationHints (pars : Parameters.parameters) (writer : System.Xml.XmlWriter) (pres : LinearTerm list list) (posts : LinearTerm list) =
+    writer.WriteStartElement "hints"
+    if pars.export_cert_hints && not (List.isEmpty pres) && not (List.isEmpty posts) then
+        let source_is_disjunction = List.length pres > 1
+        let target_is_conjunction = List.length posts > 1
+        
+        if source_is_disjunction then
+            writer.WriteStartElement "distribute"
+            writer.WriteElementString ("assertion", "")
 
-        else
-            getFarkasCoefficients pres post
-    writeCeTAFarkasCoefficientHints writer farkasCoeffs
-    *)
-
-    writer.WriteStartElement "linearImplicationHint"
-    writer.WriteElementString ("simplex", "")
-    writer.WriteEndElement () //linearImplicationHint end
+        for pre in pres do
+            if target_is_conjunction then
+                writer.WriteStartElement "distribute"
+                writer.WriteElementString ("conclusion", "")
+            for post in posts do
+                let farkasCoeffs =
+                    if pre = [ ONE_TERM ] then
+                        // This requires some explanation.
+                        // We try to provide hints c1 ... cK, cP for prem1 \land ... \land premK => post such that
+                        //  (c1 * prem1) + ... + (cK * premK) + (cP * post) is UNSAT.
+                        // For K = 1 with prem1 = FALSE, c1 = 1 and cP = 0 yields (1 * c1 + 0 * post), which is trivially UNSAT.
+                        [ bigint.One ; bigint.Zero]
+                    else
+                        getFarkasCoefficients pre post
+                //printfn "Got coefficients [%s]" (String.concat ", " <| List.map string farkasCoeffs)
+                writeCPFLinearCombinationHint writer farkasCoeffs
+            if target_is_conjunction then
+                writer.WriteEndElement () //distribute end (from conjunction on target)
+        if source_is_disjunction then
+            writer.WriteEndElement () //distribute end (from disjunction over source)
+    else
+        writer.WriteElementString ("auto", "")
+    writer.WriteEndElement () //hints end
 
 let linear_term_to_z3 (t : LinearTerm) =
     t

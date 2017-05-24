@@ -841,7 +841,7 @@ type ImpactARG(parameters : Parameters.parameters,
     /// sometimes, some ART nodes have condition FALSE, meaning that they are infeasible. However, when projecting
     /// the flag out, FALSE cannot be established anymore. Thus, we look for these nodes here, and instead find
     /// other nodes in the ARG that have the right label, and create a mapping for the redirection.
-    member __.GetCutpointSnapshotExportFixup (cp : int) (artNodesToConsider : System.Collections.Generic.HashSet<int>) (shouldExportVar : Var.var -> bool) =
+    member __.GetCutpointSnapshotExportFixup (cp : int) (artNodesToConsider : System.Collections.Generic.HashSet<int>) (shouldExportVar : Programs.ProgramLocationLabel -> Var.var -> bool) =
         let locBaseLabel = Programs.getBaseLabel (program.GetLocationLabel cp)
         let snapshotLoc = program.GetLabelledLocation (Programs.CutpointVarSnapshotLocation locBaseLabel)
         let (falseNodesAtSnapshotLoc, satisfiableNodesAtSnapshotLoc) =
@@ -876,7 +876,7 @@ type ImpactARG(parameters : Parameters.parameters,
                             |> Set.map (Formula.alpha varToPost)
                             |> Formula.conj
                             |> (fun f -> f.ToLinearTerms())
-                            |> Formula.filter_instr_vars shouldExportVar
+                            |> Formula.filter_instr_vars (shouldExportVar (program.GetLocationLabel abs_node_to_program_loc.[otherChildNode]))
                         SparseLinear.entails parentInvariantAndCommands otherChildInvariant)
             //printfn " Redirecting node %i to node %i" falseNode newChildNode
             childFixUpMap.[parentNode] <- (newChildNode, (transitionId, transitionCmds))
@@ -885,9 +885,10 @@ type ImpactARG(parameters : Parameters.parameters,
     member self.ToCeta
             (writer : System.Xml.XmlWriter)
             (transWriter : System.Xml.XmlWriter -> int -> unit)
+            (locToOldInvariantTerms : Programs.ProgramLocation -> SparseLinear.LinearTerm list)
             (shouldExportLocation : Programs.ProgramLocation -> bool)
             (shouldExportTransition : Programs.TransitionId -> Programs.ProgramLocation -> Programs.ProgramLocation -> bool)
-            (shouldExportVar : Var.var -> bool)
+            (shouldExportVar : Programs.ProgramLocationLabel -> Var.var -> bool)
             (cpChildFixupLoc : int option) =
         //Fun story. As we allow to filter some nodes, whole parts of the ART may become unreachable.
         //Thus, first compute set of nodes to print overall
@@ -903,21 +904,29 @@ type ImpactARG(parameters : Parameters.parameters,
         let exportNode nodeId =
             writer.WriteStartElement "node"
             writer.WriteElementString ("nodeId", string nodeId)
-            //We are not using Formula.conj here because we absolutely want to control the order of formulas...
             let nodePsi = psi.[nodeId]
+            let progLocRepr = program.GetLocationLabel abs_node_to_program_loc.[nodeId]
+            let shouldExportVarForNode = shouldExportVar progLocRepr
             let psiLinearTerms =
                 Formula.formula.FormulasToLinearTerms (nodePsi :> _)
-                |> Formula.filter_instr_vars shouldExportVar
+                |> Formula.filter_instr_vars shouldExportVarForNode
+            let oldInvariantTerms = locToOldInvariantTerms abs_node_to_program_loc.[nodeId]
             writer.WriteStartElement "invariant"
-            Formula.linear_terms_to_ceta writer Var.plainToCeta psiLinearTerms shouldExportVar
+            Formula.linear_terms_to_ceta writer Var.plainToCeta (psiLinearTerms @ oldInvariantTerms) shouldExportVarForNode
             writer.WriteEndElement () //end element
-            let progLocRepr = program.GetLocationLabel abs_node_to_program_loc.[nodeId]
-            //printfn "ARG node to export: %i (%A)" nodeId progLocRepr
+            Log.debug parameters <| sprintf "ARG node to export: %i (%A)" nodeId progLocRepr
             Programs.exportLocation writer progLocRepr
             match covering.TryGetValue nodeId with
             | (true, coverTarget) when nodePsi <> Set.singleton Formula.formula.False ->
+                Log.debug parameters <| sprintf "  Cover edge to %i" coverTarget
                 writer.WriteStartElement "coverEdge"
                 writer.WriteElementString ("nodeId", string coverTarget)
+                if parameters.export_cert_hints then
+                    let targetPsiLinearTerms =
+                        Formula.formula.FormulasToLinearTerms (psi.[coverTarget] :> _)
+                        |> Formula.filter_instr_vars shouldExportVarForNode
+                    let oldInvariantTargetLinearTerms = locToOldInvariantTerms abs_node_to_program_loc.[coverTarget]
+                    SparseLinear.writeCPFImplicationHints parameters writer [psiLinearTerms @ oldInvariantTerms] (targetPsiLinearTerms @ oldInvariantTargetLinearTerms)
                 writer.WriteEndElement () //coverEdge end
             | _ ->
                 writer.WriteStartElement "children"
@@ -925,11 +934,53 @@ type ImpactARG(parameters : Parameters.parameters,
                     match childFixupMap.TryGetValue nodeId with
                     | (true, childIdWithTransAndCommands) -> Seq.singleton childIdWithTransAndCommands
                     | (false, _) -> E.[nodeId] |> Seq.filter artNodesToPrint.Contains |> Seq.map (fun childId -> (childId, abs_edge_to_program_commands.[(nodeId, childId)]))
-                for (childId, (transId, _)) in childNodeIdsWithTransAndCommands do
-                    //printfn "  ARG child: %i for trans %i" childId transId
+                for (childId, (transId, cmds)) in childNodeIdsWithTransAndCommands do
+                    Log.debug parameters <| sprintf "  ARG child: %i for trans %i" childId transId
                     writer.WriteStartElement "child"
                     transWriter writer transId
                     writer.WriteElementString ("nodeId", string childId)
+                    let childProgLocRepr = program.GetLocationLabel abs_node_to_program_loc.[childId]
+
+                    if parameters.export_cert_hints then
+                        let (transFormula, varToMaxSSAIdx) = Programs.cmdsToCetaFormula program.Variables cmds
+                        let varToPre var = Var.prime_var var 0
+                        let varToPost var =
+                            match Map.tryFind var varToMaxSSAIdx with
+                            | Some idx -> Var.prime_var var idx
+                            | None -> var
+                        let transLinearTerms =
+                            Formula.formula.FormulasToLinearTerms (transFormula :> _)
+                            |> Formula.filter_instr_vars shouldExportVarForNode
+                        (* There is a horrific special case for the "skip" transition from a cutpoint to its duplicate,
+                           where we need to prepend the old invariant (if it exists). The reason is that we usually
+                           encode the old invariant as part of the transition, but cannot do that for the skip transition,
+                           which /must/ be a simple sequence of equalities.
+                         *)
+                        let transLinearTerms =
+                            match (progLocRepr, childProgLocRepr) with
+                            | (Programs.OriginalLocation cp, Programs.DuplicatedCutpointLocation cpDup) when cp = cpDup ->
+                                oldInvariantTerms @ transLinearTerms
+                            | _ -> transLinearTerms
+                        let nodePsiAndOldInvariantLinearTerms = (List.map (SparseLinear.alpha varToPre) (psiLinearTerms @ oldInvariantTerms))
+                        let childPsiLinearTerms =
+                            Formula.formula.FormulasToLinearTerms (psi.[childId] :> _)
+                            |> Formula.filter_instr_vars shouldExportVarForNode
+                            |> List.map (SparseLinear.alpha varToPost)
+                        let childOldInvariantLinearTerms =
+                            locToOldInvariantTerms abs_node_to_program_loc.[childId]
+                            |> List.map (SparseLinear.alpha varToPost)
+                        if parameters.print_debug then
+                            Log.debug parameters <| sprintf "   Parent psi: %s" (String.concat " && " (Seq.map string nodePsi))
+                            Log.debug parameters <| sprintf "   Parent old invariant: %s" (String.concat " && " (Seq.map (fun lt -> sprintf "%s <= -" (SparseLinear.linearTermToString lt)) oldInvariantTerms))
+                            Log.debug parameters <| sprintf "   Transition formula: %s" (String.concat " && " (Seq.map string transFormula))
+                            Log.debug parameters <| sprintf "   Child psi: %s" (String.concat " && " (Seq.map string psi.[childId]))
+                            Log.debug parameters <| sprintf "   Transition cmds:"
+                            for cmd in cmds do
+                                Log.debug parameters <| sprintf "     %s" (cmd.ToString())
+                            Log.debug parameters <| sprintf "   Source linear terms: %s" (SparseLinear.linearTermsToString nodePsiAndOldInvariantLinearTerms)
+                            Log.debug parameters <| sprintf "   Transition linear terms: %s" (SparseLinear.linearTermsToString transLinearTerms)
+                            Log.debug parameters <| sprintf "   Child linear terms: %s" (SparseLinear.linearTermsToString (childPsiLinearTerms @ childOldInvariantLinearTerms))
+                        SparseLinear.writeCPFImplicationHints parameters writer [nodePsiAndOldInvariantLinearTerms @ transLinearTerms] (childPsiLinearTerms @ childOldInvariantLinearTerms)
                     writer.WriteEndElement () //child end
                 writer.WriteEndElement () //children end
             writer.WriteEndElement () //node end
@@ -946,10 +997,6 @@ type ImpactARG(parameters : Parameters.parameters,
             for errNode in errNodes do
                 writer.WriteStartElement "errorHint"
                 writer.WriteElementString ("nodeId", string errNode)
-                writer.WriteStartElement "hints"
-                let errNodeLinTerms = Formula.formula.FormulasToLinearTerms (psi.[errNode] :> _) |> Formula.filter_instr_vars shouldExportVar
-                SparseLinear.writeCeTALinearImplicationHints writer errNodeLinTerms falseLinTerm
-                writer.WriteEndElement () //hints end
                 writer.WriteEndElement ()
             writer.WriteEndElement () //errorHints end
         writer.WriteEndElement () //impact end

@@ -85,8 +85,9 @@ let private generate_invariants_with_AI (pars : Parameters.parameters) (prog : P
         let locInvariant = 
             match locToInvariant.TryGetValue k with
             | (true, inv) -> 
-                let used_vars = freevars c
-                inv.to_formula_filtered used_vars.Contains
+                inv.to_formula()
+                //let used_vars = freevars c
+                //inv.to_formula_filtered used_vars.Contains
             | (false, _) -> Formula.truec
         prog.SetTransition n (k, (assume locInvariant)::c, k')
     locToInvariant
@@ -146,13 +147,14 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
     p_orig.RemoveUnreachableLocations()
     if pars.dottify_input_pgms then
         Output.print_dot_program p_orig "input.dot"
-
+    
+    let p_orig_with_ai_invs = p_orig.Clone()
     //Maybe let's do some AI first:
     let locToAIInvariant =
         if pars.do_ai_threshold > p_orig.TransitionNumber then
             Log.log pars <| sprintf "Performing Abstract Interpretation with domain %A ... " pars.ai_domain
             pars.did_ai_first <- true
-            let invariants = generate_invariants_with_AI pars p_orig
+            let invariants = generate_invariants_with_AI pars p_orig_with_ai_invs
             Log.log pars <| sprintf "done."
             Some invariants
         else
@@ -161,7 +163,7 @@ let private prover (pars : Parameters.parameters) (p_orig:Program) =
 
     ///bottomUp: propertyMap represents a map from subformulas to a set of locations/pre-conditions pairs.
     let (p_instrumented, final_loc, cp_rf, locToLoopDuplLoc, transDuplIdToTransId, cpToToCpDuplicateTransId) =
-        Instrumentation.termination_instrumentation pars p_orig
+        Instrumentation.termination_instrumentation pars p_orig_with_ai_invs locToAIInvariant
     if pars.dottify_input_pgms then
         Output.print_dot_program p_instrumented ("input__instrumented.dot")
     let p_instrumented_orig = p_instrumented.Clone()

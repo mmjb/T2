@@ -193,7 +193,7 @@ type formula =
             List.map inequality_to_linear_term (f.SplitConjunction() |> List.filter (fun x -> not(x.ContainsNondet())))
 
     static member FormulasToLinearTerms =
-        Seq.fold (fun res (f : formula) -> f.ToLinearTerms() @ res) []
+        Seq.fold (fun res (f : formula) -> res @ f.ToLinearTerms()) []
 
 //
 // Note that we dont have a "true" or "false" in formula

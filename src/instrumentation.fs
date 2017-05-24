@@ -536,10 +536,11 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 let var_copy_commands (prog : Programs.Program) cp =
     prog.Variables
     |> Set.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
-    |> Seq.map (fun v -> Programs.assign (Formula.state_snapshot_var cp v) (Term.Var v))
     |> List.ofSeq
+    |> List.rev
+    |> List.map (fun v -> Programs.assign (Formula.state_snapshot_var cp v) (Term.Var v))
 
-let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Program) =
+let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Program) (locToInvariant : Dictionary<Programs.ProgramLocation, IIntAbsDom.IIntAbsDom> option) =
     let p_F = p.Clone()
     let true_assume = Programs.assume Formula.truec
     let final_loc = p_F.GetLabelledLocation FINAL_LOC_LABEL
@@ -597,30 +598,45 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
         let to_coop_transId = p_F.AddTransition cp [true_assume ; Programs.skip] cp_copy
         cp_to_toCoopTransId.Add(cp, to_coop_transId)
 
+        let cp_invariant =
+            match locToInvariant with
+            | Some locToInvariant -> Programs.assume (locToInvariant.[cp].to_formula())
+            | None -> true_assume
+
         // Create a new node in which we have copied all the variables, and do the copying:
         let after_varcopy_loc = p_F.NewLocationWithLabel (Programs.CutpointVarSnapshotLocation cp_label) 
         cutpoint_to_after_cp_varcopy_loc.Add(cp, after_varcopy_loc)
+
+        // This is needed to match up atoms in the generated formula with Ceta's internal bookkeeping (if we do hints):
+        let varsStayEqual =
+            p_F.Variables
+            |> Set.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
+            |> Seq.map (fun v -> Programs.assign v (Term.Var v))
+            |> List.ofSeq
+            |> List.rev
+
         let snapshot_transIdx =
             p_F.AddTransition
                 cp_copy
-                     (true_assume
+                     (cp_invariant
                       ::[for cp in current_cfg_cps do yield Programs.assume (Formula.Lt(Term.Var(Formula.took_snapshot_var cp), Term.constant 1))]
-                      @((Programs.assign (Formula.took_snapshot_var cp) (Term.constant 1))
-                      ::(var_copy_commands p_F cp)))
+                      @(Programs.assign (Formula.took_snapshot_var cp) (Term.constant 1))
+                      ::(varsStayEqual
+                      @(var_copy_commands p_F cp)))
                 after_varcopy_loc
 
         // Also one transition on which we do not copy anything
         let no_snapshot_transIdx =
             p_F.AddTransition
                 cp_copy
-                     (true_assume
+                     (cp_invariant
                       ::var_copy_commands p_F cp)
                 after_varcopy_loc
         transDupId_to_transId.Add(no_snapshot_transIdx, (snapshot_transIdx, false))
 
         let before_cp = p_F.NewLocationWithLabel (Programs.CutpointDummyEntryLocation cp_label)
         cutpoint_to_before_cp_varcopy_loc.Add(cp, before_cp)
-        p_F.AddTransition before_cp [] cp_copy |> ignore
+        p_F.AddTransition before_cp [cp_invariant] cp_copy |> ignore
 
         // Now also add the instrumentation for the ranking function in:
         // - copy of CP to pre_RF_check_loc where we check that we actually did copy values
