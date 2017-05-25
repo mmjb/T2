@@ -534,9 +534,13 @@ let do_unrolling (pars : Parameters.parameters) (lex_info:LexicographicInfo) fai
 ///Make new copied variables and assume commands to store a copy
 ///Returns a list of assignments of old vars to new (renamed) vars.
 let var_copy_commands (prog : Programs.Program) cp =
+    //First declare them, to get the order in certificates right
     prog.Variables
-    |> Set.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
-    |> List.ofSeq
+    |> List.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
+    |> List.rev
+    |> List.iter (fun v -> prog.AddVariableInFront (Formula.state_snapshot_var cp v))
+    prog.Variables
+    |> List.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
     |> List.rev
     |> List.map (fun v -> Programs.assign (Formula.state_snapshot_var cp v) (Term.Var v))
 
@@ -610,9 +614,8 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
         // This is needed to match up atoms in the generated formula with Ceta's internal bookkeeping (if we do hints):
         let varsStayEqual =
             p_F.Variables
-            |> Set.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
-            |> Seq.map (fun v -> Programs.assign v (Term.Var v))
-            |> List.ofSeq
+            |> List.filter (fun x -> not(Formula.is_const_var x) && not(Formula.is_instr_var x))
+            |> List.map (fun v -> Programs.assign v (Term.Var v))
             |> List.rev
 
         let snapshot_transIdx =
@@ -630,7 +633,8 @@ let termination_instrumentation (pars : Parameters.parameters) (p : Programs.Pro
             p_F.AddTransition
                 cp_copy
                      (cp_invariant
-                      ::var_copy_commands p_F cp)
+                      ::(varsStayEqual
+                      @(var_copy_commands p_F cp)))
                 after_varcopy_loc
         transDupId_to_transId.Add(no_snapshot_transIdx, (snapshot_transIdx, false))
 

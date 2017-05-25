@@ -411,8 +411,8 @@ let cmdPathToFormulaPath p =
 /// Prevars and postvars are guaranteed to be distinct.
 let cmdPathToRelation path vars =
     let cmds = List.collect (fun (_, cmds, _) -> cmds) path
-    let writtenVars = Set.intersect (modified cmds) vars
-    let unwrittenVars = Set.difference vars writtenVars
+    let modifiedVars = modified cmds
+    let (writtenVars, unwrittenVars) = vars |> List.ofSeq |> List.partition (fun v -> Set.contains v modifiedVars)
 
     let (transitions, varMap) = cmdPathToFormulaPathAndVarMap path Map.empty
 
@@ -488,8 +488,8 @@ type Program private (parameters : Parameters.parameters) =
     let mutable transitionsArray = Array.create 100 (-1,[],-1)
     /// x \in active iff transitions[x] != (-1,_,-1)
     let mutable activeTransitions = Set.empty
-    /// Variables in the program
-    let mutable variables = Set.empty
+    /// Variables in the program (we care about order here...)
+    let mutable variables = []
     /// Locations in the program
     let mutable locations = Set.empty
     /// Constants used in the program.
@@ -522,6 +522,12 @@ type Program private (parameters : Parameters.parameters) =
     member __.Variables
         with         get ()   = variables
         and  private set vars = variables <- vars
+    member self.AddVariable var =
+        if not <| List.contains var self.Variables then
+            self.Variables <- self.Variables @ [var]
+    member self.AddVariableInFront var =
+        if not <| List.contains var self.Variables then
+            self.Variables <- var :: self.Variables
     member __.Locations
         with         get ()   = locations
         and  private set locs = locations <- locs
@@ -629,8 +635,8 @@ type Program private (parameters : Parameters.parameters) =
         }
 
     member self.GetTransition idx = transitionsArray.[idx]
-    member self.SetTransition idx (source, cmds, target) = 
-        self.Variables <- Set.union self.Variables (freevars cmds)
+    member self.SetTransition idx (source, cmds, target) =
+        Set.iter self.AddVariable (freevars cmds)
         self.Locations <- Set.add source <| Set.add target self.Locations
         transitionsArray.[idx] <- (source, cmds, target)
         self.InvalidateCaches()
@@ -671,9 +677,6 @@ type Program private (parameters : Parameters.parameters) =
         transitionFromCache <- None
         findLoopsCache <- None
 
-    member self.AddVariable var =
-        self.Variables <- Set.add var self.Variables
-
     ///Remove transition with index idx from the program
     member self.RemoveTransition idx =
         self.TransitionsArray.[idx] <- (-1, [], -1)
@@ -690,7 +693,7 @@ type Program private (parameters : Parameters.parameters) =
             System.Array.Copy (self.TransitionsArray, newTransArray, self.TransitionsArray.Length)
             self.TransitionsArray <- newTransArray
         transitionsArray.[newTransIdx] <- (source, cmds, target)
-        self.Variables <- Set.union self.Variables (freevars cmds)
+        Set.iter self.AddVariable (freevars cmds)
         self.Locations <- Set.add source <| Set.add target self.Locations
         self.InvalidateCaches()
         newTransIdx

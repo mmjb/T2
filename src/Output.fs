@@ -430,11 +430,11 @@ let print_smtpushdown (p : Programs.Program) (fname : string) =
     let locPP k = sprintf "l%i" k
 
     //Get the variable lists
-    let pre_vars = p.Variables |> Set.map (sprintf "%s^0")
-    let pre_vars_string = pre_vars |> Set.map (sprintf "(%s Int)") |> String.concat " "
-    let post_vars = p.Variables |> Set.map (sprintf "%s^post")
-    let post_vars_string = post_vars |> Set.map (sprintf "(%s Int)") |> String.concat " "
-    let all_vars = Set.union pre_vars post_vars
+    let pre_vars = p.Variables |> List.map (sprintf "%s^0")
+    let pre_vars_string = pre_vars |> Seq.map (sprintf "(%s Int)") |> String.concat " "
+    let post_vars = p.Variables |> List.map (sprintf "%s^post")
+    let post_vars_string = post_vars |> Seq.map (sprintf "(%s Int)") |> String.concat " "
+    let all_vars = Set.ofSeq (pre_vars @ post_vars)
 
     let rec get_unused v used = if Set.contains v used then get_unused ("_" + v) used else v
     let pc_pre_var = get_unused "pc^0" all_vars

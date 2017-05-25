@@ -977,7 +977,7 @@ type ImpactARG(parameters : Parameters.parameters,
                             Log.debug parameters <| sprintf "   Transition cmds:"
                             for cmd in cmds do
                                 Log.debug parameters <| sprintf "     %s" (cmd.ToString())
-                            Log.debug parameters <| sprintf "   Source linear terms: %s" (SparseLinear.linearTermsToString nodePsiAndOldInvariantLinearTerms)
+                            Log.debug parameters <| sprintf "   Source (new @ old) inv linear terms: %s" (SparseLinear.linearTermsToString nodePsiAndOldInvariantLinearTerms)
                             Log.debug parameters <| sprintf "   Transition linear terms: %s" (SparseLinear.linearTermsToString transLinearTerms)
                             Log.debug parameters <| sprintf "   Child linear terms: %s" (SparseLinear.linearTermsToString (childPsiLinearTerms @ childOldInvariantLinearTerms))
                         SparseLinear.writeCPFImplicationHints parameters writer [nodePsiAndOldInvariantLinearTerms @ transLinearTerms] (childPsiLinearTerms @ childOldInvariantLinearTerms)
