@@ -83,6 +83,7 @@ let normalize_var (v : string) =
 %left   PLUS MINUS
 %left   STAR DIV REM
 %left   UMINUS
+%right  NOT
 
 
 %%
